@@ -2,57 +2,50 @@ module Page.Home exposing (Model, Msg(..), init, update, view)
 
 import Browser exposing (Document)
 import Data.Session exposing (Session)
-import Html.Styled as Html exposing (..)
+import Data.Videos
+import Html.Styled as H
+import Html.Styled.Attributes as HA
 import Http
-import Markdown
-import Request.Github as Github
-import Task
 
 
 type alias Model =
-    { readme : String
+    { videoList : List Video
+    }
+
+
+type alias Video =
+    { url : String
+    , thumbnail : String
+    , title : String
+    , author : String
+    , date : String
     }
 
 
 type Msg
-    = ReadmeReceived (Result Http.Error String)
+    = NoOp
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { readme = "Retrieving README from github" }
-    , Github.getReadme session |> Http.send ReadmeReceived
+    ( { videoList = Data.Videos.videoList }
+    , Cmd.none
     )
-
-
-errorToMarkdown : Http.Error -> String
-errorToMarkdown error =
-    """## Error
-
-There was an error attempting to retrieve README information:
-
-> *""" ++ Github.errorToString error ++ "*"
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update _ msg model =
-    case msg of
-        ReadmeReceived (Ok readme) ->
-            ( { model | readme = readme }
-            , Cmd.none
-            )
-
-        ReadmeReceived (Err error) ->
-            ( { model | readme = errorToMarkdown error }
-            , Cmd.none
-            )
+    ( model, Cmd.none )
 
 
-view : Session -> Model -> ( String, List (Html Msg) )
+view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ model =
-    ( "Home"
-    , [ model.readme
-            |> Markdown.toHtml []
-            |> Html.fromUnstyled
-      ]
+    ( "Liste des vidéos"
+    , model.videoList
+        |> List.map
+            (\video ->
+                H.a [ HA.href "#" ]
+                    [ H.img [ HA.src video.thumbnail ] []
+                    ]
+            )
     )

@@ -23,7 +23,7 @@ type alias Config =
 
 frame : Config -> ( String, List (Html msg) ) -> Document msg
 frame config ( title, content ) =
-    { title = title ++ " | elm-kitchen"
+    { title = title ++ " | Classe à 12"
     , body =
         [ div []
             [ defaultCss
@@ -71,15 +71,15 @@ viewHeader { activePage } =
                 a [ Route.href route ] [ text caption ]
     in
     div [ class "header" ]
-        [ heading1 [] [ text "elm-kitchen" ]
+        [ heading1 [] [ text "Classe à 12" ]
         , div [ css [ textAlign center ] ]
-            [ linkIf Home Route.Home "Home"
+            [ linkIf Home Route.Home "Liste des vidéos"
             , text " | "
             , linkIf Counter Route.Counter "Second page"
             ]
         , githubIconStyle
             [ Html.Styled.Attributes.target "_blank"
-            , href "https://github.com/allo-media/elm-kitchen"
+            , href "https://github.com/magopian/ClasseA12"
             ]
             [ img
                 [ src "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ei-sc-github.svg/768px-Ei-sc-github.svg.png"
