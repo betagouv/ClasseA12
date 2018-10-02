@@ -1,0 +1,49 @@
+body {
+    background: #041221;
+}
+.card.large {
+    height: 600px;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: initial;
+    border-radius: 5px;
+}
+.media-content {
+    overflow: hidden;
+}
+.title.no-padding {
+    margin-bottom: 0 !important;
+}
+.footer{
+    background-color: #222831;
+    color: lemonchiffon;
+}
+.footer p, strong {
+    color: lemonchiffon
+}
+.footer a:hover {
+    color: crimson;
+}
+.fa { 
+    color: lemonchiffon;
+    margin: 10px
+}
+.github {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    border: 1px solid (rgba 255 255 255 0.3);
+    padding: 10px;
+    border-radius: 4px;
+    color: #999;
+    text-decoration: none;
+}
+.github img {
+    width: 96px;
+    height: 96px;
+    float: left;
+}
+.github span {
+    color: #000;
+    display: block;
+    text-align: center;
+}
