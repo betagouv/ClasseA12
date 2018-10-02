@@ -14,13 +14,15 @@ type ActivePage
     | Other
 
 
-type alias Config =
+type alias Config msg =
     { session : Session
+    , isMenuActive : Bool
+    , toggleMenu : msg
     , activePage : ActivePage
     }
 
 
-frame : Config -> ( String, List (Html msg) ) -> Document msg
+frame : Config msg -> ( String, List (Html.Html msg) ) -> Document msg
 frame config ( title, content ) =
     { title = title ++ " | Classe à 12"
     , body =
@@ -33,8 +35,8 @@ frame config ( title, content ) =
     }
 
 
-viewHeader : Config -> Html msg
-viewHeader { activePage } =
+viewHeader : Config msg -> Html msg
+viewHeader { activePage, isMenuActive, toggleMenu } =
     let
         linkMaybeActive page route caption =
             a
@@ -64,7 +66,9 @@ viewHeader { activePage } =
                 , span
                     [ classList
                         [ ( "navbar-burger burger", True )
+                        , ( "is-active", isMenuActive )
                         ]
+                    , onClick toggleMenu
                     ]
                     [ span [] []
                     , span [] []
@@ -74,6 +78,7 @@ viewHeader { activePage } =
             , div
                 [ classList
                     [ ( "navbar-menu", True )
+                    , ( "is-active", isMenuActive )
                     ]
                 ]
                 [ div [ class "navbar-end" ]

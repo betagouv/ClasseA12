@@ -26,6 +26,7 @@ type alias Model =
     { navKey : Nav.Key
     , page : Page
     , session : Session
+    , isMenuActive : Bool
     }
 
 
@@ -35,6 +36,7 @@ type Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
+    | BurgerClicked
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -74,6 +76,7 @@ init flags url navKey =
         { navKey = navKey
         , page = Blank
         , session = session
+        , isMenuActive = False
         }
 
 
@@ -114,6 +117,9 @@ update msg ({ page, session } as model) =
         ( UrlChanged url, _ ) ->
             setRoute (Route.fromUrl url) model
 
+        ( BurgerClicked, _ ) ->
+            ( { model | isMenuActive = not model.isMenuActive }, Cmd.none )
+
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -145,7 +151,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session
+            Page.Config model.session model.isMenuActive BurgerClicked
 
         mapMsg msg ( title, content ) =
             ( title, content |> List.map (Html.map msg) )
