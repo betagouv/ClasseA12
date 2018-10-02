@@ -2,10 +2,18 @@ body {
     background: #041221;
 }
 .card.large {
-    height: 600px;
+    height: 350px;
     -webkit-backface-visibility: hidden;
     backface-visibility: initial;
     border-radius: 5px;
+}
+.card-image img {
+    object-fit: cover;
+    max-height: 173px;
+}
+.card .video-date {
+    position: absolute;
+    bottom: 10px;
 }
 .media-content {
     overflow: hidden;
