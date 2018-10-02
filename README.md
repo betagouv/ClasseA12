@@ -12,6 +12,7 @@ $ npm install
 $ npm start
 ```
 
+Check the [demo](https://magopian.github.io/ClasseA12/)
 
 ----
 
