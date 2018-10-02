@@ -3,8 +3,8 @@ module Page.Home exposing (Model, Msg(..), init, update, view)
 import Browser exposing (Document)
 import Data.Session exposing (Session)
 import Data.Videos
-import Html.Styled as H
-import Html.Styled.Attributes as HA
+import Html as H
+import Html.Attributes as HA
 import Http
 
 

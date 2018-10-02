@@ -1,10 +1,9 @@
 module Page.Counter exposing (Model, Msg, init, update, view)
 
-import Css exposing (fontSize, marginRight)
 import Data.Session exposing (Session)
-import Html.Styled as Html exposing (..)
-import Html.Styled.Attributes exposing (css)
-import Html.Styled.Events exposing (onClick)
+import Html as Html exposing (..)
+import Html.Attributes
+import Html.Events exposing (onClick)
 import Route
 
 
@@ -37,7 +36,7 @@ view _ model =
       , p [] [ text "This is the second page, featuring a counter." ]
       , p []
             [ button
-                [ css [ fontSize (Css.rem 1.2), marginRight (Css.px 10) ]
+                [ Html.Attributes.class "counter-buttons"
                 , onClick Inc
                 ]
                 [ text "+" ]

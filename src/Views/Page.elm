@@ -1,12 +1,11 @@
 module Views.Page exposing (ActivePage(..), Config, frame)
 
 import Browser exposing (Document)
-import Css exposing (..)
 import Data.Session exposing (Session)
-import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, css, href, src)
+import Html exposing (..)
+import Html.Attributes exposing (alt, class, classList, href, src, title)
+import Html.Events exposing (onClick)
 import Route
-import Views.Theme exposing (Element, defaultCss)
 
 
 type ActivePage
@@ -25,71 +24,74 @@ frame : Config -> ( String, List (Html msg) ) -> Document msg
 frame config ( title, content ) =
     { title = title ++ " | Classe à 12"
     , body =
-        [ div []
-            [ defaultCss
-            , viewHeader config
-            , div [ css [ padding2 (Css.em 1) zero ] ] content
+        [ viewHeader config
+        , div [ class "container" ]
+            [ div [ class "section" ]
+                content
             ]
-            |> toUnstyled
         ]
     }
-
-
-githubIconStyle : Element msg
-githubIconStyle =
-    styled a
-        [ position absolute
-        , top (px 15)
-        , right (px 15)
-        , border3 (px 1) solid (rgba 255 255 255 0.3)
-        , padding (px 10)
-        , borderRadius (px 4)
-        , color (hex "999")
-        , textDecoration none
-        ]
-
-
-heading1 : Element msg
-heading1 =
-    styled h1
-        [ textAlign center
-        , margin2 (Css.em 1) zero
-        , color (hex "000")
-        , fontSize (px 60)
-        , lineHeight (px 1)
-        ]
 
 
 viewHeader : Config -> Html msg
 viewHeader { activePage } =
     let
-        linkIf page route caption =
-            if page == activePage then
-                strong [] [ text caption ]
-
-            else
-                a [ Route.href route ] [ text caption ]
-    in
-    div [ class "header" ]
-        [ heading1 [] [ text "Classe à 12" ]
-        , div [ css [ textAlign center ] ]
-            [ linkIf Home Route.Home "Liste des vidéos"
-            , text " | "
-            , linkIf Counter Route.Counter "Second page"
-            ]
-        , githubIconStyle
-            [ Html.Styled.Attributes.target "_blank"
-            , href "https://github.com/magopian/ClasseA12"
-            ]
-            [ img
-                [ src "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ei-sc-github.svg/768px-Ei-sc-github.svg.png"
-                , css
-                    [ width (px 96)
-                    , height (px 96)
-                    , float left
+        linkMaybeActive page route caption =
+            a
+                [ Route.href route
+                , classList
+                    [ ( "navbar-item", True )
+                    , ( "is-active", page == activePage )
                     ]
                 ]
-                []
-            , span [ css [ color (hex "000"), display block, textAlign center ] ] [ text "Github" ]
+                [ text caption ]
+    in
+    nav [ class "navbar" ]
+        [ div
+            [ class "container" ]
+            [ div [ class "navbar-brand" ]
+                [ a
+                    [ class "navbar-item"
+                    , Route.href Route.Home
+                    ]
+                    [ img
+                        [ src "./logo.jpg"
+                        , alt "logo"
+                        ]
+                        []
+                    , text "Classe à 12"
+                    ]
+                , span
+                    [ classList
+                        [ ( "navbar-burger burger", True )
+                        ]
+                    ]
+                    [ span [] []
+                    , span [] []
+                    , span [] []
+                    ]
+                ]
+            , div
+                [ classList
+                    [ ( "navbar-menu", True )
+                    ]
+                ]
+                [ div [ class "navbar-end" ]
+                    [ linkMaybeActive Home Route.Home "Liste des vidéos"
+                    , linkMaybeActive Counter Route.Counter "Second page"
+                    , a
+                        [ Html.Attributes.class "navbar-item"
+                        , Html.Attributes.target "_blank"
+                        , href "https://github.com/magopian/ClasseA12"
+                        , title "Lien vers le code source sur Github"
+                        ]
+                        [ img
+                            [ src "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ei-sc-github.svg/768px-Ei-sc-github.svg.png"
+                            , alt "Logo de Github"
+                            ]
+                            []
+                        ]
+                    ]
+                ]
             ]
         ]

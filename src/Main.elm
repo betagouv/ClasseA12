@@ -3,7 +3,7 @@ module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.Session exposing (Session)
-import Html.Styled as Html exposing (..)
+import Html exposing (..)
 import Page.Counter as Counter
 import Page.Home as Home
 import Route exposing (Route)
