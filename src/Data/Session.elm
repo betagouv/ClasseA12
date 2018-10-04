@@ -15,20 +15,27 @@ type VideoData
 
 
 type alias Video =
-    { url : String
+    { description : String
+    , link : String
+    , player : String
+    , pubDate : String
     , thumbnail : String
     , title : String
-    , author : String
-    , date : String
     }
 
 
 videoDecoder : Decode.Decoder Video
 videoDecoder =
-    Decode.succeed { url = "", thumbnail = "", title = "", author = "", date = "" }
+    Decode.map6 Video
+        (Decode.field "description" Decode.string)
+        (Decode.field "link" Decode.string)
+        (Decode.field "player" Decode.string)
+        (Decode.field "pubDate" Decode.string)
+        (Decode.field "thumbnail" Decode.string)
+        (Decode.field "title" Decode.string)
 
 
 decodeVideoList : Decode.Value -> Result Decode.Error (List Video)
 decodeVideoList =
     Decode.decodeValue <|
-        Decode.succeed []
+        Decode.list videoDecoder

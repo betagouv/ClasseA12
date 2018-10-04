@@ -55,7 +55,7 @@ viewVideoList videoList =
             |> List.map
                 (\video ->
                     H.div [ HA.class "column is-one-quarter" ]
-                        [ H.a [ HA.href video.url ]
+                        [ H.a [ HA.href video.link ]
                             [ H.div [ HA.class "card large round" ]
                                 [ H.div [ HA.class "card-image " ]
                                     [ H.figure [ HA.class "image" ]
@@ -68,8 +68,8 @@ viewVideoList videoList =
                                     ]
                                 , H.div [ HA.class "card-content" ]
                                     [ H.div [ HA.class "content" ]
-                                        [ H.text video.author
-                                        , H.p [ HA.class "video-date" ] [ H.text video.date ]
+                                        [ H.text video.title
+                                        , H.p [ HA.class "video-date" ] [ H.text video.pubDate ]
                                         ]
                                     ]
                                 ]

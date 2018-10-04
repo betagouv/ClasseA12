@@ -15,26 +15,32 @@
   <script>
     const app = Elm.Main.init({ flags: {} });
     app.ports.parseRSS.subscribe(function (data) {
-      console.log("Parsing RSS", data);
 
       const domParser = new DOMParser()
       const doc = domParser.parseFromString(data, "text/xml")
-      const videoList = doc.querySelectorAll("item").forEach(item => {
+      const items = doc.querySelectorAll("item");
+      const videoList = Array.prototype.slice.call(items).map(item => {
         const children = Array.prototype.slice.call(item.childNodes);
         let itemData = {};
         children.forEach(child => {
           if (child.nodeName === "media:content") {
             const mediaChildren = Array.prototype.slice.call(child.childNodes);
             mediaChildren.forEach(mediaChild => {
-              itemData[mediaChild.nodeName] = mediaChild.getAttribute("url");
+              if (mediaChild.nodeName === "media:thumbnail") {
+                itemData["thumbnail"] = mediaChild.getAttribute("url");
+              } else if (mediaChild.nodeName === "media:link") {
+                itemData["link"] = mediaChild.getAttribute("url");
+              } else if (mediaChild.nodeName === "media:player") {
+                itemData["player"] = mediaChild.getAttribute("url");
+              }
             })
           } else {
             itemData[child.nodeName] = child.textContent;
           }
         });
-        console.log(itemData);
+        return itemData;
       });
-      app.ports.parsedVideoList.send([]);
+      app.ports.parsedVideoList.send(videoList);
     });
   </script>
 </body>
