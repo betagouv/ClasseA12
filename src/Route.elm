@@ -10,14 +10,18 @@ import Url.Parser as Parser exposing ((</>), Parser)
 
 type Route
     = Home
-    | Counter
+    | About
+    | Participate
+    | Newsletter
 
 
 parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
-        , Parser.map Counter (Parser.s "second-page")
+        , Parser.map About (Parser.s "about")
+        , Parser.map Participate (Parser.s "participate")
+        , Parser.map Newsletter (Parser.s "newsletter")
         ]
 
 
@@ -45,7 +49,13 @@ toString route =
                 Home ->
                     []
 
-                Counter ->
-                    [ "second-page" ]
+                About ->
+                    [ "about" ]
+
+                Participate ->
+                    [ "participate" ]
+
+                Newsletter ->
+                    [ "newsletter" ]
     in
     "#/" ++ String.join "/" pieces

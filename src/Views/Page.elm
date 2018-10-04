@@ -10,8 +10,10 @@ import Route
 
 type ActivePage
     = Home
-    | Counter
-    | Other
+    | About
+    | Participate
+    | Newsletter
+    | NotFound
 
 
 type alias Config msg =
@@ -82,20 +84,10 @@ viewHeader { activePage, isMenuActive, toggleMenu } =
                     ]
                 ]
                 [ div [ class "navbar-end" ]
-                    [ linkMaybeActive Home Route.Home "Liste des vidéos"
-                    , linkMaybeActive Counter Route.Counter "Second page"
-                    , a
-                        [ Html.Attributes.class "navbar-item"
-                        , Html.Attributes.target "_blank"
-                        , href "https://github.com/magopian/ClasseA12"
-                        , title "Lien vers le code source sur Github"
-                        ]
-                        [ img
-                            [ src "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ei-sc-github.svg/768px-Ei-sc-github.svg.png"
-                            , alt "Logo de Github"
-                            ]
-                            []
-                        ]
+                    [ linkMaybeActive Home Route.Home "Nos vidéos"
+                    , linkMaybeActive About Route.About "Classe à 12 ?"
+                    , linkMaybeActive Participate Route.Participate "Je participe !"
+                    , linkMaybeActive Newsletter Route.Newsletter "Inscrivez-vous à notre infolettre"
                     ]
                 ]
             ]

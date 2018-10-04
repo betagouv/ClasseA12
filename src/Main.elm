@@ -4,8 +4,10 @@ import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.Session exposing (Session)
 import Html exposing (..)
-import Page.Counter as Counter
+import Page.About as About
 import Page.Home as Home
+import Page.Newsletter as Newsletter
+import Page.Participate as Participate
 import Route exposing (Route)
 import Url exposing (Url)
 import Views.Page as Page
@@ -16,9 +18,10 @@ type alias Flags =
 
 
 type Page
-    = Blank
-    | HomePage Home.Model
-    | CounterPage Counter.Model
+    = HomePage Home.Model
+    | AboutPage About.Model
+    | ParticipatePage Participate.Model
+    | NewsletterPage Newsletter.Model
     | NotFound
 
 
@@ -32,7 +35,9 @@ type alias Model =
 
 type Msg
     = HomeMsg Home.Msg
-    | CounterMsg Counter.Msg
+    | AboutMsg About.Msg
+    | ParticipateMsg Participate.Msg
+    | NewsletterMsg Newsletter.Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
@@ -60,8 +65,14 @@ setRoute maybeRoute model =
         Just Route.Home ->
             toPage HomePage Home.init HomeMsg
 
-        Just Route.Counter ->
-            toPage CounterPage Counter.init CounterMsg
+        Just Route.About ->
+            toPage AboutPage About.init AboutMsg
+
+        Just Route.Participate ->
+            toPage ParticipatePage Participate.init ParticipateMsg
+
+        Just Route.Newsletter ->
+            toPage NewsletterPage Newsletter.init NewsletterMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -74,7 +85,7 @@ init flags url navKey =
     in
     setRoute (Route.fromUrl url)
         { navKey = navKey
-        , page = Blank
+        , page = HomePage (Home.init session |> (\( model, _ ) -> model))
         , session = session
         , isMenuActive = False
         }
@@ -96,8 +107,14 @@ update msg ({ page, session } as model) =
         ( HomeMsg homeMsg, HomePage homeModel ) ->
             toPage HomePage HomeMsg (Home.update session) homeMsg homeModel
 
-        ( CounterMsg counterMsg, CounterPage counterModel ) ->
-            toPage CounterPage CounterMsg (Counter.update session) counterMsg counterModel
+        ( AboutMsg aboutMsg, AboutPage aboutModel ) ->
+            toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
+
+        ( ParticipateMsg participateMsg, ParticipatePage participateModel ) ->
+            toPage ParticipatePage ParticipateMsg (Participate.update session) participateMsg participateModel
+
+        ( NewsletterMsg newsletterMsg, NewsletterPage newsletterModel ) ->
+            toPage NewsletterPage NewsletterMsg (Newsletter.update session) newsletterMsg newsletterModel
 
         ( RouteChanged route, _ ) ->
             setRoute route model
@@ -137,13 +154,16 @@ subscriptions model =
         HomePage _ ->
             Sub.none
 
-        CounterPage _ ->
+        AboutPage _ ->
+            Sub.none
+
+        ParticipatePage _ ->
+            Sub.none
+
+        NewsletterPage _ ->
             Sub.none
 
         NotFound ->
-            Sub.none
-
-        Blank ->
             Sub.none
 
 
@@ -162,18 +182,24 @@ view model =
                 |> mapMsg HomeMsg
                 |> Page.frame (pageConfig Page.Home)
 
-        CounterPage counterModel ->
-            Counter.view model.session counterModel
-                |> mapMsg CounterMsg
-                |> Page.frame (pageConfig Page.Counter)
+        AboutPage aboutModel ->
+            About.view model.session aboutModel
+                |> mapMsg AboutMsg
+                |> Page.frame (pageConfig Page.About)
+
+        ParticipatePage participateModel ->
+            Participate.view model.session participateModel
+                |> mapMsg ParticipateMsg
+                |> Page.frame (pageConfig Page.Participate)
+
+        NewsletterPage newsletterModel ->
+            Newsletter.view model.session newsletterModel
+                |> mapMsg NewsletterMsg
+                |> Page.frame (pageConfig Page.Newsletter)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )
-                |> Page.frame (pageConfig Page.Other)
-
-        Blank ->
-            ( "", [] )
-                |> Page.frame (pageConfig Page.Other)
+                |> Page.frame (pageConfig Page.NotFound)
 
 
 main : Program Flags Model Msg
