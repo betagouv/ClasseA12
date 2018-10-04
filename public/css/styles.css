@@ -1,5 +1,5 @@
-body {
-    background: #041221;
+.navbar-item img {
+    margin-right: 10px;
 }
 .card.large {
     height: 350px;
@@ -21,19 +21,8 @@ body {
 .title.no-padding {
     margin-bottom: 0 !important;
 }
-.footer{
-    background-color: #222831;
-    color: lemonchiffon;
-}
-.footer p, strong {
-    color: lemonchiffon
-}
-.footer a:hover {
-    color: crimson;
-}
-.fa { 
-    color: lemonchiffon;
-    margin: 10px
+footer img {
+    max-height: 40px;
 }
 .github {
     position: absolute;

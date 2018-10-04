@@ -33,6 +33,7 @@ frame config ( title, content ) =
             [ div [ class "section" ]
                 content
             ]
+        , viewFooter
         ]
     }
 
@@ -88,6 +89,41 @@ viewHeader { activePage, isMenuActive, toggleMenu } =
                     , linkMaybeActive About Route.About "Classe à 12 ?"
                     , linkMaybeActive Participate Route.Participate "Je participe !"
                     , linkMaybeActive Newsletter Route.Newsletter "Inscrivez-vous à notre infolettre"
+                    ]
+                ]
+            ]
+        ]
+
+
+viewFooter : Html msg
+viewFooter =
+    footer [ class "footer" ]
+        [ div [ class "container" ]
+            [ div [ class "content has-text-centered" ]
+                [ div [ class "row columns is-multiline" ]
+                    [ div [ class "column is-one-third" ]
+                        [ a [ href "http://www.education.gouv.fr/110bislab/pid37871/bienvenue-au-110-bis-le-lab-d-innovation-de-l-education-nationale.html" ]
+                            [ img
+                                [ src "//res.cloudinary.com/hrscywv4p/image/upload/c_limit,fl_lossy,h_300,w_300,f_auto,q_auto/v1/1436014/r7mrgstb76x8onkugzno.jpg"
+                                , alt "Logo du Lab 110bis"
+                                ]
+                                []
+                            ]
+                        ]
+                    , div [ class "column is-one-third" ]
+                        [ a [ href "https://twitter.com/startupC12" ]
+                            [ i [ class "fa fa-twitter-square fa-2x" ] []
+                            ]
+                        ]
+                    , div [ class "column is-one-third" ]
+                        [ a [ href "https://github.com/betagouv/ClasseA12" ]
+                            [ i [ class "fa fa-github-square fa-2x" ] []
+                            ]
+                        ]
+                    ]
+                , hr [] []
+                , p []
+                    [ text "© 2018"
                     ]
                 ]
             ]
