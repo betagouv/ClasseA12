@@ -1,13 +1,16 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Data.Session exposing (Session)
+import Data.Session exposing (Session, VideoData(..))
 import Html exposing (..)
+import Http
+import Json.Decode as Decode
 import Page.About as About
 import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
+import Request.Vimeo as Vimeo
 import Route exposing (Route)
 import Url exposing (Url)
 import Views.Page as Page
@@ -42,6 +45,8 @@ type Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | BurgerClicked
+    | VideoListReceived (Result Http.Error String)
+    | VideoListParsed (Result Decode.Error (List Data.Session.Video))
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -63,7 +68,18 @@ setRoute maybeRoute model =
             )
 
         Just Route.Home ->
-            toPage HomePage Home.init HomeMsg
+            let
+                ( homeModel, commands ) =
+                    toPage HomePage Home.init HomeMsg
+            in
+            ( homeModel
+            , Cmd.batch
+                [ commands
+
+                -- When loading the home for the first time, request the list of videos
+                , Vimeo.getRSS model.session |> Http.send VideoListReceived
+                ]
+            )
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -80,8 +96,9 @@ init flags url navKey =
     let
         -- you'll usually want to retrieve and decode serialized session
         -- information from flags here
+        session : Session
         session =
-            {}
+            { videoData = Fetching }
     in
     setRoute (Route.fromUrl url)
         { navKey = navKey
@@ -89,6 +106,10 @@ init flags url navKey =
         , session = session
         , isMenuActive = False
         }
+
+
+
+---- UPDATE ----
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -137,6 +158,31 @@ update msg ({ page, session } as model) =
         ( BurgerClicked, _ ) ->
             ( { model | isMenuActive = not model.isMenuActive }, Cmd.none )
 
+        ( VideoListReceived (Ok rss), _ ) ->
+            -- Received the video list rss, send it to the port to parse it
+            ( model, parseRSS rss )
+
+        ( VideoListReceived (Err error), _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | videoData = Error <| Vimeo.errorToString error } }, Cmd.none )
+
+        ( VideoListParsed (Ok videoList), _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | videoData = Received videoList } }, Cmd.none )
+
+        ( VideoListParsed (Err error), _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | videoData = Error <| Decode.errorToString error } }, Cmd.none )
+
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -148,23 +194,34 @@ update msg ({ page, session } as model) =
             )
 
 
+
+---- SUBSCRIPTIONS ----
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.page of
-        HomePage _ ->
-            Sub.none
+    Sub.batch
+        [ parsedVideoList (Data.Session.decodeVideoList >> VideoListParsed) -- Always sub on the parsedVideoList incoming port
+        , case model.page of
+            HomePage _ ->
+                Sub.none
 
-        AboutPage _ ->
-            Sub.none
+            AboutPage _ ->
+                Sub.none
 
-        ParticipatePage _ ->
-            Sub.none
+            ParticipatePage _ ->
+                Sub.none
 
-        NewsletterPage _ ->
-            Sub.none
+            NewsletterPage _ ->
+                Sub.none
 
-        NotFound ->
-            Sub.none
+            NotFound ->
+                Sub.none
+        ]
+
+
+
+---- VIEW ----
 
 
 view : Model -> Document Msg
@@ -200,6 +257,20 @@ view model =
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )
                 |> Page.frame (pageConfig Page.NotFound)
+
+
+
+---- PORTS ----
+
+
+port parseRSS : String -> Cmd msg
+
+
+port parsedVideoList : (Decode.Value -> msg) -> Sub msg
+
+
+
+---- MAIN ----
 
 
 main : Program Flags Model Msg

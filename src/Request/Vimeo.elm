@@ -1,4 +1,4 @@
-module Request.Github exposing (errorToString, getReadme)
+module Request.Vimeo exposing (errorToString, getRSS)
 
 import Data.Session exposing (Session)
 import Http exposing (Error(..), Request, getString)
@@ -23,6 +23,6 @@ errorToString error =
             "Unable to parse response body."
 
 
-getReadme : Session -> Request String
-getReadme _ =
-    getString "README.md"
+getRSS : Session -> Request String
+getRSS _ =
+    getString "https://cors.io/?https://vimeo.com/user87116214/videos/rss"

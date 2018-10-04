@@ -1,7 +1,6 @@
 module Page.Newsletter exposing (Model, Msg(..), init, update, view)
 
 import Data.Session exposing (Session)
-import Data.Videos
 import Html as H
 import Html.Attributes as HA
 
