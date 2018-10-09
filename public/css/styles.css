@@ -24,23 +24,14 @@
 footer img {
     max-height: 40px;
 }
-.github {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    border: 1px solid (rgba 255 255 255 0.3);
-    padding: 10px;
-    border-radius: 4px;
-    color: #999;
-    text-decoration: none;
+.modal {
+    cursor: pointer;
 }
-.github img {
-    width: 96px;
-    height: 96px;
-    float: left;
+.modal-content {
+    height: 90%;
+    width: 90%;
 }
-.github span {
-    color: #000;
-    display: block;
-    text-align: center;
+.modal-content iframe {
+    height: 100%;
+    width: 100%;
 }
