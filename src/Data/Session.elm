@@ -1,4 +1,4 @@
-module Data.Session exposing (Session, Video, VideoData(..), decodeVideoList)
+module Data.Session exposing (Session, Video, VideoData(..), decodeVideoList, encodeData, recordResource, upcomingVideosClient)
 
 import Json.Decode as Decode
 import Json.Encode as Encode

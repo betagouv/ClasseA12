@@ -4,6 +4,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Kinto
 
 
 type alias Model =
@@ -23,6 +24,7 @@ emptyVideo =
 type Msg
     = UpdateVideoForm Data.Session.Video
     | SubmitNewVideo
+    | NewVideoSubmitted (Result Kinto.Error Data.Session.Video)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -37,7 +39,34 @@ update _ msg model =
             ( { model | newVideo = video }, Cmd.none )
 
         SubmitNewVideo ->
-            ( { model | newVideo = emptyVideo }, Cmd.none )
+            let
+                video =
+                    model.newVideo
+
+                data =
+                    Data.Session.encodeData
+                        video.description
+                        video.link
+                        video.player
+                        video.pubDate
+                        video.thumbnail
+                        video.title
+            in
+            ( { model | newVideo = emptyVideo }
+            , Data.Session.upcomingVideosClient
+                |> Kinto.create Data.Session.recordResource data
+                |> Kinto.send NewVideoSubmitted
+            )
+
+        NewVideoSubmitted (Ok video) ->
+            ( model, Cmd.none )
+
+        NewVideoSubmitted (Err error) ->
+            let
+                _ =
+                    Debug.log "error while submitting new video" error
+            in
+            ( model, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
