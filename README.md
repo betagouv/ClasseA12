@@ -14,6 +14,25 @@ $ npm start
 
 Check the [demo](https://magopian.github.io/ClasseA12/)
 
+
+## Kinto config
+
+The backend is currently a [kinto](http://kinto.readthedocs.io/) instance.
+
+It needs the [kinto accounts plugin](https://kinto.readthedocs.io/en/stable/configuration/settings.html#accounts).
+
+### Users
+
+There are two [users](https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html):
+
+- `classea12:notasecret`: the basic user that has read access to the `/buckets/classea12/collections/videos/` collection
+- `classea12admin:###`: the admin user that owns and has read and write access to the `/buckets/classea12/` bucket
+
+### Resources
+
+- `/buckets/classea12/collections/upcoming/`: write access to the `classea12` user. This is where videos proposed by teachers will be queued waiting to be accepted.
+- `/buckets/classea12/collections/videos/`: read access to the `classea12` user. This is where all the accepted videos are listed.
+
 ----
 
 # elm-kitchen
