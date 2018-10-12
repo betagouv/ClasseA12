@@ -8,7 +8,17 @@ import Kinto
 
 
 type alias Model =
-    { newVideo : Data.Session.Video }
+    { newVideo : Data.Session.Video
+    , newVideoKintoData : KintoData Data.Session.Video
+    , error : Maybe String
+    }
+
+
+type KintoData a
+    = NotRequested
+    | Requested
+    | Received a
+    | Failed Kinto.Error
 
 
 emptyVideo =
@@ -25,11 +35,17 @@ type Msg
     = UpdateVideoForm Data.Session.Video
     | SubmitNewVideo
     | NewVideoSubmitted (Result Kinto.Error Data.Session.Video)
+    | DiscardError
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { newVideo = emptyVideo }, Cmd.none )
+    ( { newVideo = emptyVideo
+      , newVideoKintoData = NotRequested
+      , error = Nothing
+      }
+    , Cmd.none
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -52,28 +68,38 @@ update _ msg model =
                         video.thumbnail
                         video.title
             in
-            ( { model | newVideo = emptyVideo }
+            ( { model | newVideoKintoData = Requested }
             , Data.Session.upcomingVideosClient
                 |> Kinto.create Data.Session.recordResource data
                 |> Kinto.send NewVideoSubmitted
             )
 
         NewVideoSubmitted (Ok video) ->
-            ( model, Cmd.none )
+            ( { model
+                | newVideo = emptyVideo
+                , newVideoKintoData = NotRequested
+              }
+            , Cmd.none
+            )
 
         NewVideoSubmitted (Err error) ->
-            let
-                _ =
-                    Debug.log "error while submitting new video" error
-            in
-            ( model, Cmd.none )
+            ( { model
+                | newVideoKintoData = NotRequested
+                , error = Just <| Kinto.errorToString error
+              }
+            , Cmd.none
+            )
+
+        DiscardError ->
+            ( { model | error = Nothing }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { newVideo } =
+view _ { newVideo, newVideoKintoData, error } =
     ( "Je participe !"
     , [ H.div []
-            [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, contactez-nous !"
+            [ displayError error
+            , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, contactez-nous !"
             , H.form [ HE.onSubmit SubmitNewVideo ]
                 [ H.div [ HA.class "field is-horizontal" ]
                     [ H.div [ HA.class "field-label is-normal" ]
@@ -202,13 +228,43 @@ view _ { newVideo } =
                     ]
                 , H.div [ HA.class "field is-horizontal" ]
                     [ H.div [ HA.class "control" ]
-                        [ H.button
-                            [ HA.class "button is-primary" ]
-                            [ H.text "Soumettre cette vidéo"
-                            ]
-                        ]
+                        [ loadingButton "Soumettre cette vidéo" newVideoKintoData ]
                     ]
                 ]
             ]
       ]
     )
+
+
+displayError : Maybe String -> H.Html Msg
+displayError maybeError =
+    case maybeError of
+        Just error ->
+            H.div [ HA.class "notification is-danger" ]
+                [ H.button
+                    [ HA.class "delete"
+                    , HE.onClick DiscardError
+                    ]
+                    []
+                , H.text error
+                ]
+
+        Nothing ->
+            H.div [] []
+
+
+loadingButton : String -> KintoData Data.Session.Video -> H.Html Msg
+loadingButton label dataState =
+    let
+        loading =
+            dataState == Requested
+    in
+    H.button
+        [ HA.type_ "submit"
+        , HA.classList
+            [ ( "button is-primary", True )
+            , ( "is-loading", loading )
+            ]
+        , HA.disabled loading
+        ]
+        [ H.text label ]
