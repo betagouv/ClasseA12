@@ -1,8 +1,7 @@
-module Data.Session exposing (Session, Video, VideoData(..), decodeVideoList, encodeData, recordResource, upcomingVideosClient)
+module Data.Session exposing (Session, Video, VideoData(..), decodeVideoList, encodeData, videoDecoder)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Kinto
 
 
 type alias Session =
@@ -43,27 +42,13 @@ decodeVideoList =
         Decode.list videoDecoder
 
 
-
----- KINTO ----
-
-
-encodeData : String -> String -> String -> String -> String -> String -> Encode.Value
-encodeData description link player pubDate thumbnail title =
+encodeData : Video -> Encode.Value
+encodeData video =
     Encode.object
-        [ ( "description", Encode.string description )
-        , ( "link", Encode.string link )
-        , ( "player", Encode.string player )
-        , ( "pubDate", Encode.string pubDate )
-        , ( "thumbnail", Encode.string thumbnail )
-        , ( "title", Encode.string title )
+        [ ( "description", Encode.string video.description )
+        , ( "link", Encode.string video.link )
+        , ( "player", Encode.string video.player )
+        , ( "pubDate", Encode.string video.pubDate )
+        , ( "thumbnail", Encode.string video.thumbnail )
+        , ( "title", Encode.string video.title )
         ]
-
-
-recordResource : Kinto.Resource Video
-recordResource =
-    Kinto.recordResource "classea12" "upcoming" videoDecoder
-
-
-upcomingVideosClient : Kinto.Client
-upcomingVideosClient =
-    Kinto.client "https://kinto.agopian.info/v1/" (Kinto.Basic "classea12" "notasecret")

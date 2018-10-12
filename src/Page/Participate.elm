@@ -1,10 +1,12 @@
 module Page.Participate exposing (Model, Msg(..), init, update, view)
 
+import Data.Kinto exposing (KintoData(..))
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
+import Request.KintoUpcoming
 
 
 type alias Model =
@@ -12,13 +14,6 @@ type alias Model =
     , newVideoKintoData : KintoData Data.Session.Video
     , error : Maybe String
     }
-
-
-type KintoData a
-    = NotRequested
-    | Requested
-    | Received a
-    | Failed Kinto.Error
 
 
 emptyVideo =
@@ -55,23 +50,8 @@ update _ msg model =
             ( { model | newVideo = video }, Cmd.none )
 
         SubmitNewVideo ->
-            let
-                video =
-                    model.newVideo
-
-                data =
-                    Data.Session.encodeData
-                        video.description
-                        video.link
-                        video.player
-                        video.pubDate
-                        video.thumbnail
-                        video.title
-            in
             ( { model | newVideoKintoData = Requested }
-            , Data.Session.upcomingVideosClient
-                |> Kinto.create Data.Session.recordResource data
-                |> Kinto.send NewVideoSubmitted
+            , Request.KintoUpcoming.submitVideo model.newVideo NewVideoSubmitted
             )
 
         NewVideoSubmitted (Ok video) ->
