@@ -35,3 +35,9 @@ footer img {
     height: 100%;
     width: 100%;
 }
+em {
+    color: #8a22ca;
+}
+.is-narrow img {
+    max-width: 350px;
+}
