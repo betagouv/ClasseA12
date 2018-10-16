@@ -13,14 +13,16 @@ type KintoData a
 
 
 type alias Video =
-    { title : String
+    { id : String
+    , title : String
     , keywords : String
     , description : String
     }
 
 
 emptyVideo =
-    { description = ""
+    { id = ""
+    , description = ""
     , title = ""
     , keywords = ""
     }
@@ -28,7 +30,8 @@ emptyVideo =
 
 videoDecoder : Decode.Decoder Video
 videoDecoder =
-    Decode.map3 Video
+    Decode.map4 Video
+        (Decode.field "id" Decode.string)
         (Decode.field "description" Decode.string)
         (Decode.field "title" Decode.string)
         (Decode.field "keywords" Decode.string)

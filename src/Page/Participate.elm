@@ -24,6 +24,7 @@ type Msg
     | NewVideoSubmitted (Result Kinto.Error Video)
     | DiscardError
     | VideoSelected
+    | AttachmentSent
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -48,12 +49,7 @@ update _ msg model =
             )
 
         NewVideoSubmitted (Ok video) ->
-            ( { model
-                | newVideo = emptyVideo
-                , newVideoKintoData = NotRequested
-              }
-            , Cmd.none
-            )
+            ( model, Ports.submitVideo ( "video", video.id ) )
 
         NewVideoSubmitted (Err error) ->
             ( { model
@@ -68,6 +64,14 @@ update _ msg model =
 
         VideoSelected ->
             ( model, Ports.videoSelected "video" )
+
+        AttachmentSent ->
+            ( { model
+                | newVideo = emptyVideo
+                , newVideoKintoData = NotRequested
+              }
+            , Cmd.none
+            )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )

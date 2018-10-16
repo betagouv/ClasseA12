@@ -14,6 +14,8 @@
   <script src="app.js"></script>
   <script>
     const app = Elm.Main.init({ flags: {} });
+
+    // Parse a rss xml content into a list of videos
     app.ports.parseRSS.subscribe(function (data) {
 
       const domParser = new DOMParser()
@@ -43,16 +45,44 @@
       app.ports.parsedVideoList.send(videoList);
     });
 
+    // A video was selected in the file input, return its object URL so it can be set as a `src` attribute on a video element
     app.ports.videoSelected.subscribe(function (nodeID) {
       const fileInput = document.getElementById(nodeID);
       if (fileInput === null) {
-        console.log("Didn't find a file input with id", nodeID);
+        console.error("Didn't find a file input with id", nodeID);
         return;
       }
       const file = fileInput.files[0];
       const videoObjectUrl = URL.createObjectURL(file);
-      console.log("video object url", videoObjectUrl);
       app.ports.videoObjectUrl.send(videoObjectUrl);
+    });
+
+    // A new video record has been created, upload the selected video file as an attachment
+    app.ports.submitVideo.subscribe(function ([nodeID, recordID]) {
+      const fileInput = document.getElementById(nodeID);
+      if (fileInput === null) {
+        console.error("Didn't find a file input with id", nodeID);
+        return;
+      }
+      const file = fileInput.files[0];
+      // Create a multipart form
+      var formData = new FormData();
+      // Multipart attachment
+      formData.append('attachment', file, file.name);
+      // Post form using GlobalFetch API
+      var url = `https://kinto.agopian.info/v1/buckets/classea12/collections/upcoming/records/${recordID}/attachment`;
+      fetch(url, { method: "POST", body: formData, headers: { Authorization: "Basic " + btoa("classea12:notasecret") } })
+        .then(function (result) {
+          if (result.status >= 400) {
+            throw new Error('Failed');
+          }
+        })
+        .then(function (result) {
+          app.ports.videoSubmitted.send(result);
+        })
+        .catch(function (error) {
+          console.error("Failed to upload attachment", error.toString());
+        });
     });
   </script>
 </body>

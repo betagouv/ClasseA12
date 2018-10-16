@@ -49,6 +49,7 @@ type Msg
     | VideoListReceived (Result Http.Error String)
     | VideoListParsed (Result Decode.Error (List Data.Session.Video))
     | VideoObjectUrlReceived (Result Decode.Error String)
+    | VideoSubmitted Decode.Value
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -199,6 +200,16 @@ update msg ({ page, session } as model) =
             in
             ( { model | session = { modelSession | videoObjectUrl = Nothing } }, Cmd.none )
 
+        ( VideoSubmitted value, _ ) ->
+            let
+                modelSession =
+                    model.session
+
+                newModel =
+                    { model | session = { modelSession | videoObjectUrl = Nothing } }
+            in
+            update (ParticipateMsg Participate.AttachmentSent) newModel
+
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -226,7 +237,10 @@ subscriptions model =
                 Sub.none
 
             ParticipatePage _ ->
-                Ports.videoObjectUrl (Data.Session.decodeVideoObjectUrl >> VideoObjectUrlReceived)
+                Sub.batch
+                    [ Ports.videoObjectUrl (Data.Session.decodeVideoObjectUrl >> VideoObjectUrlReceived)
+                    , Ports.videoSubmitted VideoSubmitted
+                    ]
 
             NewsletterPage _ ->
                 Sub.none
