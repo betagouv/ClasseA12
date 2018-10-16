@@ -10,6 +10,7 @@ import Page.About as About
 import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
+import Ports
 import Request.Vimeo as Vimeo
 import Route exposing (Route)
 import Url exposing (Url)
@@ -160,7 +161,7 @@ update msg ({ page, session } as model) =
 
         ( VideoListReceived (Ok rss), _ ) ->
             -- Received the video list rss, send it to the port to parse it
-            ( model, parseRSS rss )
+            ( model, Ports.parseRSS rss )
 
         ( VideoListReceived (Err error), _ ) ->
             let
@@ -201,7 +202,7 @@ update msg ({ page, session } as model) =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ parsedVideoList (Data.Session.decodeVideoList >> VideoListParsed) -- Always sub on the parsedVideoList incoming port
+        [ Ports.parsedVideoList (Data.Session.decodeVideoList >> VideoListParsed) -- Always sub on the parsedVideoList incoming port
         , case model.page of
             HomePage _ ->
                 Sub.none
@@ -257,16 +258,6 @@ view model =
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )
                 |> Page.frame (pageConfig Page.NotFound)
-
-
-
----- PORTS ----
-
-
-port parseRSS : String -> Cmd msg
-
-
-port parsedVideoList : (Decode.Value -> msg) -> Sub msg
 
 
 
