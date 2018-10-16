@@ -10,6 +10,7 @@ import Page.About as About
 import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
+import Platform.Sub
 import Ports
 import Request.Vimeo as Vimeo
 import Route exposing (Route)
@@ -48,8 +49,6 @@ type Msg
     | BurgerClicked
     | VideoListReceived (Result Http.Error String)
     | VideoListParsed (Result Decode.Error (List Data.Session.Video))
-    | VideoObjectUrlReceived (Result Decode.Error String)
-    | VideoSubmitted Decode.Value
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -101,7 +100,7 @@ init flags url navKey =
         -- information from flags here
         session : Session
         session =
-            { videoData = Fetching, videoObjectUrl = Nothing }
+            { videoData = Fetching }
     in
     setRoute (Route.fromUrl url)
         { navKey = navKey
@@ -186,30 +185,6 @@ update msg ({ page, session } as model) =
             in
             ( { model | session = { modelSession | videoData = Error <| Decode.errorToString error } }, Cmd.none )
 
-        ( VideoObjectUrlReceived (Ok objectUrl), _ ) ->
-            let
-                modelSession =
-                    model.session
-            in
-            ( { model | session = { modelSession | videoObjectUrl = Just objectUrl } }, Cmd.none )
-
-        ( VideoObjectUrlReceived (Err error), _ ) ->
-            let
-                modelSession =
-                    model.session
-            in
-            ( { model | session = { modelSession | videoObjectUrl = Nothing } }, Cmd.none )
-
-        ( VideoSubmitted value, _ ) ->
-            let
-                modelSession =
-                    model.session
-
-                newModel =
-                    { model | session = { modelSession | videoObjectUrl = Nothing } }
-            in
-            update (ParticipateMsg Participate.AttachmentSent) newModel
-
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -238,9 +213,11 @@ subscriptions model =
 
             ParticipatePage _ ->
                 Sub.batch
-                    [ Ports.videoObjectUrl (Data.Session.decodeVideoObjectUrl >> VideoObjectUrlReceived)
-                    , Ports.videoSubmitted VideoSubmitted
-                    ]
+                    ([ Ports.videoObjectUrl Participate.VideoObjectUrlReceived
+                     , Ports.videoSubmitted Participate.AttachmentSent
+                     ]
+                        |> List.map (Platform.Sub.map ParticipateMsg)
+                    )
 
             NewsletterPage _ ->
                 Sub.none

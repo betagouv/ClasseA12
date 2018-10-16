@@ -76,8 +76,6 @@
           if (result.status >= 400) {
             throw new Error('Failed');
           }
-        })
-        .then(function (result) {
           app.ports.videoSubmitted.send(result);
         })
         .catch(function (error) {

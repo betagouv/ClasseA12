@@ -1,4 +1,4 @@
-module Data.Session exposing (Session, Video, VideoData(..), decodeVideoList, decodeVideoObjectUrl, encodeData, videoDecoder)
+module Data.Session exposing (Session, Video, VideoData(..), decodeVideoList, encodeData, videoDecoder)
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -6,7 +6,6 @@ import Json.Encode as Encode
 
 type alias Session =
     { videoData : VideoData
-    , videoObjectUrl : Maybe String
     }
 
 
@@ -53,8 +52,3 @@ encodeData video =
         , ( "thumbnail", Encode.string video.thumbnail )
         , ( "title", Encode.string video.title )
         ]
-
-
-decodeVideoObjectUrl : Decode.Value -> Result Decode.Error String
-decodeVideoObjectUrl =
-    Decode.decodeValue Decode.string

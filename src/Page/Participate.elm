@@ -14,6 +14,7 @@ import Request.KintoUpcoming
 type alias Model =
     { newVideo : Video
     , newVideoKintoData : KintoData Video
+    , videoObjectUrl : Maybe String
     , error : Maybe String
     }
 
@@ -24,13 +25,15 @@ type Msg
     | NewVideoSubmitted (Result Kinto.Error Video)
     | DiscardError
     | VideoSelected
-    | AttachmentSent
+    | VideoObjectUrlReceived Decode.Value
+    | AttachmentSent Decode.Value
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { newVideo = emptyVideo
       , newVideoKintoData = NotRequested
+      , videoObjectUrl = Nothing
       , error = Nothing
       }
     , Cmd.none
@@ -65,17 +68,25 @@ update _ msg model =
         VideoSelected ->
             ( model, Ports.videoSelected "video" )
 
-        AttachmentSent ->
+        VideoObjectUrlReceived value ->
+            let
+                objectUrl =
+                    Decode.decodeValue Decode.string value
+            in
+            ( { model | videoObjectUrl = Result.toMaybe objectUrl }, Cmd.none )
+
+        AttachmentSent _ ->
             ( { model
                 | newVideo = emptyVideo
                 , newVideoKintoData = NotRequested
+                , videoObjectUrl = Nothing
               }
             , Cmd.none
             )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { videoObjectUrl } { newVideo, newVideoKintoData, error } =
+view _ { newVideo, newVideoKintoData, videoObjectUrl, error } =
     ( "Je participe !"
     , [ H.div []
             [ displayError error
