@@ -48,6 +48,7 @@ type Msg
     | BurgerClicked
     | VideoListReceived (Result Http.Error String)
     | VideoListParsed (Result Decode.Error (List Data.Session.Video))
+    | VideoObjectUrlReceived (Result Decode.Error String)
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -99,7 +100,7 @@ init flags url navKey =
         -- information from flags here
         session : Session
         session =
-            { videoData = Fetching }
+            { videoData = Fetching, videoObjectUrl = Nothing }
     in
     setRoute (Route.fromUrl url)
         { navKey = navKey
@@ -184,6 +185,20 @@ update msg ({ page, session } as model) =
             in
             ( { model | session = { modelSession | videoData = Error <| Decode.errorToString error } }, Cmd.none )
 
+        ( VideoObjectUrlReceived (Ok objectUrl), _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | videoObjectUrl = Just objectUrl } }, Cmd.none )
+
+        ( VideoObjectUrlReceived (Err error), _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | videoObjectUrl = Nothing } }, Cmd.none )
+
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -211,7 +226,7 @@ subscriptions model =
                 Sub.none
 
             ParticipatePage _ ->
-                Sub.none
+                Ports.videoObjectUrl (Data.Session.decodeVideoObjectUrl >> VideoObjectUrlReceived)
 
             NewsletterPage _ ->
                 Sub.none

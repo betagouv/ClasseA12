@@ -42,6 +42,18 @@
       });
       app.ports.parsedVideoList.send(videoList);
     });
+
+    app.ports.videoSelected.subscribe(function (nodeID) {
+      const fileInput = document.getElementById(nodeID);
+      if (fileInput === null) {
+        console.log("Didn't find a file input with id", nodeID);
+        return;
+      }
+      const file = fileInput.files[0];
+      const videoObjectUrl = URL.createObjectURL(file);
+      console.log("video object url", videoObjectUrl);
+      app.ports.videoObjectUrl.send(videoObjectUrl);
+    });
   </script>
 </body>
 

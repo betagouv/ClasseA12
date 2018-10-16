@@ -5,7 +5,9 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Json.Decode as Decode
 import Kinto
+import Ports
 import Request.KintoUpcoming
 
 
@@ -21,6 +23,7 @@ type Msg
     | SubmitNewVideo
     | NewVideoSubmitted (Result Kinto.Error Video)
     | DiscardError
+    | VideoSelected
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -63,13 +66,17 @@ update _ msg model =
         DiscardError ->
             ( { model | error = Nothing }, Cmd.none )
 
+        VideoSelected ->
+            ( model, Ports.videoSelected "video" )
+
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { newVideo, newVideoKintoData, error } =
+view { videoObjectUrl } { newVideo, newVideoKintoData, error } =
     ( "Je participe !"
     , [ H.div []
             [ displayError error
             , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, contactez-nous !"
+            , displayVideo videoObjectUrl
             , H.form [ HE.onSubmit SubmitNewVideo ]
                 [ H.div [ HA.class "field" ]
                     [ H.div [ HA.class "file is-primary is-boxed is-large is-centered" ]
@@ -80,6 +87,7 @@ view _ { newVideo, newVideoKintoData, error } =
                                     , HA.type_ "file"
                                     , HA.id "video"
                                     , HA.accept "video/*"
+                                    , onFileSelected VideoSelected
                                     ]
                                     []
                                 , H.span [ HA.class "file-cta" ]
@@ -121,6 +129,22 @@ view _ { newVideo, newVideoKintoData, error } =
             ]
       ]
     )
+
+
+displayVideo : Maybe String -> H.Html Msg
+displayVideo maybeVideoObjectUrl =
+    case maybeVideoObjectUrl of
+        Just videoObjectUrl ->
+            H.div []
+                [ H.video
+                    [ HA.src videoObjectUrl
+                    , HA.controls True
+                    ]
+                    []
+                ]
+
+        Nothing ->
+            H.div [] []
 
 
 displayError : Maybe String -> H.Html Msg
@@ -189,3 +213,7 @@ loadingButton label dataState =
         , HA.disabled loading
         ]
         [ H.text label ]
+
+
+onFileSelected msg =
+    HE.on "change" (Decode.succeed VideoSelected)
