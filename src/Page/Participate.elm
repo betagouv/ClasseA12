@@ -1,7 +1,7 @@
 module Page.Participate exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (KintoData(..))
-import Data.Session exposing (Session, Video)
+import Data.Kinto exposing (KintoData(..), Video, emptyVideo)
+import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -13,16 +13,6 @@ type alias Model =
     { newVideo : Video
     , newVideoKintoData : KintoData Video
     , error : Maybe String
-    }
-
-
-emptyVideo =
-    { description = ""
-    , link = ""
-    , player = ""
-    , pubDate = ""
-    , thumbnail = ""
-    , title = ""
     }
 
 
@@ -81,7 +71,28 @@ view _ { newVideo, newVideoKintoData, error } =
             [ displayError error
             , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, contactez-nous !"
             , H.form [ HE.onSubmit SubmitNewVideo ]
-                [ formInput
+                [ H.div [ HA.class "field" ]
+                    [ H.div [ HA.class "file is-primary is-boxed is-large is-centered" ]
+                        [ H.div [ HA.class "file-label" ]
+                            [ H.label [ HA.class "label" ]
+                                [ H.input
+                                    [ HA.class "file-input"
+                                    , HA.type_ "file"
+                                    , HA.id "video"
+                                    , HA.accept "video/*"
+                                    ]
+                                    []
+                                , H.span [ HA.class "file-cta" ]
+                                    [ H.span [ HA.class "file-icon" ]
+                                        [ H.i [ HA.class "fa fa-upload" ] []
+                                        ]
+                                    , H.span [ HA.class "file-label" ] [ H.text "Fichier vidéo" ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                , formInput
                     H.input
                     "title"
                     "Titre"
@@ -90,32 +101,11 @@ view _ { newVideo, newVideoKintoData, error } =
                     (\title -> UpdateVideoForm { newVideo | title = title })
                 , formInput
                     H.input
-                    "link"
-                    "Lien vers la vidéo"
-                    "https://example.com/mavideo"
-                    newVideo.link
-                    (\link -> UpdateVideoForm { newVideo | link = link })
-                , formInput
-                    H.input
-                    "thumbnail"
-                    "Lien vers la miniature de la vidéo"
-                    "https://example.com/mavideo.png"
-                    newVideo.thumbnail
-                    (\thumbnail -> UpdateVideoForm { newVideo | thumbnail = thumbnail })
-                , formInput
-                    H.input
-                    "pubDate"
-                    "Date de la vidéo"
-                    "2018-10-12"
-                    newVideo.pubDate
-                    (\pubDate -> UpdateVideoForm { newVideo | pubDate = pubDate })
-                , formInput
-                    H.input
-                    "player"
-                    "Lien vers le player de la vidéo"
-                    "https://player.example.com/mavideo"
-                    newVideo.player
-                    (\player -> UpdateVideoForm { newVideo | player = player })
+                    "keywords"
+                    "Mots Clés"
+                    "Lecture, Mathématiques ..."
+                    newVideo.keywords
+                    (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
                 , formInput
                     H.textarea
                     "description"

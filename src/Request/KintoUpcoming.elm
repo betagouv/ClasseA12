@@ -1,19 +1,19 @@
 module Request.KintoUpcoming exposing (submitVideo)
 
-import Data.Session
+import Data.Kinto
 import Kinto
 
 
-submitVideo : Data.Session.Video -> (Result Kinto.Error Data.Session.Video -> msg) -> Cmd msg
+submitVideo : Data.Kinto.Video -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
 submitVideo video message =
     client
-        |> Kinto.create recordResource (Data.Session.encodeData video)
+        |> Kinto.create recordResource (Data.Kinto.encodeData video)
         |> Kinto.send message
 
 
-recordResource : Kinto.Resource Data.Session.Video
+recordResource : Kinto.Resource Data.Kinto.Video
 recordResource =
-    Kinto.recordResource "classea12" "upcoming" Data.Session.videoDecoder
+    Kinto.recordResource "classea12" "upcoming" Data.Kinto.videoDecoder
 
 
 client : Kinto.Client
