@@ -159,7 +159,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
             H.input
             "keywords"
             "Mots Clés"
-            "Lecture, Mathématiques ..."
+            "Coin lecture, organisation de la classe, trucs et astuces, ..."
             newVideo.keywords
             (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
             videoSelected
@@ -174,7 +174,40 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
                 )
             ]
             [ H.div [ HA.class "control" ]
-                [ loadingButton "Soumettre cette vidéo" newVideoKintoData (newVideo.title /= "") ]
+                [ H.button
+                    [ HA.type_ "submit"
+                    , HA.class "button is-primary"
+                    , HA.disabled (newVideo.title == "")
+                    ]
+                    [ H.text "Soumettre cette vidéo" ]
+                ]
+            ]
+        , H.div
+            [ HA.classList
+                [ ( "modal", True )
+                , ( "is-active", newVideoKintoData == Requested )
+                ]
+            ]
+            [ H.div [ HA.class "modal-background" ] []
+            , H.div [ HA.class "modal-card" ]
+                [ H.div [ HA.class "modal-card" ]
+                    [ H.header [ HA.class "modal-card-head" ]
+                        [ H.p [ HA.class "modal-card-title" ] [ H.text "Envoi de la vidéo en cours" ]
+                        ]
+                    , H.section [ HA.class "modal-card-body" ]
+                        [ H.text "Veuillez patienter..."
+                        , H.p
+                            [ HA.style "font-size" "10em"
+                            , HA.style "text-align" "center"
+                            ]
+                            [ H.span [ HA.class "icon" ]
+                                [ H.i [ HA.class "fa fa-spinner fa-spin" ] [] ]
+                            ]
+                        ]
+                    , H.footer [ HA.class "modal-card-foot" ]
+                        []
+                    ]
+                ]
             ]
         ]
 
@@ -253,23 +286,6 @@ formInput input id label placeholder value onInput isVisible =
                 ]
             ]
         ]
-
-
-loadingButton : String -> KintoData Video -> Bool -> H.Html Msg
-loadingButton label dataState enabled =
-    let
-        loading =
-            dataState == Requested
-    in
-    H.button
-        [ HA.type_ "submit"
-        , HA.classList
-            [ ( "button is-primary", True )
-            , ( "is-loading", loading )
-            ]
-        , HA.disabled (loading || not enabled)
-        ]
-        [ H.text label ]
 
 
 onFileSelected msg =
