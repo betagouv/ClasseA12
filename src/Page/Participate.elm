@@ -142,18 +142,10 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
         , formInput
             H.input
             "title"
-            "Titre"
+            "Titre*"
             "Titre de la video"
             newVideo.title
             (\title -> UpdateVideoForm { newVideo | title = title })
-            videoSelected
-        , formInput
-            H.input
-            "keywords"
-            "Mots Clés"
-            "Lecture, Mathématiques ..."
-            newVideo.keywords
-            (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
             videoSelected
         , formInput
             H.textarea
@@ -162,6 +154,14 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
             "Description : que montre la vidéo ?"
             newVideo.description
             (\description -> UpdateVideoForm { newVideo | description = description })
+            videoSelected
+        , formInput
+            H.input
+            "keywords"
+            "Mots Clés"
+            "Lecture, Mathématiques ..."
+            newVideo.keywords
+            (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
             videoSelected
         , H.div
             [ HA.class "field is-horizontal"
@@ -174,7 +174,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
                 )
             ]
             [ H.div [ HA.class "control" ]
-                [ loadingButton "Soumettre cette vidéo" newVideoKintoData ]
+                [ loadingButton "Soumettre cette vidéo" newVideoKintoData (newVideo.title /= "") ]
             ]
         ]
 
@@ -255,8 +255,8 @@ formInput input id label placeholder value onInput isVisible =
         ]
 
 
-loadingButton : String -> KintoData Video -> H.Html Msg
-loadingButton label dataState =
+loadingButton : String -> KintoData Video -> Bool -> H.Html Msg
+loadingButton label dataState enabled =
     let
         loading =
             dataState == Requested
@@ -267,7 +267,7 @@ loadingButton label dataState =
             [ ( "button is-primary", True )
             , ( "is-loading", loading )
             ]
-        , HA.disabled loading
+        , HA.disabled (loading || not enabled)
         ]
         [ H.text label ]
 
