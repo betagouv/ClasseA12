@@ -59,7 +59,7 @@ setRoute maybeRoute model =
                 ( subModel, subCmds ) =
                     subInit model.session
             in
-            ( { model | page = page subModel }
+            ( { model | page = page subModel, isMenuActive = False }
             , Cmd.map subMsg subCmds
             )
     in
