@@ -15,7 +15,6 @@ type alias Model =
     { newVideo : Video
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
-    , error : Maybe String
     }
 
 
@@ -23,7 +22,7 @@ type Msg
     = UpdateVideoForm Video
     | SubmitNewVideo
     | NewVideoSubmitted (Result Kinto.Error Video)
-    | DiscardError
+    | DiscardNotification
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
     | AttachmentSent Decode.Value
@@ -34,7 +33,6 @@ init session =
     ( { newVideo = emptyVideo
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
-      , error = Nothing
       }
     , Cmd.none
     )
@@ -55,15 +53,12 @@ update _ msg model =
             ( model, Ports.submitVideo ( "video", video.id ) )
 
         NewVideoSubmitted (Err error) ->
-            ( { model
-                | newVideoKintoData = NotRequested
-                , error = Just <| Kinto.errorToString error
-              }
+            ( { model | newVideoKintoData = Failed error }
             , Cmd.none
             )
 
-        DiscardError ->
-            ( { model | error = Nothing }, Cmd.none )
+        DiscardNotification ->
+            ( { model | newVideoKintoData = NotRequested }, Cmd.none )
 
         VideoSelected ->
             ( model, Ports.videoSelected "video" )
@@ -78,7 +73,7 @@ update _ msg model =
         AttachmentSent _ ->
             ( { model
                 | newVideo = emptyVideo
-                , newVideoKintoData = NotRequested
+                , newVideoKintoData = Received model.newVideo
                 , videoObjectUrl = Nothing
               }
             , Cmd.none
@@ -89,7 +84,7 @@ view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ model =
     ( "Je participe !"
     , [ H.div []
-            [ displayError model.error
+            [ displayKintoData model.newVideoKintoData
             , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !"
             , displaySubmitVideoForm model
             ]
@@ -133,7 +128,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
                             [ H.span [ HA.class "file-icon" ]
                                 [ H.i [ HA.class "fa fa-upload" ] []
                                 ]
-                            , H.span [ HA.class "file-label" ] [ H.text "Fichier vidéo" ]
+                            , H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
                             ]
                         ]
                     ]
@@ -228,20 +223,31 @@ displayVideo maybeVideoObjectUrl =
             H.div [] []
 
 
-displayError : Maybe String -> H.Html Msg
-displayError maybeError =
-    case maybeError of
-        Just error ->
+displayKintoData : KintoData Video -> H.Html Msg
+displayKintoData kintoData =
+    case kintoData of
+        Failed error ->
             H.div [ HA.class "notification is-danger" ]
                 [ H.button
                     [ HA.class "delete"
-                    , HE.onClick DiscardError
+                    , HE.onClick DiscardNotification
                     ]
                     []
-                , H.text error
+                , H.text <| Kinto.errorToString error
                 ]
 
-        Nothing ->
+        Received _ ->
+            H.div [ HA.class "notification is-success" ]
+                [ H.button
+                    [ HA.class "delete"
+                    , HE.onClick DiscardNotification
+                    ]
+                    []
+                , H.text "Merci pour cette vidéo ! Vous pouvez en poster une autre ou "
+                , H.a [ HA.src "#/" ] [ H.text "retourner à la liste de vidéos" ]
+                ]
+
+        _ ->
             H.div [] []
 
 
