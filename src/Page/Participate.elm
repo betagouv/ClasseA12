@@ -86,64 +86,97 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { newVideo, newVideoKintoData, videoObjectUrl, error } =
+view _ model =
     ( "Je participe !"
     , [ H.div []
-            [ displayError error
-            , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, contactez-nous !"
-            , displayVideo videoObjectUrl
-            , H.form [ HE.onSubmit SubmitNewVideo ]
-                [ H.div [ HA.class "field" ]
-                    [ H.div [ HA.class "file is-primary is-boxed is-large is-centered" ]
-                        [ H.div [ HA.class "file-label" ]
-                            [ H.label [ HA.class "label" ]
-                                [ H.input
-                                    [ HA.class "file-input"
-                                    , HA.type_ "file"
-                                    , HA.id "video"
-                                    , HA.accept "video/*"
-                                    , onFileSelected VideoSelected
-                                    ]
-                                    []
-                                , H.span [ HA.class "file-cta" ]
-                                    [ H.span [ HA.class "file-icon" ]
-                                        [ H.i [ HA.class "fa fa-upload" ] []
-                                        ]
-                                    , H.span [ HA.class "file-label" ] [ H.text "Fichier vidéo" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                , formInput
-                    H.input
-                    "title"
-                    "Titre"
-                    "Titre de la video"
-                    newVideo.title
-                    (\title -> UpdateVideoForm { newVideo | title = title })
-                , formInput
-                    H.input
-                    "keywords"
-                    "Mots Clés"
-                    "Lecture, Mathématiques ..."
-                    newVideo.keywords
-                    (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
-                , formInput
-                    H.textarea
-                    "description"
-                    "Description"
-                    "Description : que montre la vidéo ?"
-                    newVideo.description
-                    (\description -> UpdateVideoForm { newVideo | description = description })
-                , H.div [ HA.class "field is-horizontal" ]
-                    [ H.div [ HA.class "control" ]
-                        [ loadingButton "Soumettre cette vidéo" newVideoKintoData ]
-                    ]
-                ]
+            [ displayError model.error
+            , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !"
+            , displaySubmitVideoForm model
             ]
       ]
     )
+
+
+displaySubmitVideoForm : { a | newVideo : Video, newVideoKintoData : KintoData Video, videoObjectUrl : Maybe String } -> H.Html Msg
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
+    let
+        videoSelected =
+            videoObjectUrl
+                /= Nothing
+    in
+    H.form [ HE.onSubmit SubmitNewVideo ]
+        [ H.div [ HA.class "field" ]
+            [ H.div
+                [ HA.class "file is-primary is-boxed is-large is-centered"
+                ]
+                [ displayVideo videoObjectUrl
+                , H.div
+                    [ HA.class "file-label"
+                    , HA.style "display"
+                        (if videoSelected then
+                            "none"
+
+                         else
+                            "block"
+                        )
+                    ]
+                    [ H.label [ HA.class "label" ]
+                        [ H.input
+                            [ HA.class "file-input"
+                            , HA.type_ "file"
+                            , HA.id "video"
+                            , HA.accept "video/*"
+                            , onFileSelected VideoSelected
+                            ]
+                            []
+                        , H.span [ HA.class "file-cta" ]
+                            [ H.span [ HA.class "file-icon" ]
+                                [ H.i [ HA.class "fa fa-upload" ] []
+                                ]
+                            , H.span [ HA.class "file-label" ] [ H.text "Fichier vidéo" ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        , formInput
+            H.input
+            "title"
+            "Titre"
+            "Titre de la video"
+            newVideo.title
+            (\title -> UpdateVideoForm { newVideo | title = title })
+            videoSelected
+        , formInput
+            H.input
+            "keywords"
+            "Mots Clés"
+            "Lecture, Mathématiques ..."
+            newVideo.keywords
+            (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
+            videoSelected
+        , formInput
+            H.textarea
+            "description"
+            "Description"
+            "Description : que montre la vidéo ?"
+            newVideo.description
+            (\description -> UpdateVideoForm { newVideo | description = description })
+            videoSelected
+        , H.div
+            [ HA.class "field is-horizontal"
+            , HA.style "display"
+                (if videoSelected then
+                    "block"
+
+                 else
+                    "none"
+                )
+            ]
+            [ H.div [ HA.class "control" ]
+                [ loadingButton "Soumettre cette vidéo" newVideoKintoData ]
+            ]
+        ]
 
 
 displayVideo : Maybe String -> H.Html Msg
@@ -183,9 +216,18 @@ type alias HtmlNode msg =
     List (H.Attribute msg) -> List (H.Html msg) -> H.Html msg
 
 
-formInput : HtmlNode msg -> String -> String -> String -> String -> (String -> msg) -> H.Html msg
-formInput input id label placeholder value onInput =
-    H.div [ HA.class "field is-horizontal" ]
+formInput : HtmlNode msg -> String -> String -> String -> String -> (String -> msg) -> Bool -> H.Html msg
+formInput input id label placeholder value onInput isVisible =
+    H.div
+        [ HA.class "field is-horizontal"
+        , HA.style "display"
+            (if isVisible then
+                "flex"
+
+             else
+                "none"
+            )
+        ]
         [ H.div [ HA.class "field-label is-normal" ]
             [ H.label [ HA.class "label", HA.for id ]
                 [ H.text label ]
