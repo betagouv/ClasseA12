@@ -65,22 +65,23 @@
         return;
       }
       const file = fileInput.files[0];
-      // Create a multipart form
-      var formData = new FormData();
-      // Multipart attachment
-      formData.append('attachment', file, file.name);
-      // Post form using GlobalFetch API
-      var url = `https://kinto.agopian.info/v1/buckets/classea12/collections/upcoming/records/${recordID}/attachment`;
-      fetch(url, { method: "POST", body: formData, headers: { Authorization: "Basic " + btoa("classea12:notasecret") } })
-        .then(function (result) {
-          if (result.status >= 400) {
-            throw new Error('Failed');
-          }
-          app.ports.videoSubmitted.send(result);
-        })
-        .catch(function (error) {
-          console.error("Failed to upload attachment", error.toString());
-        });
+      // Create a multipart form to upload the file.
+      let formData = new FormData();
+      formData.append('attachment', file);
+
+      // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", `https://kinto.agopian.info/v1/buckets/classea12/collections/upcoming/records/${recordID}/attachment`);
+      xhr.upload.addEventListener("progress", function (evt) {
+        if (evt.lengthComputable) {
+          console.log("progress:", evt.loaded + " / " + evt.total);
+        }
+      }, false);
+      xhr.onload = function () {
+        app.ports.videoSubmitted.send(this.response);
+      }
+      xhr.setRequestHeader("Authorization", "Basic " + btoa("classea12:notasecret"));
+      xhr.send(formData);
     });
   </script>
 </body>
