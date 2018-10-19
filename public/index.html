@@ -72,9 +72,10 @@
       // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
       let xhr = new XMLHttpRequest();
       xhr.open("POST", `https://kinto.agopian.info/v1/buckets/classea12/collections/upcoming/records/${recordID}/attachment`);
-      xhr.upload.addEventListener("progress", function (evt) {
-        if (evt.lengthComputable) {
-          console.log("progress:", evt.loaded + " / " + evt.total);
+      xhr.upload.addEventListener("progress", function (event) {
+        if (event.lengthComputable) {
+          const percentage = Math.round(event.loaded * 100 / event.total);
+          app.ports.progressUpdate.send(percentage);
         }
       }, false);
       xhr.onload = function () {

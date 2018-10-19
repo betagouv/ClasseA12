@@ -15,6 +15,7 @@ type alias Model =
     { newVideo : Video
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
+    , percentage : Int
     }
 
 
@@ -25,6 +26,7 @@ type Msg
     | DiscardNotification
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
+    | ProgressUpdated Decode.Value
     | AttachmentSent Decode.Value
 
 
@@ -33,6 +35,7 @@ init session =
     ( { newVideo = emptyVideo
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
+      , percentage = 0
       }
     , Cmd.none
     )
@@ -70,11 +73,21 @@ update _ msg model =
             in
             ( { model | videoObjectUrl = Result.toMaybe objectUrl }, Cmd.none )
 
+        ProgressUpdated value ->
+            let
+                percentage =
+                    Decode.decodeValue Decode.int value
+                        |> Result.toMaybe
+                        |> Maybe.withDefault 0
+            in
+            ( { model | percentage = percentage }, Cmd.none )
+
         AttachmentSent _ ->
             ( { model
                 | newVideo = emptyVideo
                 , newVideoKintoData = Received model.newVideo
                 , videoObjectUrl = Nothing
+                , percentage = 0
               }
             , Cmd.none
             )
@@ -92,8 +105,15 @@ view _ model =
     )
 
 
-displaySubmitVideoForm : { a | newVideo : Video, newVideoKintoData : KintoData Video, videoObjectUrl : Maybe String } -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
+displaySubmitVideoForm :
+    { a
+        | newVideo : Video
+        , newVideoKintoData : KintoData Video
+        , videoObjectUrl : Maybe String
+        , percentage : Int
+    }
+    -> H.Html Msg
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage } =
     let
         videoSelected =
             videoObjectUrl
@@ -191,13 +211,12 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl } =
                         ]
                     , H.section [ HA.class "modal-card-body" ]
                         [ H.text "Veuillez patienter..."
-                        , H.p
-                            [ HA.style "font-size" "10em"
-                            , HA.style "text-align" "center"
+                        , H.progress
+                            [ HA.class "progress is-large is-success"
+                            , HA.value <| String.fromInt percentage
+                            , HA.max "100"
                             ]
-                            [ H.span [ HA.class "icon" ]
-                                [ H.i [ HA.class "fa fa-spinner fa-spin" ] [] ]
-                            ]
+                            [ H.text <| String.fromInt percentage ++ "%" ]
                         ]
                     , H.footer [ HA.class "modal-card-foot" ]
                         []
