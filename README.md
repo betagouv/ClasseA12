@@ -33,6 +33,49 @@ There are two [users](https://kinto.readthedocs.io/en/stable/api/1.x/accounts.ht
 - `/buckets/classea12/collections/upcoming/`: write access to the `classea12` user. This is where videos proposed by teachers will be queued waiting to be accepted.
 - `/buckets/classea12/collections/videos/`: read access to the `classea12` user. This is where all the accepted videos are listed.
 
+# Deployment
+
+This will change in the future, but for now:
+- Kinto is hosted on an [alwaysdata](https://www.alwaysdata.com/) [account](https://kinto.agopian.info/v1)
+- on the same account, the frontend static files are pushed to a git repository using [gh-pages](https://www.npmjs.com/package/gh-pages) with `npm run deploy`
+
+For this second part to work, here's the recipe:
+
+## Bare git clone with a post-receive hook on the server
+
+```shell
+$ cd git
+$ git clone --bare https://github.com/magopian/ClasseA12.git
+$ vim ClasseA12/hooks/post-receive
+```
+
+Content of the `post-receive` hook:
+
+```shell
+#!/bin/sh
+while read oldrev newrev ref
+do
+    if [ "$ref" = "refs/heads/gh-pages" ];
+    then
+        echo "Deploying 'gh-pages' branch"
+        git --work-tree=/home/agopian/www/ClasseA12 --git-dir=/home/agopian/git/ClasseA12.git checkout --force gh-pages
+        exit 0
+    fi
+done
+```
+
+## Adding a remote to the alwaysdata account on the dev machine
+
+```shell
+$ git remote add deploy agopian@ssh-agopian.alwaysdata.net:~/git/ClasseA12.git
+```
+
+Then, to deploy, run
+
+```shell
+$ npm run deploy
+```
+
 ----
 
 # elm-kitchen
