@@ -34,7 +34,6 @@ type alias Model =
     { navKey : Nav.Key
     , page : Page
     , session : Session
-    , isMenuActive : Bool
     }
 
 
@@ -46,7 +45,6 @@ type Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
-    | BurgerClicked
     | VideoListReceived (Result Http.Error String)
     | VideoListParsed (Result Decode.Error (List Data.Session.Video))
 
@@ -59,7 +57,7 @@ setRoute maybeRoute model =
                 ( subModel, subCmds ) =
                     subInit model.session
             in
-            ( { model | page = page subModel, isMenuActive = False }
+            ( { model | page = page subModel }
             , Cmd.map subMsg subCmds
             )
     in
@@ -106,7 +104,6 @@ init flags url navKey =
         { navKey = navKey
         , page = HomePage (Home.init session |> (\( model, _ ) -> model))
         , session = session
-        , isMenuActive = False
         }
 
 
@@ -156,9 +153,6 @@ update msg ({ page, session } as model) =
 
         ( UrlChanged url, _ ) ->
             setRoute (Route.fromUrl url) model
-
-        ( BurgerClicked, _ ) ->
-            ( { model | isMenuActive = not model.isMenuActive }, Cmd.none )
 
         ( VideoListReceived (Ok rss), _ ) ->
             -- Received the video list rss, send it to the port to parse it
@@ -236,7 +230,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session model.isMenuActive BurgerClicked
+            Page.Config model.session
 
         mapMsg msg ( title, content ) =
             ( title, content |> List.map (Html.map msg) )

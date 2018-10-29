@@ -16,15 +16,13 @@ type ActivePage
     | NotFound
 
 
-type alias Config msg =
+type alias Config =
     { session : Session
-    , isMenuActive : Bool
-    , toggleMenu : msg
     , activePage : ActivePage
     }
 
 
-frame : Config msg -> ( String, List (Html.Html msg) ) -> Document msg
+frame : Config -> ( String, List (Html.Html msg) ) -> Document msg
 frame config ( title, content ) =
     { title = title ++ " | Classe à 12"
     , body =
@@ -38,53 +36,38 @@ frame config ( title, content ) =
     }
 
 
-viewHeader : Config msg -> Html msg
-viewHeader { activePage, isMenuActive, toggleMenu } =
+viewHeader : Config -> Html msg
+viewHeader { activePage } =
     let
         linkMaybeActive page route caption =
-            a
-                [ Route.href route
-                , classList
-                    [ ( "navbar-item", True )
-                    , ( "is-active", page == activePage )
-                    ]
-                ]
-                [ text caption ]
-    in
-    nav [ class "navbar" ]
-        [ div
-            [ class "container" ]
-            [ div [ class "navbar-brand" ]
+            li [ class "nav__item" ]
                 [ a
-                    [ class "navbar-item"
-                    , Route.href Route.Home
-                    ]
-                    [ img
-                        [ src "./logo.jpg"
-                        , alt "logo"
+                    [ Route.href route
+                    , classList
+                        [ ( "active", page == activePage )
                         ]
-                        []
-                    , text "Classe à 12"
                     ]
-                , span
-                    [ classList
-                        [ ( "navbar-burger burger", True )
-                        , ( "is-active", isMenuActive )
-                        ]
-                    , onClick toggleMenu
-                    ]
-                    [ span [] []
-                    , span [] []
-                    , span [] []
-                    ]
+                    [ text caption ]
                 ]
-            , div
-                [ classList
-                    [ ( "navbar-menu", True )
-                    , ( "is-active", isMenuActive )
-                    ]
+    in
+    header [ class "navbar" ]
+        [ div
+            [ class "navbar__container" ]
+            [ a
+                [ class "navbar__home"
+                , Route.href Route.Home
                 ]
-                [ div [ class "navbar-end" ]
+                [ img
+                    [ src "./logo.jpg"
+                    , alt "logo"
+                    , class "navbar__logo"
+                    ]
+                    []
+                , text "classea12.beta.gouv.fr"
+                ]
+            , nav
+                []
+                [ ul [ class "nav__links" ]
                     [ linkMaybeActive Home Route.Home "Nos vidéos"
                     , linkMaybeActive About Route.About "Classe à 12 ?"
                     , linkMaybeActive Participate Route.Participate "Je participe !"
