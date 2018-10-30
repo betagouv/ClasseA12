@@ -67,6 +67,31 @@ footer img {
 em {
     color: #8a22ca;
 }
-.is-narrow img {
+.article__content .container {
+    display: flex;
+    flex-direction: row;
+    padding-top: 2em;
+} 
+.article__content .container:nth-child(2n) {
+    flex-direction: row-reverse;
+} 
+.article__content .article__image img {
     max-width: 350px;
+    flex: 1;
+    margin: 1em;
+}
+.article__content .richtext {
+    flex: 2;
+}
+@media (max-width: 749px) {
+    .article__content .container {
+        flex-direction: column;
+        padding-top: 2em;
+    } 
+    .article__content .container:nth-child(2n) {
+        flex-direction: column;
+    } 
+    .article__content .article__image img {
+        margin: 0;
+    }
 }
