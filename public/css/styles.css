@@ -1,6 +1,10 @@
 .hero {
     background: linear-gradient(to right, #c969a6 0%, #e795a8 15%, #a4cfcd 43%, #45adc5 65%, #265c9f 100%);
 }
+.overlay-button {
+    top: 1em;
+    right: 1.5em;
+}
 .card.large {
     height: 350px;
     -webkit-backface-visibility: hidden;

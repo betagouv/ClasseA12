@@ -76,20 +76,20 @@ viewVideoList ({ search } as model) videoList =
                 |> List.filter (\video -> String.contains search video.title)
     in
     [ H.div
-        [ HA.class "box" ]
-        [ H.div [ HA.class "field has-addons" ]
-            [ H.div [ HA.class "control is-expanded" ]
-                [ H.input
-                    [ HA.class "input"
-                    , HA.type_ "search"
-                    , HA.placeholder "Search video titles"
-                    , HA.value search
-                    , HE.onInput UpdateSearch
-                    ]
-                    []
+        [ HA.class "form__group light-background" ]
+        [ H.label [ HA.for "search" ]
+            [ H.text "Cherchez un titre de vidéo :" ]
+        , H.div [ HA.class "search__group" ]
+            [ H.input
+                [ HA.id "search"
+                , HA.type_ "search"
+                , HA.placeholder "produire une vidéo"
+                , HA.value search
+                , HE.onInput UpdateSearch
                 ]
-            , H.div [ HA.class "control" ]
-                [ H.a [ HA.class "button is-info" ] [ H.text "Search" ] ]
+                []
+            , H.button [ HA.class "overlay-button" ]
+                [ H.i [ HA.class "fa fa-search" ] [] ]
             ]
         ]
     , H.div [ HA.class "row columns is-multiline" ]
