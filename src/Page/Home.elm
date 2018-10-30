@@ -39,7 +39,7 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session model =
+view session ({ search } as model) =
     ( "Liste des vidéos"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -51,6 +51,27 @@ view session model =
             ]
       , H.div [ HA.class "main" ]
             [ H.section [ HA.class "section section-white" ]
+                [ H.div [ HA.class "container" ]
+                    [ H.div
+                        [ HA.class "form__group light-background" ]
+                        [ H.label [ HA.for "search" ]
+                            [ H.text "Cherchez un titre de vidéo :" ]
+                        , H.div [ HA.class "search__group" ]
+                            [ H.input
+                                [ HA.id "search"
+                                , HA.type_ "search"
+                                , HA.placeholder "produire une vidéo"
+                                , HA.value search
+                                , HE.onInput UpdateSearch
+                                ]
+                                []
+                            , H.button [ HA.class "overlay-button" ]
+                                [ H.i [ HA.class "fa fa-search" ] [] ]
+                            ]
+                        ]
+                    ]
+                ]
+            , H.section [ HA.class "section section-grey cards" ]
                 [ H.div [ HA.class "container" ]
                     (case session.videoData of
                         Fetching ->
@@ -75,24 +96,7 @@ viewVideoList ({ search } as model) videoList =
             videoList
                 |> List.filter (\video -> String.contains search video.title)
     in
-    [ H.div
-        [ HA.class "form__group light-background" ]
-        [ H.label [ HA.for "search" ]
-            [ H.text "Cherchez un titre de vidéo :" ]
-        , H.div [ HA.class "search__group" ]
-            [ H.input
-                [ HA.id "search"
-                , HA.type_ "search"
-                , HA.placeholder "produire une vidéo"
-                , HA.value search
-                , HE.onInput UpdateSearch
-                ]
-                []
-            , H.button [ HA.class "overlay-button" ]
-                [ H.i [ HA.class "fa fa-search" ] [] ]
-            ]
-        ]
-    , H.div [ HA.class "row columns is-multiline" ]
+    [ H.div [ HA.class "row" ]
         (filteredVideoList
             |> List.map (viewVideo model)
         )
@@ -107,16 +111,16 @@ viewVideo { activeVideo } video =
                 |> Maybe.map ((==) video)
                 |> Maybe.withDefault False
     in
-    H.div [ HA.class "column is-one-quarter" ]
+    H.div
+        [ HA.class "card" ]
         [ H.div
             [ HA.classList
-                [ ( "modal", True )
+                [ ( "modal__backdrop", True )
                 , ( "is-active", active )
                 ]
             , HE.onClick HideVideo
             ]
-            [ H.div [ HA.class "modal-background" ] []
-            , H.div [ HA.class "modal-content" ]
+            [ H.div [ HA.class "modal" ]
                 [ H.iframe
                     [ HA.src video.player
                     , HA.title "Partie 2 : am&eacute;nager sa classe pour co-enseigner."
@@ -126,28 +130,26 @@ viewVideo { activeVideo } video =
                     ]
                     []
                 ]
-            , H.button [ HA.class "modal-close is-large" ] []
+            , H.button [ HA.class "modal__close" ]
+                [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
             ]
-        , H.a
-            [ HA.href "#"
+        , H.div
+            [ HA.class "card__cover"
             , HE.onClick <| ShowVideo video
             ]
-            [ H.div [ HA.class "card large round" ]
-                [ H.div [ HA.class "card-image " ]
-                    [ H.figure [ HA.class "image" ]
-                        [ H.img
-                            [ HA.src video.thumbnail
-                            , HA.alt <| "Thumbnail of the video titled: " ++ video.title
-                            ]
-                            []
-                        ]
-                    ]
-                , H.div [ HA.class "card-content" ]
-                    [ H.div [ HA.class "content" ]
-                        [ H.text video.title
-                        , H.p [ HA.class "video-date" ] [ H.text video.pubDate ]
-                        ]
-                    ]
+            [ H.img
+                [ HA.src video.thumbnail
+                , HA.alt <| "Thumbnail of the video titled: " ++ video.title
+                ]
+                []
+            ]
+        , H.div
+            [ HA.class "card__content"
+            , HE.onClick <| ShowVideo video
+            ]
+            [ H.h3 [] [ H.text video.title ]
+            , H.div [ HA.class "card__meta" ]
+                [ H.time [] [ H.text video.pubDate ]
                 ]
             ]
         ]
