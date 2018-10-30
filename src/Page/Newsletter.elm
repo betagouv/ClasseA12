@@ -26,7 +26,11 @@ update _ msg model =
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ model =
     ( "Inscrivez-vous à notre infolettre"
-    , [ H.div [ HA.class "row columns is-multiline" ]
-            [ H.text "#the newsletter page here#" ]
+    , [ H.div [ HA.class "main" ]
+            [ H.div [ HA.class "section section-white" ]
+                [ H.div [ HA.class "container" ]
+                    [ H.text "#the newsletter page here#" ]
+                ]
+            ]
       ]
     )

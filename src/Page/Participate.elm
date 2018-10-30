@@ -96,10 +96,14 @@ update _ msg model =
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ model =
     ( "Je participe !"
-    , [ H.div []
-            [ displayKintoData model.newVideoKintoData
-            , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !"
-            , displaySubmitVideoForm model
+    , [ H.div [ HA.class "main" ]
+            [ H.div [ HA.class "section section-white" ]
+                [ H.div [ HA.class "container" ]
+                    [ displayKintoData model.newVideoKintoData
+                    , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !"
+                    , displaySubmitVideoForm model
+                    ]
+                ]
             ]
       ]
     )
