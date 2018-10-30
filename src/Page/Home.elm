@@ -41,15 +41,30 @@ update _ msg model =
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view session model =
     ( "Liste des vidéos"
-    , case session.videoData of
-        Fetching ->
-            [ H.text "Chargement des vidéos..." ]
+    , [ H.div [ HA.class "hero" ]
+            [ H.div [ HA.class "hero__container" ]
+                [ H.h1 [ HA.class "hero__white-background" ]
+                    [ H.text "Classe à 12 en vidéo" ]
+                , H.p [ HA.class "hero__white-background" ]
+                    [ H.text "Echangeons nos pratiques en toute simplicité : des vidéos par les enseignants, pour les enseignants." ]
+                ]
+            ]
+      , H.div [ HA.class "main" ]
+            [ H.section [ HA.class "section section-white" ]
+                [ H.div [ HA.class "container" ]
+                    (case session.videoData of
+                        Fetching ->
+                            [ H.text "Chargement des vidéos..." ]
 
-        Received videoList ->
-            viewVideoList model videoList
+                        Received videoList ->
+                            viewVideoList model videoList
 
-        Error error ->
-            [ H.text <| "Erreur lors du chargement des videos: " ++ error ]
+                        Error error ->
+                            [ H.text <| "Erreur lors du chargement des videos: " ++ error ]
+                    )
+                ]
+            ]
+      ]
     )
 
 

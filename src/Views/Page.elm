@@ -26,13 +26,9 @@ frame : Config -> ( String, List (Html.Html msg) ) -> Document msg
 frame config ( title, content ) =
     { title = title ++ " | Classe à 12"
     , body =
-        [ viewHeader config
-        , div [ class "container" ]
-            [ div [ class "section" ]
-                content
-            ]
-        , viewFooter
-        ]
+        [ viewHeader config ]
+            ++ content
+            ++ [ viewFooter ]
     }
 
 
