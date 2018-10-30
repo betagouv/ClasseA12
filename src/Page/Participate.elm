@@ -100,7 +100,7 @@ view _ model =
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
                     [ displayKintoData model.newVideoKintoData
-                    , H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !"
+                    , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
                     , displaySubmitVideoForm model
                     ]
                 ]
@@ -124,37 +124,32 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
                 /= Nothing
     in
     H.form [ HE.onSubmit SubmitNewVideo ]
-        [ H.div [ HA.class "field" ]
-            [ H.div
-                [ HA.class "file is-primary is-boxed is-large is-centered"
-                ]
-                [ displayVideo videoObjectUrl
-                , H.div
-                    [ HA.class "file-label"
-                    , HA.style "display"
-                        (if videoSelected then
-                            "none"
+        [ H.div
+            [ HA.class "upload-video"
+            ]
+            [ displayVideo videoObjectUrl
+            , H.label
+                [ HA.style "display"
+                    (if videoSelected then
+                        "none"
 
-                         else
-                            "block"
-                        )
+                     else
+                        "block"
+                    )
+                ]
+                [ H.input
+                    [ HA.class "file-input"
+                    , HA.type_ "file"
+                    , HA.id "video"
+                    , HA.accept "video/*"
+                    , onFileSelected VideoSelected
                     ]
-                    [ H.label [ HA.class "label" ]
-                        [ H.input
-                            [ HA.class "file-input"
-                            , HA.type_ "file"
-                            , HA.id "video"
-                            , HA.accept "video/*"
-                            , onFileSelected VideoSelected
-                            ]
-                            []
-                        , H.span [ HA.class "file-cta" ]
-                            [ H.span [ HA.class "file-icon" ]
-                                [ H.i [ HA.class "fa fa-upload" ] []
-                                ]
-                            , H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
-                            ]
+                    []
+                , H.span [ HA.class "file-cta" ]
+                    [ H.span [ HA.class "file-icon" ]
+                        [ H.i [ HA.class "fa fa-upload" ] []
                         ]
+                    , H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
                     ]
                 ]
             ]
@@ -182,8 +177,10 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
             newVideo.keywords
             (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
             videoSelected
-        , H.div
-            [ HA.class "field is-horizontal"
+        , H.button
+            [ HA.type_ "submit"
+            , HA.class "button"
+            , HA.disabled (newVideo.title == "")
             , HA.style "display"
                 (if videoSelected then
                     "block"
@@ -192,39 +189,21 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
                     "none"
                 )
             ]
-            [ H.div [ HA.class "control" ]
-                [ H.button
-                    [ HA.type_ "submit"
-                    , HA.class "button is-primary"
-                    , HA.disabled (newVideo.title == "")
-                    ]
-                    [ H.text "Soumettre cette vidéo" ]
-                ]
-            ]
+            [ H.text "Soumettre cette vidéo" ]
         , H.div
             [ HA.classList
-                [ ( "modal", True )
+                [ ( "modal__backdrop", True )
                 , ( "is-active", newVideoKintoData == Requested )
                 ]
             ]
-            [ H.div [ HA.class "modal-background" ] []
-            , H.div [ HA.class "modal-card" ]
-                [ H.div [ HA.class "modal-card" ]
-                    [ H.header [ HA.class "modal-card-head" ]
-                        [ H.p [ HA.class "modal-card-title" ] [ H.text "Envoi de la vidéo en cours" ]
-                        ]
-                    , H.section [ HA.class "modal-card-body" ]
-                        [ H.text "Veuillez patienter..."
-                        , H.progress
-                            [ HA.class "progress is-large is-success"
-                            , HA.value <| String.fromInt percentage
-                            , HA.max "100"
-                            ]
-                            [ H.text <| String.fromInt percentage ++ "%" ]
-                        ]
-                    , H.footer [ HA.class "modal-card-foot" ]
-                        []
+            [ H.div [ HA.class "modal" ]
+                [ H.h1 [] [ H.text "Envoi de la vidéo en cours, veuillez patienter..." ]
+                , H.progress
+                    [ HA.class "is-large"
+                    , HA.value <| String.fromInt percentage
+                    , HA.max "100"
                     ]
+                    [ H.text <| String.fromInt percentage ++ "%" ]
                 ]
             ]
         ]
@@ -250,22 +229,22 @@ displayKintoData : KintoData Video -> H.Html Msg
 displayKintoData kintoData =
     case kintoData of
         Failed error ->
-            H.div [ HA.class "notification is-danger" ]
+            H.div [ HA.class "notification error closable" ]
                 [ H.button
-                    [ HA.class "delete"
+                    [ HA.class "close"
                     , HE.onClick DiscardNotification
                     ]
-                    []
+                    [ H.i [ HA.class "fa fa-times" ] [] ]
                 , H.text <| Kinto.errorToString error
                 ]
 
         Received _ ->
-            H.div [ HA.class "notification is-success" ]
+            H.div [ HA.class "notification success closable" ]
                 [ H.button
-                    [ HA.class "delete"
+                    [ HA.class "close"
                     , HE.onClick DiscardNotification
                     ]
-                    []
+                    [ H.i [ HA.class "fa fa-times" ] [] ]
                 , H.text "Merci pour cette vidéo ! Vous pouvez en poster une autre ou "
                 , H.a [ HA.src "#/" ] [ H.text "retourner à la liste de vidéos" ]
                 ]
@@ -281,39 +260,24 @@ type alias HtmlNode msg =
 formInput : HtmlNode msg -> String -> String -> String -> String -> (String -> msg) -> Bool -> H.Html msg
 formInput input id label placeholder value onInput isVisible =
     H.div
-        [ HA.class "field is-horizontal"
+        [ HA.class "form__group"
         , HA.style "display"
             (if isVisible then
-                "flex"
+                "block"
 
              else
                 "none"
             )
         ]
-        [ H.div [ HA.class "field-label is-normal" ]
-            [ H.label [ HA.class "label", HA.for id ]
-                [ H.text label ]
+        [ H.label [ HA.for id ]
+            [ H.text label ]
+        , input
+            [ HA.id id
+            , HA.placeholder placeholder
+            , HA.value value
+            , HE.onInput onInput
             ]
-        , H.div [ HA.class "field-body" ]
-            [ H.div [ HA.class "field" ]
-                [ H.div [ HA.class "control" ]
-                    [ input
-                        [ HA.class <|
-                            -- UGLY : special casing the textarea class, this thing is very weird in the Bulma css framework.
-                            if id == "description" then
-                                "textarea"
-
-                            else
-                                "input"
-                        , HA.id id
-                        , HA.placeholder placeholder
-                        , HA.value value
-                        , HE.onInput onInput
-                        ]
-                        []
-                    ]
-                ]
-            ]
+            []
         ]
 
 
