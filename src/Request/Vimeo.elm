@@ -25,4 +25,4 @@ errorToString error =
 
 getRSS : Session -> Request String
 getRSS _ =
-    getString "https://cors.io/?https://vimeo.com/user87116214/videos/rss"
+    getString "https://crossorigin.me.agopian.info/https://vimeo.com/user87116214/videos/rss"

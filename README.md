@@ -12,7 +12,7 @@ $ npm install
 $ npm start
 ```
 
-Check the [demo](https://magopian.github.io/ClasseA12/)
+Check the [demo](https://magopian.github.io/ClasseA12/) or the [official website](https://classea12.beta.gouv.fr/)
 
 
 ## Kinto config
