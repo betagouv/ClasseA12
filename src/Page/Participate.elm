@@ -9,6 +9,7 @@ import Json.Decode as Decode
 import Kinto
 import Ports
 import Request.KintoUpcoming
+import Route
 
 
 type alias Model =
@@ -246,7 +247,7 @@ displayKintoData kintoData =
                     ]
                     [ H.i [ HA.class "fa fa-times" ] [] ]
                 , H.text "Merci pour cette vidéo ! Vous pouvez en poster une autre ou "
-                , H.a [ HA.src "#/" ] [ H.text "retourner à la liste de vidéos" ]
+                , H.a [ Route.href Route.Home ] [ H.text "retourner à la liste de vidéos" ]
                 ]
 
         _ ->

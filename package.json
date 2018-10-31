@@ -6,10 +6,10 @@
   "scripts": {
     "build": "npm run copy-assets && elm make src/Main.elm --optimize --output=build/app.js",
     "copy-assets": "rimraf build && mkdir build && cp -r public/* build",
-    "debug": "elm-live src/Main.elm --port=3000 --dir=public/ -- --output=public/app.js --debug",
+    "debug": "elm-live src/Main.elm --port=3000 --dir=public/ -u -- --output=public/app.js --debug",
     "deploy": "npm run build && gh-pages --dist build/ -o deploy",
     "install": "elm make src/Main.elm",
-    "live": "elm-live src/Main.elm --port=3000 --dir=public/ -- --output=public/app.js",
+    "live": "elm-live src/Main.elm --port=3000 --dir=public/ -u -- --output=public/app.js",
     "start": "npm run live",
     "test": "elm-test"
   },

@@ -1,6 +1,6 @@
 # Classe à 12
 
-Source code for the project [Classe à 12](https://beta.gouv.fr/recrutement/2018/08/29/classes12-dev.html).
+Source code for the project [Classe à 12](https://beta.gouv.fr/startup/classes12.html).
 This has been bootstraped with [elm-kitchen](https://allo-media.github.io/elm-kitchen/), see after the separator for more information.
 
 To install and tinker:
@@ -12,7 +12,7 @@ $ npm install
 $ npm start
 ```
 
-Check the [demo](https://magopian.github.io/ClasseA12/) or the [official website](https://classea12.beta.gouv.fr/)
+Check out https://classea12.beta.gouv.fr/
 
 
 ## Kinto config

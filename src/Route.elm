@@ -27,8 +27,7 @@ parser =
 
 fromUrl : Url -> Maybe Route
 fromUrl url =
-    { url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
-        |> Parser.parse parser
+    Parser.parse parser url
 
 
 href : Route -> Attribute msg
@@ -58,4 +57,4 @@ toString route =
                 Newsletter ->
                     [ "newsletter" ]
     in
-    "#/" ++ String.join "/" pieces
+    "/" ++ String.join "/" pieces
