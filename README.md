@@ -76,6 +76,32 @@ Then, to deploy, run
 $ npm run deploy
 ```
 
+## Web server configuration
+
+As a SPA, every URL needs to be managed by the index.html file (which has the
+javascript generated from the elm code).
+This can be done using a nodejs server like [expressjs](https://expressjs.com/), or by using some apache configuration like the following in a virtual host:
+
+```
+# This will make sure all the URLs that don't point to a file on disc will be processed by the
+# main entry point in index.html
+FallbackResource /
+
+DocumentRoot "/path/to/ClasseA12/"
+
+<Directory />
+    Order Deny,Allow
+    Deny from all
+    Options -Indexes -Includes -ExecCGI -FollowSymlinks
+</Directory>
+
+<Directory /path/to/ClasseA12>
+    Order allow,deny
+    allow from all
+    Options -Indexes -Includes -ExecCGI -FollowSymlinks
+</Directory>
+```
+
 ----
 
 # elm-kitchen

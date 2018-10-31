@@ -1,5 +1,0 @@
-# This makes sure that any URL to a ressource that doesn't exist for real on
-# the disc (like a CSS file) gets treated by the main entry point.
-# This allows us to only manage static files, but still be able to use real
-# URLs instead of fragments or query parameters.
-FallbackResource /index.html
