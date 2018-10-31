@@ -19,9 +19,9 @@ parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
-        , Parser.map About (Parser.s "about")
-        , Parser.map Participate (Parser.s "participate")
-        , Parser.map Newsletter (Parser.s "newsletter")
+        , Parser.map About (Parser.s "apropos")
+        , Parser.map Participate (Parser.s "participer")
+        , Parser.map Newsletter (Parser.s "infolettre")
         ]
 
 
@@ -49,12 +49,12 @@ toString route =
                     []
 
                 About ->
-                    [ "about" ]
+                    [ "apropos" ]
 
                 Participate ->
-                    [ "participate" ]
+                    [ "participer" ]
 
                 Newsletter ->
-                    [ "newsletter" ]
+                    [ "infolettre" ]
     in
     "/" ++ String.join "/" pieces
