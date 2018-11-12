@@ -129,3 +129,6 @@ progress .is-large {
 button:disabled {
     opacity: 0.5;
 }
+.form__group + .button {
+    margin-top: 1em;
+}
