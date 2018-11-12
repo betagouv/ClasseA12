@@ -1,49 +1,64 @@
 module Page.Newsletter exposing (Model, Msg(..), init, update, view)
 
+import Data.Kinto exposing (Contact, KintoData(..), emptyContact)
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-
-
-type alias Form =
-    { name : String
-    , email : String
-    }
-
-
-emptyForm : Form
-emptyForm =
-    { name = "", email = "" }
+import Kinto
+import Request.KintoContact
+import Route
 
 
 type alias Model =
-    { form : Form
+    { contact : Contact
+    , newContactKintoData : KintoData Contact
     }
 
 
 type Msg
-    = UpdateNewsletterForm Form
+    = UpdateContactForm Contact
     | SubmitNewContact
+    | NewContactSubmitted (Result Kinto.Error Contact)
+    | DiscardNotification
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { form = emptyForm }, Cmd.none )
+    ( { contact = emptyContact
+      , newContactKintoData = NotRequested
+      }
+    , Cmd.none
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update _ msg model =
     case msg of
-        UpdateNewsletterForm form ->
-            ( { model | form = form }, Cmd.none )
+        UpdateContactForm contact ->
+            ( { model | contact = contact }, Cmd.none )
 
         SubmitNewContact ->
-            ( model, Cmd.none )
+            ( { model | newContactKintoData = Requested }
+            , Request.KintoContact.submitContact model.contact NewContactSubmitted
+            )
+
+        NewContactSubmitted (Ok contact) ->
+            ( { model | newContactKintoData = Received contact, contact = emptyContact }
+            , Cmd.none
+            )
+
+        NewContactSubmitted (Err error) ->
+            ( { model | newContactKintoData = Failed error }
+            , Cmd.none
+            )
+
+        DiscardNotification ->
+            ( { model | newContactKintoData = NotRequested }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { form } =
+view _ { contact, newContactKintoData } =
     ( "Inscrivez-vous à notre infolettre"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -56,27 +71,34 @@ view _ { form } =
       , H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ H.form [ HE.onSubmit SubmitNewContact ]
+                    [ displayKintoData newContactKintoData
+                    , H.form [ HE.onSubmit SubmitNewContact ]
                         [ formInput
                             "nom"
                             "text"
                             "Nom*"
                             "Votre nom"
-                            form.name
-                            (\name -> UpdateNewsletterForm { form | name = name })
+                            contact.name
+                            (\name -> UpdateContactForm { contact | name = name })
                         , formInput
                             "email"
                             "email"
                             "Email*"
                             "Votre adresse email"
-                            form.email
-                            (\email -> UpdateNewsletterForm { form | email = email })
+                            contact.email
+                            (\email -> UpdateContactForm { contact | email = email })
                         , H.button
                             [ HA.type_ "submit"
                             , HA.class "button"
-                            , HA.disabled (form.name == "" || form.email == "")
+                            , HA.disabled
+                                (contact.name == "" || contact.email == "" || newContactKintoData == Requested)
                             ]
-                            [ H.text "M'inscrire à l'infolettre" ]
+                            [ if newContactKintoData == Requested then
+                                H.i [ HA.class "fa fa-spinner fa-spin" ] []
+
+                              else
+                                H.text " M'inscrire à l'infolettre"
+                            ]
                         ]
                     ]
                 ]
@@ -100,3 +122,31 @@ formInput id type_ label placeholder value onInput =
             ]
             []
         ]
+
+
+displayKintoData : KintoData Contact -> H.Html Msg
+displayKintoData kintoData =
+    case kintoData of
+        Failed error ->
+            H.div [ HA.class "notification error closable" ]
+                [ H.button
+                    [ HA.class "close"
+                    , HE.onClick DiscardNotification
+                    ]
+                    [ H.i [ HA.class "fa fa-times" ] [] ]
+                , H.text <| Kinto.errorToString error
+                ]
+
+        Received _ ->
+            H.div [ HA.class "notification success closable" ]
+                [ H.button
+                    [ HA.class "close"
+                    , HE.onClick DiscardNotification
+                    ]
+                    [ H.i [ HA.class "fa fa-times" ] [] ]
+                , H.text "Vous êtes maintenant inscrit à l'infolettre ! "
+                , H.a [ Route.href Route.Home ] [ H.text "Retourner à la liste de vidéos" ]
+                ]
+
+        _ ->
+            H.div [] []

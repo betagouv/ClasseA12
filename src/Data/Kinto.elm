@@ -1,4 +1,16 @@
-module Data.Kinto exposing (KintoData(..), Video, decodeVideoList, emptyVideo, encodeData, videoDecoder)
+module Data.Kinto exposing
+    ( Contact
+    , KintoData(..)
+    , Video
+    , contactDecoder
+    , decodeContactList
+    , decodeVideoList
+    , emptyContact
+    , emptyVideo
+    , encodeContactData
+    , encodeVideoData
+    , videoDecoder
+    )
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -10,6 +22,10 @@ type KintoData a
     | Requested
     | Received a
     | Failed Kinto.Error
+
+
+
+---- VIDEO ----
 
 
 type alias Video =
@@ -43,10 +59,50 @@ decodeVideoList =
         Decode.list videoDecoder
 
 
-encodeData : Video -> Encode.Value
-encodeData video =
+encodeVideoData : Video -> Encode.Value
+encodeVideoData video =
     Encode.object
         [ ( "description", Encode.string video.description )
         , ( "title", Encode.string video.title )
         , ( "keywords", Encode.string video.keywords )
+        ]
+
+
+
+---- CONTACT ----
+
+
+type alias Contact =
+    { id : String
+    , name : String
+    , email : String
+    }
+
+
+emptyContact =
+    { id = ""
+    , name = ""
+    , email = ""
+    }
+
+
+contactDecoder : Decode.Decoder Contact
+contactDecoder =
+    Decode.map3 Contact
+        (Decode.field "id" Decode.string)
+        (Decode.field "name" Decode.string)
+        (Decode.field "email" Decode.string)
+
+
+decodeContactList : Decode.Value -> Result Decode.Error (List Contact)
+decodeContactList =
+    Decode.decodeValue <|
+        Decode.list contactDecoder
+
+
+encodeContactData : Contact -> Encode.Value
+encodeContactData contact =
+    Encode.object
+        [ ( "name", Encode.string contact.name )
+        , ( "email", Encode.string contact.email )
         ]

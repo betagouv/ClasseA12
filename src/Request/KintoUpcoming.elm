@@ -7,7 +7,7 @@ import Kinto
 submitVideo : Data.Kinto.Video -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
 submitVideo video message =
     client
-        |> Kinto.create recordResource (Data.Kinto.encodeData video)
+        |> Kinto.create recordResource (Data.Kinto.encodeVideoData video)
         |> Kinto.send message
 
 
