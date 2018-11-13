@@ -1,4 +1,4 @@
-port module Ports exposing (parseRSS, parsedVideoList, progressUpdate, submitVideo, videoObjectUrl, videoSelected, videoSubmitted)
+port module Ports exposing (SubmitVideoData, parseRSS, parsedVideoList, progressUpdate, submitVideo, videoObjectUrl, videoSelected, videoSubmitted)
 
 import Json.Decode as Decode
 
@@ -19,9 +19,15 @@ port videoSelected :
 port videoObjectUrl : (Decode.Value -> msg) -> Sub msg
 
 
-port submitVideo :
-    -- (the file input id, the record ID on which to add the attachment file)
-    ( String, String ) -> Cmd msg
+type alias SubmitVideoData =
+    { nodeID : String
+    , videoData : Decode.Value
+    , login : String
+    , password : String
+    }
+
+
+port submitVideo : SubmitVideoData -> Cmd msg
 
 
 port videoSubmitted : (String -> msg) -> Sub msg

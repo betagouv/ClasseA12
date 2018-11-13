@@ -32,7 +32,6 @@ type Msg
     = UpdateVideoForm Video
     | GenerateRandomCredentials
     | SubmitNewVideo Credentials
-    | NewVideoSubmitted (Result Kinto.Error Video)
     | DiscardNotification
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
@@ -62,16 +61,17 @@ update _ msg model =
             ( model, generateRandomCredentials )
 
         SubmitNewVideo (Credentials ( login, password )) ->
+            let
+                submitVideoData : Ports.SubmitVideoData
+                submitVideoData =
+                    { nodeID = "video"
+                    , videoData = Data.Kinto.encodeVideoData model.newVideo
+                    , login = login
+                    , password = password
+                    }
+            in
             ( { model | newVideoKintoData = Requested }
-            , Request.KintoUpcoming.submitVideo model.newVideo login password NewVideoSubmitted
-            )
-
-        NewVideoSubmitted (Ok video) ->
-            ( model, Ports.submitVideo ( "video", video.id ) )
-
-        NewVideoSubmitted (Err error) ->
-            ( { model | newVideoKintoData = Failed error }
-            , Cmd.none
+            , Ports.submitVideo submitVideoData
             )
 
         DiscardNotification ->

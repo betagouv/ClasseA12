@@ -61,8 +61,14 @@
       app.ports.videoObjectUrl.send(videoObjectUrl);
     });
 
+    function uuidv4() {
+      return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+      )
+    }
+
     // A new video record has been created, upload the selected video file as an attachment
-    app.ports.submitVideo.subscribe(function ([nodeID, recordID]) {
+    app.ports.submitVideo.subscribe(function ({ nodeID, videoData, login, password }) {
       const fileInput = document.getElementById(nodeID);
       if (fileInput === null) {
         console.error("Didn't find a file input with id", nodeID);
@@ -72,6 +78,9 @@
       // Create a multipart form to upload the file.
       let formData = new FormData();
       formData.append('attachment', file);
+      formData.append('data', JSON.stringify(videoData));
+
+      const recordID = uuidv4();
 
       // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
       let xhr = new XMLHttpRequest();
@@ -89,7 +98,7 @@
         console.error("network error", event.target);
         app.ports.videoSubmitted.send(this.response);
       }
-      xhr.setRequestHeader("Authorization", "Basic " + btoa("classea12:notasecret"));
+      xhr.setRequestHeader("Authorization", "Basic " + btoa(`${login}:${password}`));
       xhr.send(formData);
     });
   </script>
