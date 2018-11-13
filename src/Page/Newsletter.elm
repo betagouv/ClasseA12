@@ -6,6 +6,9 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
+import Random
+import Random.Char
+import Random.String
 import Request.KintoContact
 import Route
 
@@ -16,9 +19,14 @@ type alias Model =
     }
 
 
+type RandomPassword
+    = RandomPassword String
+
+
 type Msg
     = UpdateContactForm Contact
-    | SubmitNewContact
+    | GenerateRandomPassword
+    | SubmitNewContact RandomPassword
     | NewContactSubmitted (Result Kinto.Error Contact)
     | DiscardNotification
 
@@ -38,9 +46,12 @@ update _ msg model =
         UpdateContactForm contact ->
             ( { model | contact = contact }, Cmd.none )
 
-        SubmitNewContact ->
+        GenerateRandomPassword ->
+            ( model, generateRandomPassword )
+
+        SubmitNewContact (RandomPassword randomString) ->
             ( { model | newContactKintoData = Requested }
-            , Request.KintoContact.submitContact model.contact NewContactSubmitted
+            , Request.KintoContact.submitContact model.contact randomString NewContactSubmitted
             )
 
         NewContactSubmitted (Ok contact) ->
@@ -72,7 +83,7 @@ view _ { contact, newContactKintoData } =
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
                     [ displayKintoData newContactKintoData
-                    , H.form [ HE.onSubmit SubmitNewContact ]
+                    , H.form [ HE.onSubmit GenerateRandomPassword ]
                         [ formInput
                             "nom"
                             "text"
@@ -150,3 +161,12 @@ displayKintoData kintoData =
 
         _ ->
             H.div [] []
+
+
+generateRandomPassword : Cmd Msg
+generateRandomPassword =
+    Random.generate
+        SubmitNewContact
+        (Random.String.string 20 Random.Char.latin
+            |> Random.map RandomPassword
+        )

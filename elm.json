@@ -13,8 +13,10 @@
             "elm/html": "1.0.0",
             "elm/http": "1.0.0",
             "elm/json": "1.0.0",
+            "elm/random": "1.0.0",
             "elm/time": "1.0.0",
             "elm/url": "1.0.0",
+            "elm-community/random-extra": "3.0.0",
             "elm-explorations/markdown": "1.0.0"
         },
         "indirect": {
@@ -30,8 +32,7 @@
             "elm-explorations/test": "1.0.0"
         },
         "indirect": {
-            "Skinney/murmur3": "2.0.7",
-            "elm/random": "1.0.0"
+            "Skinney/murmur3": "2.0.7"
         }
     }
 }

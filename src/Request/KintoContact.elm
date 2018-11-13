@@ -4,9 +4,9 @@ import Data.Kinto
 import Kinto
 
 
-submitContact : Data.Kinto.Contact -> (Result Kinto.Error Data.Kinto.Contact -> msg) -> Cmd msg
-submitContact contact message =
-    client
+submitContact : Data.Kinto.Contact -> String -> (Result Kinto.Error Data.Kinto.Contact -> msg) -> Cmd msg
+submitContact contact password message =
+    client contact.email password
         |> Kinto.create recordResource (Data.Kinto.encodeContactData contact)
         |> Kinto.send message
 
@@ -16,6 +16,6 @@ recordResource =
     Kinto.recordResource "classea12" "contacts" Data.Kinto.contactDecoder
 
 
-client : Kinto.Client
-client =
-    Kinto.client "https://kinto.agopian.info/v1/" (Kinto.Basic "classea12" "notasecret")
+client : String -> String -> Kinto.Client
+client login password =
+    Kinto.client "https://kinto.agopian.info/v1/" (Kinto.Basic login password)
