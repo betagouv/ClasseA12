@@ -5,6 +5,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Http
 import Json.Decode as Decode
 import Kinto
 import Ports
@@ -36,7 +37,7 @@ type Msg
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
     | ProgressUpdated Decode.Value
-    | AttachmentSent Decode.Value
+    | AttachmentSent String
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -95,10 +96,31 @@ update _ msg model =
             in
             ( { model | percentage = percentage }, Cmd.none )
 
-        AttachmentSent _ ->
+        AttachmentSent response ->
+            let
+                result =
+                    Decode.decodeString Data.Kinto.attachmentDecoder response
+                        |> Result.mapError
+                            (\_ ->
+                                Decode.decodeString Kinto.errorDecoder response
+                                    |> Result.map
+                                        (\errorDetail ->
+                                            Kinto.KintoError errorDetail.code errorDetail.message errorDetail
+                                        )
+                                    |> Result.withDefault (Kinto.NetworkError Http.NetworkError)
+                            )
+
+                kintoData =
+                    case result of
+                        Ok video ->
+                            Received model.newVideo
+
+                        Err error ->
+                            Failed error
+            in
             ( { model
                 | newVideo = emptyVideo
-                , newVideoKintoData = Received model.newVideo
+                , newVideoKintoData = kintoData
                 , videoObjectUrl = Nothing
                 , percentage = 0
               }

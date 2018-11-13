@@ -1,7 +1,9 @@
 module Data.Kinto exposing
-    ( Contact
+    ( Attachment
+    , Contact
     , KintoData(..)
     , Video
+    , attachmentDecoder
     , contactDecoder
     , decodeContactList
     , decodeVideoList
@@ -66,6 +68,29 @@ encodeVideoData video =
         , ( "title", Encode.string video.title )
         , ( "keywords", Encode.string video.keywords )
         ]
+
+
+
+---- ATTACHMENT ----
+
+
+type alias Attachment =
+    { filename : String
+    , hash : String
+    , location : String
+    , mimetype : String
+    , size : Int
+    }
+
+
+attachmentDecoder : Decode.Decoder Attachment
+attachmentDecoder =
+    Decode.map5 Attachment
+        (Decode.field "filename" Decode.string)
+        (Decode.field "hash" Decode.string)
+        (Decode.field "location" Decode.string)
+        (Decode.field "mimetype" Decode.string)
+        (Decode.field "size" Decode.int)
 
 
 

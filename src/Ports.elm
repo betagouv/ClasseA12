@@ -24,7 +24,7 @@ port submitVideo :
     ( String, String ) -> Cmd msg
 
 
-port videoSubmitted : (Decode.Value -> msg) -> Sub msg
+port videoSubmitted : (String -> msg) -> Sub msg
 
 
 port progressUpdate : (Decode.Value -> msg) -> Sub msg

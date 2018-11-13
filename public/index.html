@@ -85,6 +85,10 @@
       xhr.onload = function () {
         app.ports.videoSubmitted.send(this.response);
       }
+      xhr.onerror = function (event) {
+        console.error("network error", event.target);
+        app.ports.videoSubmitted.send(this.response);
+      }
       xhr.setRequestHeader("Authorization", "Basic " + btoa("classea12:notasecret"));
       xhr.send(formData);
     });
