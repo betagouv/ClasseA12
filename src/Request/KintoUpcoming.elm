@@ -2,11 +2,12 @@ module Request.KintoUpcoming exposing (submitVideo)
 
 import Data.Kinto
 import Kinto
+import Request.Kinto exposing (client)
 
 
-submitVideo : Data.Kinto.Video -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
-submitVideo video message =
-    client
+submitVideo : Data.Kinto.Video -> String -> String -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
+submitVideo video login password message =
+    client login password
         |> Kinto.create recordResource (Data.Kinto.encodeVideoData video)
         |> Kinto.send message
 
@@ -14,8 +15,3 @@ submitVideo video message =
 recordResource : Kinto.Resource Data.Kinto.Video
 recordResource =
     Kinto.recordResource "classea12" "upcoming" Data.Kinto.videoDecoder
-
-
-client : Kinto.Client
-client =
-    Kinto.client "https://kinto.agopian.info/v1/" (Kinto.Basic "classea12" "notasecret")

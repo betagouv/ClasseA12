@@ -8,6 +8,9 @@ import Html.Events as HE
 import Json.Decode as Decode
 import Kinto
 import Ports
+import Random
+import Random.Char
+import Random.String
 import Request.KintoUpcoming
 import Route
 
@@ -20,9 +23,14 @@ type alias Model =
     }
 
 
+type Credentials
+    = Credentials ( String, String )
+
+
 type Msg
     = UpdateVideoForm Video
-    | SubmitNewVideo
+    | GenerateRandomCredentials
+    | SubmitNewVideo Credentials
     | NewVideoSubmitted (Result Kinto.Error Video)
     | DiscardNotification
     | VideoSelected
@@ -48,9 +56,13 @@ update _ msg model =
         UpdateVideoForm video ->
             ( { model | newVideo = video }, Cmd.none )
 
-        SubmitNewVideo ->
+        GenerateRandomCredentials ->
+            -- TODO : this is only there temporarily, and will be replaced by the user's credentials
+            ( model, generateRandomCredentials )
+
+        SubmitNewVideo (Credentials ( login, password )) ->
             ( { model | newVideoKintoData = Requested }
-            , Request.KintoUpcoming.submitVideo model.newVideo NewVideoSubmitted
+            , Request.KintoUpcoming.submitVideo model.newVideo login password NewVideoSubmitted
             )
 
         NewVideoSubmitted (Ok video) ->
@@ -124,7 +136,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
             videoObjectUrl
                 /= Nothing
     in
-    H.form [ HE.onSubmit SubmitNewVideo ]
+    H.form [ HE.onSubmit GenerateRandomCredentials ]
         [ H.div
             [ HA.class "upload-video"
             ]
@@ -284,3 +296,22 @@ formInput input id label placeholder value onInput isVisible =
 
 onFileSelected msg =
     HE.on "change" (Decode.succeed VideoSelected)
+
+
+randomString : Random.Generator String
+randomString =
+    Random.String.string 20 Random.Char.latin
+
+
+stringPair : Random.Generator ( String, String )
+stringPair =
+    Random.pair randomString randomString
+
+
+generateRandomCredentials : Cmd Msg
+generateRandomCredentials =
+    Random.generate
+        SubmitNewVideo
+        (stringPair
+            |> Random.map Credentials
+        )
