@@ -101,6 +101,7 @@ type alias Contact =
     { id : String
     , name : String
     , email : String
+    , role : String
     }
 
 
@@ -108,15 +109,17 @@ emptyContact =
     { id = ""
     , name = ""
     , email = ""
+    , role = ""
     }
 
 
 contactDecoder : Decode.Decoder Contact
 contactDecoder =
-    Decode.map3 Contact
+    Decode.map4 Contact
         (Decode.field "id" Decode.string)
         (Decode.field "name" Decode.string)
         (Decode.field "email" Decode.string)
+        (Decode.field "role" Decode.string)
 
 
 decodeContactList : Decode.Value -> Result Decode.Error (List Contact)
@@ -130,4 +133,5 @@ encodeContactData contact =
     Encode.object
         [ ( "name", Encode.string contact.name )
         , ( "email", Encode.string contact.email )
+        , ( "role", Encode.string contact.role )
         ]

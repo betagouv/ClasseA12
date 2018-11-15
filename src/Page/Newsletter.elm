@@ -5,6 +5,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Json.Decode as Decode
 import Kinto
 import Random
 import Random.Char
@@ -98,11 +99,30 @@ view _ { contact, newContactKintoData } =
                             "Votre adresse email"
                             contact.email
                             (\email -> UpdateContactForm { contact | email = email })
+                        , H.div
+                            [ HA.class "form__group" ]
+                            [ H.label [ HA.for "role" ]
+                                [ H.text "Role*" ]
+                            , H.select
+                                [ HA.id "role"
+                                , HA.value contact.role
+                                , onChange
+                                    (\role ->
+                                        UpdateContactForm { contact | role = role }
+                                    )
+                                ]
+                                [
+                                    H.option [] []
+                                    , H.option [HA.value "CP"] [H.text "Enseignant en CP"]
+                                    , H.option [HA.value "CE1"] [H.text "Enseignant en CE1"]
+                                    , H.option [HA.value "Formateur"] [H.text "Formateur"]
+                                ]
+                            ]
                         , H.button
                             [ HA.type_ "submit"
                             , HA.class "button"
                             , HA.disabled
-                                (contact.name == "" || contact.email == "" || newContactKintoData == Requested)
+                                (contact.name == "" || contact.email == "" || contact.role == "" || newContactKintoData == Requested)
                             ]
                             [ if newContactKintoData == Requested then
                                 H.i [ HA.class "fa fa-spinner fa-spin" ] []
@@ -170,3 +190,8 @@ generateRandomPassword =
         (Random.String.string 20 Random.Char.latin
             |> Random.map RandomPassword
         )
+
+
+onChange : (String -> Msg) -> H.Attribute Msg
+onChange tagger =
+    HE.on "change" (Decode.map tagger HE.targetValue)
