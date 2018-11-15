@@ -1,5 +1,51 @@
-.hero {
-    background: linear-gradient(to right, #c969a6 0%, #e795a8 15%, #a4cfcd 43%, #45adc5 65%, #265c9f 100%);
+@media (max-width: 749px) {
+    .nav__item a, .nav__item .dropdown {
+        padding: 0.1em 0.8em;
+    }
+}
+.hero__banner {
+    background : center / contain no-repeat url("../bandeau.jpg");
+    padding-top: 13.77%;
+}
+.hero__container {
+    font-size: 1.5em;
+    min-height: inherit;
+    padding: 0;
+    position: relative;
+}
+.hero__logo {
+    filter: drop-shadow(0 10px 10px #002856);
+    left: 50px;
+    position: absolute;
+    top: -50px;
+    width: 250px;
+}
+.hero__container h1,
+.hero__container p {
+    color: #fff;
+    font-weight: bold;
+    padding-left: 300px;
+    text-shadow: 3px 3px 10px #000;
+}
+.hero__container h1 {
+    font-size: 2.5em;
+    margin: 0.3em 0.5em 0;
+}
+.hero__container p {
+    margin: 0.5em;
+}
+@media (max-width: 749px) {
+    .hero__logo {
+        left: inherit;
+        padding-top: 10px;
+        position: inherit;
+        top: inherit;
+        width: 100px;
+    }
+    .hero__container h1,
+    .hero__container p {
+        padding-left: 0;
+    }
 }
 .overlay-button {
     top: 1em;

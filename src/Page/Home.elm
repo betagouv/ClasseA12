@@ -42,11 +42,17 @@ view : Session -> Model -> ( String, List (H.Html Msg) )
 view session ({ search } as model) =
     ( "Liste des vidéos"
     , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.h1 [ HA.class "hero__white-background" ]
-                    [ H.text "Classe à 12 en vidéo" ]
-                , H.p [ HA.class "hero__white-background" ]
-                    [ H.text "Echangeons nos pratiques en toute simplicité : des vidéos par les enseignants, pour les enseignants." ]
+            [ H.div [ HA.class "hero__banner" ] []
+            , H.div [ HA.class "hero__container" ]
+                [ H.img
+                    [ HA.src "./logo_ca12.png"
+                    , HA.class "hero__logo"
+                    ]
+                    []
+                , H.h1 []
+                    [ H.text "Classe à 12 en vidéo !" ]
+                , H.p []
+                    [ H.text "Échangeons nos pratiques en toute simplicité" ]
                 ]
             ]
       , H.div [ HA.class "main" ]
