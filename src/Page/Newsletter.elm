@@ -74,10 +74,9 @@ view _ { contact, newContactKintoData } =
     ( "Inscrivez-vous à notre infolettre"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.h1 [ HA.class "hero__white-background" ]
-                    [ H.text "Inscrivez-vous à notre infolettre" ]
-                , H.p [ HA.class "hero__white-background" ]
-                    [ H.text "Tenez-vous au courant des nouvelles vidéos et de l'actualité du projet !" ]
+                [ H.img [ HA.src "./logo_ca12.png" , HA.class "hero__logo" ] []
+                , H.h1 [] [ H.text "Inscrivez-vous à notre infolettre" ]
+                , H.p [] [ H.text "Tenez-vous au courant des nouvelles vidéos et de l'actualité du projet !" ]
                 ]
             ]
       , H.div [ HA.class "main" ]

@@ -28,10 +28,9 @@ view _ model =
     ( "Classe à 12 ?"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.h1 [ HA.class "hero__white-background" ]
-                    [ H.text "Classe à 12 ?" ]
-                , H.p [ HA.class "hero__white-background" ]
-                    [ H.text "Prêt.e ? Filmez ! Partagez !" ]
+                [ H.img [ HA.src "./logo_ca12.png" , HA.class "hero__logo" ] []
+                , H.h1 [] [ H.text "Classe à 12 ?" ]
+                , H.p [] [ H.text "Prêt.e ? Filmez ! Partagez !" ]
                 ]
             ]
       , H.div [ HA.class "main" ]
