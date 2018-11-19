@@ -7,6 +7,7 @@ import Html exposing (..)
 import Http
 import Json.Decode as Decode
 import Page.About as About
+import Page.CGU as CGU
 import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
@@ -27,6 +28,7 @@ type Page
     | AboutPage About.Model
     | ParticipatePage Participate.Model
     | NewsletterPage Newsletter.Model
+    | CGUPage CGU.Model
     | NotFound
 
 
@@ -42,6 +44,7 @@ type Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
     | NewsletterMsg Newsletter.Msg
+    | CGUMsg CGU.Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
@@ -90,6 +93,9 @@ setRoute maybeRoute model =
         Just Route.Newsletter ->
             toPage NewsletterPage Newsletter.init NewsletterMsg
 
+        Just Route.CGU ->
+            toPage CGUPage CGU.init CGUMsg
+
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
@@ -135,6 +141,9 @@ update msg ({ page, session } as model) =
 
         ( NewsletterMsg newsletterMsg, NewsletterPage newsletterModel ) ->
             toPage NewsletterPage NewsletterMsg (Newsletter.update session) newsletterMsg newsletterModel
+
+        ( CGUMsg cguMsg, CGUPage cguModel ) ->
+            toPage CGUPage CGUMsg (CGU.update session) cguMsg cguModel
 
         ( RouteChanged route, _ ) ->
             setRoute route model
@@ -217,6 +226,9 @@ subscriptions model =
             NewsletterPage _ ->
                 Sub.none
 
+            CGUPage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -255,6 +267,11 @@ view model =
             Newsletter.view model.session newsletterModel
                 |> mapMsg NewsletterMsg
                 |> Page.frame (pageConfig Page.Newsletter)
+
+        CGUPage cguModel ->
+            CGU.view model.session cguModel
+                |> mapMsg CGUMsg
+                |> Page.frame (pageConfig Page.CGU)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )

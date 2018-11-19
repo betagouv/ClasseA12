@@ -155,7 +155,7 @@ view _ model =
                     , H.p []
                         [ H.text "L'utilisation de ce service est régi par une "
                         , H.a
-                            [ HA.href "#"
+                            [ Route.href Route.CGU
                             , HE.onClick DisplayCGU
                             ]
                             [ H.text "charte de bonne conduite" ]
@@ -176,10 +176,9 @@ displaySubmitVideoForm :
         , videoObjectUrl : Maybe String
         , percentage : Int
         , approved : Bool
-        , displayCGU : Bool
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage, approved, displayCGU } =
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage, approved } =
     let
         videoSelected =
             videoObjectUrl
@@ -286,26 +285,6 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
                     , HA.max "100"
                     ]
                     [ H.text <| String.fromInt percentage ++ "%" ]
-                ]
-            ]
-        , H.div
-            [ HA.classList
-                [ ( "modal__backdrop", True )
-                , ( "is-active", displayCGU )
-                ]
-            ]
-            [ H.div [ HA.class "modal" ]
-                [ H.h1 [] [ H.text "Charte d'utilisation" ]
-                , H.p []
-                    [ H.text "la charte" ]
-                , H.div [ HA.class "form__group button__group" ]
-                    [ H.a
-                        [ HA.class "button"
-                        , HA.href "#"
-                        , HE.onClick DiscardCGU
-                        ]
-                        [ H.text "Fermer" ]
-                    ]
                 ]
             ]
         ]

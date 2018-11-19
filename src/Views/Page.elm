@@ -13,6 +13,7 @@ type ActivePage
     | About
     | Participate
     | Newsletter
+    | CGU
     | NotFound
 
 
@@ -106,7 +107,7 @@ viewFooter =
                 [ li []
                     [ h2 [] [ text "classea12.beta.gouv.fr" ] ]
                 , li []
-                    [ a [ href "#" ] [ text "Conditions générales d'utilisation" ] ]
+                    [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ] ]
                 ]
             ]
         ]

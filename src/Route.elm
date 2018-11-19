@@ -13,6 +13,7 @@ type Route
     | About
     | Participate
     | Newsletter
+    | CGU
 
 
 parser : Parser (Route -> a) a
@@ -22,6 +23,7 @@ parser =
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map Newsletter (Parser.s "infolettre")
+        , Parser.map CGU (Parser.s "CGU")
         ]
 
 
@@ -56,5 +58,8 @@ toString route =
 
                 Newsletter ->
                     [ "infolettre" ]
+
+                CGU ->
+                    [ "CGU" ]
     in
     "/" ++ String.join "/" pieces
