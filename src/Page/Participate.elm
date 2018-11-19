@@ -22,6 +22,7 @@ type alias Model =
     , videoObjectUrl : Maybe String
     , percentage : Int
     , approved : Bool
+    , displayCGU : Bool
     }
 
 
@@ -39,6 +40,8 @@ type Msg
     | ProgressUpdated Decode.Value
     | AttachmentSent String
     | OnApproved Bool
+    | DisplayCGU
+    | DiscardCGU
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -48,6 +51,7 @@ init session =
       , videoObjectUrl = Nothing
       , percentage = 0
       , approved = False
+      , displayCGU = False
       }
     , Cmd.none
     )
@@ -133,6 +137,12 @@ update _ msg model =
         OnApproved approved ->
             ( { model | approved = approved }, Cmd.none )
 
+        DisplayCGU ->
+            ( { model | displayCGU = True }, Cmd.none )
+
+        DiscardCGU ->
+            ( { model | displayCGU = False }, Cmd.none )
+
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ model =
@@ -142,6 +152,15 @@ view _ model =
                 [ H.div [ HA.class "container" ]
                     [ displayKintoData model.newVideoKintoData
                     , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
+                    , H.p []
+                        [ H.text "L'utilisation de ce service est régi par une "
+                        , H.a
+                            [ HA.href "#"
+                            , HE.onClick DisplayCGU
+                            ]
+                            [ H.text "charte de bonne conduite" ]
+                        , H.text "."
+                        ]
                     , displaySubmitVideoForm model
                     ]
                 ]
@@ -157,9 +176,10 @@ displaySubmitVideoForm :
         , videoObjectUrl : Maybe String
         , percentage : Int
         , approved : Bool
+        , displayCGU : Bool
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage, approved } =
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage, approved, displayCGU } =
     let
         videoSelected =
             videoObjectUrl
@@ -237,7 +257,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
                 ]
                 []
             , H.label [ HA.for "approveCGU", HA.class "label-inline" ]
-                [ H.text "J'ai lu et j'accepte d'adhérer à la charte d'utilisation" ]
+                [ H.text "J'ai lu et j'accepte d'adhérer à la charte de bonne conduite" ]
             ]
         , H.button
             [ HA.type_ "submit"
@@ -266,6 +286,26 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
                     , HA.max "100"
                     ]
                     [ H.text <| String.fromInt percentage ++ "%" ]
+                ]
+            ]
+        , H.div
+            [ HA.classList
+                [ ( "modal__backdrop", True )
+                , ( "is-active", displayCGU )
+                ]
+            ]
+            [ H.div [ HA.class "modal" ]
+                [ H.h1 [] [ H.text "Charte d'utilisation" ]
+                , H.p []
+                    [ H.text "la charte" ]
+                , H.div [ HA.class "form__group button__group" ]
+                    [ H.a
+                        [ HA.class "button"
+                        , HA.href "#"
+                        , HE.onClick DiscardCGU
+                        ]
+                        [ H.text "Fermer" ]
+                    ]
                 ]
             ]
         ]
