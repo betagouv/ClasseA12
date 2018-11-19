@@ -21,6 +21,7 @@ type alias Model =
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
     , percentage : Int
+    , approved : Bool
     }
 
 
@@ -37,6 +38,7 @@ type Msg
     | VideoObjectUrlReceived Decode.Value
     | ProgressUpdated Decode.Value
     | AttachmentSent String
+    | OnApproved Bool
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -45,6 +47,7 @@ init session =
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
       , percentage = 0
+      , approved = False
       }
     , Cmd.none
     )
@@ -127,6 +130,9 @@ update _ msg model =
             , Cmd.none
             )
 
+        OnApproved approved ->
+            ( { model | approved = approved }, Cmd.none )
+
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ model =
@@ -150,9 +156,10 @@ displaySubmitVideoForm :
         , newVideoKintoData : KintoData Video
         , videoObjectUrl : Maybe String
         , percentage : Int
+        , approved : Bool
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage } =
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage, approved } =
     let
         videoSelected =
             videoObjectUrl
@@ -212,10 +219,30 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
             newVideo.keywords
             (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
             videoSelected
+        , H.div
+            [ HA.class "form__group"
+            , HA.style "display"
+                (if videoSelected then
+                    "block"
+
+                 else
+                    "none"
+                )
+            ]
+            [ H.input
+                [ HA.id "approve_CGU"
+                , HA.type_ "checkbox"
+                , HA.checked approved
+                , HE.onCheck OnApproved
+                ]
+                []
+            , H.label [ HA.for "approveCGU", HA.class "label-inline" ]
+                [ H.text "J'ai lu et j'accepte d'adhérer à la charte d'utilisation" ]
+            ]
         , H.button
             [ HA.type_ "submit"
             , HA.class "button"
-            , HA.disabled (newVideo.title == "")
+            , HA.disabled (newVideo.title == "" || not approved)
             , HA.style "display"
                 (if videoSelected then
                     "block"
