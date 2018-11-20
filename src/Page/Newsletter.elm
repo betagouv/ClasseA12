@@ -74,7 +74,7 @@ view _ { contact, newContactKintoData } =
     ( "Inscrivez-vous à notre infolettre"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "./logo_ca12.png" , HA.class "hero__logo" ] []
+                [ H.img [ HA.src "./logo_ca12.png", HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Inscrivez-vous à notre infolettre" ]
                 , H.p [] [ H.text "Tenez-vous au courant des nouvelles vidéos et de l'actualité du projet !" ]
                 ]
@@ -110,11 +110,10 @@ view _ { contact, newContactKintoData } =
                                         UpdateContactForm { contact | role = role }
                                     )
                                 ]
-                                [
-                                    H.option [] []
-                                    , H.option [HA.value "CP"] [H.text "Enseignant en CP"]
-                                    , H.option [HA.value "CE1"] [H.text "Enseignant en CE1"]
-                                    , H.option [HA.value "Formateur"] [H.text "Formateur"]
+                                [ H.option [] []
+                                , H.option [ HA.value "CP" ] [ H.text "Enseignant en CP" ]
+                                , H.option [ HA.value "CE1" ] [ H.text "Enseignant en CE1" ]
+                                , H.option [ HA.value "Formateur" ] [ H.text "Formateur" ]
                                 ]
                             ]
                         , H.button
@@ -129,6 +128,16 @@ view _ { contact, newContactKintoData } =
                               else
                                 H.text " M'inscrire à l'infolettre"
                             ]
+                        ]
+                    , H.p []
+                        [ H.text "En renseignant votre nom et votre adresse email, vous acceptez de recevoir des informations ponctuelles par courrier électronique et vous prenez connaissance de notre "
+                        , H.a [ Route.href Route.PrivacyPolicy ] [ H.text "politique de confidentialité" ]
+                        , H.text "."
+                        ]
+                    , H.p []
+                        [ H.text "Vous pouvez vous désinscrire à tout moment en nous contactant à l'adresse "
+                        , H.a [ HA.href "mailto:contact@classea12.beta.gouv.fr?subject=désinscription infolettre" ] [ H.text "contact@classea12.beta.gouv.fr" ]
+                        , H.text "."
                         ]
                     ]
                 ]
