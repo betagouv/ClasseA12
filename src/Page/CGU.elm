@@ -39,7 +39,7 @@ view _ _ =
                 [ H.div [ HA.class "container" ]
                     [ H.p [] [ H.text "Le site «\u{00A0}Classe à 12\u{00A0}» est un projet en construction édité dans le cadre d’une Startup d’État portée par le laboratoire d’innovation du Ministère (Lab110bis), la Direction interministérielle des systèmes d'information et de communication de l'État (DINSIC)." ]
                     , H.p [] [ H.text "Ce projet actuellement hébergé par les services de beta.gouv.fr, est en lien avec le réseau des incubateurs de Startup d’État." ]
-                    , H.p [] [ H.text "Le site est édité et développé par la Mission Etalab (ci-après, Etalab) de la Direction interministérielle du numérique et du système d'information et de communication de l'Etat (DINSIC) au sein du Secrétariat général pour la modernisation de l'action publique (SGMAP)." ]
+                    , H.p [] [ H.text "Le site est édité et développé par la Direction interministérielle du numérique et du système d'information et de communication de l'Etat (DINSIC) au sein du Secrétariat général pour la modernisation de l'action publique (SGMAP)." ]
                     , H.p [] [ H.text "Toute utilisation du site «\u{00A0}Classe à 12\u{00A0}»  est subordonnée au respect des présentes conditions générales d'utilisation (CGU)." ]
                     , H.h2 [] [ H.text "Est défini comme :" ]
                     , H.p []
@@ -123,7 +123,6 @@ view _ _ =
                         ]
                     , H.h2 [] [ H.text "Mentions légales" ]
                     , H.h3 [] [ H.text "Editeurs" ]
-                    , H.p [] [ H.text "Mission Etalab, Direction interministérielle du numérique et du système d'information et de communication de l'Etat (DINSIC), Secrétariat général pour la modernisation de l'action publique (SGMAP)." ]
                     , H.p []
                         [ H.text "Incubateur de services numériques de la Direction interministérielle du numérique et du système d'information et de communication de l'État (DINSIC)."
                         , H.br [] []
