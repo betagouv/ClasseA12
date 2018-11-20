@@ -67,7 +67,10 @@ setRoute maybeRoute model =
                     subInit model.session
             in
             ( { model | page = page subModel }
-            , Cmd.map subMsg subCmds
+            , Cmd.batch
+                [ Cmd.map subMsg subCmds
+                , Ports.newURL "new url"
+                ]
             )
     in
     case maybeRoute of
