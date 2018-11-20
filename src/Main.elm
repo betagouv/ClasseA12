@@ -11,6 +11,7 @@ import Page.CGU as CGU
 import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
+import Page.PrivacyPolicy as PrivacyPolicy
 import Platform.Sub
 import Ports
 import Request.Vimeo as Vimeo
@@ -29,6 +30,7 @@ type Page
     | ParticipatePage Participate.Model
     | NewsletterPage Newsletter.Model
     | CGUPage CGU.Model
+    | PrivacyPolicyPage PrivacyPolicy.Model
     | NotFound
 
 
@@ -45,6 +47,7 @@ type Msg
     | ParticipateMsg Participate.Msg
     | NewsletterMsg Newsletter.Msg
     | CGUMsg CGU.Msg
+    | PrivacyPolicyMsg PrivacyPolicy.Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
@@ -96,6 +99,9 @@ setRoute maybeRoute model =
         Just Route.CGU ->
             toPage CGUPage CGU.init CGUMsg
 
+        Just Route.PrivacyPolicy ->
+            toPage PrivacyPolicyPage PrivacyPolicy.init PrivacyPolicyMsg
+
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
@@ -144,6 +150,9 @@ update msg ({ page, session } as model) =
 
         ( CGUMsg cguMsg, CGUPage cguModel ) ->
             toPage CGUPage CGUMsg (CGU.update session) cguMsg cguModel
+
+        ( PrivacyPolicyMsg privacyPolicyMsg, PrivacyPolicyPage privacyPolicyModel ) ->
+            toPage PrivacyPolicyPage PrivacyPolicyMsg (PrivacyPolicy.update session) privacyPolicyMsg privacyPolicyModel
 
         ( RouteChanged route, _ ) ->
             setRoute route model
@@ -229,6 +238,9 @@ subscriptions model =
             CGUPage _ ->
                 Sub.none
 
+            PrivacyPolicyPage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -272,6 +284,11 @@ view model =
             CGU.view model.session cguModel
                 |> mapMsg CGUMsg
                 |> Page.frame (pageConfig Page.CGU)
+
+        PrivacyPolicyPage privacyPolicyModel ->
+            PrivacyPolicy.view model.session privacyPolicyModel
+                |> mapMsg PrivacyPolicyMsg
+                |> Page.frame (pageConfig Page.PrivacyPolicy)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )

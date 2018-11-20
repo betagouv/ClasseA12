@@ -184,3 +184,10 @@ button:disabled {
 .form__group + .button {
     margin-top: 1em;
 }
+.optout {
+    background-color: #f0f0f0;
+    width: 100%;
+    border-width: 0;
+    border-radius: 8px;
+    padding: 1em;
+}
