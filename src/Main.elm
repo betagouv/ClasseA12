@@ -8,6 +8,7 @@ import Http
 import Json.Decode as Decode
 import Page.About as About
 import Page.CGU as CGU
+import Page.Convention as Convention
 import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
@@ -30,6 +31,7 @@ type Page
     | ParticipatePage Participate.Model
     | NewsletterPage Newsletter.Model
     | CGUPage CGU.Model
+    | ConventionPage Convention.Model
     | PrivacyPolicyPage PrivacyPolicy.Model
     | NotFound
 
@@ -47,6 +49,7 @@ type Msg
     | ParticipateMsg Participate.Msg
     | NewsletterMsg Newsletter.Msg
     | CGUMsg CGU.Msg
+    | ConventionMsg Convention.Msg
     | PrivacyPolicyMsg PrivacyPolicy.Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
@@ -99,6 +102,9 @@ setRoute maybeRoute model =
         Just Route.CGU ->
             toPage CGUPage CGU.init CGUMsg
 
+        Just Route.Convention ->
+            toPage ConventionPage Convention.init ConventionMsg
+
         Just Route.PrivacyPolicy ->
             toPage PrivacyPolicyPage PrivacyPolicy.init PrivacyPolicyMsg
 
@@ -148,8 +154,8 @@ update msg ({ page, session } as model) =
         ( NewsletterMsg newsletterMsg, NewsletterPage newsletterModel ) ->
             toPage NewsletterPage NewsletterMsg (Newsletter.update session) newsletterMsg newsletterModel
 
-        ( CGUMsg cguMsg, CGUPage cguModel ) ->
-            toPage CGUPage CGUMsg (CGU.update session) cguMsg cguModel
+        ( ConventionMsg conventionMsg, ConventionPage conventionModel ) ->
+            toPage ConventionPage ConventionMsg (Convention.update session) conventionMsg conventionModel
 
         ( PrivacyPolicyMsg privacyPolicyMsg, PrivacyPolicyPage privacyPolicyModel ) ->
             toPage PrivacyPolicyPage PrivacyPolicyMsg (PrivacyPolicy.update session) privacyPolicyMsg privacyPolicyModel
@@ -238,6 +244,9 @@ subscriptions model =
             CGUPage _ ->
                 Sub.none
 
+            ConventionPage _ ->
+                Sub.none
+
             PrivacyPolicyPage _ ->
                 Sub.none
 
@@ -284,6 +293,11 @@ view model =
             CGU.view model.session cguModel
                 |> mapMsg CGUMsg
                 |> Page.frame (pageConfig Page.CGU)
+
+        ConventionPage conventionModel ->
+            Convention.view model.session conventionModel
+                |> mapMsg ConventionMsg
+                |> Page.frame (pageConfig Page.Convention)
 
         PrivacyPolicyPage privacyPolicyModel ->
             PrivacyPolicy.view model.session privacyPolicyModel

@@ -155,10 +155,12 @@ view _ model =
                     , H.p []
                         [ H.text "L'utilisation de ce service est régi par une "
                         , H.a
-                            [ Route.href Route.CGU
-                            , HE.onClick DisplayCGU
-                            ]
+                            [ Route.href Route.Convention ]
                             [ H.text "charte de bonne conduite" ]
+                        , H.text " et des "
+                        , H.a
+                            [ Route.href Route.CGU ]
+                            [ H.text "conditions générales d'utilisation" ]
                         , H.text "."
                         ]
                     , displaySubmitVideoForm model

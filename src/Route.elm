@@ -14,6 +14,7 @@ type Route
     | Participate
     | Newsletter
     | CGU
+    | Convention
     | PrivacyPolicy
 
 
@@ -25,6 +26,7 @@ parser =
         , Parser.map Participate (Parser.s "participer")
         , Parser.map Newsletter (Parser.s "infolettre")
         , Parser.map CGU (Parser.s "CGU")
+        , Parser.map Convention (Parser.s "Charte")
         , Parser.map PrivacyPolicy (Parser.s "PolitiqueConfidentialite")
         ]
 
@@ -63,6 +65,9 @@ toString route =
 
                 CGU ->
                     [ "CGU" ]
+
+                Convention ->
+                    [ "Charte" ]
 
                 PrivacyPolicy ->
                     [ "PolitiqueConfidentialite" ]

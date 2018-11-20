@@ -14,6 +14,7 @@ type ActivePage
     | Participate
     | Newsletter
     | CGU
+    | Convention
     | PrivacyPolicy
     | NotFound
 
@@ -109,6 +110,8 @@ viewFooter =
                     [ h2 [] [ text "classea12.beta.gouv.fr" ] ]
                 , li []
                     [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ] ]
+                , li []
+                    [ a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ] ]
                 , li []
                     [ a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ] ]
                 ]
