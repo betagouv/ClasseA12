@@ -47,7 +47,7 @@ view _ _ =
                         , H.text "interface web structurée permettant d'interagir automatiquement avec un système d'information, qui inclut généralement la récupération de données à la demande ;"
                         ]
                     , H.p []
-                        [ H.strong [] [ H.text "Contributeur : " ]
+                        [ H.strong [] [ H.text "Administrateur : " ]
                         , H.text "les administrateurs du site, responsables d’édition."
                         ]
                     , H.p []
@@ -76,8 +76,8 @@ view _ _ =
                     , H.p [] [ H.text "Tout Utilisateur peut contribuer et poster des vidéos, en publiant des jeux de données, des réutilisations de ceux-ci, ressources et commentaires relatifs aux Jeux de données." ]
                     , H.p [] [ H.text "Pour ce faire, l'Utilisateur s'inscrit sur le site. Cette inscription est propre à sa personne et non à l'entité ou personne morale qu'il représente." ]
                     , H.p [] [ H.text "En s'inscrivant, l'Utilisateur crée un profil sur le site. Pour plus de précisions, voir la rubrique Vie privée." ]
-                    , H.p [] [ H.text "Dès validation de son inscription, L’Utilisateur dispose du droit de poster des médias. Ces derniers sont modérés par les Contributeurs avant toute diffusion publique. " ]
-                    , H.p [] [ H.text "Enfin, il peut participer au contrôle de la qualité du site en signalant aux Contributeurs les contenus n'ayant pas vocation à y figurer (illicites ou contraires aux CGU). " ]
+                    , H.p [] [ H.text "Dès validation de son inscription, L’Utilisateur dispose du droit de poster des médias. Ces derniers sont modérés par les Administrateurs avant toute diffusion publique. " ]
+                    , H.p [] [ H.text "Enfin, il peut participer au contrôle de la qualité du site en signalant aux Administrateurs les contenus n'ayant pas vocation à y figurer (illicites ou contraires aux CGU). " ]
                     , H.h2 [] [ H.text "Evolution des conditions d'utilisation" ]
                     , H.p [] [ H.text "Les termes des présentes conditions d'utilisation peuvent être amendés à tout moment, sans préavis, en fonction des modifications apportées au site, de l'évolution de la législation ou pour tout autre motif jugé nécessaire." ]
                     , H.h2 [] [ H.text "Vie privée" ]
@@ -107,7 +107,7 @@ view _ _ =
                         , H.li [] [ H.text "droit à l’effacement et à l’oubli numérique." ]
                         ]
                     , H.p []
-                        [ H.text "Les Contributeurs du projet «\u{00A0}Classe à 12\u{00A0}» veillent actuellement à sa mise en conformité aux nouvelles règles introduites par le « Règlement (UE) 2016/679 du Parlement européen et du Conseil du 27 avril 2016 relatif à la protection des personnes physiques à l'égard du traitement des données à caractère personnel et à la libre circulation de ces données, et abrogeant la directive 95/46/CE » consultable sur le site de la CNIL à l’adresse suivante "
+                        [ H.text "Les Administrateurs du projet «\u{00A0}Classe à 12\u{00A0}» veillent actuellement à sa mise en conformité aux nouvelles règles introduites par le « Règlement (UE) 2016/679 du Parlement européen et du Conseil du 27 avril 2016 relatif à la protection des personnes physiques à l'égard du traitement des données à caractère personnel et à la libre circulation de ces données, et abrogeant la directive 95/46/CE » consultable sur le site de la CNIL à l’adresse suivante "
                         , H.a [ HA.href "https://www.cnil.fr/fr/reglement-europeen-protection-donnees" ] [ H.text "https://www.cnil.fr/fr/reglement-europeen-protection-donnees" ]
                         , H.text "."
                         ]
