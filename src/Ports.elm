@@ -1,4 +1,14 @@
-port module Ports exposing (SubmitVideoData, parseRSS, parsedVideoList, progressUpdate, submitVideo, videoObjectUrl, videoSelected, videoSubmitted)
+port module Ports exposing
+    ( SubmitVideoData
+    , newURL
+    , parseRSS
+    , parsedVideoList
+    , progressUpdate
+    , submitVideo
+    , videoObjectUrl
+    , videoSelected
+    , videoSubmitted
+    )
 
 import Json.Decode as Decode
 
@@ -34,3 +44,6 @@ port videoSubmitted : (String -> msg) -> Sub msg
 
 
 port progressUpdate : (Decode.Value -> msg) -> Sub msg
+
+
+port newURL : String -> Cmd msg
