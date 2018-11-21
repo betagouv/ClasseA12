@@ -97,7 +97,7 @@ view _ _ =
                         ]
                     , H.p []
                         [ H.text "Conformément à la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés, toute personne dont les données nominatives figurent dans «\u{00A0}Classe à 12\u{00A0}» ou sont utilisées de toute autre manière dans le cadre du présent site, dispose des droits suivants qu’elle peut exercer en prenant contact auprès du délégué à la protection des données (DPO) à l’adresse suivante : "
-                        , H.a [ HA.href "mailto:dpd@pm.gouv.fr" ] [ H.text "dpd@pm.gouv.fr" ]
+                        , H.a [ HA.href "mailto:contact@classea12.beta.gouv.fr" ] [ H.text "contact@classea12.beta.gouv.fr" ]
                         , H.text "."
                         ]
                     , H.ul []
