@@ -170,25 +170,14 @@ displayKintoData : KintoData Contact -> H.Html Msg
 displayKintoData kintoData =
     case kintoData of
         Failed error ->
-            H.div [ HA.class "notification error closable" ]
-                [ H.button
-                    [ HA.class "close"
-                    , HE.onClick DiscardNotification
-                    ]
-                    [ H.i [ HA.class "fa fa-times" ] [] ]
-                , H.text <| Kinto.errorToString error
-                ]
+            Page.Utils.errorNotification [ H.text (Kinto.errorToString error) ] DiscardNotification
 
         Received _ ->
-            H.div [ HA.class "notification success closable" ]
-                [ H.button
-                    [ HA.class "close"
-                    , HE.onClick DiscardNotification
-                    ]
-                    [ H.i [ HA.class "fa fa-times" ] [] ]
-                , H.text "Vous êtes maintenant inscrit à l'infolettre ! "
+            Page.Utils.successNotification
+                [ H.text "Vous êtes maintenant inscrit à l'infolettre ! "
                 , H.a [ Route.href Route.Home ] [ H.text "Retourner à la liste de vidéos" ]
                 ]
+                DiscardNotification
 
         _ ->
             H.div [] []

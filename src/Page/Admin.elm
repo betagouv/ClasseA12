@@ -109,7 +109,7 @@ view _ model =
       , H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ viewErrorList model.errorList
+                    [ Page.Utils.errorList model.errorList DiscardError
                     , case model.videoList of
                         Data.Kinto.Received videoList ->
                             viewVideoList videoList
@@ -183,21 +183,3 @@ viewLoginForm loginForm videoListData =
             ]
         , submitButton
         ]
-
-
-viewErrorList : List String -> H.Html Msg
-viewErrorList errorList =
-    H.div []
-        (errorList
-            |> List.indexedMap
-                (\index error ->
-                    H.div [ HA.class "notification error closable" ]
-                        [ H.button
-                            [ HA.class "close"
-                            , HE.onClick <| DiscardError index
-                            ]
-                            [ H.i [ HA.class "fa fa-times" ] [] ]
-                        , H.text <| error
-                        ]
-                )
-        )
