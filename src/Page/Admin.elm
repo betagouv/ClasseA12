@@ -73,14 +73,13 @@ update _ msg model =
             )
 
 
-
 isLoginFormComplete : LoginForm -> Bool
 isLoginFormComplete loginForm =
     loginForm.username /= "" && loginForm.password /= ""
 
 
 useLogin : Model -> ( Model, Cmd Msg )
-useLogin  model =
+useLogin model =
     if isLoginFormComplete model.loginForm then
         ( { model | videoListData = Data.Kinto.Requested }
         , Cmd.batch
@@ -94,7 +93,7 @@ useLogin  model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ {errorList, videoListData, loginForm} =
+view _ { errorList, videoListData, loginForm } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -104,17 +103,16 @@ view _ {errorList, videoListData, loginForm} =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ H.div [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ Page.Utils.errorList errorList DiscardError
-                    , case videoListData of
-                        Data.Kinto.Received videoList ->
-                            viewVideoList videoList
+            [ Page.Utils.errorList errorList DiscardError
+            , case videoListData of
+                Data.Kinto.Received videoList ->
+                    viewVideoList videoList
 
-                        _ ->
-                            viewLoginForm loginForm videoListData
-                    ]
-                ]
+                _ ->
+                    H.div [ HA.class "section section-white" ]
+                        [ H.div [ HA.class "container" ]
+                            [ viewLoginForm loginForm videoListData ]
+                        ]
             ]
       ]
     )
@@ -122,13 +120,62 @@ view _ {errorList, videoListData, loginForm} =
 
 viewVideoList : VideoList -> H.Html Msg
 viewVideoList videoList =
-    H.ul []
-        (videoList.objects
-            |> List.map
-                (\video ->
-                    H.li [] [ H.text video.title ]
+    H.section [ HA.class "section section-grey cards" ]
+        [ H.div [ HA.class "container" ]
+            [ H.div [ HA.class "row" ]
+                (videoList.objects
+                    |> List.map viewVideo
                 )
-        )
+            ]
+        ]
+
+
+viewVideo : Data.Kinto.Video -> H.Html Msg
+viewVideo video =
+    let
+        keywordsNode =
+            if video.keywords /= "" then
+                [ H.div [ HA.class "card__extra" ]
+                    [ H.div [ HA.class "label" ]
+                        [ H.text video.keywords ]
+                    ]
+                ]
+
+            else
+                []
+
+        cardNodes =
+            [ H.div
+                [ HA.class "card__cover" ]
+                [ viewVideoPlayer video.attachment ]
+            , H.div
+                [ HA.class "card__content" ]
+                [ H.h3 [] [ H.text video.title ]
+                , H.div [ HA.class "card__meta" ]
+                    [ H.time [] [ H.text <| String.fromInt video.last_modified ] ]
+                , H.p [] [ H.text video.description ]
+                ]
+            ]
+    in
+    H.div
+        [ HA.class "card" ]
+        (cardNodes ++ keywordsNode)
+
+
+viewVideoPlayer : Maybe Data.Kinto.Attachment -> H.Html Msg
+viewVideoPlayer maybeAttachment =
+    case maybeAttachment of
+        Just attachment ->
+            H.video
+                [ HA.src attachment.location
+                , HA.type_ attachment.mimetype
+                , HA.controls True
+                ]
+                [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
+
+        Nothing ->
+            H.span [ HA.class "novideo" ]
+                [ H.text "pas de vidéo" ]
 
 
 viewLoginForm : LoginForm -> VideoListData -> H.Html Msg

@@ -191,3 +191,8 @@ button:disabled {
     border-radius: 8px;
     padding: 1em;
 }
+.card__cover video {
+    height: 100%;
+    object-fit: contain;
+    width: 100%;
+}

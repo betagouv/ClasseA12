@@ -32,27 +32,33 @@ type KintoData a
 
 type alias Video =
     { id : String
+    , last_modified : Int
     , title : String
     , keywords : String
     , description : String
+    , attachment : Maybe Attachment
     }
 
 
 emptyVideo =
     { id = ""
+    , last_modified = 0
     , description = ""
     , title = ""
     , keywords = ""
+    , attachment = Nothing
     }
 
 
 videoDecoder : Decode.Decoder Video
 videoDecoder =
-    Decode.map4 Video
+    Decode.map6 Video
         (Decode.field "id" Decode.string)
+        (Decode.field "last_modified" Decode.int)
         (Decode.field "title" Decode.string)
         (Decode.field "description" Decode.string)
         (Decode.field "keywords" Decode.string)
+        (Decode.maybe (Decode.field "attachment" attachmentDecoder))
 
 
 decodeVideoList : Decode.Value -> Result Decode.Error (List Video)
