@@ -14,6 +14,7 @@ import Request.KintoUpcoming
 type alias Model =
     { loginForm : LoginForm
     , videoList : VideoListData
+    , errorList : List String
     }
 
 
@@ -30,12 +31,14 @@ type Msg
     | Login
     | Logout
     | VideoListFetched (Result Kinto.Error VideoList)
+    | DiscardError Int
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { loginForm = emptyLoginForm
       , videoList = Data.Kinto.NotRequested
+      , errorList = []
       }
     , Cmd.none
     )
@@ -53,8 +56,21 @@ update _ msg model =
         Logout ->
             ( { model | loginForm = emptyLoginForm }, Ports.logoutSession () )
 
-        VideoListFetched _ ->
-            ( model, Cmd.none )
+        VideoListFetched (Ok videoList) ->
+            ( { model | videoList = Data.Kinto.Received videoList }, Cmd.none )
+
+        VideoListFetched (Err err) ->
+            ( { model
+                | videoList = Data.Kinto.Failed err
+                , errorList = [ Kinto.errorToString err ] ++ model.errorList
+              }
+            , Cmd.none
+            )
+
+        DiscardError index ->
+            ( { model | errorList = List.take index model.errorList ++ List.drop (index + 1) model.errorList }
+            , Cmd.none
+            )
 
 
 isLoginFormComplete : LoginForm -> Bool
@@ -93,7 +109,8 @@ view _ model =
       , H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ case model.videoList of
+                    [ viewErrorList model.errorList
+                    , case model.videoList of
                         Data.Kinto.Received videoList ->
                             viewVideoList videoList
 
@@ -166,3 +183,21 @@ viewLoginForm loginForm videoListData =
             ]
         , submitButton
         ]
+
+
+viewErrorList : List String -> H.Html Msg
+viewErrorList errorList =
+    H.div []
+        (errorList
+            |> List.indexedMap
+                (\index error ->
+                    H.div [ HA.class "notification error closable" ]
+                        [ H.button
+                            [ HA.class "close"
+                            , HE.onClick <| DiscardError index
+                            ]
+                            [ H.i [ HA.class "fa fa-times" ] [] ]
+                        , H.text <| error
+                        ]
+                )
+        )
