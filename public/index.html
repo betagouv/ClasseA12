@@ -106,6 +106,14 @@
     app.ports.newURL.subscribe(function (url) {
       window.dispatchEvent(new Event('newURL'));
     });
+
+    app.ports.saveSession.subscribe(sessionData => {
+      localStorage.setItem("session", JSON.stringify(sessionData));
+    });
+
+    app.ports.logoutSession.subscribe(() => {
+      localStorage.removeItem("session");
+    });
   </script>
 
   <!-- Matomo -->
