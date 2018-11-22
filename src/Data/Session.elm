@@ -17,6 +17,7 @@ import Json.Encode as Encode
 
 type alias Session =
     { videoData : VideoData
+    , loginForm : LoginForm
     }
 
 
@@ -70,16 +71,14 @@ encodeData video =
 
 
 type alias LoginForm =
-    { serverURL : String
-    , username : String
+    { username : String
     , password : String
     }
 
 
 emptyLoginForm : LoginForm
 emptyLoginForm =
-    { serverURL = ""
-    , username = ""
+    { username = ""
     , password = ""
     }
 
@@ -87,16 +86,14 @@ emptyLoginForm =
 encodeSessionData : LoginForm -> Encode.Value
 encodeSessionData loginForm =
     Encode.object
-        [ ( "serverURL", Encode.string loginForm.serverURL )
-        , ( "username", Encode.string loginForm.username )
+        [ ( "username", Encode.string loginForm.username )
         , ( "password", Encode.string loginForm.password )
         ]
 
 
 decodeSessionData : Decode.Decoder LoginForm
 decodeSessionData =
-    Decode.map3
+    Decode.map2
         LoginForm
-        (Decode.field "serverURL" Decode.string)
         (Decode.field "username" Decode.string)
         (Decode.field "password" Decode.string)

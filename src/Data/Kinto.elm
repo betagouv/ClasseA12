@@ -50,8 +50,8 @@ videoDecoder : Decode.Decoder Video
 videoDecoder =
     Decode.map4 Video
         (Decode.field "id" Decode.string)
-        (Decode.field "description" Decode.string)
         (Decode.field "title" Decode.string)
+        (Decode.field "description" Decode.string)
         (Decode.field "keywords" Decode.string)
 
 

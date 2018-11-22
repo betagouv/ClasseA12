@@ -13,7 +13,7 @@ import Request.KintoUpcoming
 
 type alias Model =
     { loginForm : LoginForm
-    , videoList : VideoListData
+    , videoListData : VideoListData
     , errorList : List String
     }
 
@@ -36,8 +36,8 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { loginForm = emptyLoginForm
-      , videoList = Data.Kinto.NotRequested
+    ( { loginForm = session.loginForm
+      , videoListData = Data.Kinto.NotRequested
       , errorList = []
       }
     , Cmd.none
@@ -57,11 +57,11 @@ update _ msg model =
             ( { model | loginForm = emptyLoginForm }, Ports.logoutSession () )
 
         VideoListFetched (Ok videoList) ->
-            ( { model | videoList = Data.Kinto.Received videoList }, Cmd.none )
+            ( { model | videoListData = Data.Kinto.Received videoList }, Cmd.none )
 
         VideoListFetched (Err err) ->
             ( { model
-                | videoList = Data.Kinto.Failed err
+                | videoListData = Data.Kinto.Failed err
                 , errorList = [ Kinto.errorToString err ] ++ model.errorList
               }
             , Cmd.none
@@ -73,19 +73,16 @@ update _ msg model =
             )
 
 
+
 isLoginFormComplete : LoginForm -> Bool
 isLoginFormComplete loginForm =
-    loginForm.serverURL /= "" && loginForm.username /= "" && loginForm.password /= ""
+    loginForm.username /= "" && loginForm.password /= ""
 
 
 useLogin : Model -> ( Model, Cmd Msg )
-useLogin model =
+useLogin  model =
     if isLoginFormComplete model.loginForm then
-        let
-            client =
-                Kinto.client model.loginForm.serverURL (Kinto.Basic model.loginForm.username model.loginForm.password)
-        in
-        ( { model | videoList = Data.Kinto.Requested }
+        ( { model | videoListData = Data.Kinto.Requested }
         , Cmd.batch
             [ Request.KintoUpcoming.getVideoList model.loginForm.username model.loginForm.password VideoListFetched
             , Ports.saveSession <| encodeSessionData model.loginForm
@@ -97,7 +94,7 @@ useLogin model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ model =
+view _ {errorList, videoListData, loginForm} =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -109,13 +106,13 @@ view _ model =
       , H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ Page.Utils.errorList model.errorList DiscardError
-                    , case model.videoList of
+                    [ Page.Utils.errorList errorList DiscardError
+                    , case videoListData of
                         Data.Kinto.Received videoList ->
                             viewVideoList videoList
 
                         _ ->
-                            viewLoginForm model.loginForm model.videoList
+                            viewLoginForm loginForm videoListData
                     ]
                 ]
             ]
@@ -125,7 +122,13 @@ view _ model =
 
 viewVideoList : VideoList -> H.Html Msg
 viewVideoList videoList =
-    H.div [] [ H.text "#list of videos here#" ]
+    H.ul []
+        (videoList.objects
+            |> List.map
+                (\video ->
+                    H.li [] [ H.text video.title ]
+                )
+        )
 
 
 viewLoginForm : LoginForm -> VideoListData -> H.Html Msg
@@ -152,16 +155,6 @@ viewLoginForm loginForm videoListData =
     H.form
         [ HE.onSubmit Login ]
         [ H.h1 [] [ H.text "Formulaire de connexion" ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "serverURL" ] [ H.text "Server URL" ]
-            , H.input
-                [ HA.type_ "text"
-                , HA.id "serverURL"
-                , HA.value loginForm.serverURL
-                , HE.onInput <| \serverURL -> UpdateLoginForm { loginForm | serverURL = serverURL }
-                ]
-                []
-            ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "username" ] [ H.text "Username" ]
             , H.input

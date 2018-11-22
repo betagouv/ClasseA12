@@ -2,18 +2,19 @@ port module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Data.Session exposing (Session, VideoData(..))
+import Data.Session exposing (Session, VideoData(..), decodeSessionData, emptyLoginForm)
 import Html exposing (..)
 import Http
 import Json.Decode as Decode
+import Json.Encode as Encode
 import Page.About as About
+import Page.Admin as Admin
 import Page.CGU as CGU
 import Page.Convention as Convention
 import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
-import Page.Admin as Admin
 import Platform.Sub
 import Ports
 import Request.Vimeo as Vimeo
@@ -23,7 +24,7 @@ import Views.Page as Page
 
 
 type alias Flags =
-    {}
+    Encode.Value
 
 
 type Page
@@ -121,11 +122,18 @@ setRoute maybeRoute model =
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     let
-        -- you'll usually want to retrieve and decode serialized session
-        -- information from flags here
+        loginForm =
+            -- Decode a string from the value (the stringified session data)
+            Decode.decodeValue Decode.string flags
+                -- Decode a loginForm from the value
+                |> Result.andThen (Decode.decodeString decodeSessionData)
+                |> Result.withDefault emptyLoginForm
+
         session : Session
         session =
-            { videoData = Fetching }
+            { videoData = Fetching
+            , loginForm = loginForm
+            }
     in
     setRoute (Route.fromUrl url)
         { navKey = navKey
@@ -170,7 +178,30 @@ update msg ({ page, session } as model) =
             toPage PrivacyPolicyPage PrivacyPolicyMsg (PrivacyPolicy.update session) privacyPolicyMsg privacyPolicyModel
 
         ( AdminMsg adminMsg, AdminPage adminModel ) ->
-            toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
+            let
+                ( newModel, newCmd ) =
+                    toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
+            in
+            case adminMsg of
+                -- Special case: if we retrieved the list of upcoming video using the credentials, then they are
+                -- correct, and we can store them in the session for future use
+                Admin.VideoListFetched (Ok _) ->
+                    let
+                        updatedSession =
+                            { session | loginForm = adminModel.loginForm }
+                    in
+                    ( { newModel | session = updatedSession }, newCmd )
+
+                -- Special case: on logout, remove the credentials from the session
+                Admin.Logout ->
+                    let
+                        updatedSession =
+                            { session | loginForm = emptyLoginForm }
+                    in
+                    ( { newModel | session = updatedSession }, newCmd )
+
+                _ ->
+                    ( newModel, newCmd )
 
         ( RouteChanged route, _ ) ->
             setRoute route model
