@@ -17,7 +17,8 @@
 <body>
   <script src="app.js"></script>
   <script>
-    const app = Elm.Main.init({ flags: {} });
+    const loginForm = window.localStorage.getItem("session");
+    const app = Elm.Main.init({ flags: loginForm });
 
     // Parse a rss xml content into a list of videos
     app.ports.parseRSS.subscribe(function (data) {
