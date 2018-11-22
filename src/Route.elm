@@ -16,6 +16,7 @@ type Route
     | CGU
     | Convention
     | PrivacyPolicy
+    | Admin
 
 
 parser : Parser (Route -> a) a
@@ -28,6 +29,7 @@ parser =
         , Parser.map CGU (Parser.s "CGU")
         , Parser.map Convention (Parser.s "Charte")
         , Parser.map PrivacyPolicy (Parser.s "PolitiqueConfidentialite")
+        , Parser.map Admin (Parser.s "admin")
         ]
 
 
@@ -71,5 +73,8 @@ toString route =
 
                 PrivacyPolicy ->
                     [ "PolitiqueConfidentialite" ]
+
+                Admin ->
+                    [ "admin" ]
     in
     "/" ++ String.join "/" pieces

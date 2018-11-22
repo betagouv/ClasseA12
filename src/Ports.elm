@@ -1,9 +1,11 @@
 port module Ports exposing
     ( SubmitVideoData
+    , logoutSession
     , newURL
     , parseRSS
     , parsedVideoList
     , progressUpdate
+    , saveSession
     , submitVideo
     , videoObjectUrl
     , videoSelected
@@ -11,6 +13,7 @@ port module Ports exposing
     )
 
 import Json.Decode as Decode
+import Json.Encode as Encode
 
 
 port parseRSS :
@@ -46,4 +49,12 @@ port videoSubmitted : (String -> msg) -> Sub msg
 port progressUpdate : (Decode.Value -> msg) -> Sub msg
 
 
-port newURL : String -> Cmd msg
+port newURL :
+    -- As we're using pushstate, we have to explicitely warn javascript (and analytics) of any url change
+    String -> Cmd msg
+
+
+port saveSession : Encode.Value -> Cmd msg
+
+
+port logoutSession : () -> Cmd msg

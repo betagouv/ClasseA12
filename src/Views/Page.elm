@@ -16,6 +16,7 @@ type ActivePage
     | CGU
     | Convention
     | PrivacyPolicy
+    | Admin
     | NotFound
 
 

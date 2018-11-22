@@ -1,4 +1,15 @@
-module Data.Session exposing (Session, Video, VideoData(..), decodeVideoList, encodeData, videoDecoder)
+module Data.Session exposing
+    ( LoginForm
+    , Session
+    , Video
+    , VideoData(..)
+    , decodeSessionData
+    , decodeVideoList
+    , emptyLoginForm
+    , encodeData
+    , encodeSessionData
+    , videoDecoder
+    )
 
 import Json.Decode as Decode
 import Json.Encode as Encode
@@ -52,3 +63,40 @@ encodeData video =
         , ( "thumbnail", Encode.string video.thumbnail )
         , ( "title", Encode.string video.title )
         ]
+
+
+
+-- Session Data --
+
+
+type alias LoginForm =
+    { serverURL : String
+    , username : String
+    , password : String
+    }
+
+
+emptyLoginForm : LoginForm
+emptyLoginForm =
+    { serverURL = ""
+    , username = ""
+    , password = ""
+    }
+
+
+encodeSessionData : LoginForm -> Encode.Value
+encodeSessionData loginForm =
+    Encode.object
+        [ ( "serverURL", Encode.string loginForm.serverURL )
+        , ( "username", Encode.string loginForm.username )
+        , ( "password", Encode.string loginForm.password )
+        ]
+
+
+decodeSessionData : Decode.Decoder LoginForm
+decodeSessionData =
+    Decode.map3
+        LoginForm
+        (Decode.field "serverURL" Decode.string)
+        (Decode.field "username" Decode.string)
+        (Decode.field "password" Decode.string)

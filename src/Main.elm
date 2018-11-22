@@ -13,6 +13,7 @@ import Page.Home as Home
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
+import Page.Admin as Admin
 import Platform.Sub
 import Ports
 import Request.Vimeo as Vimeo
@@ -33,6 +34,7 @@ type Page
     | CGUPage CGU.Model
     | ConventionPage Convention.Model
     | PrivacyPolicyPage PrivacyPolicy.Model
+    | AdminPage Admin.Model
     | NotFound
 
 
@@ -51,6 +53,7 @@ type Msg
     | CGUMsg CGU.Msg
     | ConventionMsg Convention.Msg
     | PrivacyPolicyMsg PrivacyPolicy.Msg
+    | AdminMsg Admin.Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
@@ -111,6 +114,9 @@ setRoute maybeRoute model =
         Just Route.PrivacyPolicy ->
             toPage PrivacyPolicyPage PrivacyPolicy.init PrivacyPolicyMsg
 
+        Just Route.Admin ->
+            toPage AdminPage Admin.init AdminMsg
+
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
@@ -162,6 +168,9 @@ update msg ({ page, session } as model) =
 
         ( PrivacyPolicyMsg privacyPolicyMsg, PrivacyPolicyPage privacyPolicyModel ) ->
             toPage PrivacyPolicyPage PrivacyPolicyMsg (PrivacyPolicy.update session) privacyPolicyMsg privacyPolicyModel
+
+        ( AdminMsg adminMsg, AdminPage adminModel ) ->
+            toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
 
         ( RouteChanged route, _ ) ->
             setRoute route model
@@ -253,6 +262,9 @@ subscriptions model =
             PrivacyPolicyPage _ ->
                 Sub.none
 
+            AdminPage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -306,6 +318,11 @@ view model =
             PrivacyPolicy.view model.session privacyPolicyModel
                 |> mapMsg PrivacyPolicyMsg
                 |> Page.frame (pageConfig Page.PrivacyPolicy)
+
+        AdminPage adminModel ->
+            Admin.view model.session adminModel
+                |> mapMsg AdminMsg
+                |> Page.frame (pageConfig Page.Admin)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )
