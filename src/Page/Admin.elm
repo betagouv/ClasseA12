@@ -6,6 +6,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
+import Page.Utils
 import Ports
 import Request.KintoUpcoming
 
@@ -120,16 +121,16 @@ viewLoginForm loginForm videoListData =
             if formComplete then
                 case videoListData of
                     Data.Kinto.Requested ->
-                        Loading
+                        Page.Utils.Loading
 
                     _ ->
-                        NotLoading
+                        Page.Utils.NotLoading
 
             else
-                Disabled
+                Page.Utils.Disabled
 
         submitButton =
-            loadingButton "Utiliser ces identifiants" buttonState
+            Page.Utils.submitButton "Utiliser ces identifiants" buttonState
     in
     H.form
         [ HE.onSubmit Login ]
@@ -165,36 +166,3 @@ viewLoginForm loginForm videoListData =
             ]
         , submitButton
         ]
-
-
-type ButtonState
-    = Disabled
-    | Loading
-    | NotLoading
-
-
-loadingButton : String -> ButtonState -> H.Html Msg
-loadingButton label buttonState =
-    let
-        loadingAttrs =
-            case buttonState of
-                Disabled ->
-                    [ HA.type_ "submit"
-                    , HA.class "button"
-                    , HA.disabled True
-                    ]
-
-                Loading ->
-                    [ HA.type_ "submit"
-                    , HA.class "button button-loader"
-                    , HA.disabled True
-                    ]
-
-                NotLoading ->
-                    [ HA.type_ "submit"
-                    , HA.class "button"
-                    ]
-    in
-    H.button
-        loadingAttrs
-        [ H.text label ]

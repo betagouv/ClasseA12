@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as Decode
 import Kinto
+import Page.Utils
 import Random
 import Random.Char
 import Random.String
@@ -71,6 +72,19 @@ update _ msg model =
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ { contact, newContactKintoData } =
+    let
+        buttonState =
+            if contact.name == "" || contact.email == "" || contact.role == "" then
+                Page.Utils.Disabled
+
+            else
+                case newContactKintoData of
+                    Requested ->
+                        Page.Utils.Loading
+
+                    _ ->
+                        Page.Utils.NotLoading
+    in
     ( "Inscrivez-vous à notre infolettre"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -116,28 +130,17 @@ view _ { contact, newContactKintoData } =
                                 , H.option [ HA.value "Formateur" ] [ H.text "Formateur" ]
                                 ]
                             ]
-                        , H.button
-                            [ HA.type_ "submit"
-                            , HA.class "button"
-                            , HA.disabled
-                                (contact.name == "" || contact.email == "" || contact.role == "" || newContactKintoData == Requested)
+                        , Page.Utils.submitButton "M'inscrire à l'infolettre" buttonState
+                        , H.p []
+                            [ H.text "En renseignant votre nom et votre adresse email, vous acceptez de recevoir des informations ponctuelles par courrier électronique et vous prenez connaissance de notre "
+                            , H.a [ Route.href Route.PrivacyPolicy ] [ H.text "politique de confidentialité" ]
+                            , H.text "."
                             ]
-                            [ if newContactKintoData == Requested then
-                                H.i [ HA.class "fa fa-spinner fa-spin" ] []
-
-                              else
-                                H.text " M'inscrire à l'infolettre"
+                        , H.p []
+                            [ H.text "Vous pouvez vous désinscrire à tout moment en nous contactant à l'adresse "
+                            , H.a [ HA.href "mailto:contact@classea12.beta.gouv.fr?subject=désinscription infolettre" ] [ H.text "contact@classea12.beta.gouv.fr" ]
+                            , H.text "."
                             ]
-                        ]
-                    , H.p []
-                        [ H.text "En renseignant votre nom et votre adresse email, vous acceptez de recevoir des informations ponctuelles par courrier électronique et vous prenez connaissance de notre "
-                        , H.a [ Route.href Route.PrivacyPolicy ] [ H.text "politique de confidentialité" ]
-                        , H.text "."
-                        ]
-                    , H.p []
-                        [ H.text "Vous pouvez vous désinscrire à tout moment en nous contactant à l'adresse "
-                        , H.a [ HA.href "mailto:contact@classea12.beta.gouv.fr?subject=désinscription infolettre" ] [ H.text "contact@classea12.beta.gouv.fr" ]
-                        , H.text "."
                         ]
                     ]
                 ]
