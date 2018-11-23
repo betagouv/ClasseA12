@@ -1,5 +1,6 @@
 module Page.Utils exposing
     ( ButtonState(..)
+    , button
     , errorList
     , errorNotification
     , notification
@@ -20,6 +21,11 @@ type ButtonState
 
 submitButton : String -> ButtonState -> H.Html msg
 submitButton label buttonState =
+    button label buttonState Nothing
+
+
+button : String -> ButtonState -> Maybe msg -> H.Html msg
+button label buttonState maybeOnClick =
     let
         loadingAttrs =
             case buttonState of
@@ -39,9 +45,14 @@ submitButton label buttonState =
                     [ HA.type_ "submit"
                     , HA.class "button"
                     ]
+
+        onClickAttr =
+            maybeOnClick
+                |> Maybe.map (\onClick -> [ HE.onClick onClick ])
+                |> Maybe.withDefault []
     in
     H.button
-        loadingAttrs
+        (loadingAttrs ++ onClickAttr)
         [ if buttonState == Loading then
             H.i [ HA.class "fa fa-spinner fa-spin" ] []
 

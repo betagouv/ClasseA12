@@ -32,6 +32,7 @@ type Msg
     | Logout
     | VideoListFetched (Result Kinto.Error VideoList)
     | DiscardError Int
+    | PublishVideo Video
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -80,6 +81,13 @@ update _ msg model =
             ( { model | errorList = List.take index model.errorList ++ List.drop (index + 1) model.errorList }
             , Cmd.none
             )
+
+        PublishVideo video ->
+            let
+                _ =
+                    Debug.log "publish video" video.id
+            in
+            ( model, Cmd.none )
 
 
 isLoginFormComplete : LoginForm -> Bool
@@ -133,7 +141,7 @@ viewVideoList videoList =
         [ H.div [ HA.class "container" ]
             [ H.div [ HA.class "form__group logout-button" ]
                 [ H.button
-                    [ HA.class "button logout-button"
+                    [ HA.class "button logout-button warning large"
                     , HE.onClick Logout
                     ]
                     [ H.text "Se déconnecter" ]
@@ -172,10 +180,13 @@ viewVideo video =
                 , H.p [] [ H.text video.description ]
                 ]
             ]
+
+        publishNode =
+            [ Page.Utils.button "Publier cette vidéo" Page.Utils.NotLoading (Just <| PublishVideo video) ]
     in
     H.div
         [ HA.class "card" ]
-        (cardNodes ++ keywordsNode)
+        (cardNodes ++ keywordsNode ++ publishNode)
 
 
 viewVideoPlayer : Data.Kinto.Attachment -> H.Html Msg
