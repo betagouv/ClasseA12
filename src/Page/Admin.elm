@@ -1,6 +1,6 @@
 module Page.Admin exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (Video)
+import Data.Kinto exposing (DeletedRecord, Video)
 import Data.Session exposing (LoginForm, Session, decodeSessionData, emptyLoginForm, encodeSessionData)
 import Html as H
 import Html.Attributes as HA
@@ -9,6 +9,7 @@ import Kinto
 import Page.Utils
 import Ports
 import Request.KintoUpcoming
+import Request.KintoVideo
 
 
 type alias Model =
@@ -33,6 +34,8 @@ type Msg
     | VideoListFetched (Result Kinto.Error VideoList)
     | DiscardError Int
     | PublishVideo Video
+    | VideoPublished (Result Kinto.Error Video)
+    | VideoRemoved (Result Kinto.Error DeletedRecord)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -55,7 +58,7 @@ init session =
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update session msg model =
     case msg of
         UpdateLoginForm loginForm ->
             ( { model | loginForm = loginForm }, Cmd.none )
@@ -83,11 +86,49 @@ update _ msg model =
             )
 
         PublishVideo video ->
+            ( model
+            , Request.KintoVideo.publishVideo video session.loginForm.username session.loginForm.password VideoPublished
+            )
+
+        VideoPublished (Ok video) ->
+            ( model
+            , Request.KintoUpcoming.removeVideo video session.loginForm.username session.loginForm.password VideoRemoved
+            )
+
+        VideoPublished (Err err) ->
+            ( { model
+                | errorList = [ Kinto.errorToString err ] ++ model.errorList
+              }
+            , Cmd.none
+            )
+
+        VideoRemoved (Ok deletedRecord) ->
             let
-                _ =
-                    Debug.log "publish video" video.id
+                videoListData =
+                    case model.videoListData of
+                        Data.Kinto.Received videos ->
+                            videos.objects
+                                -- We remove the video from the list of upcoming videos, as it's just been deleted
+                                |> List.filter (\video -> video.id /= deletedRecord.id)
+                                -- Update the "objects" field in the Kinto.Pager record with the filtered list of videos
+                                |> (\videoList -> { videos | objects = videoList })
+                                |> Data.Kinto.Received
+
+                        kintoData ->
+                            kintoData
             in
-            ( model, Cmd.none )
+            ( { model
+                | videoListData = videoListData
+              }
+            , Cmd.none
+            )
+
+        VideoRemoved (Err err) ->
+            ( { model
+                | errorList = [ Kinto.errorToString err ] ++ model.errorList
+              }
+            , Cmd.none
+            )
 
 
 isLoginFormComplete : LoginForm -> Bool

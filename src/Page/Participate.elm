@@ -72,7 +72,7 @@ update _ msg model =
                 submitVideoData : Ports.SubmitVideoData
                 submitVideoData =
                     { nodeID = "video"
-                    , videoData = Data.Kinto.encodeVideoData model.newVideo
+                    , videoData = Data.Kinto.encodeNewVideoData model.newVideo
                     , login = login
                     , password = password
                     }

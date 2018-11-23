@@ -21,6 +21,13 @@ The backend is currently a [kinto](http://kinto.readthedocs.io/) instance.
 
 It needs the [kinto accounts plugin](https://kinto.readthedocs.io/en/stable/configuration/settings.html#accounts).
 
+It also needs the [keep_old_files
+option](https://github.com/Kinto/kinto-attachment#the-keep_old_files-option):
+when publishing a video, what we actually do is create a duplicate of the
+video from the `upcoming` collection to the `videos` collection, then delete
+the video from the `upcoming` collection. Without the `keep_old_files`
+options the file would be deleted from the disk and not accessible anymore.
+
 ### Users
 
 There are two [users](https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html):

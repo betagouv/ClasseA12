@@ -1,16 +1,20 @@
 module Data.Kinto exposing
     ( Attachment
     , Contact
+    , DeletedRecord
     , KintoData(..)
-    , Video
     , NewVideo
+    , Video
     , attachmentDecoder
     , contactDecoder
     , decodeContactList
     , decodeVideoList
+    , deletedRecordDecoder
     , emptyContact
     , emptyNewVideo
+    , encodeAttachmentData
     , encodeContactData
+    , encodeNewVideoData
     , encodeVideoData
     , videoDecoder
     )
@@ -25,6 +29,21 @@ type KintoData a
     | Requested
     | Received a
     | Failed Kinto.Error
+
+
+type alias DeletedRecord =
+    { id : String
+    , last_modified : Int
+    , deleted : Bool
+    }
+
+
+deletedRecordDecoder : Decode.Decoder DeletedRecord
+deletedRecordDecoder =
+    Decode.map3 DeletedRecord
+        (Decode.field "id" Decode.string)
+        (Decode.field "last_modified" Decode.int)
+        (Decode.field "deleted" Decode.bool)
 
 
 
@@ -72,12 +91,24 @@ decodeVideoList =
         Decode.list videoDecoder
 
 
-encodeVideoData : NewVideo -> Encode.Value
-encodeVideoData video =
+encodeNewVideoData : NewVideo -> Encode.Value
+encodeNewVideoData video =
     Encode.object
         [ ( "description", Encode.string video.description )
         , ( "title", Encode.string video.title )
         , ( "keywords", Encode.string video.keywords )
+        ]
+
+
+encodeVideoData : Video -> Encode.Value
+encodeVideoData video =
+    Encode.object
+        [ ( "id", Encode.string video.id )
+        , ( "last_modified", Encode.int video.last_modified )
+        , ( "title", Encode.string video.title )
+        , ( "keywords", Encode.string video.keywords )
+        , ( "description", Encode.string video.description )
+        , ( "attachment", encodeAttachmentData video.attachment )
         ]
 
 
@@ -102,6 +133,17 @@ attachmentDecoder =
         (Decode.field "location" Decode.string)
         (Decode.field "mimetype" Decode.string)
         (Decode.field "size" Decode.int)
+
+
+encodeAttachmentData : Attachment -> Encode.Value
+encodeAttachmentData attachment =
+    Encode.object
+        [ ( "filename", Encode.string attachment.filename )
+        , ( "hash", Encode.string attachment.hash )
+        , ( "location", Encode.string attachment.location )
+        , ( "mimetype", Encode.string attachment.mimetype )
+        , ( "size", Encode.int attachment.size )
+        ]
 
 
 
