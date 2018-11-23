@@ -28,6 +28,21 @@ video from the `upcoming` collection to the `videos` collection, then delete
 the video from the `upcoming` collection. Without the `keep_old_files`
 options the file would be deleted from the disk and not accessible anymore.
 
+Make sure to also allow uploading video files by adding the following setting:
+
+```kinto.attachment.extensions = default+video```
+
+Here's an example `kinto.ini` file:
+
+```
+# Kinto attachment
+kinto.attachment.base_url = https://your.server.here/attachments/
+kinto.attachment.folder = {bucket_id}/{collection_id}
+kinto.attachment.base_path = /path/to/folder/with/attachments
+kinto.attachment.keep_old_files = true
+kinto.attachment.extensions = default+video
+```
+
 ### Users
 
 There are two [users](https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html):
