@@ -16,6 +16,7 @@ type alias Model =
     { loginForm : LoginForm
     , videoListData : VideoListData
     , errorList : List String
+    , publishingVideos : PublishingVideos
     }
 
 
@@ -27,6 +28,10 @@ type alias VideoListData =
     Data.Kinto.KintoData VideoList
 
 
+type alias PublishingVideos =
+    List Video
+
+
 type Msg
     = UpdateLoginForm LoginForm
     | Login
@@ -35,7 +40,7 @@ type Msg
     | DiscardError Int
     | PublishVideo Video
     | VideoPublished (Result Kinto.Error Video)
-    | VideoRemoved (Result Kinto.Error DeletedRecord)
+    | VideoRemoved Video (Result Kinto.Error DeletedRecord)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -45,6 +50,7 @@ init session =
             { loginForm = session.loginForm
             , videoListData = Data.Kinto.NotRequested
             , errorList = []
+            , publishingVideos = []
             }
 
         modelAndCommands =
@@ -86,13 +92,13 @@ update session msg model =
             )
 
         PublishVideo video ->
-            ( model
+            ( { model | publishingVideos = model.publishingVideos ++ [ video ] }
             , Request.KintoVideo.publishVideo video session.loginForm.username session.loginForm.password VideoPublished
             )
 
         VideoPublished (Ok video) ->
             ( model
-            , Request.KintoUpcoming.removeVideo video session.loginForm.username session.loginForm.password VideoRemoved
+            , Request.KintoUpcoming.removeVideo video session.loginForm.username session.loginForm.password (VideoRemoved video)
             )
 
         VideoPublished (Err err) ->
@@ -102,28 +108,33 @@ update session msg model =
             , Cmd.none
             )
 
-        VideoRemoved (Ok deletedRecord) ->
+        VideoRemoved video (Ok deletedRecord) ->
             let
                 videoListData =
                     case model.videoListData of
                         Data.Kinto.Received videos ->
                             videos.objects
                                 -- We remove the video from the list of upcoming videos, as it's just been deleted
-                                |> List.filter (\video -> video.id /= deletedRecord.id)
+                                |> List.filter ((/=) video)
                                 -- Update the "objects" field in the Kinto.Pager record with the filtered list of videos
                                 |> (\videoList -> { videos | objects = videoList })
                                 |> Data.Kinto.Received
 
                         kintoData ->
                             kintoData
+
+                publishingVideos =
+                    model.publishingVideos
+                        |> List.filter ((/=) video)
             in
             ( { model
                 | videoListData = videoListData
+                , publishingVideos = publishingVideos
               }
             , Cmd.none
             )
 
-        VideoRemoved (Err err) ->
+        VideoRemoved video (Err err) ->
             ( { model
                 | errorList = [ Kinto.errorToString err ] ++ model.errorList
               }
@@ -151,7 +162,7 @@ useLogin model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { errorList, videoListData, loginForm } =
+view _ { errorList, videoListData, loginForm, publishingVideos } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -164,7 +175,7 @@ view _ { errorList, videoListData, loginForm } =
             [ Page.Utils.errorList errorList DiscardError
             , case videoListData of
                 Data.Kinto.Received videoList ->
-                    viewVideoList videoList
+                    viewVideoList publishingVideos videoList 
 
                 _ ->
                     H.div [ HA.class "section section-white" ]
@@ -176,8 +187,8 @@ view _ { errorList, videoListData, loginForm } =
     )
 
 
-viewVideoList : VideoList -> H.Html Msg
-viewVideoList videoList =
+viewVideoList : PublishingVideos -> VideoList -> H.Html Msg
+viewVideoList publishingVideos videoList =
     H.section [ HA.class "section section-grey cards" ]
         [ H.div [ HA.class "container" ]
             [ H.div [ HA.class "form__group logout-button" ]
@@ -189,14 +200,14 @@ viewVideoList videoList =
                 ]
             , H.div [ HA.class "row" ]
                 (videoList.objects
-                    |> List.map viewVideo
+                    |> List.map (viewVideo publishingVideos)
                 )
             ]
         ]
 
 
-viewVideo : Data.Kinto.Video -> H.Html Msg
-viewVideo video =
+viewVideo : PublishingVideos -> Data.Kinto.Video -> H.Html Msg
+viewVideo publishingVideos video  =
     let
         keywordsNode =
             if video.keywords /= "" then
@@ -222,8 +233,15 @@ viewVideo video =
                 ]
             ]
 
+        buttonState =
+            if List.member video publishingVideos then
+                Page.Utils.Loading
+
+            else
+                Page.Utils.NotLoading
+
         publishNode =
-            [ Page.Utils.button "Publier cette vidéo" Page.Utils.NotLoading (Just <| PublishVideo video) ]
+            [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| PublishVideo video) ]
     in
     H.div
         [ HA.class "card" ]
