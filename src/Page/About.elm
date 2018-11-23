@@ -63,7 +63,7 @@ view _ model =
                         , H.div [ HA.class "richtext" ]
                             [ H.h3 [ HA.class "title is-3" ] [ H.text "Un nouveau service, pour quoi faire ?" ]
                             , H.em [] [ H.text "Partager pour apprendre et progresser en équipe" ]
-                            , H.p [] [ H.text "Ce projet en cours de développement, co-construit avec les enseignants des classes de CP à 12, a pour objectif de valoriser les retours d’expérience et les échanges de pratiques personnalisées, via un produit numérique de type réseau social." ]
+                            , H.p [] [ H.text "Ce projet en cours de développement, co-construit avec les enseignants des classes dédoublées (CP et CE1), a pour objectif de valoriser les retours d’expérience et les échanges de pratiques personnalisées, via un produit numérique de type réseau social." ]
                             , H.p [] [ H.text "Que vous soyez novice ou expérimenté, nous vous proposons une plateforme vidéo permettant de partager vos expériences pédagogiques auprès de vos collègues, facilement et dans le respect des pratiques de chacun." ]
                             ]
                         ]
@@ -78,7 +78,7 @@ view _ model =
                         , H.div [ HA.class "richtext" ]
                             [ H.h3 [ HA.class "title is-3" ] [ H.text "Comment participer ?" ]
                             , H.em [] [ H.text "Venez comme vous êtes, avec votre envie et vos idées !" ]
-                            , H.p [] [ H.text "Vous avez expérimenté un scénario gagnant, vous avez tout simplement envie de partager et d'échanger avec vos collègues ? Rien de plus simple avec Classe à 12 ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti !" ]
+                            , H.p [] [ H.text "Vous avez envie d'échanger et de partager des outils, des pratiques, des gestes professionnels avec vos collègues ? Rien de plus simple avec Classe à 12 ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti !" ]
                             , H.p []
                                 [ H.text "N'oubliez pas de remplir et de nous envoyer un formulaire de droit à l'image pour vos élèves, les parents ou vous-mêmes, selon la situation, que vous pouvez "
                                 , H.a [ HA.href "http://eduscol.education.fr/internet-responsable/ressources/boite-a-outils.html" ] [ H.text "trouver ici." ]
