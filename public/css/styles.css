@@ -196,3 +196,8 @@ button:disabled {
     object-fit: contain;
     width: 100%;
 }
+.logout-button {
+    position: relative;
+    text-align: center;
+    top: -2em;
+}

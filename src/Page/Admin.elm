@@ -36,12 +36,21 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { loginForm = session.loginForm
-      , videoListData = Data.Kinto.NotRequested
-      , errorList = []
-      }
-    , Cmd.none
-    )
+    let
+        initialModel =
+            { loginForm = session.loginForm
+            , videoListData = Data.Kinto.NotRequested
+            , errorList = []
+            }
+
+        modelAndCommands =
+            if session.loginForm /= Data.Session.emptyLoginForm then
+                useLogin initialModel
+
+            else
+                ( initialModel, Cmd.none )
+    in
+    modelAndCommands
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -54,7 +63,7 @@ update _ msg model =
             useLogin model
 
         Logout ->
-            ( { model | loginForm = emptyLoginForm }, Ports.logoutSession () )
+            ( { model | loginForm = emptyLoginForm, videoListData = Data.Kinto.NotRequested }, Ports.logoutSession () )
 
         VideoListFetched (Ok videoList) ->
             ( { model | videoListData = Data.Kinto.Received videoList }, Cmd.none )
@@ -122,7 +131,14 @@ viewVideoList : VideoList -> H.Html Msg
 viewVideoList videoList =
     H.section [ HA.class "section section-grey cards" ]
         [ H.div [ HA.class "container" ]
-            [ H.div [ HA.class "row" ]
+            [ H.div [ HA.class "form__group logout-button" ]
+                [ H.button
+                    [ HA.class "button logout-button"
+                    , HE.onClick Logout
+                    ]
+                    [ H.text "Se déconnecter" ]
+                ]
+            , H.div [ HA.class "row" ]
                 (videoList.objects
                     |> List.map viewVideo
                 )
