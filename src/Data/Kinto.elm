@@ -3,12 +3,13 @@ module Data.Kinto exposing
     , Contact
     , KintoData(..)
     , Video
+    , NewVideo
     , attachmentDecoder
     , contactDecoder
     , decodeContactList
     , decodeVideoList
     , emptyContact
-    , emptyVideo
+    , emptyNewVideo
     , encodeContactData
     , encodeVideoData
     , videoDecoder
@@ -36,17 +37,21 @@ type alias Video =
     , title : String
     , keywords : String
     , description : String
-    , attachment : Maybe Attachment
+    , attachment : Attachment
     }
 
 
-emptyVideo =
-    { id = ""
-    , last_modified = 0
-    , description = ""
+type alias NewVideo =
+    { title : String
+    , keywords : String
+    , description : String
+    }
+
+
+emptyNewVideo =
+    { description = ""
     , title = ""
     , keywords = ""
-    , attachment = Nothing
     }
 
 
@@ -58,7 +63,7 @@ videoDecoder =
         (Decode.field "title" Decode.string)
         (Decode.field "description" Decode.string)
         (Decode.field "keywords" Decode.string)
-        (Decode.maybe (Decode.field "attachment" attachmentDecoder))
+        (Decode.field "attachment" attachmentDecoder)
 
 
 decodeVideoList : Decode.Value -> Result Decode.Error (List Video)
@@ -67,7 +72,7 @@ decodeVideoList =
         Decode.list videoDecoder
 
 
-encodeVideoData : Video -> Encode.Value
+encodeVideoData : NewVideo -> Encode.Value
 encodeVideoData video =
     Encode.object
         [ ( "description", Encode.string video.description )

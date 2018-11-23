@@ -162,20 +162,14 @@ viewVideo video =
         (cardNodes ++ keywordsNode)
 
 
-viewVideoPlayer : Maybe Data.Kinto.Attachment -> H.Html Msg
-viewVideoPlayer maybeAttachment =
-    case maybeAttachment of
-        Just attachment ->
-            H.video
-                [ HA.src attachment.location
-                , HA.type_ attachment.mimetype
-                , HA.controls True
-                ]
-                [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
-
-        Nothing ->
-            H.span [ HA.class "novideo" ]
-                [ H.text "pas de vidéo" ]
+viewVideoPlayer : Data.Kinto.Attachment -> H.Html Msg
+viewVideoPlayer attachment =
+    H.video
+        [ HA.src attachment.location
+        , HA.type_ attachment.mimetype
+        , HA.controls True
+        ]
+        [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
 
 
 viewLoginForm : LoginForm -> VideoListData -> H.Html Msg

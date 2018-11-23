@@ -1,6 +1,6 @@
 module Page.Participate exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (KintoData(..), Video, emptyVideo)
+import Data.Kinto exposing (KintoData(..), NewVideo, Video, emptyNewVideo)
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
@@ -17,7 +17,7 @@ import Route
 
 
 type alias Model =
-    { newVideo : Video
+    { newVideo : NewVideo
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
     , percentage : Int
@@ -31,7 +31,7 @@ type Credentials
 
 
 type Msg
-    = UpdateVideoForm Video
+    = UpdateVideoForm NewVideo
     | GenerateRandomCredentials
     | SubmitNewVideo Credentials
     | DiscardNotification
@@ -46,7 +46,7 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { newVideo = emptyVideo
+    ( { newVideo = emptyNewVideo
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
       , percentage = 0
@@ -119,14 +119,24 @@ update _ msg model =
 
                 kintoData =
                     case result of
-                        Ok video ->
-                            Received model.newVideo
+                        Ok attachment ->
+                            let
+                                video =
+                                    { id = ""
+                                    , last_modified = 0
+                                    , title = model.newVideo.title
+                                    , keywords = model.newVideo.keywords
+                                    , description = model.newVideo.description
+                                    , attachment = attachment
+                                    }
+                            in
+                            Received video
 
                         Err error ->
                             Failed error
             in
             ( { model
-                | newVideo = emptyVideo
+                | newVideo = emptyNewVideo
                 , newVideoKintoData = kintoData
                 , videoObjectUrl = Nothing
                 , percentage = 0
@@ -173,7 +183,7 @@ view _ model =
 
 displaySubmitVideoForm :
     { a
-        | newVideo : Video
+        | newVideo : NewVideo
         , newVideoKintoData : KintoData Video
         , videoObjectUrl : Maybe String
         , percentage : Int
