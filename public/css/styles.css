@@ -192,12 +192,8 @@ button:disabled {
     padding: 1em;
 }
 .card__cover {
+    border-bottom: 1px solid #c9d3df;
     cursor: pointer;
-}
-.card__cover video {
-    height: 100%;
-    object-fit: contain;
-    width: 100%;
 }
 .logout-button {
     position: relative;

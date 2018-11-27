@@ -7,6 +7,7 @@ module Page.Utils exposing
     , submitButton
     , successNotification
     , viewVideo
+    , viewVideoModal
     , viewVideoPlayer
     )
 
@@ -110,8 +111,8 @@ errorNotification content discardMsg =
 ---- VIDEOS ----
 
 
-viewVideo : msg -> Data.Kinto.Video -> H.Html msg
-viewVideo toggleVideo video =
+viewVideo : msg -> List (H.Html msg) -> Data.Kinto.Video -> H.Html msg
+viewVideo toggleVideo footerNodes video =
     let
         keywordsNode =
             if video.keywords /= "" then
@@ -145,7 +146,7 @@ viewVideo toggleVideo video =
     in
     H.div
         [ HA.class "card" ]
-        (cardNodes ++ keywordsNode)
+        (cardNodes ++ keywordsNode ++ footerNodes)
 
 
 viewVideoPlayer : Data.Kinto.Attachment -> H.Html msg
@@ -159,3 +160,20 @@ viewVideoPlayer attachment =
         , HA.preload "metadata"
         ]
         [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
+
+
+viewVideoModal : (Data.Kinto.Video -> msg) -> Maybe Data.Kinto.Video -> H.Html msg
+viewVideoModal toggleVideo activeVideo =
+    case activeVideo of
+        Nothing ->
+            H.div [] []
+
+        Just video ->
+            H.div
+                [ HA.class "modal__backdrop is-active"
+                , HE.onClick (toggleVideo video)
+                ]
+                [ H.div [ HA.class "modal" ] [ viewVideoPlayer video.attachment ]
+                , H.button [ HA.class "modal__close" ]
+                    [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
+                ]

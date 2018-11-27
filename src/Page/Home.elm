@@ -116,29 +116,9 @@ viewVideoList { activeVideo, search } videoList =
 
         videoCards =
             filteredVideoList
-                |> List.map (\video -> Page.Utils.viewVideo (ToggleVideo video) video)
-
-        modal =
-            case activeVideo of
-                Nothing ->
-                    H.div [] []
-
-                Just video ->
-                    H.div
-                        [ HA.class "modal__backdrop is-active"
-                        , HE.onClick <| ToggleVideo video
-                        ]
-                        [ H.div [ HA.class "modal" ] [ Page.Utils.viewVideoPlayer video.attachment ]
-                        , H.button [ HA.class "modal__close" ]
-                            [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
-                        ]
+                |> List.map (\video -> Page.Utils.viewVideo (ToggleVideo video) [] video)
     in
-    [ modal
+    [ Page.Utils.viewVideoModal ToggleVideo activeVideo
     , H.div [ HA.class "row" ]
         videoCards
     ]
-
-
-stringProperty : String -> String -> H.Attribute msg
-stringProperty name value =
-    HA.property name <| Encode.string value

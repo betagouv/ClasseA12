@@ -18,6 +18,7 @@ type alias Model =
     , videoListData : VideoListData
     , errorList : List String
     , publishingVideos : PublishingVideos
+    , activeVideo : Maybe Data.Kinto.Video
     }
 
 
@@ -34,6 +35,7 @@ type Msg
     | PublishVideo Video
     | VideoPublished (Result Kinto.Error Video)
     | VideoRemoved Video (Result Kinto.Error DeletedRecord)
+    | ToggleVideo Data.Kinto.Video
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -44,6 +46,7 @@ init session =
             , videoListData = Data.Kinto.NotRequested
             , errorList = []
             , publishingVideos = []
+            , activeVideo = Nothing
             }
 
         modelAndCommands =
@@ -142,6 +145,19 @@ update session msg model =
             , Cmd.none
             )
 
+        ToggleVideo video ->
+            let
+                activeVideo =
+                    case model.activeVideo of
+                        -- Toggle the active video
+                        Just v ->
+                            Nothing
+
+                        Nothing ->
+                            Just video
+            in
+            ( { model | activeVideo = activeVideo }, Cmd.none )
+
 
 isLoginFormComplete : LoginForm -> Bool
 isLoginFormComplete loginForm =
@@ -167,7 +183,7 @@ useLogin model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { errorList, videoListData, loginForm, publishingVideos } =
+view _ { errorList, videoListData, loginForm, publishingVideos, activeVideo } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -180,7 +196,7 @@ view _ { errorList, videoListData, loginForm, publishingVideos } =
             [ Page.Utils.errorList errorList DiscardError
             , case videoListData of
                 Data.Kinto.Received videoList ->
-                    viewVideoList publishingVideos videoList
+                    viewVideoList publishingVideos activeVideo videoList
 
                 _ ->
                     H.div [ HA.class "section section-white" ]
@@ -192,8 +208,8 @@ view _ { errorList, videoListData, loginForm, publishingVideos } =
     )
 
 
-viewVideoList : PublishingVideos -> VideoList -> H.Html Msg
-viewVideoList publishingVideos videoList =
+viewVideoList : PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> H.Html Msg
+viewVideoList publishingVideos activeVideo videoList =
     H.section [ HA.class "section section-grey cards" ]
         [ H.div [ HA.class "container" ]
             [ H.div [ HA.class "form__group logout-button" ]
@@ -203,6 +219,7 @@ viewVideoList publishingVideos videoList =
                     ]
                     [ H.text "Se déconnecter" ]
                 ]
+            , Page.Utils.viewVideoModal ToggleVideo activeVideo
             , H.div [ HA.class "row" ]
                 (videoList.objects
                     |> List.map (viewVideo publishingVideos)
@@ -214,30 +231,6 @@ viewVideoList publishingVideos videoList =
 viewVideo : PublishingVideos -> Data.Kinto.Video -> H.Html Msg
 viewVideo publishingVideos video =
     let
-        keywordsNode =
-            if video.keywords /= "" then
-                [ H.div [ HA.class "card__extra" ]
-                    [ H.div [ HA.class "label" ]
-                        [ H.text video.keywords ]
-                    ]
-                ]
-
-            else
-                []
-
-        cardNodes =
-            [ H.div
-                [ HA.class "card__cover" ]
-                [ viewVideoPlayer video.attachment ]
-            , H.div
-                [ HA.class "card__content" ]
-                [ H.h3 [] [ H.text video.title ]
-                , H.div [ HA.class "card__meta" ]
-                    [ H.time [] [ H.text <| String.fromInt video.last_modified ] ]
-                , H.p [] [ H.text video.description ]
-                ]
-            ]
-
         buttonState =
             if List.member video publishingVideos then
                 Page.Utils.Loading
@@ -248,19 +241,7 @@ viewVideo publishingVideos video =
         publishNode =
             [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| PublishVideo video) ]
     in
-    H.div
-        [ HA.class "card" ]
-        (cardNodes ++ keywordsNode ++ publishNode)
-
-
-viewVideoPlayer : Data.Kinto.Attachment -> H.Html Msg
-viewVideoPlayer attachment =
-    H.video
-        [ HA.src attachment.location
-        , HA.type_ attachment.mimetype
-        , HA.controls True
-        ]
-        [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
+    Page.Utils.viewVideo (ToggleVideo video) publishNode video
 
 
 viewLoginForm : LoginForm -> VideoListData -> H.Html Msg
