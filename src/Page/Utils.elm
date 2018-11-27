@@ -110,8 +110,8 @@ errorNotification content discardMsg =
 ---- VIDEOS ----
 
 
-viewVideo : Data.Kinto.Video -> H.Html msg
-viewVideo video =
+viewVideo : msg -> Data.Kinto.Video -> H.Html msg
+viewVideo toggleVideo video =
     let
         keywordsNode =
             if video.keywords /= "" then
@@ -130,6 +130,7 @@ viewVideo video =
                 [ H.img
                     [ HA.alt video.title
                     , HA.src video.thumbnail
+                    , HE.onClick toggleVideo
                     ]
                     []
                 ]
@@ -155,6 +156,6 @@ viewVideoPlayer attachment =
         -- For some reason, using HA.type_ doesn't properly add the mimetype
         , HA.attribute "type" attachment.mimetype
         , HA.controls True
-        , HA.preload "none"
+        , HA.preload "metadata"
         ]
         [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]

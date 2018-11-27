@@ -19,8 +19,7 @@ type alias Model =
 
 type Msg
     = UpdateSearch String
-    | ShowVideo Data.Kinto.Video
-    | HideVideo
+    | ToggleVideo Data.Kinto.Video
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -34,11 +33,18 @@ update _ msg model =
         UpdateSearch newSearch ->
             ( { model | search = newSearch }, Cmd.none )
 
-        ShowVideo video ->
-            ( { model | activeVideo = Just video }, Cmd.none )
+        ToggleVideo video ->
+            let
+                activeVideo =
+                    case model.activeVideo of
+                        -- Toggle the active video
+                        Just v ->
+                            Nothing
 
-        HideVideo ->
-            ( { model | activeVideo = Nothing }, Cmd.none )
+                        Nothing ->
+                            Just video
+            in
+            ( { model | activeVideo = activeVideo }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
@@ -101,17 +107,35 @@ view session ({ search } as model) =
     )
 
 
-viewVideoList : { a | search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
-viewVideoList { search } videoList =
+viewVideoList : { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
+viewVideoList { activeVideo, search } videoList =
     let
         filteredVideoList =
             videoList.objects
                 |> List.filter (\video -> String.contains search video.title)
+
+        videoCards =
+            filteredVideoList
+                |> List.map (\video -> Page.Utils.viewVideo (ToggleVideo video) video)
+
+        modal =
+            case activeVideo of
+                Nothing ->
+                    H.div [] []
+
+                Just video ->
+                    H.div
+                        [ HA.class "modal__backdrop is-active"
+                        , HE.onClick <| ToggleVideo video
+                        ]
+                        [ H.div [ HA.class "modal" ] [ Page.Utils.viewVideoPlayer video.attachment ]
+                        , H.button [ HA.class "modal__close" ]
+                            [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
+                        ]
     in
-    [ H.div [ HA.class "row" ]
-        (filteredVideoList
-            |> List.map Page.Utils.viewVideo
-        )
+    [ modal
+    , H.div [ HA.class "row" ]
+        videoCards
     ]
 
 

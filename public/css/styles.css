@@ -115,7 +115,7 @@ footer img {
     flex-direction: column;
     justify-content: center;
 }
-.modal iframe {
+.modal video {
     height: 100%;
     width: 100%;
 }
@@ -190,6 +190,9 @@ button:disabled {
     border-width: 0;
     border-radius: 8px;
     padding: 1em;
+}
+.card__cover {
+    cursor: pointer;
 }
 .card__cover video {
     height: 100%;
