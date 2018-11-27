@@ -138,8 +138,8 @@ viewVideo toggleVideo footerNodes video =
             , H.div
                 [ HA.class "card__content" ]
                 [ H.h3 [] [ H.text video.title ]
-                , H.div [ HA.class "card__meta" ]
-                    [ H.time [] [ H.text <| String.fromInt video.last_modified ] ]
+                -- , H.div [ HA.class "card__meta" ]
+                --     [ H.time [] [ H.text <| String.fromInt video.last_modified ] ]
                 , H.p [] [ H.text video.description ]
                 ]
             ]
