@@ -1,8 +1,25 @@
-module Request.Kinto exposing (client)
+module Request.Kinto exposing (AnonymousClient(..), AuthClient(..), anonymousClient, authClient)
 
 import Kinto
 
 
-client : String -> String -> Kinto.Client
-client login password =
-    Kinto.client "https://kinto.agopian.info/v1/" (Kinto.Basic login password)
+serverURL =
+    "https://kinto.agopian.info/v1/"
+
+
+type AuthClient
+    = AuthClient Kinto.Client
+
+
+type AnonymousClient
+    = AnonymousClient Kinto.Client
+
+
+authClient : String -> String -> AuthClient
+authClient login password =
+    AuthClient <| Kinto.client serverURL (Kinto.Basic login password)
+
+
+anonymousClient : AnonymousClient
+anonymousClient =
+    AnonymousClient <| Kinto.client serverURL Kinto.NoAuth

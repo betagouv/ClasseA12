@@ -2,12 +2,15 @@ module Request.KintoContact exposing (submitContact)
 
 import Data.Kinto
 import Kinto
-import Request.Kinto exposing (client)
+import Request.Kinto
 
 
 submitContact : Data.Kinto.Contact -> String -> (Result Kinto.Error Data.Kinto.Contact -> msg) -> Cmd msg
 submitContact contact password message =
-    client contact.email password
+    let
+        (Request.Kinto.AuthClient client) = Request.Kinto.authClient contact.email password
+    in
+        client
         |> Kinto.create recordResource (Data.Kinto.encodeContactData contact)
         |> Kinto.send message
 

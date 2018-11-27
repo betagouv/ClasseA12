@@ -8,6 +8,7 @@ import Html.Events as HE
 import Kinto
 import Page.Utils
 import Ports
+import Request.Kinto exposing (authClient)
 import Request.KintoUpcoming
 import Request.KintoVideo
 
@@ -92,13 +93,21 @@ update session msg model =
             )
 
         PublishVideo video ->
+            let
+                client =
+                    authClient session.loginForm.username session.loginForm.password
+            in
             ( { model | publishingVideos = model.publishingVideos ++ [ video ] }
-            , Request.KintoVideo.publishVideo video session.loginForm.username session.loginForm.password VideoPublished
+            , Request.KintoVideo.publishVideo video client VideoPublished
             )
 
         VideoPublished (Ok video) ->
+            let
+                client =
+                    authClient session.loginForm.username session.loginForm.password
+            in
             ( model
-            , Request.KintoUpcoming.removeVideo video session.loginForm.username session.loginForm.password (VideoRemoved video)
+            , Request.KintoUpcoming.removeVideo video client (VideoRemoved video)
             )
 
         VideoPublished (Err err) ->
@@ -150,9 +159,12 @@ isLoginFormComplete loginForm =
 useLogin : Model -> ( Model, Cmd Msg )
 useLogin model =
     if isLoginFormComplete model.loginForm then
+        let
+            client = authClient model.loginForm.username model.loginForm.password
+        in
         ( { model | videoListData = Data.Kinto.Requested }
         , Cmd.batch
-            [ Request.KintoUpcoming.getVideoList model.loginForm.username model.loginForm.password VideoListFetched
+            [ Request.KintoUpcoming.getVideoList client VideoListFetched
             , Ports.saveSession <| encodeSessionData model.loginForm
             ]
         )
@@ -175,7 +187,7 @@ view _ { errorList, videoListData, loginForm, publishingVideos } =
             [ Page.Utils.errorList errorList DiscardError
             , case videoListData of
                 Data.Kinto.Received videoList ->
-                    viewVideoList publishingVideos videoList 
+                    viewVideoList publishingVideos videoList
 
                 _ ->
                     H.div [ HA.class "section section-white" ]
@@ -207,7 +219,7 @@ viewVideoList publishingVideos videoList =
 
 
 viewVideo : PublishingVideos -> Data.Kinto.Video -> H.Html Msg
-viewVideo publishingVideos video  =
+viewVideo publishingVideos video =
     let
         keywordsNode =
             if video.keywords /= "" then

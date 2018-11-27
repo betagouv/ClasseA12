@@ -5,12 +5,12 @@ module Request.KintoVideo exposing (getVideoList, publishVideo)
 
 import Data.Kinto
 import Kinto
-import Request.Kinto exposing (client)
+import Request.Kinto
 
 
-publishVideo : Data.Kinto.Video -> String -> String -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
-publishVideo video login password message =
-    client login password
+publishVideo : Data.Kinto.Video -> Request.Kinto.AuthClient -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
+publishVideo video (Request.Kinto.AuthClient client) message =
+    client
         |> Kinto.create recordResource (Data.Kinto.encodeVideoData video)
         |> Kinto.send message
 
@@ -20,9 +20,9 @@ recordResource =
     Kinto.recordResource "classea12" "videos" Data.Kinto.videoDecoder
 
 
-getVideoList : String -> String -> (Result Kinto.Error (Kinto.Pager Data.Kinto.Video) -> msg) -> Cmd msg
-getVideoList login password message =
-    client login password
+getVideoList : Request.Kinto.AnonymousClient -> (Result Kinto.Error (Kinto.Pager Data.Kinto.Video) -> msg) -> Cmd msg
+getVideoList (Request.Kinto.AnonymousClient client) message =
+    client
         |> Kinto.getList recordResource
         |> Kinto.sort [ "-last_modified" ]
         |> Kinto.send message
