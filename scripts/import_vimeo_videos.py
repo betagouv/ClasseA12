@@ -3,9 +3,9 @@
 For each video file, run a HEAD on the related vimeo page (which the video
 was downloaded from) to retrieve the title.
 
-Requirements: kinto_http, beautifulsoup4
+Requirements: kinto_http
 
-$ pip install kinto_http beautifulsoup4
+$ pip install kinto_http
 
 To use: run the following in a folder containing all the videos (saved as <video_id>.mp4)
 
@@ -20,7 +20,6 @@ import os
 import pprint
 import uuid
 import urllib.request
-import bs4
 
 from kinto_http import cli_utils
 from kinto_http.exceptions import KintoException
@@ -96,11 +95,17 @@ def upload_files(client, files):
         try:
             # Get the title from vimeo, using the file name as its video ID
             video_id = filename.replace(".mp4", "")
-            vimeo_page = urllib.request.urlopen("https://vimeo.com/" + video_id)
-            html = bs4.BeautifulSoup(vimeo_page, features="html.parser")
-            title = html.title.text
+            vimeo_data = urllib.request.urlopen(f"https://vimeo.com/api/v2/video/{video_id}.json")
+            vimeo_json = json.loads(vimeo_data.read())[0]
+            title = vimeo_json["title"]
             stripped_title = title.replace(" on Vimeo", "")
-            data = {"title": stripped_title, "description": "", "keywords": ""}
+            data = {
+                "title": stripped_title,
+                "description": "",
+                "keywords": "",
+                "thumbnail": vimeo_json["thumbnail_large"],
+                "duration": vimeo_json["duration"]
+                }
             body, _ = client.session.request(
                 method="post",
                 data=json.dumps(data),
