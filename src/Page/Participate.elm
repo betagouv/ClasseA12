@@ -72,6 +72,7 @@ update _ msg model =
                 submitVideoData : Ports.SubmitVideoData
                 submitVideoData =
                     { nodeID = "video"
+                    , videoNodeID = "uploaded-video"
                     , videoData = Data.Kinto.encodeNewVideoData model.newVideo
                     , login = login
                     , password = password
@@ -309,6 +310,7 @@ displayVideo maybeVideoObjectUrl =
                 [ H.video
                     [ HA.src videoObjectUrl
                     , HA.controls True
+                    , HA.id "uploaded-video"
                     ]
                     []
                 ]

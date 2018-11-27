@@ -24,6 +24,7 @@ port videoObjectUrl : (Decode.Value -> msg) -> Sub msg
 
 type alias SubmitVideoData =
     { nodeID : String
+    , videoNodeID : String
     , videoData : Decode.Value
     , login : String
     , password : String

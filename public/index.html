@@ -39,12 +39,27 @@
     }
 
     // A new video record has been created, upload the selected video file as an attachment
-    app.ports.submitVideo.subscribe(function ({ nodeID, videoData, login, password }) {
+    app.ports.submitVideo.subscribe(function ({ nodeID, videoNodeID, videoData, login, password }) {
       const fileInput = document.getElementById(nodeID);
       if (fileInput === null) {
         console.error("Didn't find a file input with id", nodeID);
         return;
       }
+      const videoNode = document.getElementById(videoNodeID);
+      if (videoNode === null) {
+        console.error("Didn't find a video node with id", videoNodeID);
+        return;
+      }
+      // Create a thumbnail from the video.
+      const canvas = document.createElement("canvas");
+      const ratio = videoNode.videoWidth / videoNode.videoHeight;
+      canvas.width = 300;
+      canvas.height = 300 / ratio; // respect the video ratio
+      canvas.getContext("2d").drawImage(videoNode, 0, 0, 300, 300 / ratio);
+      videoData.thumbnail = canvas.toDataURL();
+      // Get the duration from the video.
+      videoData.duration = parseInt(videoNode.duration, 10);
+
       const file = fileInput.files[0];
       // Create a multipart form to upload the file.
       let formData = new FormData();
