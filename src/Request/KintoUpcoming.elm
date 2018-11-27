@@ -20,7 +20,7 @@ recordResource =
     Kinto.recordResource "classea12" "upcoming" Data.Kinto.videoDecoder
 
 
-getVideoList : Request.Kinto.AuthClient -> (Result Kinto.Error (Kinto.Pager Data.Kinto.Video) -> msg) -> Cmd msg
+getVideoList : Request.Kinto.AuthClient -> (Result Kinto.Error Data.Kinto.VideoList -> msg) -> Cmd msg
 getVideoList (Request.Kinto.AuthClient client) message =
     client
         |> Kinto.getList recordResource

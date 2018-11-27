@@ -20,7 +20,7 @@ recordResource =
     Kinto.recordResource "classea12" "videos" Data.Kinto.videoDecoder
 
 
-getVideoList : Request.Kinto.AnonymousClient -> (Result Kinto.Error (Kinto.Pager Data.Kinto.Video) -> msg) -> Cmd msg
+getVideoList : Request.Kinto.AnonymousClient -> (Result Kinto.Error Data.Kinto.VideoList -> msg) -> Cmd msg
 getVideoList (Request.Kinto.AnonymousClient client) message =
     client
         |> Kinto.getList recordResource

@@ -1,6 +1,6 @@
 module Page.Admin exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (DeletedRecord, Video)
+import Data.Kinto exposing (DeletedRecord, Video, VideoList, VideoListData)
 import Data.Session exposing (LoginForm, Session, decodeSessionData, emptyLoginForm, encodeSessionData)
 import Html as H
 import Html.Attributes as HA
@@ -19,14 +19,6 @@ type alias Model =
     , errorList : List String
     , publishingVideos : PublishingVideos
     }
-
-
-type alias VideoList =
-    Kinto.Pager Video
-
-
-type alias VideoListData =
-    Data.Kinto.KintoData VideoList
 
 
 type alias PublishingVideos =
@@ -160,7 +152,8 @@ useLogin : Model -> ( Model, Cmd Msg )
 useLogin model =
     if isLoginFormComplete model.loginForm then
         let
-            client = authClient model.loginForm.username model.loginForm.password
+            client =
+                authClient model.loginForm.username model.loginForm.password
         in
         ( { model | videoListData = Data.Kinto.Requested }
         , Cmd.batch

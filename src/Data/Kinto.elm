@@ -5,6 +5,8 @@ module Data.Kinto exposing
     , KintoData(..)
     , NewVideo
     , Video
+    , VideoList
+    , VideoListData
     , attachmentDecoder
     , contactDecoder
     , decodeContactList
@@ -29,6 +31,14 @@ type KintoData a
     | Requested
     | Received a
     | Failed Kinto.Error
+
+
+type alias VideoList =
+    Kinto.Pager Video
+
+
+type alias VideoListData =
+    KintoData VideoList
 
 
 type alias DeletedRecord =
