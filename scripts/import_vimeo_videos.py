@@ -100,7 +100,7 @@ def upload_files(client, files):
             html = bs4.BeautifulSoup(vimeo_page, features="html.parser")
             title = html.title.text
             stripped_title = title.replace(" on Vimeo", "")
-            data = {"title": stripped_title}
+            data = {"title": stripped_title, "description": "", "keywords": ""}
             body, _ = client.session.request(
                 method="post",
                 data=json.dumps(data),
