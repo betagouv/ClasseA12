@@ -127,7 +127,12 @@ viewVideo video =
         cardNodes =
             [ H.div
                 [ HA.class "card__cover" ]
-                [ viewVideoPlayer video.attachment ]
+                [ H.img
+                    [ HA.alt video.title
+                    , HA.src video.thumbnail
+                    ]
+                    []
+                ]
             , H.div
                 [ HA.class "card__content" ]
                 [ H.h3 [] [ H.text video.title ]
@@ -146,6 +151,7 @@ viewVideoPlayer : Data.Kinto.Attachment -> H.Html msg
 viewVideoPlayer attachment =
     H.video
         [ HA.src <| attachment.location
+
         -- For some reason, using HA.type_ doesn't properly add the mimetype
         , HA.attribute "type" attachment.mimetype
         , HA.controls True

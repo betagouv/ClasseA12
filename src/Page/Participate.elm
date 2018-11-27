@@ -1,6 +1,6 @@
 module Page.Participate exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (KintoData(..), NewVideo, Video, emptyNewVideo)
+import Data.Kinto exposing (KintoData(..), NewVideo, Video, emptyNewVideo, emptyVideo)
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
@@ -122,12 +122,11 @@ update _ msg model =
                         Ok attachment ->
                             let
                                 video =
-                                    { id = ""
-                                    , last_modified = 0
-                                    , title = model.newVideo.title
-                                    , keywords = model.newVideo.keywords
-                                    , description = model.newVideo.description
-                                    , attachment = attachment
+                                    { emptyVideo
+                                        | title = model.newVideo.title
+                                        , keywords = model.newVideo.keywords
+                                        , description = model.newVideo.description
+                                        , attachment = attachment
                                     }
                             in
                             Received video

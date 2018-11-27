@@ -12,8 +12,10 @@ module Data.Kinto exposing
     , decodeContactList
     , decodeVideoList
     , deletedRecordDecoder
+    , emptyAttachment
     , emptyContact
     , emptyNewVideo
+    , emptyVideo
     , encodeAttachmentData
     , encodeContactData
     , encodeNewVideoData
@@ -67,6 +69,20 @@ type alias Video =
     , keywords : String
     , description : String
     , attachment : Attachment
+    , duration : Int
+    , thumbnail : String
+    }
+
+
+emptyVideo =
+    { id = ""
+    , last_modified = 0
+    , title = ""
+    , keywords = ""
+    , description = ""
+    , attachment = emptyAttachment
+    , duration = 0
+    , thumbnail = ""
     }
 
 
@@ -86,13 +102,15 @@ emptyNewVideo =
 
 videoDecoder : Decode.Decoder Video
 videoDecoder =
-    Decode.map6 Video
+    Decode.map8 Video
         (Decode.field "id" Decode.string)
         (Decode.field "last_modified" Decode.int)
         (Decode.field "title" Decode.string)
         (Decode.field "description" Decode.string)
         (Decode.field "keywords" Decode.string)
         (Decode.field "attachment" attachmentDecoder)
+        (Decode.field "duration" Decode.int)
+        (Decode.field "thumbnail" Decode.string)
 
 
 decodeVideoList : Decode.Value -> Result Decode.Error (List Video)
@@ -119,6 +137,8 @@ encodeVideoData video =
         , ( "keywords", Encode.string video.keywords )
         , ( "description", Encode.string video.description )
         , ( "attachment", encodeAttachmentData video.attachment )
+        , ( "duration", Encode.int video.duration )
+        , ( "thumbnail", Encode.string video.thumbnail )
         ]
 
 
@@ -132,6 +152,15 @@ type alias Attachment =
     , location : String
     , mimetype : String
     , size : Int
+    }
+
+
+emptyAttachment =
+    { filename = ""
+    , hash = ""
+    , location = ""
+    , mimetype = ""
+    , size = 0
     }
 
 
