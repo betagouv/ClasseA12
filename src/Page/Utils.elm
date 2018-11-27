@@ -110,8 +110,8 @@ errorNotification content discardMsg =
 ---- VIDEOS ----
 
 
-viewVideo : Bool -> Data.Kinto.Video -> H.Html msg
-viewVideo displayVideoControls video =
+viewVideo : Data.Kinto.Video -> H.Html msg
+viewVideo video =
     let
         keywordsNode =
             if video.keywords /= "" then
@@ -127,7 +127,7 @@ viewVideo displayVideoControls video =
         cardNodes =
             [ H.div
                 [ HA.class "card__cover" ]
-                [ viewVideoPlayer displayVideoControls video.attachment ]
+                [ viewVideoPlayer video.attachment ]
             , H.div
                 [ HA.class "card__content" ]
                 [ H.h3 [] [ H.text video.title ]
@@ -142,11 +142,13 @@ viewVideo displayVideoControls video =
         (cardNodes ++ keywordsNode)
 
 
-viewVideoPlayer : Bool -> Data.Kinto.Attachment -> H.Html msg
-viewVideoPlayer displayControls attachment =
+viewVideoPlayer : Data.Kinto.Attachment -> H.Html msg
+viewVideoPlayer attachment =
     H.video
-        [ HA.src attachment.location
-        , HA.type_ attachment.mimetype
-        , HA.controls displayControls
+        [ HA.src <| attachment.location
+        -- For some reason, using HA.type_ doesn't properly add the mimetype
+        , HA.attribute "type" attachment.mimetype
+        , HA.controls True
+        , HA.preload "none"
         ]
         [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]

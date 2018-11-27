@@ -101,8 +101,8 @@ view session ({ search } as model) =
     )
 
 
-viewVideoList : { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
-viewVideoList ({ search } as model) videoList =
+viewVideoList : { a | search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
+viewVideoList { search } videoList =
     let
         filteredVideoList =
             videoList.objects
@@ -110,37 +110,9 @@ viewVideoList ({ search } as model) videoList =
     in
     [ H.div [ HA.class "row" ]
         (filteredVideoList
-            |> List.map (viewVideo model)
+            |> List.map Page.Utils.viewVideo
         )
     ]
-
-
-viewVideo : { a | activeVideo : Maybe Data.Kinto.Video } -> Data.Kinto.Video -> H.Html Msg
-viewVideo { activeVideo } video =
-    let
-        active =
-            activeVideo
-                |> Maybe.map ((==) video)
-                |> Maybe.withDefault False
-    in
-    H.div
-        [ HA.class "card" ]
-        [ H.div
-            [ HA.classList
-                [ ( "modal__backdrop", True )
-                , ( "is-active", active )
-                ]
-            , HE.onClick HideVideo
-            ]
-            [ H.div [ HA.class "modal" ]
-                [ Page.Utils.viewVideoPlayer True video.attachment ]
-            , H.button [ HA.class "modal__close" ]
-                [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
-            ]
-        , H.div
-            [ HE.onClick <| ShowVideo video ]
-            [ Page.Utils.viewVideo False video ]
-        ]
 
 
 stringProperty : String -> String -> H.Attribute msg
