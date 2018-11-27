@@ -5,6 +5,12 @@ was downloaded from) to retrieve the title.
 
 Requirements: kinto_http, beautifulsoup4
 
+$ pip install kinto_http beautifulsoup4
+
+To use: run the following in a folder containing all the videos (saved as <video_id>.mp4)
+
+$ import_vimeo_videos.py --server=https://kinto.agopian.info/v1/ --bucket=classea12 --collection=videos --auth "<admin login>:<admin password>" *.mp4
+
 """
 
 import json
@@ -88,6 +94,7 @@ def upload_files(client, files):
         attachment_uri = "%s/attachment" % record_uri
         multipart = [("attachment", (filename, filecontent, mimetype))]
         try:
+            # Get the title from vimeo, using the file name as its video ID
             video_id = filename.replace(".mp4", "")
             vimeo_page = urllib.request.urlopen("https://vimeo.com/" + video_id)
             html = bs4.BeautifulSoup(vimeo_page, features="html.parser")
