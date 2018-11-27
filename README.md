@@ -47,13 +47,13 @@ kinto.attachment.extensions = default+video
 
 There are two [users](https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html):
 
-- `classea12:notasecret`: the basic user that has read access to the `/buckets/classea12/collections/videos/` collection
+- no user (anonymous): the basic "user" that has read access to the `/buckets/classea12/collections/videos/` collection
 - `classea12admin:###`: the admin user that owns and has read and write access to the `/buckets/classea12/` bucket
 
 ### Resources
 
 - `/buckets/classea12/collections/upcoming/`: `record:create` access to the `system.Authenticated` users. This is where videos proposed by teachers will be queued waiting to be accepted.
-- `/buckets/classea12/collections/videos/`: read access to the `classea12` user, write access to the `classea12admin` user. This is where all the accepted videos are listed.
+- `/buckets/classea12/collections/videos/`: read access to everyone (anonymous users), write access to the `classea12admin` user. This is where all the accepted videos are listed.
 - `/buckets/classea12/collections/contacts/`: `record:create` access to the `system.Authenticated` users (each form submission will use a unique ID to create the contact, preventing anyone to request the list of contacts). List of people registered to the newsletter.
 
 # Deployment

@@ -1,22 +1,25 @@
 module Page.Home exposing (Model, Msg(..), init, update, view)
 
-import Data.Session exposing (Session, VideoData(..))
+import Data.Kinto
+import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Json.Encode as Encode
+import Kinto
+import Page.Utils
 
 
 type alias Model =
     { search : String
-    , activeVideo : Maybe Data.Session.Video
+    , activeVideo : Maybe Data.Kinto.Video
     }
 
 
 type Msg
     = UpdateSearch String
-    | ShowVideo Data.Session.Video
+    | ShowVideo Data.Kinto.Video
     | HideVideo
 
 
@@ -80,14 +83,17 @@ view session ({ search } as model) =
             , H.section [ HA.class "section section-grey cards" ]
                 [ H.div [ HA.class "container" ]
                     (case session.videoData of
-                        Fetching ->
+                        Data.Kinto.NotRequested ->
+                            []
+
+                        Data.Kinto.Requested ->
                             [ H.text "Chargement des vidéos..." ]
 
-                        Received videoList ->
+                        Data.Kinto.Received videoList ->
                             viewVideoList model videoList
 
-                        Error error ->
-                            [ H.text <| "Erreur lors du chargement des videos: " ++ error ]
+                        Data.Kinto.Failed error ->
+                            [ H.text <| "Erreur lors du chargement des videos: " ++ Kinto.errorToString error ]
                     )
                 ]
             ]
@@ -95,11 +101,11 @@ view session ({ search } as model) =
     )
 
 
-viewVideoList : { a | activeVideo : Maybe Data.Session.Video, search : String } -> List Data.Session.Video -> List (H.Html Msg)
+viewVideoList : { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
 viewVideoList ({ search } as model) videoList =
     let
         filteredVideoList =
-            videoList
+            videoList.objects
                 |> List.filter (\video -> String.contains search video.title)
     in
     [ H.div [ HA.class "row" ]
@@ -109,7 +115,7 @@ viewVideoList ({ search } as model) videoList =
     ]
 
 
-viewVideo : { a | activeVideo : Maybe Data.Session.Video } -> Data.Session.Video -> H.Html Msg
+viewVideo : { a | activeVideo : Maybe Data.Kinto.Video } -> Data.Kinto.Video -> H.Html Msg
 viewVideo { activeVideo } video =
     let
         active =
@@ -127,37 +133,13 @@ viewVideo { activeVideo } video =
             , HE.onClick HideVideo
             ]
             [ H.div [ HA.class "modal" ]
-                [ H.iframe
-                    [ HA.src video.player
-                    , HA.title "Partie 2 : am&eacute;nager sa classe pour co-enseigner."
-                    , stringProperty "scrolling" "no"
-                    , stringProperty "frameborder" "0"
-                    , stringProperty "allowfullscreen" "true"
-                    ]
-                    []
-                ]
+                [ Page.Utils.viewVideoPlayer True video.attachment ]
             , H.button [ HA.class "modal__close" ]
                 [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
             ]
         , H.div
-            [ HA.class "card__cover"
-            , HE.onClick <| ShowVideo video
-            ]
-            [ H.img
-                [ HA.src video.thumbnail
-                , HA.alt <| "Thumbnail of the video titled: " ++ video.title
-                ]
-                []
-            ]
-        , H.div
-            [ HA.class "card__content"
-            , HE.onClick <| ShowVideo video
-            ]
-            [ H.h3 [] [ H.text video.title ]
-            , H.div [ HA.class "card__meta" ]
-                [ H.time [] [ H.text video.pubDate ]
-                ]
-            ]
+            [ HE.onClick <| ShowVideo video ]
+            [ Page.Utils.viewVideo False video ]
         ]
 
 

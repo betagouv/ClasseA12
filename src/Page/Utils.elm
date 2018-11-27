@@ -6,11 +6,18 @@ module Page.Utils exposing
     , notification
     , submitButton
     , successNotification
+    , viewVideo
+    , viewVideoPlayer
     )
 
+import Data.Kinto
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+
+
+
+---- BUTTONS ----
 
 
 type ButtonState
@@ -61,6 +68,10 @@ button label buttonState maybeOnClick =
         ]
 
 
+
+---- NOTIFICATIONS ----
+
+
 errorList : List String -> (Int -> msg) -> H.Html msg
 errorList errors discardErrorMsg =
     H.div []
@@ -93,3 +104,49 @@ successNotification content discardMsg =
 errorNotification : List (H.Html msg) -> msg -> H.Html msg
 errorNotification content discardMsg =
     notification "error" content discardMsg
+
+
+
+---- VIDEOS ----
+
+
+viewVideo : Bool -> Data.Kinto.Video -> H.Html msg
+viewVideo displayVideoControls video =
+    let
+        keywordsNode =
+            if video.keywords /= "" then
+                [ H.div [ HA.class "card__extra" ]
+                    [ H.div [ HA.class "label" ]
+                        [ H.text video.keywords ]
+                    ]
+                ]
+
+            else
+                []
+
+        cardNodes =
+            [ H.div
+                [ HA.class "card__cover" ]
+                [ viewVideoPlayer displayVideoControls video.attachment ]
+            , H.div
+                [ HA.class "card__content" ]
+                [ H.h3 [] [ H.text video.title ]
+                , H.div [ HA.class "card__meta" ]
+                    [ H.time [] [ H.text <| String.fromInt video.last_modified ] ]
+                , H.p [] [ H.text video.description ]
+                ]
+            ]
+    in
+    H.div
+        [ HA.class "card" ]
+        (cardNodes ++ keywordsNode)
+
+
+viewVideoPlayer : Bool -> Data.Kinto.Attachment -> H.Html msg
+viewVideoPlayer displayControls attachment =
+    H.video
+        [ HA.src attachment.location
+        , HA.type_ attachment.mimetype
+        , HA.controls displayControls
+        ]
+        [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]

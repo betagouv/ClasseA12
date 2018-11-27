@@ -2,11 +2,13 @@ port module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Data.Session exposing (Session, VideoData(..), decodeSessionData, emptyLoginForm)
+import Data.Kinto
+import Data.Session exposing (Session, decodeSessionData, emptyLoginForm)
 import Html exposing (..)
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
+import Kinto
 import Page.About as About
 import Page.Admin as Admin
 import Page.CGU as CGU
@@ -17,7 +19,7 @@ import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
 import Platform.Sub
 import Ports
-import Request.Vimeo as Vimeo
+import Request.KintoVideo exposing (getVideoList)
 import Route exposing (Route)
 import Url exposing (Url)
 import Views.Page as Page
@@ -58,8 +60,7 @@ type Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
-    | VideoListReceived (Result Http.Error String)
-    | VideoListParsed (Result Decode.Error (List Data.Session.Video))
+    | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -93,7 +94,7 @@ setRoute maybeRoute model =
                 [ commands
 
                 -- When loading the home for the first time, request the list of videos
-                , Vimeo.getRSS model.session |> Http.send VideoListReceived
+                , getVideoList VideoListReceived
                 ]
             )
 
@@ -131,7 +132,7 @@ init flags url navKey =
 
         session : Session
         session =
-            { videoData = Fetching
+            { videoData = Data.Kinto.Requested
             , loginForm = loginForm
             }
     in
@@ -221,30 +222,19 @@ update msg ({ page, session } as model) =
         ( UrlChanged url, _ ) ->
             setRoute (Route.fromUrl url) model
 
-        ( VideoListReceived (Ok rss), _ ) ->
-            -- Received the video list rss, send it to the port to parse it
-            ( model, Ports.parseRSS rss )
+        ( VideoListReceived (Ok videoList), _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | videoData = Data.Kinto.Received videoList } }, Cmd.none )
 
         ( VideoListReceived (Err error), _ ) ->
             let
                 modelSession =
                     model.session
             in
-            ( { model | session = { modelSession | videoData = Error <| Vimeo.errorToString error } }, Cmd.none )
-
-        ( VideoListParsed (Ok videoList), _ ) ->
-            let
-                modelSession =
-                    model.session
-            in
-            ( { model | session = { modelSession | videoData = Received videoList } }, Cmd.none )
-
-        ( VideoListParsed (Err error), _ ) ->
-            let
-                modelSession =
-                    model.session
-            in
-            ( { model | session = { modelSession | videoData = Error <| Decode.errorToString error } }, Cmd.none )
+            ( { model | session = { modelSession | videoData = Data.Kinto.Failed error } }, Cmd.none )
 
         ( _, NotFound ) ->
             ( { model | page = NotFound }
@@ -264,8 +254,7 @@ update msg ({ page, session } as model) =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Ports.parsedVideoList (Data.Session.decodeVideoList >> VideoListParsed) -- Always sub on the parsedVideoList incoming port
-        , case model.page of
+        [ case model.page of
             HomePage _ ->
                 Sub.none
 

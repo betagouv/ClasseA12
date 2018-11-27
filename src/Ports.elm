@@ -2,8 +2,6 @@ port module Ports exposing
     ( SubmitVideoData
     , logoutSession
     , newURL
-    , parseRSS
-    , parsedVideoList
     , progressUpdate
     , saveSession
     , submitVideo
@@ -14,14 +12,6 @@ port module Ports exposing
 
 import Json.Decode as Decode
 import Json.Encode as Encode
-
-
-port parseRSS :
-    -- the xml string of the rss feed
-    String -> Cmd msg
-
-
-port parsedVideoList : (Decode.Value -> msg) -> Sub msg
 
 
 port videoSelected :

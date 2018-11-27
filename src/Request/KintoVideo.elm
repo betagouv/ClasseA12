@@ -20,8 +20,12 @@ recordResource =
     Kinto.recordResource "classea12" "videos" Data.Kinto.videoDecoder
 
 
-getVideoList : Request.Kinto.AnonymousClient -> (Result Kinto.Error Data.Kinto.VideoList -> msg) -> Cmd msg
-getVideoList (Request.Kinto.AnonymousClient client) message =
+getVideoList : (Result Kinto.Error Data.Kinto.VideoList -> msg) -> Cmd msg
+getVideoList message =
+    let
+        (Request.Kinto.AnonymousClient client) =
+            Request.Kinto.anonymousClient
+    in
     client
         |> Kinto.getList recordResource
         |> Kinto.sort [ "-last_modified" ]
