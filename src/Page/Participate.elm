@@ -253,11 +253,11 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
                 )
             ]
             [ H.label [ HA.for "keywords" ]
-                [ H.text "Mots Clés" ]
+                [ H.text "Mots Clés (Pour faire une sélection multiple : ctrl + clic ou cmd + clic)" ]
             , H.select
                 [ HA.id "keywords"
-                , HA.value newVideo.keywords
-                , onChange (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
+                , HA.multiple True
+                , onSelectMultiple (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
                 ]
                 [ H.option [] []
                 , H.option [ HA.value "Aménagement classe" ] [ H.text "Aménagement classe" ]
@@ -426,6 +426,31 @@ generateRandomCredentials =
         )
 
 
-onChange : (String -> Msg) -> H.Attribute Msg
-onChange tagger =
-    HE.on "change" (Decode.map tagger HE.targetValue)
+onSelectMultiple : (List String -> Msg) -> H.Attribute Msg
+onSelectMultiple tagger =
+    HE.on "change" (Decode.map tagger targetSelectedOptions)
+
+
+targetSelectedOptions : Decode.Decoder (List String)
+targetSelectedOptions =
+    Decode.at [ "target", "selectedOptions" ] <|
+        collection <|
+            Decode.field "value" Decode.string
+
+
+collection : Decode.Decoder a -> Decode.Decoder (List a)
+collection decoder =
+    -- Taken from elm-community/json-extra
+    Decode.field "length" Decode.int
+        |> Decode.andThen
+            (\length ->
+                List.range 0 (length - 1)
+                    |> List.map (\index -> Decode.field (String.fromInt index) decoder)
+                    |> combine
+            )
+
+
+combine : List (Decode.Decoder a) -> Decode.Decoder (List a)
+combine =
+    -- Taken from elm-community/json-extra
+    List.foldr (Decode.map2 (::)) (Decode.succeed [])

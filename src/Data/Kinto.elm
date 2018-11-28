@@ -66,7 +66,7 @@ type alias Video =
     { id : String
     , last_modified : Int
     , title : String
-    , keywords : String
+    , keywords : List String
     , description : String
     , attachment : Attachment
     , duration : Int
@@ -78,7 +78,7 @@ emptyVideo =
     { id = ""
     , last_modified = 0
     , title = ""
-    , keywords = ""
+    , keywords = []
     , description = ""
     , attachment = emptyAttachment
     , duration = 0
@@ -88,7 +88,7 @@ emptyVideo =
 
 type alias NewVideo =
     { title : String
-    , keywords : String
+    , keywords : List String
     , description : String
     }
 
@@ -96,7 +96,7 @@ type alias NewVideo =
 emptyNewVideo =
     { description = ""
     , title = ""
-    , keywords = ""
+    , keywords = []
     }
 
 
@@ -106,11 +106,25 @@ videoDecoder =
         (Decode.field "id" Decode.string)
         (Decode.field "last_modified" Decode.int)
         (Decode.field "title" Decode.string)
-        (Decode.field "keywords" Decode.string)
+        (Decode.field "keywords" keywordsDecoder)
         (Decode.field "description" Decode.string)
         (Decode.field "attachment" attachmentDecoder)
         (Decode.field "duration" Decode.int)
         (Decode.field "thumbnail" Decode.string)
+
+
+keywordsDecoder : Decode.Decoder (List String)
+keywordsDecoder =
+    Decode.oneOf
+        [ Decode.list Decode.string
+        , Decode.string
+            |> Decode.andThen (\keyword -> Decode.succeed [ keyword ])
+        ]
+
+
+encodeKeywords : List String -> Encode.Value
+encodeKeywords keywords =
+    Encode.list Encode.string keywords
 
 
 decodeVideoList : Decode.Value -> Result Decode.Error (List Video)
@@ -124,7 +138,7 @@ encodeNewVideoData video =
     Encode.object
         [ ( "description", Encode.string video.description )
         , ( "title", Encode.string video.title )
-        , ( "keywords", Encode.string video.keywords )
+        , ( "keywords", encodeKeywords video.keywords )
         ]
 
 
@@ -134,7 +148,7 @@ encodeVideoData video =
         [ ( "id", Encode.string video.id )
         , ( "last_modified", Encode.int video.last_modified )
         , ( "title", Encode.string video.title )
-        , ( "keywords", Encode.string video.keywords )
+        , ( "keywords", encodeKeywords video.keywords )
         , ( "description", Encode.string video.description )
         , ( "attachment", encodeAttachmentData video.attachment )
         , ( "duration", Encode.int video.duration )
