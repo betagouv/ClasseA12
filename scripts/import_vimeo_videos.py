@@ -13,6 +13,7 @@ $ import_vimeo_videos.py --server=https://kinto.agopian.info/v1/ --bucket=classe
 
 """
 
+import base64
 import json
 import hashlib
 import mimetypes
@@ -97,13 +98,18 @@ def upload_files(client, files):
             video_id = filename.replace(".mp4", "")
             vimeo_data = urllib.request.urlopen(f"https://vimeo.com/api/v2/video/{video_id}.json")
             vimeo_json = json.loads(vimeo_data.read())[0]
+            thumbnail_response = urllib.request.urlopen(vimeo_json["thumbnail_large"])
+            thumbnail_mimetype = thumbnail_response.getheader("Content-Type")
+            thumbnail_data = thumbnail_response.read()
+            thumbnail_b64 = base64.b64encode(thumbnail_data).decode('utf-8')
+            thumbnail_data_uri = f"data:{thumbnail_mimetype};base64,{thumbnail_b64}"
             title = vimeo_json["title"]
             stripped_title = title.replace(" on Vimeo", "")
             data = {
                 "title": stripped_title,
                 "description": "",
                 "keywords": "",
-                "thumbnail": vimeo_json["thumbnail_large"],
+                "thumbnail": thumbnail_data_uri,
                 "duration": vimeo_json["duration"]
                 }
             body, _ = client.session.request(
