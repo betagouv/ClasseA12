@@ -242,14 +242,35 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
             newVideo.description
             (\description -> UpdateVideoForm { newVideo | description = description })
             videoSelected
-        , formInput
-            H.input
-            "keywords"
-            "Mots Clés"
-            "Coin lecture, organisation de la classe, trucs et astuces, ..."
-            newVideo.keywords
-            (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
-            videoSelected
+        , H.div
+            [ HA.class "form__group"
+            , HA.style "display"
+                (if videoSelected then
+                    "block"
+
+                 else
+                    "none"
+                )
+            ]
+            [ H.label [ HA.for "keywords" ]
+                [ H.text "Mots Clés" ]
+            , H.select
+                [ HA.id "keywords"
+                , HA.value newVideo.keywords
+                , onChange (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
+                ]
+                [ H.option [] []
+                , H.option [ HA.value "Aménagement classe" ] [ H.text "Aménagement classe" ]
+                , H.option [ HA.value "Tutoriel" ] [ H.text "Tutoriel" ]
+                , H.option [ HA.value "Évaluation" ] [ H.text "Évaluation" ]
+                , H.option [ HA.value "Témoignages" ] [ H.text "Témoignages" ]
+                , H.option [ HA.value "Français" ] [ H.text "Français" ]
+                , H.option [ HA.value "Autonomie" ] [ H.text "Autonomie" ]
+                , H.option [ HA.value "Éducation musicale" ] [ H.text "Éducation musicale" ]
+                , H.option [ HA.value "Graphisme" ] [ H.text "Graphisme" ]
+                , H.option [ HA.value "Co-éducation" ] [ H.text "Co-éducation" ]
+                ]
+            ]
         , H.div
             [ HA.class "form__group"
             , HA.style "display"
@@ -396,3 +417,8 @@ generateRandomCredentials =
         (stringPair
             |> Random.map Credentials
         )
+
+
+onChange : (String -> Msg) -> H.Attribute Msg
+onChange tagger =
+    HE.on "change" (Decode.map tagger HE.targetValue)
