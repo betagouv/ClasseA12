@@ -118,7 +118,14 @@ keywordsDecoder =
     Decode.oneOf
         [ Decode.list Decode.string
         , Decode.string
-            |> Decode.andThen (\keyword -> Decode.succeed [ keyword ])
+            |> Decode.andThen
+                (\keyword ->
+                    if keyword /= "" then
+                        Decode.succeed [ keyword ]
+
+                    else
+                        Decode.succeed []
+                )
         ]
 
 
