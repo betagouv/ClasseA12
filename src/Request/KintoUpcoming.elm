@@ -24,7 +24,7 @@ getVideoList : Request.Kinto.AuthClient -> (Result Kinto.Error Data.Kinto.VideoL
 getVideoList (Request.Kinto.AuthClient client) message =
     client
         |> Kinto.getList recordResource
-        |> Kinto.sort [ "-last_modified" ]
+        |> Kinto.sort [ "-creation_date" ]
         |> Kinto.send message
 
 

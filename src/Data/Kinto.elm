@@ -27,6 +27,7 @@ import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 import Kinto
+import Time
 
 
 type KintoData a
@@ -72,6 +73,7 @@ type alias Video =
     , attachment : Attachment
     , duration : Int
     , thumbnail : String
+    , creation_date : Time.Posix
     }
 
 
@@ -84,6 +86,7 @@ emptyVideo =
     , attachment = emptyAttachment
     , duration = 0
     , thumbnail = ""
+    , creation_date = Time.millisToPosix 0
     }
 
 
@@ -91,6 +94,7 @@ type alias NewVideo =
     { title : String
     , keywords : List String
     , description : String
+    , creation_date : Time.Posix
     }
 
 
@@ -98,6 +102,7 @@ emptyNewVideo =
     { description = ""
     , title = ""
     , keywords = []
+    , creation_date = Time.millisToPosix 0
     }
 
 
@@ -112,11 +117,22 @@ videoDecoder =
         |> Pipeline.required "attachment" attachmentDecoder
         |> Pipeline.required "duration" Decode.int
         |> Pipeline.required "thumbnail" Decode.string
+        |> Pipeline.optional "creation_date" posixDecoder (Time.millisToPosix 0)
 
+
+posixDecoder : Decode.Decoder Time.Posix
+posixDecoder =
+    Decode.int
+        |> Decode.map Time.millisToPosix
 
 keywordsDecoder : Decode.Decoder (List String)
 keywordsDecoder =
     Decode.list Decode.string
+
+encodePosix : Time.Posix -> Encode.Value
+encodePosix posix =
+    Time.posixToMillis posix
+        |> Encode.int
 
 
 encodeKeywords : List String -> Encode.Value
@@ -136,6 +152,7 @@ encodeNewVideoData video =
         [ ( "description", Encode.string video.description )
         , ( "title", Encode.string video.title )
         , ( "keywords", encodeKeywords video.keywords )
+        , ( "creation_date", encodePosix video.creation_date )
         ]
 
 
@@ -150,6 +167,7 @@ encodeVideoData video =
         , ( "attachment", encodeAttachmentData video.attachment )
         , ( "duration", Encode.int video.duration )
         , ( "thumbnail", Encode.string video.thumbnail )
+        , ( "creation_date", encodePosix video.creation_date )
         ]
 
 

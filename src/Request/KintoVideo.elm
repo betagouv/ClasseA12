@@ -28,5 +28,5 @@ getVideoList message =
     in
     client
         |> Kinto.getList recordResource
-        |> Kinto.sort [ "-last_modified" ]
+        |> Kinto.sort [ "-creation_date" ]
         |> Kinto.send message
