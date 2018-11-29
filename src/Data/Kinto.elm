@@ -24,6 +24,7 @@ module Data.Kinto exposing
     )
 
 import Json.Decode as Decode
+import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 import Kinto
 
@@ -52,10 +53,10 @@ type alias DeletedRecord =
 
 deletedRecordDecoder : Decode.Decoder DeletedRecord
 deletedRecordDecoder =
-    Decode.map3 DeletedRecord
-        (Decode.field "id" Decode.string)
-        (Decode.field "last_modified" Decode.int)
-        (Decode.field "deleted" Decode.bool)
+    Decode.succeed DeletedRecord
+        |> Pipeline.required "id" Decode.string
+        |> Pipeline.required "last_modified" Decode.int
+        |> Pipeline.required "deleted" Decode.bool
 
 
 
@@ -102,15 +103,15 @@ emptyNewVideo =
 
 videoDecoder : Decode.Decoder Video
 videoDecoder =
-    Decode.map8 Video
-        (Decode.field "id" Decode.string)
-        (Decode.field "last_modified" Decode.int)
-        (Decode.field "title" Decode.string)
-        (Decode.field "keywords" keywordsDecoder)
-        (Decode.field "description" Decode.string)
-        (Decode.field "attachment" attachmentDecoder)
-        (Decode.field "duration" Decode.int)
-        (Decode.field "thumbnail" Decode.string)
+    Decode.succeed Video
+        |> Pipeline.required "id" Decode.string
+        |> Pipeline.required "last_modified" Decode.int
+        |> Pipeline.required "title" Decode.string
+        |> Pipeline.required "keywords" keywordsDecoder
+        |> Pipeline.required "description" Decode.string
+        |> Pipeline.required "attachment" attachmentDecoder
+        |> Pipeline.required "duration" Decode.int
+        |> Pipeline.required "thumbnail" Decode.string
 
 
 keywordsDecoder : Decode.Decoder (List String)
@@ -176,12 +177,12 @@ emptyAttachment =
 
 attachmentDecoder : Decode.Decoder Attachment
 attachmentDecoder =
-    Decode.map5 Attachment
-        (Decode.field "filename" Decode.string)
-        (Decode.field "hash" Decode.string)
-        (Decode.field "location" Decode.string)
-        (Decode.field "mimetype" Decode.string)
-        (Decode.field "size" Decode.int)
+    Decode.succeed Attachment
+        |> Pipeline.required "filename" Decode.string
+        |> Pipeline.required "hash" Decode.string
+        |> Pipeline.required "location" Decode.string
+        |> Pipeline.required "mimetype" Decode.string
+        |> Pipeline.required "size" Decode.int
 
 
 encodeAttachmentData : Attachment -> Encode.Value
@@ -217,11 +218,11 @@ emptyContact =
 
 contactDecoder : Decode.Decoder Contact
 contactDecoder =
-    Decode.map4 Contact
-        (Decode.field "id" Decode.string)
-        (Decode.field "name" Decode.string)
-        (Decode.field "email" Decode.string)
-        (Decode.field "role" Decode.string)
+    Decode.succeed Contact
+        |> Pipeline.required "id" Decode.string
+        |> Pipeline.required "name" Decode.string
+        |> Pipeline.required "email" Decode.string
+        |> Pipeline.required "role" Decode.string
 
 
 decodeContactList : Decode.Value -> Result Decode.Error (List Contact)
