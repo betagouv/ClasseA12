@@ -9,6 +9,7 @@ import Http
 import Json.Encode as Encode
 import Kinto
 import Page.Utils
+import Time
 
 
 type alias Model =
@@ -48,7 +49,7 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session ({ search } as model) =
+view { videoData, timezone } ({ search } as model) =
     ( "Liste des vidéos"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__banner" ] []
@@ -88,7 +89,7 @@ view session ({ search } as model) =
                 ]
             , H.section [ HA.class "section section-grey cards" ]
                 [ H.div [ HA.class "container" ]
-                    (case session.videoData of
+                    (case videoData of
                         Data.Kinto.NotRequested ->
                             []
 
@@ -96,7 +97,7 @@ view session ({ search } as model) =
                             [ H.text "Chargement des vidéos..." ]
 
                         Data.Kinto.Received videoList ->
-                            viewVideoList model videoList
+                            viewVideoList timezone model videoList
 
                         Data.Kinto.Failed error ->
                             [ H.text <| "Erreur lors du chargement des videos: " ++ Kinto.errorToString error ]
@@ -107,8 +108,8 @@ view session ({ search } as model) =
     )
 
 
-viewVideoList : { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
-viewVideoList { activeVideo, search } videoList =
+viewVideoList : Time.Zone -> { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
+viewVideoList timezone { activeVideo, search } videoList =
     let
         filteredVideoList =
             videoList.objects
@@ -116,7 +117,7 @@ viewVideoList { activeVideo, search } videoList =
 
         videoCards =
             filteredVideoList
-                |> List.map (\video -> Page.Utils.viewVideo (ToggleVideo video) [] video)
+                |> List.map (\video -> Page.Utils.viewVideo timezone (ToggleVideo video) [] video)
     in
     [ Page.Utils.viewVideoModal ToggleVideo activeVideo
     , H.div [ HA.class "row" ]

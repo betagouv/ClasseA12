@@ -11,6 +11,7 @@ import Ports
 import Request.Kinto exposing (authClient)
 import Request.KintoUpcoming
 import Request.KintoVideo
+import Time
 
 
 type alias Model =
@@ -183,7 +184,7 @@ useLogin model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { errorList, videoListData, loginForm, publishingVideos, activeVideo } =
+view { timezone } { errorList, videoListData, loginForm, publishingVideos, activeVideo } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -196,7 +197,7 @@ view _ { errorList, videoListData, loginForm, publishingVideos, activeVideo } =
             [ Page.Utils.errorList errorList DiscardError
             , case videoListData of
                 Data.Kinto.Received videoList ->
-                    viewVideoList publishingVideos activeVideo videoList
+                    viewVideoList timezone publishingVideos activeVideo videoList
 
                 _ ->
                     H.div [ HA.class "section section-white" ]
@@ -208,8 +209,8 @@ view _ { errorList, videoListData, loginForm, publishingVideos, activeVideo } =
     )
 
 
-viewVideoList : PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> H.Html Msg
-viewVideoList publishingVideos activeVideo videoList =
+viewVideoList : Time.Zone -> PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> H.Html Msg
+viewVideoList timezone publishingVideos activeVideo videoList =
     H.section [ HA.class "section section-grey cards" ]
         [ H.div [ HA.class "container" ]
             [ H.div [ HA.class "form__group logout-button" ]
@@ -222,14 +223,14 @@ viewVideoList publishingVideos activeVideo videoList =
             , Page.Utils.viewVideoModal ToggleVideo activeVideo
             , H.div [ HA.class "row" ]
                 (videoList.objects
-                    |> List.map (viewVideo publishingVideos)
+                    |> List.map (viewVideo timezone publishingVideos)
                 )
             ]
         ]
 
 
-viewVideo : PublishingVideos -> Data.Kinto.Video -> H.Html Msg
-viewVideo publishingVideos video =
+viewVideo : Time.Zone -> PublishingVideos -> Data.Kinto.Video -> H.Html Msg
+viewVideo timezone publishingVideos video =
     let
         buttonState =
             if List.member video publishingVideos then
@@ -241,7 +242,7 @@ viewVideo publishingVideos video =
         publishNode =
             [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| PublishVideo video) ]
     in
-    Page.Utils.viewVideo (ToggleVideo video) publishNode video
+    Page.Utils.viewVideo timezone (ToggleVideo video) publishNode video
 
 
 viewLoginForm : LoginForm -> VideoListData -> H.Html Msg

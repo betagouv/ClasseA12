@@ -15,6 +15,7 @@ import Data.Kinto
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Time
 
 
 
@@ -111,8 +112,8 @@ errorNotification content discardMsg =
 ---- VIDEOS ----
 
 
-viewVideo : msg -> List (H.Html msg) -> Data.Kinto.Video -> H.Html msg
-viewVideo toggleVideo footerNodes video =
+viewVideo : Time.Zone -> msg -> List (H.Html msg) -> Data.Kinto.Video -> H.Html msg
+viewVideo timezone toggleVideo footerNodes video =
     let
         keywordsNode =
             if video.keywords /= [] then
@@ -142,9 +143,8 @@ viewVideo toggleVideo footerNodes video =
             , H.div
                 [ HA.class "card__content" ]
                 [ H.h3 [] [ H.text video.title ]
-
-                -- , H.div [ HA.class "card__meta" ]
-                --     [ H.time [] [ H.text <| String.fromInt video.last_modified ] ]
+                , H.div [ HA.class "card__meta" ]
+                    [ H.time [] [ H.text <| posixToDate timezone video.creation_date ] ]
                 , H.p [] [ H.text video.description ]
                 ]
             ]
@@ -182,3 +182,53 @@ viewVideoModal toggleVideo activeVideo =
                 , H.button [ HA.class "modal__close" ]
                     [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
                 ]
+
+
+posixToDate : Time.Zone -> Time.Posix -> String
+posixToDate timezone posix =
+    let
+        year =
+            String.fromInt <| Time.toYear timezone posix
+
+        month =
+            case Time.toMonth timezone posix of
+                Time.Jan ->
+                    "01"
+
+                Time.Feb ->
+                    "02"
+
+                Time.Mar ->
+                    "03"
+
+                Time.Apr ->
+                    "04"
+
+                Time.May ->
+                    "05"
+
+                Time.Jun ->
+                    "06"
+
+                Time.Jul ->
+                    "07"
+
+                Time.Aug ->
+                    "08"
+
+                Time.Sep ->
+                    "09"
+
+                Time.Oct ->
+                    "10"
+
+                Time.Nov ->
+                    "11"
+
+                Time.Dec ->
+                    "12"
+
+        day =
+            String.fromInt <| Time.toDay timezone posix
+    in
+    year ++ "-" ++ month ++ "-" ++ day

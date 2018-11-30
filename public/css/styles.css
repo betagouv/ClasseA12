@@ -64,6 +64,13 @@
     flex: none;
     width: 30%;
 }
+.card__cover {
+    border-bottom: 1px solid #c9d3df;
+    cursor: pointer;
+}
+.card__content .card__meta time::after {
+    content: "";
+}
 .row .card {
     margin: 0 1em 1em;
 }
@@ -190,10 +197,6 @@ button:disabled {
     border-width: 0;
     border-radius: 8px;
     padding: 1em;
-}
-.card__cover {
-    border-bottom: 1px solid #c9d3df;
-    cursor: pointer;
 }
 .logout-button {
     position: relative;
