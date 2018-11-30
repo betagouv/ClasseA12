@@ -1,15 +1,15 @@
 """Script that uploads a bunch of local videos to a collection.
 
-For each video file, run a HEAD on the related vimeo page (which the video
+For each video file, run a GET on the related vimeo page (which the video
 was downloaded from) to retrieve the title.
 
 Requirements: kinto_http
 
 $ pip install kinto_http
 
-To use: run the following in a folder containing all the videos (saved as <video_id>.mp4)
+To use: run the following in a folder containing all the videos (saved as <vimeo video id>.mp4)
 
-$ import_vimeo_videos.py --server=https://kinto.agopian.info/v1/ --bucket=classea12 --collection=videos --auth "<admin login>:<admin password>" *.mp4
+$ python 000_videos_import_vimeo_videos.py --auth "<admin login>:<admin password>" *.mp4
 
 """
 
@@ -25,7 +25,7 @@ import urllib.request
 from kinto_http import cli_utils
 from kinto_http.exceptions import KintoException
 
-DEFAULT_SERVER = "https://kinto.agopian.info/v1"
+DEFAULT_SERVER = "https://kinto.agopian.info/v1/"
 
 
 def sha256(content):
@@ -96,12 +96,14 @@ def upload_files(client, files):
         try:
             # Get the title from vimeo, using the file name as its video ID
             video_id = filename.replace(".mp4", "")
-            vimeo_data = urllib.request.urlopen(f"https://vimeo.com/api/v2/video/{video_id}.json")
+            vimeo_data = urllib.request.urlopen(
+                f"https://vimeo.com/api/v2/video/{video_id}.json"
+            )
             vimeo_json = json.loads(vimeo_data.read())[0]
             thumbnail_response = urllib.request.urlopen(vimeo_json["thumbnail_large"])
             thumbnail_mimetype = thumbnail_response.getheader("Content-Type")
             thumbnail_data = thumbnail_response.read()
-            thumbnail_b64 = base64.b64encode(thumbnail_data).decode('utf-8')
+            thumbnail_b64 = base64.b64encode(thumbnail_data).decode("utf-8")
             thumbnail_data_uri = f"data:{thumbnail_mimetype};base64,{thumbnail_b64}"
             title = vimeo_json["title"]
             stripped_title = title.replace(" on Vimeo", "")
@@ -110,8 +112,8 @@ def upload_files(client, files):
                 "description": "",
                 "keywords": "",
                 "thumbnail": thumbnail_data_uri,
-                "duration": vimeo_json["duration"]
-                }
+                "duration": vimeo_json["duration"],
+            }
             body, _ = client.session.request(
                 method="post",
                 data=json.dumps(data),
