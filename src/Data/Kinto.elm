@@ -115,18 +115,7 @@ videoDecoder =
 
 keywordsDecoder : Decode.Decoder (List String)
 keywordsDecoder =
-    Decode.oneOf
-        [ Decode.list Decode.string
-        , Decode.string
-            |> Decode.andThen
-                (\keyword ->
-                    if keyword /= "" then
-                        Decode.succeed [ keyword ]
-
-                    else
-                        Decode.succeed []
-                )
-        ]
+    Decode.list Decode.string
 
 
 encodeKeywords : List String -> Encode.Value
