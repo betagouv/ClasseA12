@@ -6,14 +6,16 @@ module Data.Session exposing
     , encodeSessionData
     )
 
+import Data.Kinto
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Data.Kinto
+import Time
 
 
 type alias Session =
     { videoData : Data.Kinto.VideoListData
     , loginForm : LoginForm
+    , timezone : Time.Zone
     }
 
 

@@ -21,6 +21,8 @@ import Platform.Sub
 import Ports
 import Request.KintoVideo exposing (getVideoList)
 import Route exposing (Route)
+import Task
+import Time
 import Url exposing (Url)
 import Views.Page as Page
 
@@ -61,6 +63,7 @@ type Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
+    | AdjustTimeZone Time.Zone
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -90,12 +93,8 @@ setRoute maybeRoute model =
                     toPage HomePage Home.init HomeMsg
             in
             ( homeModel
-            , Cmd.batch
-                [ commands
-
-                -- When loading the home for the first time, request the list of videos
-                , getVideoList VideoListReceived
-                ]
+              -- When loading the home for the first time, request the list of videos
+            , getVideoList VideoListReceived
             )
 
         Just Route.About ->
@@ -134,13 +133,17 @@ init flags url navKey =
         session =
             { videoData = Data.Kinto.Requested
             , loginForm = loginForm
+            , timezone = Time.utc
             }
+
+        ( routeModel, routeCmd ) =
+            setRoute (Route.fromUrl url)
+                { navKey = navKey
+                , page = HomePage (Home.init session |> (\( model, _ ) -> model))
+                , session = session
+                }
     in
-    setRoute (Route.fromUrl url)
-        { navKey = navKey
-        , page = HomePage (Home.init session |> (\( model, _ ) -> model))
-        , session = session
-        }
+    ( routeModel, Cmd.batch [ routeCmd, Task.perform AdjustTimeZone Time.here ] )
 
 
 
@@ -235,6 +238,13 @@ update msg ({ page, session } as model) =
                     model.session
             in
             ( { model | session = { modelSession | videoData = Data.Kinto.Failed error } }, Cmd.none )
+
+        ( AdjustTimeZone zone, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | timezone = zone } }, Cmd.none )
 
         ( _, NotFound ) ->
             ( { model | page = NotFound }
