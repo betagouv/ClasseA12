@@ -14,6 +14,8 @@ import Random.Char
 import Random.String
 import Request.KintoUpcoming
 import Route
+import Task
+import Time
 
 
 type alias Model =
@@ -32,8 +34,9 @@ type Credentials
 
 type Msg
     = UpdateVideoForm NewVideo
-    | GenerateRandomCredentials
-    | SubmitNewVideo Credentials
+    | GetTimestamp
+    | GenerateRandomCredentials Time.Posix
+    | SubmitNewVideo Time.Posix Credentials
     | DiscardNotification
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
@@ -63,17 +66,26 @@ update _ msg model =
         UpdateVideoForm video ->
             ( { model | newVideo = video }, Cmd.none )
 
-        GenerateRandomCredentials ->
-            -- TODO : this is only there temporarily, and will be replaced by the user's credentials
-            ( model, generateRandomCredentials )
+        GetTimestamp ->
+            ( model, Task.perform GenerateRandomCredentials Time.now )
 
-        SubmitNewVideo (Credentials ( login, password )) ->
+        GenerateRandomCredentials timestamp ->
+            -- TODO : this is only there temporarily, and will be replaced by the user's credentials
+            ( model, generateRandomCredentials timestamp )
+
+        SubmitNewVideo timestamp (Credentials ( login, password )) ->
             let
+                newVideo =
+                    model.newVideo
+
+                newVideoWithCreationDate =
+                    { newVideo | creation_date = timestamp }
+
                 submitVideoData : Ports.SubmitVideoData
                 submitVideoData =
                     { nodeID = "video"
                     , videoNodeID = "uploaded-video"
-                    , videoData = Data.Kinto.encodeNewVideoData model.newVideo
+                    , videoData = Data.Kinto.encodeNewVideoData newVideoWithCreationDate
                     , login = login
                     , password = password
                     }
@@ -196,7 +208,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
             videoObjectUrl
                 /= Nothing
     in
-    H.form [ HE.onSubmit GenerateRandomCredentials ]
+    H.form [ HE.onSubmit GetTimestamp ]
         [ H.div
             [ HA.class "upload-video"
             ]
@@ -417,10 +429,10 @@ stringPair =
     Random.pair randomString randomString
 
 
-generateRandomCredentials : Cmd Msg
-generateRandomCredentials =
+generateRandomCredentials : Time.Posix -> Cmd Msg
+generateRandomCredentials timestamp =
     Random.generate
-        SubmitNewVideo
+        (SubmitNewVideo timestamp)
         (stringPair
             |> Random.map Credentials
         )
