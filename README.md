@@ -50,11 +50,148 @@ There are two [users](https://kinto.readthedocs.io/en/stable/api/1.x/accounts.ht
 - no user (anonymous): the basic "user" that has read access to the `/buckets/classea12/collections/videos/` collection
 - `classea12admin:###`: the admin user that owns and has read and write access to the `/buckets/classea12/` bucket
 
-### Resources
+### Kinto Resources
 
-- `/buckets/classea12/collections/upcoming/`: `record:create` access to the `system.Authenticated` users. This is where videos proposed by teachers will be queued waiting to be accepted.
-- `/buckets/classea12/collections/videos/`: read access to everyone (anonymous users), write access to the `classea12admin` user. This is where all the accepted videos are listed.
-- `/buckets/classea12/collections/contacts/`: `record:create` access to the `system.Authenticated` users (each form submission will use a unique ID to create the contact, preventing anyone to request the list of contacts). List of people registered to the newsletter.
+#### Upcoming videos
+
+`/buckets/classea12/collections/upcoming/`: `record:create` access to the `system.Authenticated` users. This is where videos proposed by teachers will be queued waiting to be accepted.
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Titre",
+      "description": "Titre de la vidéo"
+    },
+    "duration": {
+      "type": "number",
+      "title": "Duration",
+      "description": "Duration of the video in seconds"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "Aménagement classe",
+          "Aménagement classe - Mobilier",
+          "Aménagement classe - Rangement",
+          "Tutoriel",
+          "Évaluation",
+          "Témoignages",
+          "Témoignages - conseils",
+          "Français",
+          "Français - Lecture",
+          "Français - Production d'écrits",
+          "Français - Oral",
+          "Français - Poésie",
+          "Autonomie",
+          "Éducation musicale",
+          "Graphisme",
+          "Co-éducation"
+        ],
+        "type": "string"
+      },
+      "title": "Mots clés",
+      "description": "Mots clés, thématique...",
+      "uniqueItems": true
+    },
+    "thumbnail": {
+      "type": "string",
+      "title": "Thumbnail",
+      "description": "Link to a thumbnail for this video"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Description du contenu de la vidéo"
+    },
+    "creation_date": {
+      "type": "number",
+      "title": "Date de création",
+      "description": "Date d'envoi de la vidéo"
+    }
+  }
+}
+```
+
+UISChema:
+
+```json
+{
+  "ui:order": [
+    "title",
+    "keywords",
+    "description",
+    "duration",
+    "thumbnail",
+    "creation_date"
+  ]
+}
+```
+
+Sort: `-creation_date`
+Records list columns: `title`, `keywords`, `description`, `duration`, `creation_date`
+File attachment: enable file attachment
+
+
+#### Published videos
+`/buckets/classea12/collections/videos/`: read access to everyone (anonymous users), write access to the `classea12admin` user. This is where all the accepted videos are listed.
+
+Schema, UISchema, Sort, Record list columns and File attachment: same as the above for upcoming videos.
+
+#### Email addresses for the newsletter
+
+`/buckets/classea12/collections/contacts/`: `record:create` access to the `system.Authenticated` users (each form submission will use a unique ID to create the contact, preventing anyone to request the list of contacts). List of people registered to the newsletter.
+
+Schema:
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "Name of the contact"
+    },
+    "role": {
+      "enum": [
+        "CP",
+        "CE1",
+        "Formateur"
+      ],
+      "type": "string",
+      "title": "Role",
+      "description": "Role of the contact"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email",
+      "description": "Email of the contact"
+    }
+  }
+}
+```
+
+UISchema:
+
+```json
+{
+  "ui:order": [
+    "name",
+    "email",
+    "role"
+  ]
+}
+```
+
+Sort: `name`
+Record list columns: `name`, `email`, `role`
+File attachment: none
 
 # Deployment
 
