@@ -38,8 +38,44 @@
       )
     }
 
+    function dataURItoBlob(dataURI) {
+      // convert base64 data component to raw binary data held in a string
+      // A data URI looks like that: "data:image/jpeg;base64,<base64 encoded data>"
+      splitted = dataURI.split(",");
+      const mimetype = splitted[0].replace("data:", "").replace(";base64", "");
+      const data = splitted[1];
+      const byteString = atob(data);
+
+      // write the bytes of the string to a typed array
+      var ia = new Uint8Array(byteString.length);
+      for (var i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+
+      return new Blob([ia], { type: mimetype });
+    }
+
+    function xhrForAttachment(collection, recordID, credentials) {
+      // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
+      let xhr = new XMLHttpRequest();
+      xhr.open("POST", `https://kinto.agopian.info/v1/buckets/classea12/collections/${collection}/records/${recordID}/attachment`);
+      xhr.upload.addEventListener("progress", function (event) {
+        if (event.lengthComputable) {
+          const percentage = Math.round(event.loaded * 100 / event.total);
+          app.ports.progressUpdate.send(percentage);
+        }
+      }, false);
+      xhr.onerror = function (event) {
+        console.error("network error", event.target);
+        app.ports.videoSubmitted.send(this.response);
+      }
+      xhr.setRequestHeader("Authorization", "Basic " + credentials);
+      return xhr;
+    }
+
     // A new video record has been created, upload the selected video file as an attachment
     app.ports.submitVideo.subscribe(function ({ nodeID, videoNodeID, videoData, login, password }) {
+      const credentials = btoa(`${login}:${password}`);
       const fileInput = document.getElementById(nodeID);
       if (fileInput === null) {
         console.error("Didn't find a file input with id", nodeID);
@@ -50,42 +86,50 @@
         console.error("Didn't find a video node with id", videoNodeID);
         return;
       }
+
+      // Get the duration from the video.
+      videoData.duration = parseInt(videoNode.duration, 10);
+
       // Create a thumbnail from the video.
       const canvas = document.createElement("canvas");
       const ratio = videoNode.videoWidth / videoNode.videoHeight;
       canvas.width = 300;
       canvas.height = 300 / ratio; // respect the video ratio
       canvas.getContext("2d").drawImage(videoNode, 0, 0, 300, 300 / ratio);
-      videoData.thumbnail = canvas.toDataURL();
-      // Get the duration from the video.
-      videoData.duration = parseInt(videoNode.duration, 10);
+      const thumbnail = dataURItoBlob(canvas.toDataURL("image/png"));
 
-      const file = fileInput.files[0];
-      // Create a multipart form to upload the file.
-      let formData = new FormData();
-      formData.append('attachment', file);
-      formData.append('data', JSON.stringify(videoData));
-
+      // Upload the thumbnail as an attachment
       const recordID = uuidv4();
+      const filename = `${recordID}.png`;
+      let thumbnailData = new FormData();
+      thumbnailData.append('attachment', thumbnail, filename);
+      thumbnailData.append('data', JSON.stringify({ "for": recordID }));
 
-      // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
-      let xhr = new XMLHttpRequest();
-      xhr.open("POST", `https://kinto.agopian.info/v1/buckets/classea12/collections/upcoming/records/${recordID}/attachment`);
-      xhr.upload.addEventListener("progress", function (event) {
-        if (event.lengthComputable) {
-          const percentage = Math.round(event.loaded * 100 / event.total);
-          app.ports.progressUpdate.send(percentage);
+      let xhrThumbnail = xhrForAttachment("thumbnails", uuidv4(), credentials);
+      xhrThumbnail.onload = function () {
+        // The thumbnail was uploaded, now upload the video.
+        const response = JSON.parse(this.response);
+        if (!response.location) {
+          console.error("Error while uploading the thumbnail", response);
+          app.ports.videoSubmitted.send(this.response);
+          return;
         }
-      }, false);
-      xhr.onload = function () {
-        app.ports.videoSubmitted.send(this.response);
+        videoData.thumbnail = response.location;
+
+        const file = fileInput.files[0];
+        // Create a multipart form to upload the file.
+        let formData = new FormData();
+        formData.append('attachment', file);
+        formData.append('data', JSON.stringify(videoData));
+
+        let xhrVideo = xhrForAttachment("upcoming", recordID, credentials);
+        xhrVideo.onload = function () {
+          app.ports.videoSubmitted.send(this.response);
+        }
+        xhrVideo.send(formData);
       }
-      xhr.onerror = function (event) {
-        console.error("network error", event.target);
-        app.ports.videoSubmitted.send(this.response);
-      }
-      xhr.setRequestHeader("Authorization", "Basic " + btoa(`${login}:${password}`));
-      xhr.send(formData);
+      xhrThumbnail.send(thumbnailData);
+
     });
 
     // A new url has been loaded using pushstate, we need to tell matomo/piwik (analytics) by firing an event
