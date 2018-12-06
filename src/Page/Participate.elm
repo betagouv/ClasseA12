@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Json.Decode as Decode
+import Json.Decode.Pipeline as Pipeline
 import Kinto
 import Ports
 import Random
@@ -22,10 +23,21 @@ type alias Model =
     { newVideo : NewVideo
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
-    , percentage : Int
+    , progress : Progress
     , approved : Bool
     , displayCGU : Bool
     }
+
+
+type alias Progress =
+    { percentage : Int
+    , message : String
+    }
+
+
+emptyProgress : Progress
+emptyProgress =
+    { percentage = 0, message = "" }
 
 
 type Credentials
@@ -52,7 +64,7 @@ init session =
     ( { newVideo = emptyNewVideo
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
-      , percentage = 0
+      , progress = emptyProgress
       , approved = False
       , displayCGU = False
       }
@@ -109,12 +121,16 @@ update _ msg model =
 
         ProgressUpdated value ->
             let
-                percentage =
-                    Decode.decodeValue Decode.int value
-                        |> Result.toMaybe
-                        |> Maybe.withDefault 0
+                progressDecoder =
+                    Decode.succeed Progress
+                        |> Pipeline.required "percentage" Decode.int
+                        |> Pipeline.required "message" Decode.string
+
+                progress =
+                    Decode.decodeValue progressDecoder value
+                        |> Result.withDefault emptyProgress
             in
-            ( { model | percentage = percentage }, Cmd.none )
+            ( { model | progress = progress }, Cmd.none )
 
         AttachmentSent response ->
             let
@@ -151,7 +167,7 @@ update _ msg model =
                 | newVideo = emptyNewVideo
                 , newVideoKintoData = kintoData
                 , videoObjectUrl = Nothing
-                , percentage = 0
+                , progress = emptyProgress
               }
             , Cmd.none
             )
@@ -198,11 +214,11 @@ displaySubmitVideoForm :
         | newVideo : NewVideo
         , newVideoKintoData : KintoData Video
         , videoObjectUrl : Maybe String
-        , percentage : Int
+        , progress : Progress
         , approved : Bool
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage, approved } =
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, approved } =
     let
         videoSelected =
             videoObjectUrl
@@ -331,12 +347,13 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, percentage
             ]
             [ H.div [ HA.class "modal" ]
                 [ H.h1 [] [ H.text "Envoi de la vidéo en cours, veuillez patienter..." ]
+                , H.p [] [ H.text progress.message ]
                 , H.progress
                     [ HA.class "is-large"
-                    , HA.value <| String.fromInt percentage
+                    , HA.value <| String.fromInt progress.percentage
                     , HA.max "100"
                     ]
-                    [ H.text <| String.fromInt percentage ++ "%" ]
+                    [ H.text <| String.fromInt progress.percentage ++ "%" ]
                 ]
             ]
         ]

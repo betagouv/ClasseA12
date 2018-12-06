@@ -62,7 +62,8 @@
       xhr.upload.addEventListener("progress", function (event) {
         if (event.lengthComputable) {
           const percentage = Math.round(event.loaded * 100 / event.total);
-          app.ports.progressUpdate.send(percentage);
+          const message = collection == "thumbnails" ? "Envoi de la miniature" : "Envoi de la vidéo";
+          app.ports.progressUpdate.send({ "percentage": percentage, "message": message });
         }
       }, false);
       xhr.onerror = function (event) {
