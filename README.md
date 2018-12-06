@@ -30,7 +30,7 @@ options the file would be deleted from the disk and not accessible anymore.
 
 Make sure to also allow uploading video files by adding the following setting:
 
-```kinto.attachment.extensions = default+video```
+```kinto.attachment.extensions = default+video+mov```
 
 Here's an example `kinto.ini` file:
 
