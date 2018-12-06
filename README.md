@@ -251,20 +251,20 @@ This can be done using a nodejs server like [expressjs](https://expressjs.com/),
 ```
 # This will make sure all the URLs that don't point to a file on disc will be processed by the
 # main entry point in index.html
-FallbackResource /
+DocumentRoot "/home/agopian/www/ClasseA12/"
 
-DocumentRoot "/path/to/ClasseA12/"
-
-<Directory />
-    Order Deny,Allow
-    Deny from all
-    Options -Indexes -Includes -ExecCGI -FollowSymlinks
-</Directory>
-
-<Directory /path/to/ClasseA12>
+<Directory /home/agopian/www/ClasseA12>
     Order allow,deny
     allow from all
-    Options -Indexes -Includes -ExecCGI -FollowSymlinks
+    Options -Indexes -Includes -ExecCGI
+    Options FollowSymlinks
+
+    RewriteEngine On
+    RewriteBase /
+    RewriteRule ^index\.html$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.html [L]
 </Directory>
 ```
 
