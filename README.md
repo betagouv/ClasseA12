@@ -19,6 +19,8 @@ Check out https://classea12.beta.gouv.fr/
 
 The backend is currently a [kinto](http://kinto.readthedocs.io/) instance.
 
+The `kinto.ini` and `kinto.wsgi` files alongside this README file are good starting points to setup a Kinto instance on a wsgi web server, with the necessary configuration (detailed below).
+
 It needs the [kinto accounts plugin](https://kinto.readthedocs.io/en/stable/configuration/settings.html#accounts).
 
 It also needs the [keep_old_files
