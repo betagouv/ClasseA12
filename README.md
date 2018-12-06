@@ -36,12 +36,18 @@ Here's an example `kinto.ini` file:
 
 ```
 # Kinto attachment
-kinto.attachment.base_url = https://your.server.here/attachments/
+kinto.attachment.base_url = https://videos.classea12.beta.gouv.fr/
 kinto.attachment.folder = {bucket_id}/{collection_id}
 kinto.attachment.base_path = /path/to/folder/with/attachments
 kinto.attachment.keep_old_files = true
-kinto.attachment.extensions = default+video
+kinto.attachment.extensions = default+video+mov
 ```
+
+The `videos.classea12.beta.gouv.fr` domain name must point to a website
+configured as a static files server which supports the `byte-range requests`
+for the [videos to be playable on
+Safari](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/CreatingVideoforSafarioniPhone/CreatingVideoforSafarioniPhone.html#//apple_ref/doc/uid/TP40006514-SW6).
+
 
 ### Users
 
