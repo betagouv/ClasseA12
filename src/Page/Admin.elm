@@ -188,7 +188,7 @@ view { timezone } { errorList, videoListData, loginForm, publishingVideos, activ
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "./logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Administration" ]
                 , H.p [] [ H.text "Modération des vidéos et des commentaires" ]
                 ]

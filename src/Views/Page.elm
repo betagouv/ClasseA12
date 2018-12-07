@@ -58,7 +58,7 @@ viewHeader { activePage } =
                 , Route.href Route.Home
                 ]
                 [ img
-                    [ src "./logo.png"
+                    [ src "/logo.png"
                     , alt "logo"
                     , class "navbar__logo"
                     ]

@@ -55,7 +55,7 @@ view { videoData, timezone } ({ search } as model) =
             [ H.div [ HA.class "hero__banner" ] []
             , H.div [ HA.class "hero__container" ]
                 [ H.img
-                    [ HA.src "./logo_ca12.png"
+                    [ HA.src "/logo_ca12.png"
                     , HA.class "hero__logo"
                     ]
                     []

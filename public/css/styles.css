@@ -4,7 +4,7 @@
     }
 }
 .hero__banner {
-    background : center / contain no-repeat url("../bandeau.jpg");
+    background : center / contain no-repeat url("/bandeau.jpg");
     padding-top: 13.77%;
 }
 .hero__container {
