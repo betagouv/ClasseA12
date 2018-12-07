@@ -122,7 +122,7 @@ footer img {
     flex-direction: column;
     justify-content: center;
 }
-.modal video {
+video {
     height: 100%;
     width: 100%;
 }

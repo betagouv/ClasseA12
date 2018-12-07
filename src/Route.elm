@@ -17,6 +17,7 @@ type Route
     | Convention
     | PrivacyPolicy
     | Admin
+    | Video String
 
 
 parser : Parser (Route -> a) a
@@ -30,6 +31,7 @@ parser =
         , Parser.map Convention (Parser.s "Charte")
         , Parser.map PrivacyPolicy (Parser.s "PolitiqueConfidentialite")
         , Parser.map Admin (Parser.s "admin")
+        , Parser.map Video (Parser.s "video" </> Parser.string )
         ]
 
 
@@ -76,5 +78,8 @@ toString route =
 
                 Admin ->
                     [ "admin" ]
+
+                Video videoID ->
+                    [ "video", videoID ]
     in
     "/" ++ String.join "/" pieces

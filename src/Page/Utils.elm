@@ -3,6 +3,7 @@ module Page.Utils exposing
     , button
     , errorList
     , errorNotification
+    , posixToDate
     , notification
     , submitButton
     , successNotification

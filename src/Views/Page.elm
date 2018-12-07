@@ -17,6 +17,7 @@ type ActivePage
     | Convention
     | PrivacyPolicy
     | Admin
+    | Video
     | NotFound
 
 

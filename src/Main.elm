@@ -14,6 +14,7 @@ import Page.Admin as Admin
 import Page.CGU as CGU
 import Page.Convention as Convention
 import Page.Home as Home
+import Page.Video as Video
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
@@ -40,6 +41,7 @@ type Page
     | ConventionPage Convention.Model
     | PrivacyPolicyPage PrivacyPolicy.Model
     | AdminPage Admin.Model
+    | VideoPage Video.Model
     | NotFound
 
 
@@ -59,6 +61,7 @@ type Msg
     | ConventionMsg Convention.Msg
     | PrivacyPolicyMsg PrivacyPolicy.Msg
     | AdminMsg Admin.Msg
+    | VideoMsg Video.Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
@@ -117,6 +120,9 @@ setRoute maybeRoute model =
 
         Just Route.Admin ->
             toPage AdminPage Admin.init AdminMsg
+
+        Just (Route.Video videoID) ->
+            toPage VideoPage (Video.init videoID) VideoMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -206,6 +212,9 @@ update msg ({ page, session } as model) =
 
                 _ ->
                     ( newModel, newCmd )
+
+        ( VideoMsg videoMsg, VideoPage videoModel ) ->
+            toPage VideoPage VideoMsg (Video.update session) videoMsg videoModel
 
         ( RouteChanged route, _ ) ->
             setRoute route model
@@ -307,6 +316,9 @@ subscriptions model =
             AdminPage _ ->
                 Sub.none
 
+            VideoPage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -365,6 +377,12 @@ view model =
             Admin.view model.session adminModel
                 |> mapMsg AdminMsg
                 |> Page.frame (pageConfig Page.Admin)
+
+        VideoPage videoModel ->
+            Video.view model.session videoModel
+                |> mapMsg VideoMsg
+                |> Page.frame (pageConfig Page.Video)
+
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )
