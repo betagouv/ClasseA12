@@ -201,6 +201,19 @@ view _ model =
                             [ H.text "conditions générales d'utilisation" ]
                         , H.text "."
                         ]
+                    , H.p []
+                        [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
+                        , H.ul []
+                            [ H.li []
+                                [ H.a [ HA.href "./documents/Autorisation-captation-image-mineur_2017.pdf" ]
+                                    [ H.text "Autorisation-captation-image-mineur_2017.pdf" ]
+                                ]
+                            , H.li []
+                                [ H.a [ HA.href "./documents/Autorisation-captation-image-majeur_2017.pdf" ]
+                                    [ H.text "Autorisation-captation-image-majeur_2017.pdf" ]
+                                ]
+                            ]
+                        ]
                     , displaySubmitVideoForm model
                     ]
                 ]

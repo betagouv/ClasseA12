@@ -213,9 +213,21 @@ update msg ({ page, session } as model) =
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model
-                    , Nav.pushUrl model.navKey (Url.toString url)
-                    )
+                    let
+                        isStaticFile =
+                            String.startsWith "/documents/" url.path
+
+                        urlString =
+                            Url.toString url
+
+                        cmd =
+                            if isStaticFile then
+                                Nav.load urlString
+
+                            else
+                                Nav.pushUrl model.navKey urlString
+                    in
+                    ( model, cmd )
 
                 Browser.External href ->
                     ( model
