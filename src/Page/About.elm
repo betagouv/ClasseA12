@@ -30,7 +30,7 @@ view _ model =
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src "./logo_ca12.png" , HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Classe à 12 ?" ]
-                , H.p [] [ H.text "Prêt.e ? Filmez ! Partagez !" ]
+                , H.p [] [ H.text "Prêt ? Filmez ! Partagez !" ]
                 ]
             ]
       , H.div [ HA.class "main" ]
