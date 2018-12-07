@@ -3,10 +3,11 @@ module Page.Utils exposing
     , button
     , errorList
     , errorNotification
-    , posixToDate
     , notification
+    , posixToDate
     , submitButton
     , successNotification
+    , viewPublicVideo
     , viewVideo
     , viewVideoModal
     , viewVideoPlayer
@@ -16,6 +17,7 @@ import Data.Kinto
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Route
 import Time
 
 
@@ -153,6 +155,49 @@ viewVideo timezone toggleVideo footerNodes video =
     H.div
         [ HA.class "card" ]
         (cardNodes ++ keywordsNode ++ footerNodes)
+
+
+viewPublicVideo : Time.Zone -> Data.Kinto.Video -> H.Html msg
+viewPublicVideo timezone video =
+    let
+        keywordsNode =
+            if video.keywords /= [] then
+                [ H.div [ HA.class "card__extra" ]
+                    (List.map
+                        (\keyword ->
+                            H.div [ HA.class "label" ]
+                                [ H.text keyword ]
+                        )
+                        video.keywords
+                    )
+                ]
+
+            else
+                []
+
+        cardNodes =
+            [ H.div
+                [ HA.class "card__cover" ]
+                [ H.img
+                    [ HA.alt video.title
+                    , HA.src video.thumbnail
+                    ]
+                    []
+                ]
+            , H.div
+                [ HA.class "card__content" ]
+                [ H.h3 [] [ H.text video.title ]
+                , H.div [ HA.class "card__meta" ]
+                    [ H.time [] [ H.text <| posixToDate timezone video.creation_date ] ]
+                , H.p [] [ H.text video.description ]
+                ]
+            ]
+    in
+    H.a
+        [ HA.class "card"
+        , Route.href <| Route.Video video.id
+        ]
+        (cardNodes ++ keywordsNode)
 
 
 viewVideoPlayer : Data.Kinto.Attachment -> H.Html msg

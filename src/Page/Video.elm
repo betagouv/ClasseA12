@@ -45,7 +45,7 @@ update _ msg model =
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view { timezone } { video } =
-    ( "Classe à 12 ?"
+    ( "Vidéo"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []

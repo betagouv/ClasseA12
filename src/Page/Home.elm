@@ -117,9 +117,8 @@ viewVideoList timezone { activeVideo, search } videoList =
 
         videoCards =
             filteredVideoList
-                |> List.map (\video -> Page.Utils.viewVideo timezone (ToggleVideo video) [] video)
+                |> List.map (\video -> Page.Utils.viewPublicVideo timezone video)
     in
-    [ Page.Utils.viewVideoModal ToggleVideo activeVideo
-    , H.div [ HA.class "row" ]
+    [ H.div [ HA.class "row" ]
         videoCards
     ]
