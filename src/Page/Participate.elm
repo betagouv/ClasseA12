@@ -279,7 +279,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
             H.textarea
             "description"
             "Description"
-            "Description : que montre la vidéo ?"
+            "Description succincte, ville, académie"
             newVideo.description
             (\description -> UpdateVideoForm { newVideo | description = description })
             videoSelected
