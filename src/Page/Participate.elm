@@ -317,6 +317,11 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                 , H.option [ HA.value "Éducation musicale" ] [ H.text "Éducation musicale" ]
                 , H.option [ HA.value "Graphisme" ] [ H.text "Graphisme" ]
                 , H.option [ HA.value "Co-éducation" ] [ H.text "Co-éducation" ]
+                , H.option [ HA.value "Mathématiques" ] [ H.text "Mathématiques" ]
+                , H.option [ HA.value "Mathématiques - Calcul" ] [ H.text "Mathématiques - Calcul" ]
+                , H.option [ HA.value "Mathématiques - Résolution de problèmes" ] [ H.text "Mathématiques - Résolution de problèmes" ]
+                , H.option [ HA.value "EMC" ] [ H.text "EMC" ]
+                , H.option [ HA.value "Programmation" ] [ H.text "Programmation" ]
                 ]
             ]
         , H.div
