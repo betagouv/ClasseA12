@@ -61,8 +61,14 @@
     flex-wrap: wrap;
 }
 .card {
+    color: inherit;
     flex: none;
+    text-decoration: inherit;
     width: 30%;
+}
+.card:hover, .card:focus, .card:visited, .card:active {
+    color: inherit;
+    text-decoration: inherit;
 }
 .card__cover {
     border-bottom: 1px solid #c9d3df;
