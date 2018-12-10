@@ -20,6 +20,7 @@ module Data.Kinto exposing
     , encodeContactData
     , encodeNewVideoData
     , encodeVideoData
+    , keywordList
     , videoDecoder
     )
 
@@ -125,9 +126,11 @@ posixDecoder =
     Decode.int
         |> Decode.map Time.millisToPosix
 
+
 keywordsDecoder : Decode.Decoder (List String)
 keywordsDecoder =
     Decode.list Decode.string
+
 
 encodePosix : Time.Posix -> Encode.Value
 encodePosix posix =
@@ -169,6 +172,32 @@ encodeVideoData video =
         , ( "thumbnail", Encode.string video.thumbnail )
         , ( "creation_date", encodePosix video.creation_date )
         ]
+
+
+keywordList : List String
+keywordList =
+    [ "Aménagement classe"
+    , "Aménagement classe - Mobilier"
+    , "Aménagement classe - Rangement"
+    , "Tutoriel"
+    , "Évaluation"
+    , "Témoignages"
+    , "Témoignages - conseils"
+    , "Français"
+    , "Français - Lecture"
+    , "Français - Production d'écrits"
+    , "Français - Oral"
+    , "Français - Poésie"
+    , "Autonomie"
+    , "Éducation musicale"
+    , "Graphisme"
+    , "Co-éducation"
+    , "Mathématiques"
+    , "Mathématiques - Calcul"
+    , "Mathématiques - Résolution de problèmes"
+    , "EMC"
+    , "Programmation"
+    ]
 
 
 

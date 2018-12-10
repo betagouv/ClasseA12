@@ -300,29 +300,14 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                 , HA.multiple True
                 , onSelectMultiple (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
                 ]
-                [ H.option [] []
-                , H.option [ HA.value "Aménagement classe" ] [ H.text "Aménagement classe" ]
-                , H.option [ HA.value "Aménagement classe - Mobilier" ] [ H.text "Aménagement classe - Mobilier" ]
-                , H.option [ HA.value "Aménagement classe - Rangement" ] [ H.text "Aménagement classe - Rangement" ]
-                , H.option [ HA.value "Tutoriel" ] [ H.text "Tutoriel" ]
-                , H.option [ HA.value "Évaluation" ] [ H.text "Évaluation" ]
-                , H.option [ HA.value "Témoignages" ] [ H.text "Témoignages" ]
-                , H.option [ HA.value "Témoignages - conseils" ] [ H.text "Témoignages - conseils" ]
-                , H.option [ HA.value "Français" ] [ H.text "Français" ]
-                , H.option [ HA.value "Français - Lecture" ] [ H.text "Français - Lecture" ]
-                , H.option [ HA.value "Français - Production d'écrits" ] [ H.text "Français - Production d'écrits" ]
-                , H.option [ HA.value "Français - Oral" ] [ H.text "Français - Oral" ]
-                , H.option [ HA.value "Français - Poésie" ] [ H.text "Français - Poésie" ]
-                , H.option [ HA.value "Autonomie" ] [ H.text "Autonomie" ]
-                , H.option [ HA.value "Éducation musicale" ] [ H.text "Éducation musicale" ]
-                , H.option [ HA.value "Graphisme" ] [ H.text "Graphisme" ]
-                , H.option [ HA.value "Co-éducation" ] [ H.text "Co-éducation" ]
-                , H.option [ HA.value "Mathématiques" ] [ H.text "Mathématiques" ]
-                , H.option [ HA.value "Mathématiques - Calcul" ] [ H.text "Mathématiques - Calcul" ]
-                , H.option [ HA.value "Mathématiques - Résolution de problèmes" ] [ H.text "Mathématiques - Résolution de problèmes" ]
-                , H.option [ HA.value "EMC" ] [ H.text "EMC" ]
-                , H.option [ HA.value "Programmation" ] [ H.text "Programmation" ]
-                ]
+                ([ H.option [] [] ]
+                    ++ (Data.Kinto.keywordList
+                            |> List.map
+                                (\keyword ->
+                                    H.option [ HA.value keyword ] [ H.text keyword ]
+                                )
+                       )
+                )
             ]
         , H.div
             [ HA.class "form__group"

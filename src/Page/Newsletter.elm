@@ -5,7 +5,6 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-import Json.Decode as Decode
 import Kinto
 import Page.Utils
 import Random
@@ -13,6 +12,7 @@ import Random.Char
 import Random.String
 import Request.KintoContact
 import Route
+import Page.Utils
 
 
 type alias Model =
@@ -119,7 +119,7 @@ view _ { contact, newContactKintoData } =
                             , H.select
                                 [ HA.id "role"
                                 , HA.value contact.role
-                                , onChange
+                                , Page.Utils.onChange
                                     (\role ->
                                         UpdateContactForm { contact | role = role }
                                     )
@@ -190,8 +190,3 @@ generateRandomPassword =
         (Random.String.string 20 Random.Char.latin
             |> Random.map RandomPassword
         )
-
-
-onChange : (String -> Msg) -> H.Attribute Msg
-onChange tagger =
-    HE.on "change" (Decode.map tagger HE.targetValue)

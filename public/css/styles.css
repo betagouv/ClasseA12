@@ -209,3 +209,7 @@ button:disabled {
     text-align: center;
     top: -2em;
 }
+.button-link {
+    background: none;
+    border: none;
+}

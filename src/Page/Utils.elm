@@ -4,6 +4,7 @@ module Page.Utils exposing
     , errorList
     , errorNotification
     , notification
+    , onChange
     , posixToDate
     , submitButton
     , successNotification
@@ -17,6 +18,7 @@ import Data.Kinto
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Json.Decode as Decode
 import Route
 import Time
 
@@ -278,3 +280,8 @@ posixToDate timezone posix =
             String.fromInt <| Time.toDay timezone posix
     in
     year ++ "-" ++ month ++ "-" ++ day
+
+
+onChange : (String -> msg) -> H.Attribute msg
+onChange tagger =
+    HE.on "change" (Decode.map tagger HE.targetValue)

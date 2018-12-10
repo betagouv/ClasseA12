@@ -71,18 +71,30 @@ view { videoData, timezone } ({ search } as model) =
                     [ H.div
                         [ HA.class "form__group light-background" ]
                         [ H.label [ HA.for "search" ]
-                            [ H.text "Cherchez un titre de vidéo :" ]
+                            [ H.text "Filtrer par mot clé :" ]
                         , H.div [ HA.class "search__group" ]
-                            [ H.input
-                                [ HA.id "search"
-                                , HA.type_ "search"
-                                , HA.placeholder "produire une vidéo"
-                                , HA.value search
-                                , HE.onInput UpdateSearch
+                            [ H.select
+                                [ HA.id "keywords"
+                                , HA.value model.search
+                                , Page.Utils.onChange UpdateSearch
                                 ]
-                                []
-                            , H.button [ HA.class "overlay-button" ]
-                                [ H.i [ HA.class "fa fa-search" ] [] ]
+                                ([ H.option [ HA.value "" ] [ H.text "Toutes les vidéos" ] ]
+                                    ++ (Data.Kinto.keywordList
+                                            |> List.map
+                                                (\keyword ->
+                                                    H.option [ HA.value keyword ] [ H.text keyword ]
+                                                )
+                                       )
+                                )
+                            , if model.search /= "" then
+                                H.button
+                                    [ HA.class "button-link"
+                                    , HE.onClick <| UpdateSearch ""
+                                    ]
+                                    [ H.i [ HA.class "fa fa-times" ] [] ]
+
+                              else
+                                H.div [] []
                             ]
                         ]
                     ]
@@ -112,12 +124,19 @@ viewVideoList : Time.Zone -> { a | activeVideo : Maybe Data.Kinto.Video, search 
 viewVideoList timezone { activeVideo, search } videoList =
     let
         filteredVideoList =
-            videoList.objects
-                |> List.filter (\video -> String.contains search video.title)
+            if search /= "" then
+                videoList.objects
+                    |> List.filter (\video -> List.member search video.keywords)
+            else
+                videoList.objects
 
         videoCards =
-            filteredVideoList
-                |> List.map (\video -> Page.Utils.viewPublicVideo timezone video)
+            if filteredVideoList /= [] then
+                filteredVideoList
+                    |> List.map (\video -> Page.Utils.viewPublicVideo timezone video)
+            else
+                [ H.text "Pas de vidéos trouvée" ]
+
     in
     [ H.div [ HA.class "row" ]
         videoCards
