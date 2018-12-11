@@ -79,7 +79,8 @@ VIDEOS_COLLECTIONS_METADATA = {
                 "duration",
                 "thumbnail",
                 "creation_date",
-            ]
+            ],
+            "description": {"ui:widget": "textarea", "ui:options": {"rows": 5}},
         },
         "attachment": {"enabled": True, "required": False},
         "cache_expires": 0,

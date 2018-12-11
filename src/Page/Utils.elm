@@ -19,6 +19,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as Decode
+import Markdown
 import Route
 import Time
 
@@ -150,7 +151,7 @@ viewVideo timezone toggleVideo footerNodes video =
                 [ H.h3 [] [ H.text video.title ]
                 , H.div [ HA.class "card__meta" ]
                     [ H.time [] [ H.text <| posixToDate timezone video.creation_date ] ]
-                , H.p [] [ H.text video.description ]
+                , Markdown.toHtml [] video.description
                 ]
             ]
     in
