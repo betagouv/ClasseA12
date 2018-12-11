@@ -238,11 +238,11 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                 /= Nothing
     in
     H.form [ HE.onSubmit GetTimestamp ]
-        [ H.div
+        [ displayVideo videoObjectUrl
+        , H.div
             [ HA.class "upload-video"
             ]
-            [ displayVideo videoObjectUrl
-            , H.label
+            [ H.label
                 [ HA.style "display"
                     (if videoSelected then
                         "none"
@@ -364,19 +364,15 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
 
 displayVideo : Maybe String -> H.Html Msg
 displayVideo maybeVideoObjectUrl =
-    case maybeVideoObjectUrl of
-        Just videoObjectUrl ->
-            H.div []
-                [ H.video
-                    [ HA.src videoObjectUrl
-                    , HA.controls True
-                    , HA.id "uploaded-video"
-                    ]
-                    []
-                ]
-
-        Nothing ->
-            H.div [] []
+    H.div [ HA.style "display" "none", HA.style "text-align" "center" ]
+        [ H.video
+            [ HA.controls True
+            , HA.id "uploaded-video"
+            ]
+            []
+        , H.p [] [ H.text "Aperçu de la miniature de la vidéo (déplacer le curseur de la vidéo ci-dessus)" ]
+        , H.canvas [ HA.id "thumbnail-preview" ] []
+        ]
 
 
 displayKintoData : KintoData Video -> H.Html Msg

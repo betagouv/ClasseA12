@@ -213,3 +213,6 @@ button:disabled {
     background: none;
     border: none;
 }
+#uploaded-video {
+    max-height: 300px;
+}

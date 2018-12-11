@@ -30,7 +30,28 @@
       const file = fileInput.files[0];
       const videoObjectUrl = URL.createObjectURL(file);
       app.ports.videoObjectUrl.send(videoObjectUrl);
+
+      // Preview the thumbnail for the selected video.
+      const videoNode = document.getElementById("uploaded-video");
+      videoNode.src = videoObjectUrl;
+      videoNode.parentNode.style.display = "block";
+      videoNode.addEventListener("canplay", function () {
+        // The video is "available", let's preview the thumbnail.
+        const ratio = videoNode.videoHeight / videoNode.videoWidth;
+        const canvas = document.getElementById("thumbnail-preview");
+        canvas.height = Math.min(videoNode.videoHeight, 300);
+        canvas.width = canvas.height / ratio; // respect the video ratio
+        updatePreview(canvas, videoNode, ratio);
+        videoNode.addEventListener("timeupdate", function () {
+          // The video cursor has been moved, update the thumbnail preview.
+          updatePreview(canvas, videoNode, ratio);
+        }, true);
+      }, true);
     });
+
+    function updatePreview(canvasNode, videoNode, ratio) {
+      canvasNode.getContext("2d").drawImage(videoNode, 0, 0, 300 / ratio, 300);
+    };
 
     function uuidv4() {
       return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
@@ -92,11 +113,7 @@
       videoData.duration = parseInt(videoNode.duration, 10);
 
       // Create a thumbnail from the video.
-      const canvas = document.createElement("canvas");
-      const ratio = videoNode.videoWidth / videoNode.videoHeight;
-      canvas.width = 300;
-      canvas.height = 300 / ratio; // respect the video ratio
-      canvas.getContext("2d").drawImage(videoNode, 0, 0, 300, 300 / ratio);
+      const canvas = document.getElementById("thumbnail-preview");
       const thumbnail = dataURItoBlob(canvas.toDataURL("image/png"));
 
       // Upload the thumbnail as an attachment
