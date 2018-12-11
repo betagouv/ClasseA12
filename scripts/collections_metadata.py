@@ -45,6 +45,8 @@ VIDEOS_COLLECTIONS_METADATA = {
                             "Mathématiques - Résolution de problèmes",
                             "EMC",
                             "Programmation",
+                            "CP",
+                            "CE1",
                         ],
                         "type": "string",
                     },

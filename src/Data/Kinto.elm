@@ -197,6 +197,8 @@ keywordList =
     , "Mathématiques - Résolution de problèmes"
     , "EMC"
     , "Programmation"
+    , "CP"
+    , "CE1"
     ]
 
 
