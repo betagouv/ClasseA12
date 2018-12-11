@@ -145,6 +145,7 @@
           app.ports.videoSubmitted.send(this.response);
         }
         xhrVideo.send(formData);
+        videoNode.parentNode.style.display = "none";
       }
       xhrThumbnail.send(thumbnailData);
 
