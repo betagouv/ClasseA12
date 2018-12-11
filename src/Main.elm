@@ -129,17 +129,23 @@ init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     let
         loginForm =
-            -- Decode a string from the value (the stringified session data)
-            Decode.decodeValue Decode.string flags
+            -- Decode a string from the "loginForm" field in the value (the stringified session data)
+            Decode.decodeValue (Decode.field "loginForm" Decode.string) flags
                 -- Decode a loginForm from the value
                 |> Result.andThen (Decode.decodeString decodeSessionData)
                 |> Result.withDefault emptyLoginForm
+
+        version =
+            -- Decode a string from the "version" field in the value
+            Decode.decodeValue (Decode.field "version" Decode.string) flags
+                |> Result.withDefault "dev"
 
         session : Session
         session =
             { videoData = Data.Kinto.Requested
             , loginForm = loginForm
             , timezone = Time.utc
+            , version = version
             }
 
         ( routeModel, routeCmd ) =

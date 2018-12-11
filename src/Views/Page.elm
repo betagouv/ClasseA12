@@ -33,7 +33,7 @@ frame config ( title, content ) =
     , body =
         [ viewHeader config ]
             ++ content
-            ++ [ viewFooter ]
+            ++ [ viewFooter config.session ]
     }
 
 
@@ -79,8 +79,8 @@ viewHeader { activePage } =
         ]
 
 
-viewFooter : Html msg
-viewFooter =
+viewFooter : Session -> Html msg
+viewFooter session =
     footer [ class "footer" ]
         [ div [ class "container" ]
             [ div [ class "footer__logo" ]
@@ -116,6 +116,8 @@ viewFooter =
                     [ a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ] ]
                 , li []
                     [ a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ] ]
+                , li []
+                    [ text <| "Version : " ++ session.version ]
                 ]
             ]
         ]

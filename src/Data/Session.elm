@@ -16,6 +16,7 @@ type alias Session =
     { videoData : Data.Kinto.VideoListData
     , loginForm : LoginForm
     , timezone : Time.Zone
+    , version : String
     }
 
 
