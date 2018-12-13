@@ -121,8 +121,8 @@ setRoute maybeRoute model =
         Just Route.Admin ->
             toPage AdminPage Admin.init AdminMsg
 
-        Just (Route.Video videoID) ->
-            toPage VideoPage (Video.init videoID) VideoMsg
+        Just (Route.Video videoID title) ->
+            toPage VideoPage (Video.init videoID title) VideoMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )

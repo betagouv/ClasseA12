@@ -198,7 +198,7 @@ viewPublicVideo timezone video =
     in
     H.a
         [ HA.class "card"
-        , Route.href <| Route.Video video.id
+        , Route.href <| Route.Video video.id video.title
         ]
         (cardNodes ++ keywordsNode)
 

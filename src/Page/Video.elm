@@ -8,11 +8,13 @@ import Kinto
 import Page.Utils
 import Request.KintoVideo
 import Time
+import Url
 
 
 type alias Model =
     { videoID : String
     , video : Data.Kinto.KintoData Data.Kinto.Video
+    , title : String
     }
 
 
@@ -21,10 +23,11 @@ type Msg
     | VideoReceived (Result Kinto.Error Data.Kinto.Video)
 
 
-init : String -> Session -> ( Model, Cmd Msg )
-init videoID session =
+init : String -> String -> Session -> ( Model, Cmd Msg )
+init videoID title session =
     ( { videoID = videoID
       , video = Data.Kinto.Requested
+      , title = title
       }
     , Request.KintoVideo.getVideo videoID VideoReceived
     )
@@ -44,8 +47,12 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone } { video } =
-    ( "Vidéo"
+view { timezone } { video, title } =
+    ( "Vidéo : "
+        ++ (title
+                |> Url.percentDecode
+                |> Maybe.withDefault title
+           )
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
@@ -86,6 +93,7 @@ viewVideo timezone videoData =
         _ ->
             H.p [] [ H.text "Vidéo non trouvée" ]
 
+
 viewVideoDetails : Time.Zone -> Data.Kinto.Video -> H.Html Msg
 viewVideoDetails timezone video =
     let
@@ -105,7 +113,7 @@ viewVideoDetails timezone video =
                 []
 
         detailsNodes =
-            [ H.div [ ]
+            [ H.div []
                 [ Page.Utils.viewVideoPlayer video.attachment
                 , H.h3 [] [ H.text video.title ]
                 , H.div []
