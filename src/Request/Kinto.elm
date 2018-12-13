@@ -4,7 +4,7 @@ import Kinto
 
 
 serverURL =
-    "https://kinto.agopian.info/v1/"
+    "https://kinto.classea12.beta.gouv.fr/v1/"
 
 
 type AuthClient

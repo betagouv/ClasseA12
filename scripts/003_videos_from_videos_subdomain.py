@@ -38,7 +38,7 @@ def change_location(videos):
     for video in videos:
         video_location = video["attachment"]["location"]
         new_location = video_location.replace(
-            "https://kinto.agopian.info/attachments/",
+            "https://kinto.https://kinto.classea12.beta.gouv.fr/v1/.info/attachments/",
             "https://videos.classea12.beta.gouv.fr/",
         )
         video["attachment"]["location"] = new_location

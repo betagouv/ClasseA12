@@ -25,7 +25,7 @@ import urllib.request
 from kinto_http import cli_utils
 from kinto_http.exceptions import KintoException
 
-DEFAULT_SERVER = "https://kinto.agopian.info/v1/"
+DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 
 
 def sha256(content):

@@ -6,7 +6,7 @@ This has been bootstraped with [elm-kitchen](https://allo-media.github.io/elm-ki
 To install and tinker:
 
 ```shell
-$ git clone https://github.com/magopian/ClasseA12
+$ git clone https://github.com/betagouv/ClasseA12
 $ cd ClasseA12
 $ npm install
 $ npm start
@@ -79,8 +79,7 @@ The resources metadata (data and permissions) are stored in `scripts/collections
 
 # Deployment
 
-This will change in the future, but for now:
-- Kinto is hosted on an [alwaysdata](https://www.alwaysdata.com/) [account](https://kinto.agopian.info/v1)
+- Kinto is hosted on an [alwaysdata](https://www.alwaysdata.com/) [account](https://kinto.classea12.beta.gouv.fr/v1)
 - on the same account, the frontend static files are pushed to a git repository using [gh-pages](https://www.npmjs.com/package/gh-pages) with `npm run deploy`
 
 For this second part to work, here's the recipe:
@@ -89,7 +88,7 @@ For this second part to work, here's the recipe:
 
 ```shell
 $ cd git
-$ git clone --bare https://github.com/magopian/ClasseA12.git
+$ git clone --bare https://github.com/betagouv/ClasseA12.git
 $ vim ClasseA12/hooks/post-receive
 ```
 
@@ -102,7 +101,7 @@ do
     if [ "$ref" = "refs/heads/gh-pages" ];
     then
         echo "Deploying 'gh-pages' branch"
-        git --work-tree=/home/agopian/www/ClasseA12 --git-dir=/home/agopian/git/ClasseA12.git checkout --force gh-pages
+        git --work-tree=/path/to/www/ClasseA12 --git-dir=/path/to/git/ClasseA12.git checkout --force gh-pages
         exit 0
     fi
 done
@@ -111,7 +110,7 @@ done
 ## Adding a remote to the alwaysdata account on the dev machine
 
 ```shell
-$ git remote add deploy agopian@ssh-agopian.alwaysdata.net:~/git/ClasseA12.git
+$ git remote add deploy classea12@ssh-classea12.alwaysdata.net:~/git/ClasseA12.git
 ```
 
 Then, to deploy, run
@@ -129,9 +128,9 @@ This can be done using a nodejs server like [expressjs](https://expressjs.com/),
 ```
 # This will make sure all the URLs that don't point to a file on disc will be processed by the
 # main entry point in index.html
-DocumentRoot "/home/agopian/www/ClasseA12/"
+DocumentRoot "/path/to/www/ClasseA12/"
 
-<Directory /home/agopian/www/ClasseA12>
+<Directory /path/to/www/ClasseA12>
     Order allow,deny
     allow from all
     Options -Indexes -Includes -ExecCGI

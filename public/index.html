@@ -79,7 +79,7 @@
     function xhrForAttachment(collection, recordID, credentials) {
       // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
       let xhr = new XMLHttpRequest();
-      xhr.open("POST", `https://kinto.agopian.info/v1/buckets/classea12/collections/${collection}/records/${recordID}/attachment`);
+      xhr.open("POST", `https://kinto.classea12.beta.gouv.fr/v1/buckets/classea12/collections/${collection}/records/${recordID}/attachment`);
       xhr.upload.addEventListener("progress", function (event) {
         if (event.lengthComputable) {
           const percentage = Math.round(event.loaded * 100 / event.total);

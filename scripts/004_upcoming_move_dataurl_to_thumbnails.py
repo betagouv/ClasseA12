@@ -30,7 +30,7 @@ from kinto_http.exceptions import KintoException
 
 import collections_metadata
 
-DEFAULT_SERVER = "https://kinto.agopian.info/v1/"
+DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 DEFAULT_BUCKET = "classea12"
 DEFAULT_COLLECTION = "upcoming"
 
