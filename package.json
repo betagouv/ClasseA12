@@ -9,12 +9,13 @@
     "update-version": "sed -i \"s/#VERSION#/`git rev-parse --short HEAD`/\" build/index.html",
     "debug": "elm-live src/Main.elm --port=3000 --dir=public/ -u -- --output=public/app.js --debug",
     "deploy": "npm run build && gh-pages --dist build/ -o deploy",
+    "deploy-prod": "npm run build && gh-pages --dist build/ -o deploy-prod",
     "install": "elm make src/Main.elm",
     "live": "elm-live src/Main.elm --port=3000 --dir=public/ -u -- --output=public/app.js",
     "start": "npm run live",
     "test": "elm-test"
   },
-  "author": "Mathieu https://kinto.classea12.beta.gouv.fr/v1/",
+  "author": "Mathieu Agopian",
   "license": "MIT",
   "devDependencies": {
     "elm": "^0.19.0-bugfix2",

@@ -110,14 +110,16 @@ done
 ## Adding a remote to the alwaysdata account on the dev machine
 
 ```shell
-$ git remote add deploy classea12@ssh-classea12.alwaysdata.net:~/git/ClasseA12.git
+$ git remote add deploy-prod classea12@ssh-classea12.alwaysdata.net:~/git/ClasseA12.git
 ```
 
 Then, to deploy, run
 
 ```shell
-$ npm run deploy
+$ npm run deploy-prod
 ```
+
+Additionnally you may add a different `deploy` remote, and use the `npm run deploy` command, for example to deploy to a different staging server.
 
 ## Web server configuration
 
@@ -126,8 +128,6 @@ javascript generated from the elm code).
 This can be done using a nodejs server like [expressjs](https://expressjs.com/), or by using some apache configuration like the following in a virtual host:
 
 ```
-# This will make sure all the URLs that don't point to a file on disc will be processed by the
-# main entry point in index.html
 DocumentRoot "/path/to/www/ClasseA12/"
 
 <Directory /path/to/www/ClasseA12>
@@ -136,6 +136,8 @@ DocumentRoot "/path/to/www/ClasseA12/"
     Options -Indexes -Includes -ExecCGI
     Options FollowSymlinks
 
+    # This will make sure all the URLs that don't point to a file on disc will be processed by the
+    # main entry point in index.html
     RewriteEngine On
     RewriteBase /
     RewriteRule ^index\.html$ - [L]
