@@ -24,5 +24,5 @@ keyword, representing the collection they operate on.
 To run a script:
 
 ```shell
-$ venv/bin/python 001_videos_keywords_as_array.py --auth "<user>:<pass>"
+$ venv/bin/python 001_videos_keywords_as_array.py --auth "<user>:<pass>" --server "https://<kinto server>/v1/"
 ```

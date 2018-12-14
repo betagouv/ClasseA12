@@ -10,7 +10,7 @@ $ pip install kinto_http
 
 To use: run the following
 
-$ python 004_videos_move_dataurl_to_thumbnails.py --auth "<admin login>:<admin password>"
+$ python 004_videos_move_dataurl_to_thumbnails.py --auth "<admin login>:<admin password>" --server "https://<kinto server>/v1/"
 
 """
 
@@ -30,7 +30,6 @@ from kinto_http.exceptions import KintoException
 
 import collections_metadata
 
-DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 DEFAULT_BUCKET = "classea12"
 DEFAULT_COLLECTION = "videos"
 
@@ -82,7 +81,6 @@ def update_videos(client, videos):
 def main():
     parser = cli_utils.add_parser_options(
         description="Move the thumbnails to attachments in the `thumbnails` collection",
-        default_server=DEFAULT_SERVER,
         default_bucket=DEFAULT_BUCKET,
         default_collection=DEFAULT_COLLECTION,
     )

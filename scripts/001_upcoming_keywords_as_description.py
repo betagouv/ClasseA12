@@ -11,7 +11,7 @@ $ pip install kinto_http
 
 To use: run the following
 
-$ python 001_upcoming_keywords_as_description.py --auth "<admin login>:<admin password>"
+$ python 001_upcoming_keywords_as_description.py --auth "<admin login>:<admin password>" --server "https://<kinto server>/v1/"
 
 """
 
@@ -26,7 +26,6 @@ import datetime
 from kinto_http import cli_utils
 from kinto_http.exceptions import KintoException
 
-DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 DEFAULT_BUCKET = "classea12"
 DEFAULT_COLLECTION = "upcoming"
 
@@ -49,7 +48,6 @@ def update_videos(client, videos):
 def main():
     parser = cli_utils.add_parser_options(
         description="Move the keywords from the `upcoming` records to their description",
-        default_server=DEFAULT_SERVER,
         default_bucket=DEFAULT_BUCKET,
         default_collection=DEFAULT_COLLECTION,
     )

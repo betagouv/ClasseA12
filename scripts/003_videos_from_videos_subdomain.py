@@ -13,7 +13,7 @@ $ pip install kinto_http psycopg2
 
 To use: run the following
 
-$ python 003_videos_from_videos_subdomain.py --auth "<admin login>:<admin password>" --pg "host=<host> dbname=<db name> user=<username> password=<password>"
+$ python 003_videos_from_videos_subdomain.py --auth "<admin login>:<admin password>" --server "https://<kinto server>/v1/" --pg "host=<host> dbname=<db name> user=<username> password=<password>"
 
 """
 
@@ -29,7 +29,6 @@ import psycopg2
 from kinto_http import cli_utils
 from kinto_http.exceptions import KintoException
 
-DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 DEFAULT_BUCKET = "classea12"
 DEFAULT_COLLECTION = "videos"
 
@@ -38,7 +37,7 @@ def change_location(videos):
     for video in videos:
         video_location = video["attachment"]["location"]
         new_location = video_location.replace(
-            "https://kinto.https://kinto.classea12.beta.gouv.fr/v1/.info/attachments/",
+            "https://kinto.classea12.beta.gouv.fr/v1/attachments/",
             "https://videos.classea12.beta.gouv.fr/",
         )
         video["attachment"]["location"] = new_location
@@ -72,7 +71,6 @@ def update_videos(client, cursor, videos):
 def main():
     parser = cli_utils.add_parser_options(
         description="Change the location of the `videos` records attachments",
-        default_server=DEFAULT_SERVER,
         default_bucket=DEFAULT_BUCKET,
         default_collection=DEFAULT_COLLECTION,
     )

@@ -97,7 +97,7 @@ setRoute maybeRoute model =
             in
             ( homeModel
               -- When loading the home for the first time, request the list of videos
-            , getVideoList VideoListReceived
+            , getVideoList model.session.kintoURL VideoListReceived
             )
 
         Just Route.About ->
@@ -140,12 +140,18 @@ init flags url navKey =
             Decode.decodeValue (Decode.field "version" Decode.string) flags
                 |> Result.withDefault "dev"
 
+        kintoURL =
+            -- Decode a string from the "kintoUrl" field in the value
+            Decode.decodeValue (Decode.field "kintoURL" Decode.string) flags
+                |> Result.withDefault "No Kinto URL"
+
         session : Session
         session =
             { videoData = Data.Kinto.Requested
             , loginForm = loginForm
             , timezone = Time.utc
             , version = version
+            , kintoURL = kintoURL
             }
 
         ( routeModel, routeCmd ) =

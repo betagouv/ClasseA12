@@ -29,7 +29,7 @@ init videoID title session =
       , video = Data.Kinto.Requested
       , title = title
       }
-    , Request.KintoVideo.getVideo videoID VideoReceived
+    , Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
     )
 
 

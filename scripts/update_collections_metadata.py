@@ -6,7 +6,7 @@ $ pip install kinto_http
 
 To use: run the following
 
-$ python update_collections_metadata.py --auth "<admin login>:<admin password>"
+$ python update_collections_metadata.py --auth "<admin login>:<admin password>" --server "https://<kinto server>/v1/"
 
 """
 
@@ -21,15 +21,12 @@ from kinto_http.exceptions import KintoException
 
 import collections_metadata
 
-DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 DEFAULT_BUCKET = "classea12"
 
 
 def main():
     parser = cli_utils.add_parser_options(
-        description="Update the collections metadata",
-        default_server=DEFAULT_SERVER,
-        default_bucket=DEFAULT_BUCKET,
+        description="Update the collections metadata", default_bucket=DEFAULT_BUCKET
     )
 
     args = parser.parse_args()

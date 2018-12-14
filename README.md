@@ -147,6 +147,10 @@ DocumentRoot "/path/to/www/ClasseA12/"
 </Directory>
 ```
 
+# Dev
+
+During development, the kinto server used is https://kinto-dev.classea12.beta.gouv.fr/v1. It's automatically changed to https://kinto.classea12.beta.gouv.fr/v1 when using the `npm run deploy-prod` command.
+
 ----
 
 # elm-kitchen

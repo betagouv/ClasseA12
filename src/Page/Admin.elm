@@ -52,7 +52,7 @@ init session =
 
         modelAndCommands =
             if session.loginForm /= Data.Session.emptyLoginForm then
-                useLogin initialModel
+                useLogin session.kintoURL initialModel
 
             else
                 ( initialModel, Cmd.none )
@@ -67,7 +67,7 @@ update session msg model =
             ( { model | loginForm = loginForm }, Cmd.none )
 
         Login ->
-            useLogin model
+            useLogin session.kintoURL model
 
         Logout ->
             ( { model | loginForm = emptyLoginForm, videoListData = Data.Kinto.NotRequested }, Ports.logoutSession () )
@@ -91,7 +91,7 @@ update session msg model =
         PublishVideo video ->
             let
                 client =
-                    authClient session.loginForm.username session.loginForm.password
+                    authClient session.kintoURL session.loginForm.username session.loginForm.password
             in
             ( { model | publishingVideos = model.publishingVideos ++ [ video ] }
             , Request.KintoVideo.publishVideo video client VideoPublished
@@ -100,7 +100,7 @@ update session msg model =
         VideoPublished (Ok video) ->
             let
                 client =
-                    authClient session.loginForm.username session.loginForm.password
+                    authClient session.kintoURL session.loginForm.username session.loginForm.password
             in
             ( model
             , Request.KintoUpcoming.removeVideo video client (VideoRemoved video)
@@ -165,12 +165,12 @@ isLoginFormComplete loginForm =
     loginForm.username /= "" && loginForm.password /= ""
 
 
-useLogin : Model -> ( Model, Cmd Msg )
-useLogin model =
+useLogin : String -> Model -> ( Model, Cmd Msg )
+useLogin kintoURL model =
     if isLoginFormComplete model.loginForm then
         let
             client =
-                authClient model.loginForm.username model.loginForm.password
+                authClient kintoURL model.loginForm.username model.loginForm.password
         in
         ( { model | videoListData = Data.Kinto.Requested }
         , Cmd.batch

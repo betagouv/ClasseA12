@@ -10,7 +10,7 @@ $ pip install kinto_http
 
 To use: run the following
 
-$ python 002_videos_add_creation_date.py --auth "<admin login>:<admin password>"
+$ python 002_videos_add_creation_date.py --auth "<admin login>:<admin password>" --server "https://<kinto server>/v1/"
 
 """
 
@@ -25,7 +25,6 @@ import datetime
 from kinto_http import cli_utils
 from kinto_http.exceptions import KintoException
 
-DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 DEFAULT_BUCKET = "classea12"
 DEFAULT_COLLECTION = "videos"
 
@@ -61,7 +60,6 @@ def update_videos(client, videos):
 def main():
     parser = cli_utils.add_parser_options(
         description="Add a creation_date field to the `videos` records",
-        default_server=DEFAULT_SERVER,
         default_bucket=DEFAULT_BUCKET,
         default_collection=DEFAULT_COLLECTION,
     )

@@ -43,7 +43,7 @@ init session =
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update session msg model =
     case msg of
         UpdateContactForm contact ->
             ( { model | contact = contact }, Cmd.none )
@@ -53,7 +53,7 @@ update _ msg model =
 
         SubmitNewContact (RandomPassword randomString) ->
             ( { model | newContactKintoData = Requested }
-            , Request.KintoContact.submitContact model.contact randomString NewContactSubmitted
+            , Request.KintoContact.submitContact session.kintoURL model.contact randomString NewContactSubmitted
             )
 
         NewContactSubmitted (Ok contact) ->

@@ -9,7 +9,7 @@ $ pip install kinto_http
 
 To use: run the following in a folder containing all the videos (saved as <vimeo video id>.mp4)
 
-$ python 000_videos_import_vimeo_videos.py --auth "<admin login>:<admin password>" *.mp4
+$ python 000_videos_import_vimeo_videos.py --auth "<admin login>:<admin password>" --server "https://<kinto server>/v1/" *.mp4
 
 """
 
@@ -24,8 +24,6 @@ import urllib.request
 
 from kinto_http import cli_utils
 from kinto_http.exceptions import KintoException
-
-DEFAULT_SERVER = "https://kinto.classea12.beta.gouv.fr/v1/"
 
 
 def sha256(content):
@@ -128,9 +126,7 @@ def upload_files(client, files):
 
 
 def main():
-    parser = cli_utils.add_parser_options(
-        description="Upload files to Kinto", default_server=DEFAULT_SERVER
-    )
+    parser = cli_utils.add_parser_options(description="Upload files to Kinto")
 
     parser.add_argument(
         "--force",

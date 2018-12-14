@@ -5,10 +5,10 @@ import Kinto
 import Request.Kinto
 
 
-submitContact : Data.Kinto.Contact -> String -> (Result Kinto.Error Data.Kinto.Contact -> msg) -> Cmd msg
-submitContact contact password message =
+submitContact : String -> Data.Kinto.Contact -> String -> (Result Kinto.Error Data.Kinto.Contact -> msg) -> Cmd msg
+submitContact serverURL contact password message =
     let
-        (Request.Kinto.AuthClient client) = Request.Kinto.authClient contact.email password
+        (Request.Kinto.AuthClient client) = Request.Kinto.authClient serverURL contact.email password
     in
         client
         |> Kinto.create recordResource (Data.Kinto.encodeContactData contact)

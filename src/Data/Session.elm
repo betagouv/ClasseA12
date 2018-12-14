@@ -17,6 +17,7 @@ type alias Session =
     , loginForm : LoginForm
     , timezone : Time.Zone
     , version : String
+    , kintoURL : String
     }
 
 

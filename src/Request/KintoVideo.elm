@@ -20,22 +20,22 @@ recordResource =
     Kinto.recordResource "classea12" "videos" Data.Kinto.videoDecoder
 
 
-getVideoList : (Result Kinto.Error Data.Kinto.VideoList -> msg) -> Cmd msg
-getVideoList message =
+getVideoList : String -> (Result Kinto.Error Data.Kinto.VideoList -> msg) -> Cmd msg
+getVideoList serverURL message =
     let
         (Request.Kinto.AnonymousClient client) =
-            Request.Kinto.anonymousClient
+            Request.Kinto.anonymousClient serverURL
     in
     client
         |> Kinto.getList recordResource
         |> Kinto.sort [ "-creation_date" ]
         |> Kinto.send message
 
-getVideo : String  -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
-getVideo videoID message =
+getVideo : String -> String -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
+getVideo serverURL videoID message =
     let
         (Request.Kinto.AnonymousClient client) =
-            Request.Kinto.anonymousClient
+            Request.Kinto.anonymousClient serverURL
     in
     client
         |> Kinto.get recordResource videoID
