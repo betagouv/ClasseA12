@@ -9,6 +9,7 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 import Kinto
+import Page.Utils
 import Ports
 import Random
 import Random.Char
@@ -275,6 +276,41 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
             newVideo.title
             (\title -> UpdateVideoForm { newVideo | title = title })
             videoSelected
+        , H.div
+            [ HA.class "form__group"
+            , HA.style "display"
+                (if videoSelected then
+                    "block"
+
+                 else
+                    "none"
+                )
+            ]
+            [ H.fieldset []
+                [ H.legend []
+                    [ H.text "Niveau" ]
+                , H.input
+                    [ HA.id "grade-cp"
+                    , HA.type_ "radio"
+                    , HA.name "grade"
+                    , HA.checked <| newVideo.grade == "CP"
+                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "CP" })
+                    ]
+                    []
+                , H.label [ HA.for "grade-cp", HA.class "label-inline" ]
+                    [ H.text "CP" ]
+                , H.input
+                    [ HA.id "grade-ce1"
+                    , HA.type_ "radio"
+                    , HA.name "grade"
+                    , HA.checked <| newVideo.grade == "CE1"
+                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "CE1" })
+                    ]
+                    []
+                , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
+                    [ H.text "CE1" ]
+                ]
+            ]
         , formInput
             H.textarea
             "description"
