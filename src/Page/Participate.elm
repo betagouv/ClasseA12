@@ -2,6 +2,7 @@ module Page.Participate exposing (Model, Msg(..), init, update, view)
 
 import Data.Kinto exposing (KintoData(..), NewVideo, Video, emptyNewVideo, emptyVideo)
 import Data.Session exposing (Session)
+import Dict
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -329,20 +330,11 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                     "none"
                 )
             ]
-            [ H.label [ HA.for "keywords" ]
-                [ H.text "Mots Clés (Pour faire une sélection multiple : ctrl + clic ou cmd + clic)" ]
-            , H.select
-                [ HA.id "keywords"
-                , HA.multiple True
-                , onSelectMultiple (\keywords -> UpdateVideoForm { newVideo | keywords = keywords })
-                ]
-                ([ H.option [] [] ]
-                    ++ (Data.Kinto.keywordList
-                            |> List.map
-                                (\keyword ->
-                                    H.option [ HA.value keyword ] [ H.text keyword ]
-                                )
-                       )
+            [ H.fieldset []
+                ([ H.legend [] [ H.text "Mots Clés" ] ]
+                    ++ viewKeywords
+                        newVideo.keywords
+                        (\keyword -> UpdateVideoForm { newVideo | keywords = Data.Kinto.toggleKeyword keyword newVideo.keywords })
                 )
             ]
         , H.div
@@ -493,6 +485,29 @@ generateRandomCredentials timestamp =
 onSelectMultiple : (List String -> Msg) -> H.Attribute Msg
 onSelectMultiple tagger =
     HE.on "change" (Decode.map tagger targetSelectedOptions)
+
+
+checkbox : (String -> Msg) -> (String, Bool) -> List (H.Html Msg)
+checkbox msg (key, value) =
+    let
+        id =
+            "keyword-" ++ key
+    in
+    [ H.input
+        [ HA.type_ "checkbox"
+        , HA.id id
+        , HA.checked value
+        , HE.onClick <| msg key
+        ]
+        []
+    , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
+    ]
+
+
+viewKeywords : Data.Kinto.Keywords -> (String -> Msg) -> List (H.Html Msg)
+viewKeywords keywords msg =
+    Dict.toList keywords
+    |> List.concatMap (checkbox msg)
 
 
 targetSelectedOptions : Decode.Decoder (List String)

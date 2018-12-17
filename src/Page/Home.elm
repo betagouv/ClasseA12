@@ -126,7 +126,7 @@ viewVideoList timezone { activeVideo, search } videoList =
         filteredVideoList =
             if search /= "" then
                 videoList.objects
-                    |> List.filter (\video -> List.member search video.keywords)
+                    |> List.filter (\video -> List.member search (Data.Kinto.keywordsToList video.keywords))
             else
                 videoList.objects
 

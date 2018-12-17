@@ -2,6 +2,7 @@ module Data.Kinto exposing
     ( Attachment
     , Contact
     , DeletedRecord
+    , Keywords
     , KintoData(..)
     , NewVideo
     , Video
@@ -21,9 +22,12 @@ module Data.Kinto exposing
     , encodeNewVideoData
     , encodeVideoData
     , keywordList
+    , keywordsToList
+    , toggleKeyword
     , videoDecoder
     )
 
+import Dict
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
@@ -70,7 +74,7 @@ type alias Video =
     , last_modified : Int
     , title : String
     , grade : String
-    , keywords : List String
+    , keywords : Keywords
     , description : String
     , attachment : Attachment
     , duration : Int
@@ -79,12 +83,23 @@ type alias Video =
     }
 
 
+type alias Keywords =
+    Dict.Dict String Bool
+
+
+noKeywords : Dict.Dict String Bool
+noKeywords =
+    keywordList
+        |> List.map (\keyword -> ( keyword, False ))
+        |> Dict.fromList
+
+
 emptyVideo =
     { id = ""
     , last_modified = 0
     , title = ""
     , grade = "CP"
-    , keywords = []
+    , keywords = noKeywords
     , description = ""
     , attachment = emptyAttachment
     , duration = 0
@@ -96,7 +111,7 @@ emptyVideo =
 type alias NewVideo =
     { title : String
     , grade : String
-    , keywords : List String
+    , keywords : Keywords
     , description : String
     , creation_date : Time.Posix
     }
@@ -106,7 +121,7 @@ emptyNewVideo =
     { description = ""
     , title = ""
     , grade = "CP"
-    , keywords = []
+    , keywords = noKeywords
     , creation_date = Time.millisToPosix 0
     }
 
@@ -132,9 +147,18 @@ posixDecoder =
         |> Decode.map Time.millisToPosix
 
 
-keywordsDecoder : Decode.Decoder (List String)
+keywordsDecoder : Decode.Decoder Keywords
 keywordsDecoder =
     Decode.list Decode.string
+        |> Decode.map
+            (\decodedKeywordList ->
+                decodedKeywordList
+                    |> List.foldl
+                        (\keyword keywords ->
+                            Dict.insert keyword True keywords
+                        )
+                        noKeywords
+            )
 
 
 encodePosix : Time.Posix -> Encode.Value
@@ -143,9 +167,11 @@ encodePosix posix =
         |> Encode.int
 
 
-encodeKeywords : List String -> Encode.Value
+encodeKeywords : Keywords -> Encode.Value
 encodeKeywords keywords =
-    Encode.list Encode.string keywords
+    keywords
+        |> keywordsToList
+        |> Encode.list Encode.string
 
 
 decodeVideoList : Decode.Value -> Result Decode.Error (List Video)
@@ -207,6 +233,27 @@ keywordList =
     , "CP"
     , "CE1"
     ]
+
+
+keywordsToList : Keywords -> List String
+keywordsToList keywords =
+    keywords
+        |> Dict.filter (\key value -> value)
+        |> Dict.keys
+
+
+toggleKeyword : String -> Keywords -> Keywords
+toggleKeyword keyword keywords =
+    Dict.update keyword
+        (\oldValue ->
+            case oldValue of
+                Just value ->
+                    Just <| not value
+
+                Nothing ->
+                    Nothing
+        )
+        keywords
 
 
 

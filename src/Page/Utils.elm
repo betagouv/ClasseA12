@@ -121,15 +121,16 @@ errorNotification content discardMsg =
 viewVideo : Time.Zone -> msg -> List (H.Html msg) -> Data.Kinto.Video -> H.Html msg
 viewVideo timezone toggleVideo footerNodes video =
     let
+        keywords = Data.Kinto.keywordsToList video.keywords
         keywordsNode =
-            if video.keywords /= [] then
+            if keywords /= [] then
                 [ H.div [ HA.class "card__extra" ]
                     (List.map
                         (\keyword ->
                             H.div [ HA.class "label" ]
                                 [ H.text keyword ]
                         )
-                        video.keywords
+                        keywords
                     )
                 ]
 
@@ -163,15 +164,16 @@ viewVideo timezone toggleVideo footerNodes video =
 viewPublicVideo : Time.Zone -> Data.Kinto.Video -> H.Html msg
 viewPublicVideo timezone video =
     let
+        keywords = Data.Kinto.keywordsToList video.keywords
         keywordsNode =
-            if video.keywords /= [] then
+            if keywords /= [] then
                 [ H.div [ HA.class "card__extra" ]
                     (List.map
                         (\keyword ->
                             H.div [ HA.class "label" ]
                                 [ H.text keyword ]
                         )
-                        video.keywords
+                        keywords
                     )
                 ]
 
