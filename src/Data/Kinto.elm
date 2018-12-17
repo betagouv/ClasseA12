@@ -69,6 +69,7 @@ type alias Video =
     { id : String
     , last_modified : Int
     , title : String
+    , grade : String
     , keywords : List String
     , description : String
     , attachment : Attachment
@@ -82,6 +83,7 @@ emptyVideo =
     { id = ""
     , last_modified = 0
     , title = ""
+    , grade = "CP"
     , keywords = []
     , description = ""
     , attachment = emptyAttachment
@@ -93,6 +95,7 @@ emptyVideo =
 
 type alias NewVideo =
     { title : String
+    , grade : String
     , keywords : List String
     , description : String
     , creation_date : Time.Posix
@@ -102,6 +105,7 @@ type alias NewVideo =
 emptyNewVideo =
     { description = ""
     , title = ""
+    , grade = "CP"
     , keywords = []
     , creation_date = Time.millisToPosix 0
     }
@@ -113,6 +117,7 @@ videoDecoder =
         |> Pipeline.required "id" Decode.string
         |> Pipeline.required "last_modified" Decode.int
         |> Pipeline.required "title" Decode.string
+        |> Pipeline.required "grade" Decode.string
         |> Pipeline.required "keywords" keywordsDecoder
         |> Pipeline.required "description" Decode.string
         |> Pipeline.required "attachment" attachmentDecoder
@@ -154,6 +159,7 @@ encodeNewVideoData video =
     Encode.object
         [ ( "description", Encode.string video.description )
         , ( "title", Encode.string video.title )
+        , ( "grade", Encode.string video.grade )
         , ( "keywords", encodeKeywords video.keywords )
         , ( "creation_date", encodePosix video.creation_date )
         ]
@@ -165,6 +171,7 @@ encodeVideoData video =
         [ ( "id", Encode.string video.id )
         , ( "last_modified", Encode.int video.last_modified )
         , ( "title", Encode.string video.title )
+        , ( "grade", Encode.string video.grade )
         , ( "keywords", encodeKeywords video.keywords )
         , ( "description", Encode.string video.description )
         , ( "attachment", encodeAttachmentData video.attachment )

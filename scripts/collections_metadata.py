@@ -15,6 +15,12 @@ VIDEOS_COLLECTIONS_METADATA = {
                     "title": "Titre",
                     "description": "Titre de la vid\u00e9o",
                 },
+                "grade": {
+                    "enum": ["CP", "CE1"],
+                    "type": "string",
+                    "title": "Niveau",
+                    "description": "Classe concernée",
+                },
                 "duration": {
                     "type": "number",
                     "title": "Duration",
@@ -74,6 +80,7 @@ VIDEOS_COLLECTIONS_METADATA = {
         "uiSchema": {
             "ui:order": [
                 "title",
+                "grade",
                 "keywords",
                 "description",
                 "duration",
@@ -86,6 +93,7 @@ VIDEOS_COLLECTIONS_METADATA = {
         "cache_expires": 0,
         "displayFields": [
             "title",
+            "grade",
             "keywords",
             "description",
             "duration",
