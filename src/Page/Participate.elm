@@ -28,6 +28,7 @@ type alias Model =
     , progress : Progress
     , approved : Bool
     , displayCGU : Bool
+    , freeformKeywords : String
     }
 
 
@@ -59,6 +60,7 @@ type Msg
     | OnApproved Bool
     | DisplayCGU
     | DiscardCGU
+    | UpdateFreeformKeywords String
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -69,6 +71,7 @@ init session =
       , progress = emptyProgress
       , approved = False
       , displayCGU = False
+      , freeformKeywords = ""
       }
     , Cmd.none
     )
@@ -92,19 +95,41 @@ update _ msg model =
                 newVideo =
                     model.newVideo
 
-                newVideoWithCreationDate =
+                timestampedVideo =
                     { newVideo | creation_date = timestamp }
+
+                updatedKeywords =
+                    model.freeformKeywords
+                        -- Split the keywords into a list
+                        |> String.split ","
+                        -- Remove the extraneous spaces
+                        |> List.map String.trim
+                        -- Remove the empty keywords
+                        |> List.filter (\keyword -> keyword /= "")
+                        -- Add the keywords to the current video keywords
+                        |> List.foldl
+                            (\keyword keywords ->
+                                Dict.insert keyword True keywords
+                            )
+                            timestampedVideo.keywords
+
+                videoToSubmit =
+                    { timestampedVideo | keywords = updatedKeywords }
 
                 submitVideoData : Ports.SubmitVideoData
                 submitVideoData =
                     { nodeID = "video"
                     , videoNodeID = "uploaded-video"
-                    , videoData = Data.Kinto.encodeNewVideoData newVideoWithCreationDate
+                    , videoData = Data.Kinto.encodeNewVideoData videoToSubmit
                     , login = login
                     , password = password
                     }
             in
-            ( { model | newVideoKintoData = Requested }
+            ( { model
+                | newVideoKintoData = Requested
+                , approved = False
+                , freeformKeywords = ""
+              }
             , Ports.submitVideo submitVideoData
             )
 
@@ -183,6 +208,9 @@ update _ msg model =
         DiscardCGU ->
             ( { model | displayCGU = False }, Cmd.none )
 
+        UpdateFreeformKeywords keywords ->
+            ( { model | freeformKeywords = keywords }, Cmd.none )
+
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ model =
@@ -231,9 +259,10 @@ displaySubmitVideoForm :
         , videoObjectUrl : Maybe String
         , progress : Progress
         , approved : Bool
+        , freeformKeywords : String
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, approved } =
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, approved, freeformKeywords } =
     let
         videoSelected =
             videoObjectUrl
@@ -337,6 +366,14 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                         (\keyword -> UpdateVideoForm { newVideo | keywords = Data.Kinto.toggleKeyword keyword newVideo.keywords })
                 )
             ]
+        , formInput
+            H.input
+            "freeform-keyword"
+            "Mots clés supplémentaires"
+            "Liste de mots clés séparés par des virgules"
+            freeformKeywords
+            UpdateFreeformKeywords
+            videoSelected
         , H.div
             [ HA.class "form__group"
             , HA.style "display"
