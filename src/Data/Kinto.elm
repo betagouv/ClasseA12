@@ -209,29 +209,13 @@ encodeVideoData video =
 
 keywordList : List String
 keywordList =
-    [ "Aménagement classe"
-    , "Aménagement classe - Mobilier"
-    , "Aménagement classe - Rangement"
-    , "Tutoriel"
-    , "Évaluation"
-    , "Témoignages"
-    , "Témoignages - conseils"
-    , "Français"
-    , "Français - Lecture"
-    , "Français - Production d'écrits"
-    , "Français - Oral"
-    , "Français - Poésie"
-    , "Autonomie"
-    , "Éducation musicale"
-    , "Graphisme"
-    , "Co-éducation"
+    [ "Français"
     , "Mathématiques"
-    , "Mathématiques - Calcul"
-    , "Mathématiques - Résolution de problèmes"
-    , "EMC"
-    , "Programmation"
-    , "CP"
-    , "CE1"
+    , "Questionner le monde"
+    , "Arts plastiques et musique"
+    , "Éducation physique et sportive"
+    , "Enseignement moral et civique"
+    , "Gestion de classe"
     ]
 
 

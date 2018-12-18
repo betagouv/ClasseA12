@@ -487,8 +487,8 @@ onSelectMultiple tagger =
     HE.on "change" (Decode.map tagger targetSelectedOptions)
 
 
-checkbox : (String -> Msg) -> (String, Bool) -> List (H.Html Msg)
-checkbox msg (key, value) =
+checkbox : (String -> Msg) -> ( String, Bool ) -> List (H.Html Msg)
+checkbox msg ( key, value ) =
     let
         id =
             "keyword-" ++ key
@@ -501,13 +501,14 @@ checkbox msg (key, value) =
         ]
         []
     , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
+    , H.br [] []
     ]
 
 
 viewKeywords : Data.Kinto.Keywords -> (String -> Msg) -> List (H.Html Msg)
 viewKeywords keywords msg =
     Dict.toList keywords
-    |> List.concatMap (checkbox msg)
+        |> List.concatMap (checkbox msg)
 
 
 targetSelectedOptions : Decode.Decoder (List String)
