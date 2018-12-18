@@ -27,7 +27,6 @@ type alias Model =
     , videoObjectUrl : Maybe String
     , progress : Progress
     , approved : Bool
-    , displayCGU : Bool
     , freeformKeywords : String
     }
 
@@ -58,8 +57,6 @@ type Msg
     | ProgressUpdated Decode.Value
     | AttachmentSent String
     | OnApproved Bool
-    | DisplayCGU
-    | DiscardCGU
     | UpdateFreeformKeywords String
 
 
@@ -70,7 +67,6 @@ init session =
       , videoObjectUrl = Nothing
       , progress = emptyProgress
       , approved = False
-      , displayCGU = False
       , freeformKeywords = ""
       }
     , Cmd.none
@@ -201,12 +197,6 @@ update _ msg model =
 
         OnApproved approved ->
             ( { model | approved = approved }, Cmd.none )
-
-        DisplayCGU ->
-            ( { model | displayCGU = True }, Cmd.none )
-
-        DiscardCGU ->
-            ( { model | displayCGU = False }, Cmd.none )
 
         UpdateFreeformKeywords keywords ->
             ( { model | freeformKeywords = keywords }, Cmd.none )
