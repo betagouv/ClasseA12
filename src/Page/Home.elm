@@ -8,7 +8,9 @@ import Html.Events as HE
 import Http
 import Json.Encode as Encode
 import Kinto
+import NaturalOrdering
 import Page.Utils
+import Set
 import Time
 
 
@@ -66,56 +68,27 @@ view { videoData, timezone } ({ search } as model) =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ H.section [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ H.div
-                        [ HA.class "form__group light-background" ]
-                        [ H.label [ HA.for "search" ]
-                            [ H.text "Filtrer par mot clé :" ]
-                        , H.div [ HA.class "search__group" ]
-                            [ H.select
-                                [ HA.id "keywords"
-                                , HA.value model.search
-                                , Page.Utils.onChange UpdateSearch
-                                ]
-                                ([ H.option [ HA.value "" ] [ H.text "Toutes les vidéos" ] ]
-                                    ++ (Data.Kinto.keywordList
-                                            |> List.map
-                                                (\keyword ->
-                                                    H.option [ HA.value keyword ] [ H.text keyword ]
-                                                )
-                                       )
-                                )
-                            , if model.search /= "" then
-                                H.button
-                                    [ HA.class "button-link"
-                                    , HE.onClick <| UpdateSearch ""
-                                    ]
-                                    [ H.i [ HA.class "fa fa-times" ] [] ]
+            (case videoData of
+                Data.Kinto.NotRequested ->
+                    []
 
-                              else
-                                H.div [] []
-                            ]
+                Data.Kinto.Requested ->
+                    [ H.section [ HA.class "section section-white" ]
+                        [ H.div [ HA.class "container" ]
+                            [ H.text "Chargement des vidéos..." ]
                         ]
                     ]
-                ]
-            , H.section [ HA.class "section section-grey cards" ]
-                [ H.div [ HA.class "container" ]
-                    (case videoData of
-                        Data.Kinto.NotRequested ->
-                            []
 
-                        Data.Kinto.Requested ->
-                            [ H.text "Chargement des vidéos..." ]
+                Data.Kinto.Received videoList ->
+                    viewVideoList timezone model videoList
 
-                        Data.Kinto.Received videoList ->
-                            viewVideoList timezone model videoList
-
-                        Data.Kinto.Failed error ->
+                Data.Kinto.Failed error ->
+                    [ H.section [ HA.class "section section-white" ]
+                        [ H.div [ HA.class "container" ]
                             [ H.text <| "Erreur lors du chargement des videos: " ++ Kinto.errorToString error ]
-                    )
-                ]
-            ]
+                        ]
+                    ]
+            )
       ]
     )
 
@@ -123,10 +96,18 @@ view { videoData, timezone } ({ search } as model) =
 viewVideoList : Time.Zone -> { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
 viewVideoList timezone { activeVideo, search } videoList =
     let
+        keywordList =
+            videoList.objects
+                |> List.concatMap (\{ keywords } -> keywords)
+                |> Set.fromList
+                |> Set.toList
+                |> List.sortWith NaturalOrdering.compare
+
         filteredVideoList =
             if search /= "" then
                 videoList.objects
                     |> List.filter (\video -> List.member search video.keywords)
+
             else
                 videoList.objects
 
@@ -134,10 +115,47 @@ viewVideoList timezone { activeVideo, search } videoList =
             if filteredVideoList /= [] then
                 filteredVideoList
                     |> List.map (\video -> Page.Utils.viewPublicVideo timezone video)
+
             else
                 [ H.text "Pas de vidéos trouvée" ]
-
     in
-    [ H.div [ HA.class "row" ]
-        videoCards
+    [ H.section [ HA.class "section section-white" ]
+        [ H.div [ HA.class "container" ]
+            [ H.div
+                [ HA.class "form__group light-background" ]
+                [ H.label [ HA.for "search" ]
+                    [ H.text "Filtrer par mot clé :" ]
+                , H.div [ HA.class "search__group" ]
+                    [ H.select
+                        [ HA.id "keywords"
+                        , HA.value search
+                        , Page.Utils.onChange UpdateSearch
+                        ]
+                        ([ H.option [ HA.value "" ] [ H.text "Toutes les vidéos" ] ]
+                            ++ (keywordList
+                                    |> List.map
+                                        (\keyword ->
+                                            H.option [ HA.value keyword ] [ H.text keyword ]
+                                        )
+                               )
+                        )
+                    , if search /= "" then
+                        H.button
+                            [ HA.class "button-link"
+                            , HE.onClick <| UpdateSearch ""
+                            ]
+                            [ H.i [ HA.class "fa fa-times" ] [] ]
+
+                      else
+                        H.div [] []
+                    ]
+                ]
+            ]
+        ]
+    , H.section [ HA.class "section section-grey cards" ]
+        [ H.div [ HA.class "container" ]
+            [ H.div [ HA.class "row" ]
+                videoCards
+            ]
+        ]
     ]
