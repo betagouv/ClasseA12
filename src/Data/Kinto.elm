@@ -2,7 +2,6 @@ module Data.Kinto exposing
     ( Attachment
     , Contact
     , DeletedRecord
-    , Keywords
     , KintoData(..)
     , NewVideo
     , Video
@@ -22,8 +21,6 @@ module Data.Kinto exposing
     , encodeNewVideoData
     , encodeVideoData
     , keywordList
-    , keywordsToList
-    , toggleKeyword
     , videoDecoder
     )
 
@@ -74,7 +71,7 @@ type alias Video =
     , last_modified : Int
     , title : String
     , grade : String
-    , keywords : Keywords
+    , keywords : List String
     , description : String
     , attachment : Attachment
     , duration : Int
@@ -83,23 +80,12 @@ type alias Video =
     }
 
 
-type alias Keywords =
-    Dict.Dict String Bool
-
-
-noKeywords : Dict.Dict String Bool
-noKeywords =
-    keywordList
-        |> List.map (\keyword -> ( keyword, False ))
-        |> Dict.fromList
-
-
 emptyVideo =
     { id = ""
     , last_modified = 0
     , title = ""
     , grade = "CP"
-    , keywords = noKeywords
+    , keywords = []
     , description = ""
     , attachment = emptyAttachment
     , duration = 0
@@ -111,7 +97,7 @@ emptyVideo =
 type alias NewVideo =
     { title : String
     , grade : String
-    , keywords : Keywords
+    , keywords : List String
     , description : String
     , creation_date : Time.Posix
     }
@@ -121,7 +107,7 @@ emptyNewVideo =
     { description = ""
     , title = ""
     , grade = "CP"
-    , keywords = noKeywords
+    , keywords = []
     , creation_date = Time.millisToPosix 0
     }
 
@@ -147,18 +133,9 @@ posixDecoder =
         |> Decode.map Time.millisToPosix
 
 
-keywordsDecoder : Decode.Decoder Keywords
+keywordsDecoder : Decode.Decoder (List String)
 keywordsDecoder =
     Decode.list Decode.string
-        |> Decode.map
-            (\decodedKeywordList ->
-                decodedKeywordList
-                    |> List.foldl
-                        (\keyword keywords ->
-                            Dict.insert keyword True keywords
-                        )
-                        noKeywords
-            )
 
 
 encodePosix : Time.Posix -> Encode.Value
@@ -167,10 +144,9 @@ encodePosix posix =
         |> Encode.int
 
 
-encodeKeywords : Keywords -> Encode.Value
+encodeKeywords : List String -> Encode.Value
 encodeKeywords keywords =
     keywords
-        |> keywordsToList
         |> Encode.list Encode.string
 
 
@@ -217,27 +193,6 @@ keywordList =
     , "Enseignement moral et civique"
     , "Gestion de classe"
     ]
-
-
-keywordsToList : Keywords -> List String
-keywordsToList keywords =
-    keywords
-        |> Dict.filter (\key value -> value)
-        |> Dict.keys
-
-
-toggleKeyword : String -> Keywords -> Keywords
-toggleKeyword keyword keywords =
-    Dict.update keyword
-        (\oldValue ->
-            case oldValue of
-                Just value ->
-                    Just <| not value
-
-                Nothing ->
-                    Nothing
-        )
-        keywords
 
 
 

@@ -97,16 +97,15 @@ viewVideo timezone videoData =
 viewVideoDetails : Time.Zone -> Data.Kinto.Video -> H.Html Msg
 viewVideoDetails timezone video =
     let
-        keywords = Data.Kinto.keywordsToList video.keywords
         keywordsNode =
-            if keywords /= [] then
+            if video.keywords /= [] then
                 [ H.div []
-                    (List.map
+                    (video.keywords
+                    |> List.map
                         (\keyword ->
                             H.div [ HA.class "label" ]
                                 [ H.text keyword ]
                         )
-                        keywords
                     )
                 ]
 

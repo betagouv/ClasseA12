@@ -27,8 +27,20 @@ type alias Model =
     , videoObjectUrl : Maybe String
     , progress : Progress
     , approved : Bool
+    , preSelectedKeywords : Keywords
     , freeformKeywords : String
     }
+
+
+type alias Keywords =
+    Dict.Dict String Bool
+
+noKeywords : Dict.Dict String Bool
+noKeywords =
+    Data.Kinto.keywordList
+        |> List.map (\keyword -> ( keyword, False ))
+        |> Dict.fromList
+
 
 
 type alias Progress =
@@ -57,6 +69,7 @@ type Msg
     | ProgressUpdated Decode.Value
     | AttachmentSent String
     | OnApproved Bool
+    | UpdatePreSelectedKeywords String
     | UpdateFreeformKeywords String
 
 
@@ -67,6 +80,7 @@ init session =
       , videoObjectUrl = Nothing
       , progress = emptyProgress
       , approved = False
+      , preSelectedKeywords = noKeywords
       , freeformKeywords = ""
       }
     , Cmd.none
@@ -107,10 +121,10 @@ update _ msg model =
                             (\keyword keywords ->
                                 Dict.insert keyword True keywords
                             )
-                            timestampedVideo.keywords
+                            model.preSelectedKeywords
 
                 videoToSubmit =
-                    { timestampedVideo | keywords = updatedKeywords }
+                    { timestampedVideo | keywords = keywordsToList updatedKeywords }
 
                 submitVideoData : Ports.SubmitVideoData
                 submitVideoData =
@@ -123,8 +137,7 @@ update _ msg model =
             in
             ( { model
                 | newVideoKintoData = Requested
-                , approved = False
-                , freeformKeywords = ""
+                , newVideo = videoToSubmit
               }
             , Ports.submitVideo submitVideoData
             )
@@ -189,6 +202,8 @@ update _ msg model =
             ( { model
                 | newVideo = emptyNewVideo
                 , newVideoKintoData = kintoData
+                , approved = False
+                , freeformKeywords = ""
                 , videoObjectUrl = Nothing
                 , progress = emptyProgress
               }
@@ -197,6 +212,11 @@ update _ msg model =
 
         OnApproved approved ->
             ( { model | approved = approved }, Cmd.none )
+
+        UpdatePreSelectedKeywords keyword ->
+            ( { model | preSelectedKeywords = toggleKeyword keyword model.preSelectedKeywords }
+            , Cmd.none
+            )
 
         UpdateFreeformKeywords keywords ->
             ( { model | freeformKeywords = keywords }, Cmd.none )
@@ -249,10 +269,11 @@ displaySubmitVideoForm :
         , videoObjectUrl : Maybe String
         , progress : Progress
         , approved : Bool
+        , preSelectedKeywords : Keywords
         , freeformKeywords : String
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, approved, freeformKeywords } =
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, approved, preSelectedKeywords, freeformKeywords } =
     let
         videoSelected =
             videoObjectUrl
@@ -352,8 +373,8 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
             [ H.fieldset []
                 ([ H.legend [] [ H.text "Mots Clés" ] ]
                     ++ viewKeywords
-                        newVideo.keywords
-                        (\keyword -> UpdateVideoForm { newVideo | keywords = Data.Kinto.toggleKeyword keyword newVideo.keywords })
+                        preSelectedKeywords
+                        UpdatePreSelectedKeywords
                 )
             ]
         , formInput
@@ -532,7 +553,7 @@ checkbox msg ( key, value ) =
     ]
 
 
-viewKeywords : Data.Kinto.Keywords -> (String -> Msg) -> List (H.Html Msg)
+viewKeywords : Keywords -> (String -> Msg) -> List (H.Html Msg)
 viewKeywords keywords msg =
     Dict.toList keywords
         |> List.concatMap (checkbox msg)
@@ -561,3 +582,23 @@ combine : List (Decode.Decoder a) -> Decode.Decoder (List a)
 combine =
     -- Taken from elm-community/json-extra
     List.foldr (Decode.map2 (::)) (Decode.succeed [])
+
+keywordsToList : Keywords -> List String
+keywordsToList keywords =
+    keywords
+        |> Dict.filter (\key value -> value)
+        |> Dict.keys
+
+
+toggleKeyword : String -> Keywords -> Keywords
+toggleKeyword keyword keywords =
+    Dict.update keyword
+        (\oldValue ->
+            case oldValue of
+                Just value ->
+                    Just <| not value
+
+                Nothing ->
+                    Nothing
+        )
+        keywords
