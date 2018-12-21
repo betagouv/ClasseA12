@@ -192,6 +192,7 @@ keywordList =
     , ("Éducation physique et sportive", "")
     , ("Enseignement moral et civique", "")
     , ("Gestion de classe", "différenciation / autonomie / concentration / coopération / aménagement de classe / affichage / gestion des élèves / plan de travail / atelier / sortie / cahier")
+    , ("Le projet Classe à 12", "tutoriel / témoignage")
     ]
 
 
