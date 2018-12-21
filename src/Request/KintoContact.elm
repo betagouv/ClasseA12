@@ -1,4 +1,4 @@
-module Request.KintoContact exposing (submitContact)
+module Request.KintoContact exposing (getContactList, submitContact)
 
 import Data.Kinto
 import Kinto
@@ -18,3 +18,11 @@ submitContact serverURL contact password message =
 recordResource : Kinto.Resource Data.Kinto.Contact
 recordResource =
     Kinto.recordResource "classea12" "contacts" Data.Kinto.contactDecoder
+
+
+getContactList : Request.Kinto.AuthClient -> (Result Kinto.Error Data.Kinto.ContactList -> msg) -> Cmd msg
+getContactList (Request.Kinto.AuthClient client) message =
+    client
+        |> Kinto.getList recordResource
+        |> Kinto.sort [ "-creation_date" ]
+        |> Kinto.send message

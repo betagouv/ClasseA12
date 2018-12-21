@@ -1,6 +1,6 @@
 module Page.Admin exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (DeletedRecord, Video, VideoList, VideoListData)
+import Data.Kinto exposing (ContactList, ContactListData, DeletedRecord, Video, VideoList, VideoListData)
 import Data.Session exposing (LoginForm, Session, decodeSessionData, emptyLoginForm, encodeSessionData)
 import Html as H
 import Html.Attributes as HA
@@ -9,14 +9,17 @@ import Kinto
 import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
+import Request.KintoContact
 import Request.KintoUpcoming
 import Request.KintoVideo
 import Time
+import Url
 
 
 type alias Model =
     { loginForm : LoginForm
     , videoListData : VideoListData
+    , contactListData : ContactListData
     , errorList : List String
     , publishingVideos : PublishingVideos
     , activeVideo : Maybe Data.Kinto.Video
@@ -32,6 +35,7 @@ type Msg
     | Login
     | Logout
     | VideoListFetched (Result Kinto.Error VideoList)
+    | ContactListFetched (Result Kinto.Error ContactList)
     | DiscardError Int
     | PublishVideo Video
     | VideoPublished (Result Kinto.Error Video)
@@ -45,6 +49,7 @@ init session =
         initialModel =
             { loginForm = session.loginForm
             , videoListData = Data.Kinto.NotRequested
+            , contactListData = Data.Kinto.NotRequested
             , errorList = []
             , publishingVideos = []
             , activeVideo = Nothing
@@ -78,6 +83,17 @@ update session msg model =
         VideoListFetched (Err err) ->
             ( { model
                 | videoListData = Data.Kinto.Failed err
+                , errorList = [ Kinto.errorToString err ] ++ model.errorList
+              }
+            , Cmd.none
+            )
+
+        ContactListFetched (Ok contactList) ->
+            ( { model | contactListData = Data.Kinto.Received contactList }, Cmd.none )
+
+        ContactListFetched (Err err) ->
+            ( { model
+                | contactListData = Data.Kinto.Failed err
                 , errorList = [ Kinto.errorToString err ] ++ model.errorList
               }
             , Cmd.none
@@ -175,6 +191,7 @@ useLogin kintoURL model =
         ( { model | videoListData = Data.Kinto.Requested }
         , Cmd.batch
             [ Request.KintoUpcoming.getVideoList client VideoListFetched
+            , Request.KintoContact.getContactList client ContactListFetched
             , Ports.saveSession <| encodeSessionData model.loginForm
             ]
         )
@@ -184,7 +201,7 @@ useLogin kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone } { errorList, videoListData, loginForm, publishingVideos, activeVideo } =
+view { timezone } { errorList, videoListData, contactListData, loginForm, publishingVideos, activeVideo } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -197,7 +214,21 @@ view { timezone } { errorList, videoListData, loginForm, publishingVideos, activ
             [ Page.Utils.errorList errorList DiscardError
             , case videoListData of
                 Data.Kinto.Received videoList ->
-                    viewVideoList timezone publishingVideos activeVideo videoList
+                    H.section [ HA.class "section section-grey cards" ]
+                        [ H.div [ HA.class "container" ]
+                            ([ H.div [ HA.class "form__group logout-button" ]
+                                [ H.button
+                                    [ HA.class "button logout-button warning large"
+                                    , HE.onClick Logout
+                                    ]
+                                    [ H.text "Se déconnecter" ]
+                                , H.text " "
+                                , downloadContacts contactListData
+                                ]
+                             ]
+                                ++ viewVideoList timezone publishingVideos activeVideo videoList
+                            )
+                        ]
 
                 _ ->
                     H.div [ HA.class "section section-white" ]
@@ -209,24 +240,14 @@ view { timezone } { errorList, videoListData, loginForm, publishingVideos, activ
     )
 
 
-viewVideoList : Time.Zone -> PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> H.Html Msg
+viewVideoList : Time.Zone -> PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> List (H.Html Msg)
 viewVideoList timezone publishingVideos activeVideo videoList =
-    H.section [ HA.class "section section-grey cards" ]
-        [ H.div [ HA.class "container" ]
-            [ H.div [ HA.class "form__group logout-button" ]
-                [ H.button
-                    [ HA.class "button logout-button warning large"
-                    , HE.onClick Logout
-                    ]
-                    [ H.text "Se déconnecter" ]
-                ]
-            , Page.Utils.viewVideoModal ToggleVideo activeVideo
-            , H.div [ HA.class "row" ]
-                (videoList.objects
-                    |> List.map (viewVideo timezone publishingVideos)
-                )
-            ]
-        ]
+    [ Page.Utils.viewVideoModal ToggleVideo activeVideo
+    , H.div [ HA.class "row" ]
+        (videoList.objects
+            |> List.map (viewVideo timezone publishingVideos)
+        )
+    ]
 
 
 viewVideo : Time.Zone -> PublishingVideos -> Data.Kinto.Video -> H.Html Msg
@@ -243,6 +264,40 @@ viewVideo timezone publishingVideos video =
             [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| PublishVideo video) ]
     in
     Page.Utils.viewVideo timezone (ToggleVideo video) publishNode video
+
+
+downloadContacts : Data.Kinto.ContactListData -> H.Html Msg
+downloadContacts contactListData =
+    case contactListData of
+        Data.Kinto.Received contactList ->
+            H.a
+                [ contactListHref contactList
+                , HA.download "contacts_infolettre.csv"
+                ]
+                [ H.text "Télécharger la liste des contacts infolettre" ]
+
+        _ ->
+            H.span [] []
+
+
+contactListHref : ContactList -> H.Attribute msg
+contactListHref contactList =
+    let
+        contactListAsCsvEntries =
+            contactList.objects
+                |> List.map
+                    (\contact ->
+                        contact.name ++ "," ++ contact.email
+                    )
+
+        csvLines =
+            [ "Nom,Email" ] ++ contactListAsCsvEntries
+    in
+    csvLines
+        |> String.join "\n"
+        |> Url.percentEncode
+        |> (++) "data:text/csv;charset=utf-8,"
+        |> HA.href
 
 
 viewLoginForm : LoginForm -> VideoListData -> H.Html Msg

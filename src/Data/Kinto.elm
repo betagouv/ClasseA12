@@ -1,6 +1,8 @@
 module Data.Kinto exposing
     ( Attachment
     , Contact
+    , ContactList
+    , ContactListData
     , DeletedRecord
     , KintoData(..)
     , NewVideo
@@ -183,16 +185,16 @@ encodeVideoData video =
         ]
 
 
-keywordList : List (String, String)
+keywordList : List ( String, String )
 keywordList =
-    [ ("Français", "Lecture / écriture / oral / compréhension / production d’écrit / grammaire / conjugaison / vocabulaire / orthographe / album")
-    , ("Mathématiques", "numération / calcul / résolution de problème / mesure / géométrie / jeux")
-    , ("Questionner le monde", "temps / espace")
-    , ("Arts", "Education musicale / éducation plastiques")
-    , ("Éducation physique et sportive", "")
-    , ("Enseignement moral et civique", "")
-    , ("Gestion de classe", "différenciation / autonomie / concentration / coopération / aménagement de classe / affichage / gestion des élèves / plan de travail / atelier / sortie / cahier")
-    , ("Le projet Classe à 12", "tutoriel / témoignage")
+    [ ( "Français", "Lecture / écriture / oral / compréhension / production d’écrit / grammaire / conjugaison / vocabulaire / orthographe / album" )
+    , ( "Mathématiques", "numération / calcul / résolution de problème / mesure / géométrie / jeux" )
+    , ( "Questionner le monde", "temps / espace" )
+    , ( "Arts", "Education musicale / éducation plastiques" )
+    , ( "Éducation physique et sportive", "" )
+    , ( "Enseignement moral et civique", "" )
+    , ( "Gestion de classe", "différenciation / autonomie / concentration / coopération / aménagement de classe / affichage / gestion des élèves / plan de travail / atelier / sortie / cahier" )
+    , ( "Le projet Classe à 12", "tutoriel / témoignage" )
     ]
 
 
@@ -249,6 +251,14 @@ type alias Contact =
     , email : String
     , role : String
     }
+
+
+type alias ContactList =
+    Kinto.Pager Contact
+
+
+type alias ContactListData =
+    KintoData ContactList
 
 
 emptyContact =
