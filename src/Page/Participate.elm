@@ -380,7 +380,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
         , formInput
             H.input
             "freeform-keyword"
-            "Préciser ou ajouter des mots clés"
+            "Préciser (parmis les mots clés grisés ci-dessus) ou ajouter des mots clés"
             "Liste de mots clés séparés par des virgules"
             freeformKeywords
             UpdateFreeformKeywords
@@ -535,7 +535,7 @@ onSelectMultiple tagger =
     HE.on "change" (Decode.map tagger targetSelectedOptions)
 
 
-checkbox : (String -> Msg) -> ( String, Bool ) -> List (H.Html Msg)
+checkbox : (String -> Msg) -> ( String, Bool ) -> H.Html Msg
 checkbox msg ( key, value ) =
     let
         id =
@@ -548,27 +548,29 @@ checkbox msg ( key, value ) =
                 |> List.head
                 |> Maybe.map
                     (\( keyword, included ) ->
-                        [ H.span [ HA.style "color" "#8393a7" ] [ H.text <| " (" ++ included ++ ")" ] ]
+                        [ H.span [ HA.class "included-keywords" ] [ H.text <| " (" ++ included ++ ")" ] ]
                     )
                 |> Maybe.withDefault []
     in
-    [ H.input
-        [ HA.type_ "checkbox"
-        , HA.id id
-        , HA.checked value
-        , HE.onClick <| msg key
-        ]
-        []
-    , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
-    ]
-        ++ includedKeywords
-        ++ [ H.br [] [] ]
+     H.div [HA.class "keywords" ]
+        ([ H.input
+            [ HA.type_ "checkbox"
+            , HA.id id
+            , HA.checked value
+            , HE.onClick <| msg key
+            ]
+            []
+         , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
+         ]
+            ++ includedKeywords
+        )
+    
 
 
 viewKeywords : Keywords -> (String -> Msg) -> List (H.Html Msg)
 viewKeywords keywords msg =
     Dict.toList keywords
-        |> List.concatMap (checkbox msg)
+        |> List.map (checkbox msg)
 
 
 targetSelectedOptions : Decode.Decoder (List String)

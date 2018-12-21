@@ -216,3 +216,9 @@ button:disabled {
 #uploaded-video {
     max-height: 300px;
 }
+.keywords {
+    margin-bottom: 1em;
+}
+.keywords span {
+    color: #8393a7;
+}
