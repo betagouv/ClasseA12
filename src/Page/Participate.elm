@@ -35,12 +35,12 @@ type alias Model =
 type alias Keywords =
     Dict.Dict String Bool
 
+
 noKeywords : Dict.Dict String Bool
 noKeywords =
     Data.Kinto.keywordList
-        |> List.map (\keyword -> ( keyword, False ))
+        |> List.map (\( keyword, _ ) -> ( keyword, False ))
         |> Dict.fromList
-
 
 
 type alias Progress =
@@ -380,7 +380,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
         , formInput
             H.input
             "freeform-keyword"
-            "Mots clés supplémentaires"
+            "Préciser ou ajouter des mots clés"
             "Liste de mots clés séparés par des virgules"
             freeformKeywords
             UpdateFreeformKeywords
@@ -540,6 +540,17 @@ checkbox msg ( key, value ) =
     let
         id =
             "keyword-" ++ key
+
+        includedKeywords =
+            -- Some keywords "include" other sub-keywords, display those to the user to help them choose
+            Data.Kinto.keywordList
+                |> List.filter (\( keyword, included ) -> keyword == key && included /= "")
+                |> List.head
+                |> Maybe.map
+                    (\( keyword, included ) ->
+                        [ H.span [ HA.style "color" "#8393a7" ] [ H.text <| " (" ++ included ++ ")" ] ]
+                    )
+                |> Maybe.withDefault []
     in
     [ H.input
         [ HA.type_ "checkbox"
@@ -549,8 +560,9 @@ checkbox msg ( key, value ) =
         ]
         []
     , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
-    , H.br [] []
     ]
+        ++ includedKeywords
+        ++ [ H.br [] [] ]
 
 
 viewKeywords : Keywords -> (String -> Msg) -> List (H.Html Msg)
@@ -582,6 +594,7 @@ combine : List (Decode.Decoder a) -> Decode.Decoder (List a)
 combine =
     -- Taken from elm-community/json-extra
     List.foldr (Decode.map2 (::)) (Decode.succeed [])
+
 
 keywordsToList : Keywords -> List String
 keywordsToList keywords =
