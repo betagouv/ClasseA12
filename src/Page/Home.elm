@@ -100,6 +100,8 @@ viewVideoList timezone { activeVideo, search } videoList =
             videoList.objects
                 |> List.concatMap (\{ keywords } -> keywords)
                 |> Set.fromList
+                -- Don't display videos related to the project itself by default
+                |> Set.remove "Le projet Classe à 12"
                 |> Set.toList
                 |> List.sortWith NaturalOrdering.compare
 
@@ -110,6 +112,8 @@ viewVideoList timezone { activeVideo, search } videoList =
 
             else
                 videoList.objects
+                    -- Don't display videos related to the project itself by default
+                    |> List.filter (\video -> not <| List.member "Le projet Classe à 12" video.keywords)
 
         videoCards =
             if filteredVideoList /= [] then
@@ -131,7 +135,9 @@ viewVideoList timezone { activeVideo, search } videoList =
                         , HA.value search
                         , Page.Utils.onChange UpdateSearch
                         ]
-                        ([ H.option [ HA.value "" ] [ H.text "Toutes les vidéos" ] ]
+                        ([ H.option [ HA.value "" ] [ H.text "Toutes les vidéos pédagogiques" ]
+                         , H.option [ HA.value "Le projet Classe à 12" ] [ H.text "Les vidéos du projet" ]
+                         ]
                             ++ (keywordList
                                     |> List.map
                                         (\keyword ->
