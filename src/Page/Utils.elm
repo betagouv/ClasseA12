@@ -192,7 +192,7 @@ viewPublicVideo timezone video =
                 [ H.h3 [] [ H.text video.title ]
                 , H.div [ HA.class "card__meta" ]
                     [ H.time [] [ H.text <| posixToDate timezone video.creation_date ] ]
-                , H.p [] [ H.text video.description ]
+                , Markdown.toHtml [] video.description
                 ]
             ]
     in

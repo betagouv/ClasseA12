@@ -5,6 +5,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Kinto
+import Markdown
 import Page.Utils
 import Request.KintoVideo
 import Time
@@ -101,11 +102,11 @@ viewVideoDetails timezone video =
             if video.keywords /= [] then
                 [ H.div []
                     (video.keywords
-                    |> List.map
-                        (\keyword ->
-                            H.div [ HA.class "label" ]
-                                [ H.text keyword ]
-                        )
+                        |> List.map
+                            (\keyword ->
+                                H.div [ HA.class "label" ]
+                                    [ H.text keyword ]
+                            )
                     )
                 ]
 
@@ -118,7 +119,7 @@ viewVideoDetails timezone video =
                 , H.h3 [] [ H.text video.title ]
                 , H.div []
                     [ H.time [] [ H.text <| Page.Utils.posixToDate timezone video.creation_date ] ]
-                , H.p [] [ H.text video.description ]
+                , Markdown.toHtml [] video.description
                 ]
             ]
     in
