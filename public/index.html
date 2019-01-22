@@ -15,11 +15,11 @@
 </head>
 
 <body>
-  <script src="/app.js"></script>
+  <script src="/app.js?version=%VERSION%"></script>
   <script>
     const KINTO_URL = "https://kinto-dev.classea12.beta.gouv.fr/v1/";
     const loginForm = window.localStorage.getItem("session");
-    const app = Elm.Main.init({ flags: { loginForm: loginForm, version: "#VERSION#", kintoURL: KINTO_URL } });
+    const app = Elm.Main.init({ flags: { loginForm: loginForm, version: "%VERSION%", kintoURL: KINTO_URL } });
 
     // A video was selected in the file input, return its object URL so it can be set as a `src` attribute on a video element
     app.ports.videoSelected.subscribe(function (nodeID) {
