@@ -18,6 +18,7 @@ type alias Session =
     , timezone : Time.Zone
     , version : String
     , kintoURL : String
+    , timestamp : Time.Posix
     }
 
 

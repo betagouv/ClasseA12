@@ -51,7 +51,7 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { videoData, timezone } ({ search } as model) =
+view { videoData, timezone, timestamp } ({ search } as model) =
     ( "Liste des vidéos"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__banner" ] []
@@ -80,7 +80,7 @@ view { videoData, timezone } ({ search } as model) =
                     ]
 
                 Data.Kinto.Received videoList ->
-                    viewVideoList timezone model videoList
+                    viewVideoList timezone timestamp model videoList
 
                 Data.Kinto.Failed error ->
                     [ H.section [ HA.class "section section-white" ]
@@ -93,8 +93,8 @@ view { videoData, timezone } ({ search } as model) =
     )
 
 
-viewVideoList : Time.Zone -> { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
-viewVideoList timezone { activeVideo, search } videoList =
+viewVideoList : Time.Zone -> Time.Posix -> { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
+viewVideoList timezone timestamp { activeVideo, search } videoList =
     let
         keywordList =
             videoList.objects
@@ -118,7 +118,7 @@ viewVideoList timezone { activeVideo, search } videoList =
         videoCards =
             if filteredVideoList /= [] then
                 filteredVideoList
-                    |> List.map (\video -> Page.Utils.viewPublicVideo timezone video)
+                    |> List.map (\video -> Page.Utils.viewPublicVideo timezone timestamp video)
 
             else
                 [ H.text "Pas de vidéos trouvée" ]

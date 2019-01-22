@@ -160,28 +160,56 @@ viewVideo timezone toggleVideo footerNodes video =
         (cardNodes ++ keywordsNode ++ footerNodes)
 
 
-viewPublicVideo : Time.Zone -> Data.Kinto.Video -> H.Html msg
-viewPublicVideo timezone video =
+viewPublicVideo : Time.Zone -> Time.Posix -> Data.Kinto.Video -> H.Html msg
+viewPublicVideo timezone timestamp video =
     let
         keywordsNode =
             if video.keywords /= [] then
                 [ H.div [ HA.class "card__extra" ]
                     (video.keywords
-                    |> List.map
-                        (\keyword ->
-                            H.div [ HA.class "label" ]
-                                [ H.text keyword ]
-                        )
+                        |> List.map
+                            (\keyword ->
+                                H.div [ HA.class "label" ]
+                                    [ H.text keyword ]
+                            )
                     )
                 ]
 
             else
                 []
 
+        isVideoRecent =
+            let
+                timestampMillis =
+                    Time.posixToMillis timestamp
+
+                creationDateMillis =
+                    Time.posixToMillis video.creation_date
+            in
+            if timestampMillis == 0 then
+                -- The timestamp isn't initialized yet
+                False
+
+            else
+                timestampMillis
+                    - creationDateMillis
+                    -- A video is recent if it's less than 7 days.
+                    |> (>) (7 * 24 * 60 * 60 * 1000)
+
         cardNodes =
             [ H.div
                 [ HA.class "card__cover" ]
-                [ H.img
+                [ H.div
+                    [ HA.class "new-video"
+                    , HA.style "display" <|
+                        if isVideoRecent then
+                            "block"
+
+                        else
+                            "none"
+                    ]
+                    [ H.text "Nouveauté !" ]
+                , H.img
                     [ HA.alt video.title
                     , HA.src video.thumbnail
                     ]

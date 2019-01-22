@@ -14,10 +14,10 @@ import Page.Admin as Admin
 import Page.CGU as CGU
 import Page.Convention as Convention
 import Page.Home as Home
-import Page.Video as Video
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
+import Page.Video as Video
 import Platform.Sub
 import Ports
 import Request.KintoVideo exposing (getVideoList)
@@ -65,6 +65,7 @@ type Msg
     | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
+    | NewTimestamp Time.Posix
     | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
     | AdjustTimeZone Time.Zone
 
@@ -97,7 +98,10 @@ setRoute maybeRoute model =
             in
             ( homeModel
               -- When loading the home for the first time, request the list of videos
-            , getVideoList model.session.kintoURL VideoListReceived
+            , Cmd.batch
+                [ getVideoList model.session.kintoURL VideoListReceived
+                , Task.perform NewTimestamp Time.now
+                ]
             )
 
         Just Route.About ->
@@ -152,6 +156,7 @@ init flags url navKey =
             , timezone = Time.utc
             , version = version
             , kintoURL = kintoURL
+            , timestamp = Time.millisToPosix 0
             }
 
         ( routeModel, routeCmd ) =
@@ -257,6 +262,13 @@ update msg ({ page, session } as model) =
 
         ( UrlChanged url, _ ) ->
             setRoute (Route.fromUrl url) model
+
+        ( NewTimestamp timestamp, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | timestamp = timestamp } }, Cmd.none )
 
         ( VideoListReceived (Ok videoList), _ ) ->
             let
@@ -394,7 +406,6 @@ view model =
             Video.view model.session videoModel
                 |> mapMsg VideoMsg
                 |> Page.frame (pageConfig Page.Video)
-
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )
