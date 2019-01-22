@@ -5,6 +5,7 @@ module Page.Utils exposing
     , errorNotification
     , notification
     , onChange
+    , optgroup
     , posixToDate
     , submitButton
     , successNotification
@@ -19,6 +20,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as Decode
+import Json.Encode as Encode
 import Markdown
 import Route
 import Time
@@ -125,11 +127,11 @@ viewVideo timezone toggleVideo footerNodes video =
             if video.keywords /= [] then
                 [ H.div [ HA.class "card__extra" ]
                     (video.keywords
-                    |> List.map
-                        (\keyword ->
-                            H.div [ HA.class "label" ]
-                                [ H.text keyword ]
-                        )
+                        |> List.map
+                            (\keyword ->
+                                H.div [ HA.class "label" ]
+                                    [ H.text keyword ]
+                            )
                     )
                 ]
 
@@ -314,3 +316,8 @@ posixToDate timezone posix =
 onChange : (String -> msg) -> H.Attribute msg
 onChange tagger =
     HE.on "change" (Decode.map tagger HE.targetValue)
+
+
+optgroup : String -> List (H.Html msg) -> H.Html msg
+optgroup label nodes =
+    H.optgroup [ HA.property "label" <| Encode.string label ] nodes

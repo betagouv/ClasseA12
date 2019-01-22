@@ -128,23 +128,25 @@ viewVideoList timezone timestamp { activeVideo, search } videoList =
             [ H.div
                 [ HA.class "form__group light-background" ]
                 [ H.label [ HA.for "search" ]
-                    [ H.text "Filtrer par mot clé :" ]
+                    [ H.text "Filtrer :" ]
                 , H.div [ HA.class "search__group" ]
                     [ H.select
                         [ HA.id "keywords"
                         , HA.value search
                         , Page.Utils.onChange UpdateSearch
                         ]
-                        ([ H.option [ HA.value "" ] [ H.text "Toutes les vidéos pédagogiques" ]
-                         , H.option [ HA.value "Le projet Classe à 12" ] [ H.text "Les vidéos du projet" ]
-                         ]
-                            ++ (keywordList
-                                    |> List.map
-                                        (\keyword ->
-                                            H.option [ HA.value keyword ] [ H.text keyword ]
-                                        )
-                               )
-                        )
+                        [ Page.Utils.optgroup "Afficher :"
+                            [ H.option [ HA.value "" ] [ H.text "Toutes les vidéos pédagogiques" ]
+                            , H.option [ HA.value "Le projet Classe à 12" ] [ H.text "Les vidéos à propos du projet Classe à 12" ]
+                            ]
+                        , Page.Utils.optgroup "Filtrer les vidéos par mot clé :"
+                            (keywordList
+                                |> List.map
+                                    (\keyword ->
+                                        H.option [ HA.value keyword ] [ H.text keyword ]
+                                    )
+                            )
+                        ]
                     , if search /= "" then
                         H.button
                             [ HA.class "button-link"
