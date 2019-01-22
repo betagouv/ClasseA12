@@ -190,7 +190,7 @@ keywordList =
     [ ( "Français", "Lecture / écriture / oral / compréhension / production d’écrit / grammaire / conjugaison / vocabulaire / orthographe / album" )
     , ( "Mathématiques", "numération / calcul / résolution de problème / mesure / géométrie / jeux" )
     , ( "Questionner le monde", "temps / espace" )
-    , ( "Arts", "Education musicale / éducation plastiques" )
+    , ( "Arts", "Education musicale / éducation artistique" )
     , ( "Éducation physique et sportive", "" )
     , ( "Enseignement moral et civique", "" )
     , ( "Gestion de classe", "différenciation / autonomie / concentration / coopération / aménagement de classe / affichage / gestion des élèves / plan de travail / atelier / sortie / cahier" )
