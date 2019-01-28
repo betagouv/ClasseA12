@@ -19,6 +19,7 @@ type alias Session =
     , version : String
     , kintoURL : String
     , timestamp : Time.Posix
+    , navigatorShare : Bool
     }
 
 

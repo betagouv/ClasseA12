@@ -149,6 +149,11 @@ init flags url navKey =
             Decode.decodeValue (Decode.field "kintoURL" Decode.string) flags
                 |> Result.withDefault "No Kinto URL"
 
+        navigatorShare =
+            -- Decode a boolean from the "navigatorShare" field in the value
+            Decode.decodeValue (Decode.field "navigatorShare" Decode.bool) flags
+                |> Result.withDefault False
+
         session : Session
         session =
             { videoData = Data.Kinto.Requested
@@ -157,6 +162,7 @@ init flags url navKey =
             , version = version
             , kintoURL = kintoURL
             , timestamp = Time.millisToPosix 0
+            , navigatorShare = navigatorShare
             }
 
         ( routeModel, routeCmd ) =

@@ -19,7 +19,14 @@
   <script>
     const KINTO_URL = "https://kinto-dev.classea12.beta.gouv.fr/v1/";
     const loginForm = window.localStorage.getItem("session");
-    const app = Elm.Main.init({ flags: { loginForm: loginForm, version: "%VERSION%", kintoURL: KINTO_URL } });
+    const app = Elm.Main.init({
+      flags: {
+        loginForm: loginForm,
+        version: "%VERSION%",
+        kintoURL: KINTO_URL,
+        navigatorShare: navigator.share !== undefined
+      }
+    });
 
     // A video was selected in the file input, return its object URL so it can be set as a `src` attribute on a video element
     app.ports.videoSelected.subscribe(function (nodeID) {
@@ -163,6 +170,12 @@
 
     app.ports.logoutSession.subscribe(() => {
       localStorage.removeItem("session");
+    });
+
+    app.ports.navigatorShare.subscribe(shareText => {
+      if (navigator.share !== undefined) {
+        navigator.share({ url: document.location.href, text: shareText });
+      }
     });
   </script>
 

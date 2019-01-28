@@ -1,6 +1,7 @@
 port module Ports exposing
     ( SubmitVideoData
     , logoutSession
+    , navigatorShare
     , newURL
     , progressUpdate
     , saveSession
@@ -49,3 +50,6 @@ port saveSession : Encode.Value -> Cmd msg
 
 
 port logoutSession : () -> Cmd msg
+
+
+port navigatorShare : String -> Cmd msg
