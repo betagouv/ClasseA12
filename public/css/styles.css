@@ -233,3 +233,11 @@ button:disabled {
 .keywords span {
     color: #8393a7;
 }
+ul.social {
+    list-style-type: none;
+    padding-left: 0;
+}
+ul.social li {
+    display: inline;
+    margin-right: 1em;
+}

@@ -4,6 +4,7 @@ import Data.Kinto
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
+import Json.Encode as Encode
 import Kinto
 import Markdown
 import Page.Utils
@@ -122,7 +123,50 @@ viewVideoDetails timezone video =
                 , Markdown.toHtml [] video.description
                 ]
             ]
+
+        shareText = "Vidéo sur Classe à 12 : " ++ video.title
+
+        shareNodes =
+            [ H.ul [ HA.class "social"]
+                [ H.li []
+                    [ H.a
+                        [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
+                        , HA.title "Partager la vidéo par email"
+                        ]
+                        [ H.i [ HA.class "fas fa-envelope fa-2x" ] [] ]
+                    ]
+                , H.li []
+                    [ H.a
+                        [ HA.href <| "http://twitter.com/share?text=" ++ shareText
+                        , HA.title "Partager la vidéo par twitter"
+                        ]
+                        [ H.i [ HA.class "fab fa-twitter fa-2x" ] [] ]
+                    ]
+                , H.li []
+                    [ H.a
+                        [ HA.href <| "whatsapp://send?text=" ++ shareText
+                        , HA.property "data-action" (Encode.string "share/whatsapp/share")
+                        , HA.title "Partager la vidéo par whatsapp"
+                        ]
+                        [ H.i [ HA.class "fab fa-whatsapp fa-2x" ] [] ]
+                    ]
+                , H.li []
+                    [ H.a
+                        [ HA.href "https://www.facebook.com/sharer/sharer.php"
+                        , HA.title "Partager la vidéo par facebook"
+                        ]
+                        [ H.i [ HA.class "fab fa-facebook-f fa-2x" ] [] ]
+                    ]
+                , H.li []
+                    [ H.a
+                        [ HA.href "fb-messenger://share/"
+                        , HA.title "Partager la vidéo par facebook messenger"
+                        ]
+                        [ H.i [ HA.class "fab fa-facebook-messenger fa-2x" ] [] ]
+                    ]
+                ]
+            ]
     in
     H.div
         []
-        (detailsNodes ++ keywordsNode)
+        (detailsNodes ++ keywordsNode ++ shareNodes)
