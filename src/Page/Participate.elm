@@ -303,7 +303,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                     []
                 , H.span [ HA.class "file-cta" ]
                     [ H.span [ HA.class "file-icon" ]
-                        [ H.i [ HA.class "fa fa-upload" ] []
+                        [ H.i [ HA.class "fas fa-upload" ] []
                         ]
                     , H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
                     ]
@@ -460,7 +460,7 @@ displayKintoData kintoData =
                     [ HA.class "close"
                     , HE.onClick DiscardNotification
                     ]
-                    [ H.i [ HA.class "fa fa-times" ] [] ]
+                    [ H.i [ HA.class "fas fa-times" ] [] ]
                 , H.text <| Kinto.errorToString error
                 ]
 
@@ -470,7 +470,7 @@ displayKintoData kintoData =
                     [ HA.class "close"
                     , HE.onClick DiscardNotification
                     ]
-                    [ H.i [ HA.class "fa fa-times" ] [] ]
+                    [ H.i [ HA.class "fas fa-times" ] [] ]
                 , H.text "Merci pour cette vidéo ! Vous pouvez en poster une autre ou "
                 , H.a [ Route.href Route.Home ] [ H.text "retourner à la liste de vidéos" ]
                 ]

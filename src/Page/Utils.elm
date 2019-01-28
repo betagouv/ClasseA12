@@ -71,7 +71,7 @@ button label buttonState maybeOnClick =
     H.button
         (loadingAttrs ++ onClickAttr)
         [ if buttonState == Loading then
-            H.i [ HA.class "fa fa-spinner fa-spin" ] []
+            H.i [ HA.class "fas fa-spinner fa-spin" ] []
 
           else
             H.text label
@@ -100,7 +100,7 @@ notification status content discardMsg =
             [ HA.class "close"
             , HE.onClick discardMsg
             ]
-            [ H.i [ HA.class "fa fa-times" ] [] ]
+            [ H.i [ HA.class "fas fa-times" ] [] ]
          ]
             ++ content
         )
@@ -259,7 +259,7 @@ viewVideoModal toggleVideo activeVideo =
                 ]
                 [ H.div [ HA.class "modal" ] [ viewVideoPlayer video.attachment ]
                 , H.button [ HA.class "modal__close" ]
-                    [ H.i [ HA.class "fa fa-times fa-2x" ] [] ]
+                    [ H.i [ HA.class "fas fa-times fa-2x" ] [] ]
                 ]
 
 

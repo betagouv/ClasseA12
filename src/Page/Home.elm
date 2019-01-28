@@ -152,7 +152,7 @@ viewVideoList timezone timestamp { activeVideo, search } videoList =
                             [ HA.class "button-link"
                             , HE.onClick <| UpdateSearch ""
                             ]
-                            [ H.i [ HA.class "fa fa-times" ] [] ]
+                            [ H.i [ HA.class "fas fa-times" ] [] ]
 
                       else
                         H.div [] []
