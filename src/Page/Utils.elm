@@ -195,8 +195,8 @@ viewPublicVideo timezone timestamp video =
             else
                 timestampMillis
                     - creationDateMillis
-                    -- A video is recent if it's less than 7 days.
-                    |> (>) (7 * 24 * 60 * 60 * 1000)
+                    -- A video is recent if it's less than 15 days.
+                    |> (>) (15 * 24 * 60 * 60 * 1000)
 
         cardNodes =
             [ H.div
