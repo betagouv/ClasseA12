@@ -1,7 +1,7 @@
 module Page.Admin exposing (Model, Msg(..), init, update, view)
 
 import Data.Kinto exposing (ContactList, ContactListData, DeletedRecord, Video, VideoList, VideoListData)
-import Data.Session exposing (LoginForm, Session, decodeSessionData, emptyLoginForm, encodeSessionData)
+import Data.Session exposing (UserData, Session, decodeUserData, emptyUserData, encodeUserData)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -17,7 +17,7 @@ import Url
 
 
 type alias Model =
-    { loginForm : LoginForm
+    { loginForm : UserData
     , videoListData : VideoListData
     , contactListData : ContactListData
     , errorList : List String
@@ -31,7 +31,7 @@ type alias PublishingVideos =
 
 
 type Msg
-    = UpdateLoginForm LoginForm
+    = UpdateLoginForm UserData
     | Login
     | Logout
     | VideoListFetched (Result Kinto.Error VideoList)
@@ -47,7 +47,7 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     let
         initialModel =
-            { loginForm = session.loginForm
+            { loginForm = session.userData
             , videoListData = Data.Kinto.NotRequested
             , contactListData = Data.Kinto.NotRequested
             , errorList = []
@@ -56,7 +56,7 @@ init session =
             }
 
         modelAndCommands =
-            if session.loginForm /= Data.Session.emptyLoginForm then
+            if session.userData /= Data.Session.emptyUserData then
                 useLogin session.kintoURL initialModel
 
             else
@@ -75,7 +75,7 @@ update session msg model =
             useLogin session.kintoURL model
 
         Logout ->
-            ( { model | loginForm = emptyLoginForm, videoListData = Data.Kinto.NotRequested }, Ports.logoutSession () )
+            ( { model | loginForm = emptyUserData, videoListData = Data.Kinto.NotRequested }, Ports.logoutSession () )
 
         VideoListFetched (Ok videoList) ->
             ( { model | videoListData = Data.Kinto.Received videoList }, Cmd.none )
@@ -107,7 +107,7 @@ update session msg model =
         PublishVideo video ->
             let
                 client =
-                    authClient session.kintoURL session.loginForm.username session.loginForm.password
+                    authClient session.kintoURL session.userData.username session.userData.password
             in
             ( { model | publishingVideos = model.publishingVideos ++ [ video ] }
             , Request.KintoVideo.publishVideo video client VideoPublished
@@ -116,7 +116,7 @@ update session msg model =
         VideoPublished (Ok video) ->
             let
                 client =
-                    authClient session.kintoURL session.loginForm.username session.loginForm.password
+                    authClient session.kintoURL session.userData.username session.userData.password
             in
             ( model
             , Request.KintoUpcoming.removeVideo video client (VideoRemoved video)
@@ -176,7 +176,7 @@ update session msg model =
             ( { model | activeVideo = activeVideo }, Cmd.none )
 
 
-isLoginFormComplete : LoginForm -> Bool
+isLoginFormComplete : UserData -> Bool
 isLoginFormComplete loginForm =
     loginForm.username /= "" && loginForm.password /= ""
 
@@ -192,7 +192,7 @@ useLogin kintoURL model =
         , Cmd.batch
             [ Request.KintoUpcoming.getVideoList client VideoListFetched
             , Request.KintoContact.getContactList client ContactListFetched
-            , Ports.saveSession <| encodeSessionData model.loginForm
+            , Ports.saveSession <| encodeUserData model.loginForm
             ]
         )
 
@@ -300,7 +300,7 @@ contactListHref contactList =
         |> HA.href
 
 
-viewLoginForm : LoginForm -> VideoListData -> H.Html Msg
+viewLoginForm : UserData -> VideoListData -> H.Html Msg
 viewLoginForm loginForm videoListData =
     let
         formComplete =

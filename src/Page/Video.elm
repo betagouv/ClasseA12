@@ -97,10 +97,10 @@ update session msg model =
                     model.commentForm
 
                 updatedCommentForm =
-                    { commentForm | video = model.videoID, profile = session.userInfo.profile }
+                    { commentForm | video = model.videoID, profile = session.userData.profile }
 
                 client =
-                    Request.Kinto.authClient session.kintoURL session.loginForm.username session.loginForm.password
+                    Request.Kinto.authClient session.kintoURL session.userData.username session.userData.password
             in
             ( { model | commentForm = updatedCommentForm }
             , Request.KintoComment.submitComment client updatedCommentForm CommentAdded
@@ -114,7 +114,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url, userInfo } { video, title, comments, contributors, commentForm, commentData } =
+view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -145,7 +145,7 @@ view { timezone, navigatorShare, url, userInfo } { video, title, comments, contr
                                 ]
 
                         _ ->
-                            viewCommentForm commentForm userInfo commentData
+                            viewCommentForm commentForm userData commentData
                     ]
                 ]
             ]
@@ -331,9 +331,9 @@ viewCommentDetails timezone contributorsData comment =
         ]
 
 
-viewCommentForm : Data.Kinto.Comment -> Data.Kinto.UserInfo -> Data.Kinto.KintoData Data.Kinto.Comment -> H.Html Msg
-viewCommentForm commentForm userInfo commentData =
-    if userInfo.profile == "" then
+viewCommentForm : Data.Kinto.Comment -> Data.Session.UserData -> Data.Kinto.KintoData Data.Kinto.Comment -> H.Html Msg
+viewCommentForm commentForm userData commentData =
+    if userData.profile == "" then
         -- No logged in user.
         H.div []
             [ H.p []

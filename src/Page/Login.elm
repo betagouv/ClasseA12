@@ -1,7 +1,7 @@
 module Page.Login exposing (Model, Msg(..), init, update, view)
 
 import Data.Kinto
-import Data.Session exposing (LoginForm, Session, decodeSessionData, emptyLoginForm, encodeSessionData)
+import Data.Session exposing (UserData, Session, decodeUserData, emptyUserData, encodeUserData)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -14,16 +14,15 @@ import Request.KintoUserInfo
 
 
 type alias Model =
-    { loginForm : LoginForm
+    { loginForm : UserData
     , error : Maybe String
     , userInfoData : Data.Kinto.KintoData Data.Kinto.UserInfo
     }
 
 
 type Msg
-    = UpdateLoginForm LoginForm
+    = UpdateLoginForm UserData
     | Login
-    | Logout
     | DiscardError
     | UserInfoReceived (Result Http.Error Data.Kinto.UserInfo)
 
@@ -32,13 +31,13 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     let
         initialModel =
-            { loginForm = session.loginForm
+            { loginForm = session.userData
             , error = Nothing
             , userInfoData = Data.Kinto.NotRequested
             }
 
         modelAndCommands =
-            if session.loginForm /= Data.Session.emptyLoginForm then
+            if session.userData /= Data.Session.emptyUserData then
                 useLogin session.kintoURL initialModel
 
             else
@@ -56,9 +55,6 @@ update session msg model =
         Login ->
             useLogin session.kintoURL model
 
-        Logout ->
-            ( { model | loginForm = emptyLoginForm, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
-
         DiscardError ->
             ( { model | error = Nothing }, Cmd.none )
 
@@ -71,7 +67,7 @@ update session msg model =
             ( { model | error = Just "Connexion échouée", userInfoData = Data.Kinto.NotRequested }, Cmd.none )
 
 
-isLoginFormComplete : LoginForm -> Bool
+isLoginFormComplete : UserData -> Bool
 isLoginFormComplete loginForm =
     loginForm.username /= "" && loginForm.password /= ""
 
@@ -112,7 +108,7 @@ view _ { error, loginForm, userInfoData } =
     )
 
 
-viewLoginForm : LoginForm -> Data.Kinto.UserInfoData -> H.Html Msg
+viewLoginForm : UserData -> Data.Kinto.UserInfoData -> H.Html Msg
 viewLoginForm loginForm userInfoData =
     let
         formComplete =

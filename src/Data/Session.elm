@@ -1,9 +1,9 @@
 module Data.Session exposing
-    ( LoginForm
-    , Session
-    , decodeSessionData
-    , emptyLoginForm
-    , encodeSessionData
+    ( Session
+    , UserData
+    , decodeUserData
+    , emptyUserData
+    , encodeUserData
     )
 
 import Data.Kinto
@@ -15,41 +15,48 @@ import Url exposing (Url)
 
 type alias Session =
     { videoData : Data.Kinto.VideoListData
-    , loginForm : LoginForm
+    , userData : UserData
     , timezone : Time.Zone
     , version : String
     , kintoURL : String
     , timestamp : Time.Posix
     , navigatorShare : Bool
     , url : Url
-    , userInfo : Data.Kinto.UserInfo
     }
 
 
-type alias LoginForm =
+type alias UserData =
     { username : String
     , password : String
+    , userID : String
+    , profile : String
     }
 
 
-emptyLoginForm : LoginForm
-emptyLoginForm =
+emptyUserData : UserData
+emptyUserData =
     { username = ""
     , password = ""
+    , userID = ""
+    , profile = ""
     }
 
 
-encodeSessionData : LoginForm -> Encode.Value
-encodeSessionData loginForm =
+encodeUserData : UserData -> Encode.Value
+encodeUserData userData =
     Encode.object
-        [ ( "username", Encode.string loginForm.username )
-        , ( "password", Encode.string loginForm.password )
+        [ ( "username", Encode.string userData.username )
+        , ( "password", Encode.string userData.password )
+        , ( "userID", Encode.string userData.userID )
+        , ( "profile", Encode.string userData.profile )
         ]
 
 
-decodeSessionData : Decode.Decoder LoginForm
-decodeSessionData =
-    Decode.map2
-        LoginForm
+decodeUserData : Decode.Decoder UserData
+decodeUserData =
+    Decode.map4
+        UserData
         (Decode.field "username" Decode.string)
         (Decode.field "password" Decode.string)
+        (Decode.field "userID" Decode.string)
+        (Decode.field "profile" Decode.string)

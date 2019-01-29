@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.Kinto
-import Data.Session exposing (Session, decodeSessionData, emptyLoginForm, encodeSessionData)
+import Data.Session exposing (Session, decodeUserData, emptyUserData, encodeUserData)
 import Html exposing (..)
 import Http
 import Json.Decode as Decode
@@ -147,12 +147,12 @@ setRoute url oldModel =
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     let
-        loginForm =
+        userData =
             -- Decode a string from the "loginForm" field in the value (the stringified session data)
             Decode.decodeValue (Decode.field "loginForm" Decode.string) flags
                 -- Decode a loginForm from the value
-                |> Result.andThen (Decode.decodeString decodeSessionData)
-                |> Result.withDefault emptyLoginForm
+                |> Result.andThen (Decode.decodeString decodeUserData)
+                |> Result.withDefault emptyUserData
 
         version =
             -- Decode a string from the "version" field in the value
@@ -172,8 +172,7 @@ init flags url navKey =
         session : Session
         session =
             { videoData = Data.Kinto.Requested
-            , loginForm = loginForm
-            , userInfo = Data.Kinto.emptyUserInfo
+            , userData = userData
             , timezone = Time.utc
             , version = version
             , kintoURL = kintoURL
@@ -238,7 +237,7 @@ update msg ({ page, session } as model) =
                 Admin.VideoListFetched (Ok _) ->
                     let
                         updatedSession =
-                            { session | loginForm = adminModel.loginForm }
+                            { session | userData = adminModel.loginForm }
                     in
                     ( { newModel | session = updatedSession }, newCmd )
 
@@ -246,7 +245,7 @@ update msg ({ page, session } as model) =
                 Admin.Logout ->
                     let
                         updatedSession =
-                            { session | loginForm = emptyLoginForm }
+                            { session | userData = emptyUserData }
                     in
                     ( { newModel | session = updatedSession }, newCmd )
 
@@ -266,26 +265,19 @@ update msg ({ page, session } as model) =
                 -- correct, and we can store them in the session for future use
                 Login.UserInfoReceived (Ok userInfo) ->
                     let
-                        updatedSession =
-                            { session | loginForm = loginModel.loginForm, userInfo = userInfo }
-                    in
-                    ( { newModel | session = updatedSession }
-                    , Cmd.batch
-                        [ Ports.saveSession <| encodeSessionData loginModel.loginForm
-                        , Route.pushUrl model.navKey Route.Home
-                        , newCmd
-                        ]
-                    )
+                        loginForm =
+                            loginModel.loginForm
 
-                -- Special case: on logout, remove the credentials from the session
-                Login.Logout ->
-                    let
+                        userData =
+                            { loginForm | userID = userInfo.id, profile = userInfo.profile }
+
                         updatedSession =
-                            { session | loginForm = emptyLoginForm, userInfo = Data.Kinto.emptyUserInfo }
+                            { session | userData = userData }
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
-                        [ Ports.logoutSession ()
+                        [ Ports.saveSession <| encodeUserData userData
+                        , Route.pushUrl model.navKey Route.Home
                         , newCmd
                         ]
                     )
