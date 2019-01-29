@@ -10,6 +10,8 @@ import Kinto
 import Markdown
 import Page.Utils
 import Ports
+import Request.KintoComment
+import Request.KintoProfile
 import Request.KintoVideo
 import Time
 import Url exposing (Url)
@@ -19,12 +21,16 @@ type alias Model =
     { videoID : String
     , video : Data.Kinto.KintoData Data.Kinto.Video
     , title : String
+    , comments : Data.Kinto.KintoData Data.Kinto.CommentList
+    , contributors : Data.Kinto.KintoData Data.Kinto.ProfileList
     }
 
 
 type Msg
     = VideoReceived (Result Kinto.Error Data.Kinto.Video)
     | ShareVideo String
+    | CommentsReceived (Result Kinto.Error Data.Kinto.CommentList)
+    | ContributorsReceived (Result Kinto.Error Data.Kinto.ProfileList)
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -32,13 +38,18 @@ init videoID title session =
     ( { videoID = videoID
       , video = Data.Kinto.Requested
       , title = title
+      , comments = Data.Kinto.Requested
+      , contributors = Data.Kinto.NotRequested
       }
-    , Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
+    , Cmd.batch
+        [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
+        , Request.KintoComment.getCommentList session.kintoURL videoID CommentsReceived
+        ]
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update session msg model =
     case msg of
         VideoReceived (Ok video) ->
             ( { model | video = Data.Kinto.Received video }, Cmd.none )
@@ -49,9 +60,28 @@ update _ msg model =
         ShareVideo shareText ->
             ( model, Ports.navigatorShare shareText )
 
+        CommentsReceived (Ok comments) ->
+            let
+                contributorIDs =
+                    comments.objects
+                        |> List.map (\comment -> comment.profile)
+            in
+            ( { model | comments = Data.Kinto.Received comments }
+            , Request.KintoProfile.getProfileList session.kintoURL contributorIDs ContributorsReceived
+            )
+
+        CommentsReceived (Err error) ->
+            ( { model | comments = Data.Kinto.Failed error }, Cmd.none )
+
+        ContributorsReceived (Ok contributors) ->
+            ( { model | contributors = Data.Kinto.Received contributors }, Cmd.none )
+
+        ContributorsReceived (Err error) ->
+            ( { model | contributors = Data.Kinto.Failed error }, Cmd.none )
+
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url } { video, title } =
+view { timezone, navigatorShare, url } { video, title, comments, contributors } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -68,6 +98,9 @@ view { timezone, navigatorShare, url } { video, title } =
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
                     [ viewVideo timezone url navigatorShare video
+                    ]
+                , H.div [ HA.class "container" ]
+                    [ viewComments timezone comments contributors
                     ]
                 ]
             ]
@@ -192,3 +225,47 @@ viewVideoDetails timezone url navigatorShare video =
     H.div
         []
         (detailsNodes ++ keywordsNode ++ shareNodes)
+
+
+viewComments : Time.Zone -> Data.Kinto.KintoData Data.Kinto.CommentList -> Data.Kinto.KintoData Data.Kinto.ProfileList -> H.Html Msg
+viewComments timezone commentsData contributorsData =
+    H.div [ HA.class "comment-list-wrapper" ]
+        [ case commentsData of
+            Data.Kinto.Received comments ->
+                H.div [ HA.class "comment-wrapper" ]
+                    [ H.h3 [] [ H.text "Contributions" ]
+                    , H.ul [ HA.class "comment-list" ]
+                        (comments.objects
+                            |> List.map (viewCommentDetails timezone contributorsData)
+                        )
+                    ]
+
+            Data.Kinto.Requested ->
+                H.p [] [ H.text "Chargement des contributions en cours..." ]
+
+            _ ->
+                H.p [] [ H.text "Aucune contribution pour le moment" ]
+        ]
+
+
+viewCommentDetails : Time.Zone -> Data.Kinto.KintoData Data.Kinto.ProfileList -> Data.Kinto.Comment -> H.Html Msg
+viewCommentDetails timezone contributorsData comment =
+    let
+        contributorName =
+            case contributorsData of
+                Data.Kinto.Received contributors ->
+                    contributors.objects
+                        |> List.filter (\contributor -> contributor.id == comment.profile)
+                        |> List.head
+                        |> Maybe.map (\contributor -> contributor.name)
+                        -- If we didn't find any profile, display the profile ID.
+                        |> Maybe.withDefault comment.profile
+
+                _ ->
+                    comment.profile
+    in
+    H.li [ HA.class "comment" ]
+        [ H.div [ HA.class "comment-author" ] [ H.text contributorName ]
+        , H.time [] [ H.text <| Page.Utils.posixToDate timezone comment.last_modified ]
+        , Markdown.toHtml [] comment.comment
+        ]
