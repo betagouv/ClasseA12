@@ -133,8 +133,19 @@ view { timezone, navigatorShare, url, userInfo } { video, title, comments, contr
                     [ viewVideo timezone url navigatorShare video
                     ]
                 , H.div [ HA.class "container" ]
-                    [ viewComments timezone comments contributors
-                    , viewCommentForm commentForm userInfo commentData
+                    [ viewComments timezone comments contributors commentData
+                    , case commentData of
+                        Data.Kinto.Received comment ->
+                            H.div [] [ H.text "Merci de votre contribution !" ]
+
+                        Data.Kinto.Failed error ->
+                            H.div []
+                                [ H.text "Erreur lors de l'ajout de la contribution : "
+                                , H.text <| Kinto.errorToString error
+                                ]
+
+                        _ ->
+                            viewCommentForm commentForm userInfo commentData
                     ]
                 ]
             ]
@@ -261,15 +272,30 @@ viewVideoDetails timezone url navigatorShare video =
         (detailsNodes ++ keywordsNode ++ shareNodes)
 
 
-viewComments : Time.Zone -> Data.Kinto.KintoData Data.Kinto.CommentList -> Data.Kinto.KintoData Data.Kinto.ProfileList -> H.Html Msg
-viewComments timezone commentsData contributorsData =
+viewComments :
+    Time.Zone
+    -> Data.Kinto.KintoData Data.Kinto.CommentList
+    -> Data.Kinto.KintoData Data.Kinto.ProfileList
+    -> Data.Kinto.KintoData Data.Kinto.Comment
+    -> H.Html Msg
+viewComments timezone commentsData contributorsData commentData =
+    let
+        addedComment =
+            case commentData of
+                Data.Kinto.Received comment ->
+                    -- If a new comment was just added, display it.
+                    [ comment ]
+
+                _ ->
+                    []
+    in
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.Kinto.Received comments ->
                 H.div [ HA.class "comment-wrapper" ]
                     [ H.h3 [] [ H.text "Contributions" ]
                     , H.ul [ HA.class "comment-list" ]
-                        (comments.objects
+                        ((comments.objects ++ addedComment)
                             |> List.map (viewCommentDetails timezone contributorsData)
                         )
                     ]
