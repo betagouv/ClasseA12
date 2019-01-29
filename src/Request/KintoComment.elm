@@ -5,8 +5,8 @@ import Kinto
 import Request.Kinto
 
 
-submitComment : Kinto.Client -> Data.Kinto.Comment -> (Result Kinto.Error Data.Kinto.Comment -> msg) -> Cmd msg
-submitComment client comment message =
+submitComment : Request.Kinto.AuthClient -> Data.Kinto.Comment -> (Result Kinto.Error Data.Kinto.Comment -> msg) -> Cmd msg
+submitComment (Request.Kinto.AuthClient client) comment message =
         client
         |> Kinto.create recordResource (Data.Kinto.encodeCommentData comment)
         |> Kinto.send message

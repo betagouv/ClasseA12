@@ -5,8 +5,8 @@ import Kinto
 import Request.Kinto
 
 
-submitProfile : Kinto.Client -> Data.Kinto.Profile -> (Result Kinto.Error Data.Kinto.Profile -> msg) -> Cmd msg
-submitProfile client profile message =
+submitProfile : Request.Kinto.AuthClient -> Data.Kinto.Profile -> (Result Kinto.Error Data.Kinto.Profile -> msg) -> Cmd msg
+submitProfile (Request.Kinto.AuthClient client) profile message =
         client
         |> Kinto.create recordResource (Data.Kinto.encodeProfileData profile)
         |> Kinto.send message

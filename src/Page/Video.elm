@@ -10,9 +10,11 @@ import Kinto
 import Markdown
 import Page.Utils
 import Ports
+import Request.Kinto
 import Request.KintoComment
 import Request.KintoProfile
 import Request.KintoVideo
+import Route
 import Time
 import Url exposing (Url)
 
@@ -23,6 +25,8 @@ type alias Model =
     , title : String
     , comments : Data.Kinto.KintoData Data.Kinto.CommentList
     , contributors : Data.Kinto.KintoData Data.Kinto.ProfileList
+    , commentForm : Data.Kinto.Comment
+    , commentData : Data.Kinto.KintoData Data.Kinto.Comment
     }
 
 
@@ -31,6 +35,9 @@ type Msg
     | ShareVideo String
     | CommentsReceived (Result Kinto.Error Data.Kinto.CommentList)
     | ContributorsReceived (Result Kinto.Error Data.Kinto.ProfileList)
+    | UpdateCommentForm Data.Kinto.Comment
+    | AddComment
+    | CommentAdded (Result Kinto.Error Data.Kinto.Comment)
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -40,6 +47,8 @@ init videoID title session =
       , title = title
       , comments = Data.Kinto.Requested
       , contributors = Data.Kinto.NotRequested
+      , commentForm = Data.Kinto.emptyComment
+      , commentData = Data.Kinto.NotRequested
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
@@ -79,9 +88,33 @@ update session msg model =
         ContributorsReceived (Err error) ->
             ( { model | contributors = Data.Kinto.Failed error }, Cmd.none )
 
+        UpdateCommentForm commentForm ->
+            ( { model | commentForm = commentForm }, Cmd.none )
+
+        AddComment ->
+            let
+                commentForm =
+                    model.commentForm
+
+                updatedCommentForm =
+                    { commentForm | video = model.videoID, profile = session.userInfo.profile }
+
+                client =
+                    Request.Kinto.authClient session.kintoURL session.loginForm.username session.loginForm.password
+            in
+            ( { model | commentForm = updatedCommentForm }
+            , Request.KintoComment.submitComment client updatedCommentForm CommentAdded
+            )
+
+        CommentAdded (Ok comment) ->
+            ( { model | commentData = Data.Kinto.Received comment }, Cmd.none )
+
+        CommentAdded (Err error) ->
+            ( { model | commentData = Data.Kinto.Failed error }, Cmd.none )
+
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url } { video, title, comments, contributors } =
+view { timezone, navigatorShare, url, userInfo } { video, title, comments, contributors, commentForm, commentData } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -101,6 +134,7 @@ view { timezone, navigatorShare, url } { video, title, comments, contributors } 
                     ]
                 , H.div [ HA.class "container" ]
                     [ viewComments timezone comments contributors
+                    , viewCommentForm commentForm userInfo commentData
                     ]
                 ]
             ]
@@ -269,3 +303,52 @@ viewCommentDetails timezone contributorsData comment =
         , H.span [ HA.class "comment-author" ] [ H.text contributorName ]
         , Markdown.toHtml [] comment.comment
         ]
+
+
+viewCommentForm : Data.Kinto.Comment -> Data.Kinto.UserInfo -> Data.Kinto.KintoData Data.Kinto.Comment -> H.Html Msg
+viewCommentForm commentForm userInfo commentData =
+    if userInfo.profile == "" then
+        -- No logged in user.
+        H.div []
+            [ H.p []
+                [ H.text "Pour ajouter une contribution veuillez vous "
+                , H.a [ Route.href Route.Login ] [ H.text "connecter" ]
+                ]
+            ]
+
+    else
+        let
+            formComplete =
+                commentForm.comment /= ""
+
+            buttonState =
+                if formComplete then
+                    case commentData of
+                        Data.Kinto.Requested ->
+                            Page.Utils.Loading
+
+                        _ ->
+                            Page.Utils.NotLoading
+
+                else
+                    Page.Utils.Disabled
+
+            submitButton =
+                Page.Utils.submitButton "Ajouter cette contribution" buttonState
+        in
+        H.form
+            [ HE.onSubmit AddComment ]
+            [ H.h3 [] [ H.text "Ajouter une contribution" ]
+            , H.div [ HA.class "form__group" ]
+                [ H.label [ HA.for "comment" ]
+                    [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
+                , H.input
+                    [ HA.type_ "text"
+                    , HA.id "comment"
+                    , HA.value commentForm.comment
+                    , HE.onInput <| \comment -> UpdateCommentForm { commentForm | comment = comment }
+                    ]
+                    []
+                ]
+            , submitButton
+            ]
