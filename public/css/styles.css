@@ -241,3 +241,14 @@ ul.social li {
     display: inline;
     margin-right: 1em;
 }
+ul.comment-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+ul.comment-list time {
+    color: #8393a7;
+}
+ul.comment-list .comment-author {
+    font-weight: 700;
+    margin-left: 1em;
+}

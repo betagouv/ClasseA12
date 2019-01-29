@@ -264,8 +264,8 @@ viewCommentDetails timezone contributorsData comment =
                 _ ->
                     comment.profile
     in
-    H.li [ HA.class "comment" ]
-        [ H.div [ HA.class "comment-author" ] [ H.text contributorName ]
-        , H.time [] [ H.text <| Page.Utils.posixToDate timezone comment.last_modified ]
+    H.li [ HA.class "comment panel" ]
+        [ H.time [] [ H.text <| Page.Utils.posixToDate timezone comment.last_modified ]
+        , H.span [ HA.class "comment-author" ] [ H.text contributorName ]
         , Markdown.toHtml [] comment.comment
         ]
