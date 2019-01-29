@@ -77,6 +77,14 @@ The resources metadata (data and permissions) are stored in `scripts/collections
 
 `/buckets/classea12/collections/contacts/`: `record:create` access to the `system.Authenticated` users (each form submission will use a unique ID to create the contact, preventing anyone to request the list of contacts). List of people registered to the newsletter.
 
+#### User profiles
+
+`/buckets/classea12/collections/profiles/`: `record:create` access to the `system.Authenticated` users, and read access to everyone (anonymous users). A profile will then be added to the user account record. The profile will hold any public information about a user (their name, bio...).
+
+#### Comments
+
+`/buckets/classea12/collections/comments/`: `record:create` access to the `system.Authenticated` users, and read access to everyone (anonymous users). A comment will link a profile ID to a video ID.
+
 # Deployment
 
 - Kinto is hosted on an [alwaysdata](https://www.alwaysdata.com/) [account](https://kinto.classea12.beta.gouv.fr/v1)

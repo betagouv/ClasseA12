@@ -1,28 +1,41 @@
 module Data.Kinto exposing
     ( Attachment
+    , Comment
+    , CommentList
+    , CommentListData
     , Contact
     , ContactList
     , ContactListData
     , DeletedRecord
     , KintoData(..)
     , NewVideo
+    , Profile
+    , ProfileList
+    , ProfileListData
     , Video
     , VideoList
     , VideoListData
     , attachmentDecoder
+    , commentDecoder
     , contactDecoder
+    , decodeCommentList
     , decodeContactList
     , decodeVideoList
     , deletedRecordDecoder
     , emptyAttachment
+    , emptyComment
     , emptyContact
     , emptyNewVideo
+    , emptyProfile
     , emptyVideo
     , encodeAttachmentData
+    , encodeCommentData
     , encodeContactData
     , encodeNewVideoData
+    , encodeProfileData
     , encodeVideoData
     , keywordList
+    , profileDecoder
     , videoDecoder
     )
 
@@ -290,4 +303,110 @@ encodeContactData contact =
         [ ( "name", Encode.string contact.name )
         , ( "email", Encode.string contact.email )
         , ( "role", Encode.string contact.role )
+        ]
+
+
+
+---- PROFILES ----
+
+
+type alias Profile =
+    { id : String
+    , name : String
+    , bio : String
+    , last_modified : Time.Posix
+    }
+
+
+type alias ProfileList =
+    Kinto.Pager Profile
+
+
+type alias ProfileListData =
+    KintoData ProfileList
+
+
+emptyProfile =
+    { id = ""
+    , name = ""
+    , bio = ""
+    , last_modified = Time.millisToPosix 0
+    }
+
+
+profileDecoder : Decode.Decoder Profile
+profileDecoder =
+    Decode.succeed Profile
+        |> Pipeline.required "id" Decode.string
+        |> Pipeline.required "name" Decode.string
+        |> Pipeline.required "bio" Decode.string
+        |> Pipeline.required "last_modified" posixDecoder
+
+
+decodeProfileList : Decode.Value -> Result Decode.Error (List Profile)
+decodeProfileList =
+    Decode.decodeValue <|
+        Decode.list profileDecoder
+
+
+encodeProfileData : Profile -> Encode.Value
+encodeProfileData profile =
+    Encode.object
+        [ ( "name", Encode.string profile.name )
+        , ( "bio", Encode.string profile.name )
+        ]
+
+
+
+---- COMMENTS ----
+
+
+type alias Comment =
+    { id : String
+    , profile : String
+    , video : String
+    , comment : String
+    , last_modified : Time.Posix
+    }
+
+
+type alias CommentList =
+    Kinto.Pager Comment
+
+
+type alias CommentListData =
+    KintoData CommentList
+
+
+emptyComment =
+    { id = ""
+    , profile = ""
+    , video = ""
+    , comment = ""
+    , last_modified = Time.millisToPosix 0
+    }
+
+
+commentDecoder : Decode.Decoder Comment
+commentDecoder =
+    Decode.succeed Comment
+        |> Pipeline.required "id" Decode.string
+        |> Pipeline.required "profile" Decode.string
+        |> Pipeline.required "video" Decode.string
+        |> Pipeline.required "comment" Decode.string
+        |> Pipeline.required "last_modified" posixDecoder
+
+
+decodeCommentList : Decode.Value -> Result Decode.Error (List Comment)
+decodeCommentList =
+    Decode.decodeValue <|
+        Decode.list commentDecoder
+
+
+encodeCommentData : Comment -> Encode.Value
+encodeCommentData comment =
+    Encode.object
+        [ ( "profile", Encode.string comment.profile )
+        , ( "video", Encode.string comment.video )
+        , ( "comment", Encode.string comment.comment )
         ]

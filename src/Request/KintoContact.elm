@@ -24,5 +24,5 @@ getContactList : Request.Kinto.AuthClient -> (Result Kinto.Error Data.Kinto.Cont
 getContactList (Request.Kinto.AuthClient client) message =
     client
         |> Kinto.getList recordResource
-        |> Kinto.sort [ "-creation_date" ]
+        |> Kinto.sort [ "-last_modified" ]
         |> Kinto.send message

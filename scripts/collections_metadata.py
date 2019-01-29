@@ -136,6 +136,74 @@ THUMBNAILS_METADATA = {
     },
 }
 
+PROFILES_METADATA = {
+    "permissions": {
+        "read": ["system.Everyone"],
+        "write": ["account:classea12admin"],
+        "record:create": ["system.Authenticated"],
+    },
+    "data": {
+        "sort": "name",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "Nom",
+                    "description": "Nom affiché pour cet utilisateur",
+                },
+                "bio": {
+                    "type": "string",
+                    "title": "Bio",
+                    "description": "Biographie de l'utilisateur",
+                }
+            },
+        },
+        "uiSchema": {"ui:order": ["name", "bio"]},
+        "attachment": {"enabled": True, "required": False},
+        "cache_expires": 0,
+        "displayFields": ["name", "bio"],
+        "id": "profiles",
+    },
+}
+
+
+COMMENTS_METADATA = {
+    "permissions": {
+        "read": ["system.Everyone"],
+        "write": ["account:classea12admin"],
+        "record:create": ["system.Authenticated"],
+    },
+    "data": {
+        "sort": "-last_modified,profile",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "profile": {
+                    "type": "string",
+                    "title": "Profil de l'utilisateur",
+                    "description": "ID du profil utilisateur auteur",
+                },
+                "video": {
+                    "type": "string",
+                    "title": "Vidéo",
+                    "description": "ID de la vidéo commentée",
+                },
+                "comment": {
+                    "type": "string",
+                    "title": "Commentaire",
+                    "description": "Texte du commentaire",
+                },
+            },
+        },
+        "uiSchema": {"ui:order": ["profile", "video", "comment"]},
+        "attachment": {"enabled": True, "required": False},
+        "cache_expires": 0,
+        "displayFields": ["profile", "video", "comment"],
+        "id": "comments",
+    },
+}
+
 
 def update_upcoming(client):
     data = copy.deepcopy(VIDEOS_COLLECTIONS_METADATA["data"])
@@ -168,4 +236,20 @@ def update_thumbnails(client):
         bucket="classea12",
         data=THUMBNAILS_METADATA["data"],
         permissions=THUMBNAILS_METADATA["permissions"],
+    )
+
+
+def update_profiles(client):
+    client.update_collection(
+        bucket="classea12",
+        data=PROFILES_METADATA["data"],
+        permissions=PROFILES_METADATA["permissions"],
+    )
+
+
+def update_comments(client):
+    client.update_collection(
+        bucket="classea12",
+        data=COMMENTS_METADATA["data"],
+        permissions=COMMENTS_METADATA["permissions"],
     )

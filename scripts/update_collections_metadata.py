@@ -45,6 +45,12 @@ def main():
     print("Updating the `thumbnails` collection")
     collections_metadata.update_thumbnails(client)
 
+    print("Updating the `profiles` collection")
+    collections_metadata.update_profiles(client)
+
+    print("Updating the `comments` collection")
+    collections_metadata.update_comments(client)
+
 
 if __name__ == "__main__":
     main()
