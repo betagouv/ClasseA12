@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.Kinto
-import Data.Session exposing (Session, decodeSessionData, emptyLoginForm)
+import Data.Session exposing (Session, decodeSessionData, emptyLoginForm, encodeSessionData)
 import Html exposing (..)
 import Http
 import Json.Decode as Decode
@@ -269,7 +269,13 @@ update msg ({ page, session } as model) =
                         updatedSession =
                             { session | loginForm = loginModel.loginForm, userInfo = userInfo }
                     in
-                    ( { newModel | session = updatedSession }, newCmd )
+                    ( { newModel | session = updatedSession }
+                    , Cmd.batch
+                        [ Ports.saveSession <| encodeSessionData loginModel.loginForm
+                        , Route.pushUrl model.navKey Route.Home
+                        , newCmd
+                        ]
+                    )
 
                 -- Special case: on logout, remove the credentials from the session
                 Login.Logout ->
@@ -277,7 +283,12 @@ update msg ({ page, session } as model) =
                         updatedSession =
                             { session | loginForm = emptyLoginForm, userInfo = Data.Kinto.emptyUserInfo }
                     in
-                    ( { newModel | session = updatedSession }, newCmd )
+                    ( { newModel | session = updatedSession }
+                    , Cmd.batch
+                        [ Ports.logoutSession ()
+                        , newCmd
+                        ]
+                    )
 
                 _ ->
                     ( newModel, newCmd )

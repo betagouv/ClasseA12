@@ -57,14 +57,14 @@ update session msg model =
             useLogin session.kintoURL model
 
         Logout ->
-            ( { model | loginForm = emptyLoginForm }, Ports.logoutSession () )
+            ( { model | loginForm = emptyLoginForm, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
 
         DiscardError ->
             ( { model | error = Nothing }, Cmd.none )
 
         UserInfoReceived (Ok userInfo) ->
             ( { model | error = Nothing, userInfoData = Data.Kinto.Received userInfo }
-            , Ports.saveSession <| encodeSessionData model.loginForm
+            , Cmd.none
             )
 
         UserInfoReceived (Err error) ->

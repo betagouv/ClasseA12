@@ -368,9 +368,8 @@ viewCommentForm commentForm userInfo commentData =
             , H.div [ HA.class "form__group" ]
                 [ H.label [ HA.for "comment" ]
                     [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
-                , H.input
-                    [ HA.type_ "text"
-                    , HA.id "comment"
+                , H.textarea
+                    [ HA.id "comment"
                     , HA.value commentForm.comment
                     , HE.onInput <| \comment -> UpdateCommentForm { commentForm | comment = comment }
                     ]
