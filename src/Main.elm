@@ -173,6 +173,7 @@ init flags url navKey =
         session =
             { videoData = Data.Kinto.Requested
             , loginForm = loginForm
+            , userInfo = Data.Kinto.emptyUserInfo
             , timezone = Time.utc
             , version = version
             , kintoURL = kintoURL
@@ -263,10 +264,10 @@ update msg ({ page, session } as model) =
             case loginMsg of
                 -- Special case: if we retrieved the list of upcoming video using the credentials, then they are
                 -- correct, and we can store them in the session for future use
-                Login.UserInfoReceived (Ok _) ->
+                Login.UserInfoReceived (Ok userInfo) ->
                     let
                         updatedSession =
-                            { session | loginForm = loginModel.loginForm }
+                            { session | loginForm = loginModel.loginForm, userInfo = userInfo }
                     in
                     ( { newModel | session = updatedSession }, newCmd )
 
@@ -274,7 +275,7 @@ update msg ({ page, session } as model) =
                 Login.Logout ->
                     let
                         updatedSession =
-                            { session | loginForm = emptyLoginForm }
+                            { session | loginForm = emptyLoginForm, userInfo = Data.Kinto.emptyUserInfo }
                     in
                     ( { newModel | session = updatedSession }, newCmd )
 

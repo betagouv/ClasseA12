@@ -416,10 +416,14 @@ encodeCommentData comment =
         ]
 
 
+
 ---- USER INFO ----
 
+
 type alias UserInfo =
-    { id : String }
+    { id : String
+    , profile : String
+    }
 
 
 type alias UserInfoData =
@@ -427,10 +431,13 @@ type alias UserInfoData =
 
 
 emptyUserInfo =
-    { id = "" }
+    { id = ""
+    , profile = ""
+    }
 
 
 userInfoDecoder : Decode.Decoder UserInfo
 userInfoDecoder =
     Decode.succeed UserInfo
         |> Pipeline.required "id" Decode.string
+        |> Pipeline.required "profile" Decode.string

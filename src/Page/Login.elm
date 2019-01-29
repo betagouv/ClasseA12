@@ -63,7 +63,9 @@ update session msg model =
             ( { model | error = Nothing }, Cmd.none )
 
         UserInfoReceived (Ok userInfo) ->
-            ( { model | error = Nothing, userInfoData = Data.Kinto.Received userInfo }, Cmd.none )
+            ( { model | error = Nothing, userInfoData = Data.Kinto.Received userInfo }
+            , Ports.saveSession <| encodeSessionData model.loginForm
+            )
 
         UserInfoReceived (Err error) ->
             ( { model | error = Just "Connexion échouée", userInfoData = Data.Kinto.NotRequested }, Cmd.none )
@@ -87,7 +89,7 @@ useLogin kintoURL model =
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view _ { error, loginForm, userInfoData } =
-    ( "Administration"
+    ( "Connexion"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
