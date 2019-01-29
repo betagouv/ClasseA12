@@ -18,6 +18,7 @@ type ActivePage
     | PrivacyPolicy
     | Admin
     | Video
+    | Login
     | NotFound
 
 

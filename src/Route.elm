@@ -18,6 +18,7 @@ type Route
     | PrivacyPolicy
     | Admin
     | Video String String
+    | Login
 
 
 parser : Parser (Route -> a) a
@@ -32,6 +33,7 @@ parser =
         , Parser.map PrivacyPolicy (Parser.s "PolitiqueConfidentialite")
         , Parser.map Admin (Parser.s "admin")
         , Parser.map Video (Parser.s "video" </> Parser.string </> Parser.string)
+        , Parser.map Login (Parser.s "connexion")
         ]
 
 
@@ -86,5 +88,8 @@ toString route =
                         |> String.replace "." ""
                         |> Url.percentEncode
                     ]
+
+                Login ->
+                    [ "connexion" ]
     in
     "/" ++ String.join "/" pieces

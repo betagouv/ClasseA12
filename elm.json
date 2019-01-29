@@ -18,6 +18,7 @@
             "elm/url": "1.0.0",
             "elm-community/random-extra": "3.0.0",
             "elm-explorations/markdown": "1.0.0",
+            "lukewestby/elm-http-builder": "6.0.0",
             "mcordova47/elm-natural-ordering": "1.0.5"
         },
         "indirect": {
@@ -25,7 +26,6 @@
             "elm/virtual-dom": "1.0.0",
             "elm-community/dict-extra": "2.4.0",
             "kuon/elm-string-normalize": "1.0.1",
-            "lukewestby/elm-http-builder": "6.0.0",
             "truqu/elm-base64": "2.0.4"
         }
     },

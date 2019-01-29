@@ -12,6 +12,8 @@ module Data.Kinto exposing
     , Profile
     , ProfileList
     , ProfileListData
+    , UserInfo
+    , UserInfoData
     , Video
     , VideoList
     , VideoListData
@@ -27,6 +29,7 @@ module Data.Kinto exposing
     , emptyContact
     , emptyNewVideo
     , emptyProfile
+    , emptyUserInfo
     , emptyVideo
     , encodeAttachmentData
     , encodeCommentData
@@ -36,6 +39,7 @@ module Data.Kinto exposing
     , encodeVideoData
     , keywordList
     , profileDecoder
+    , userInfoDecoder
     , videoDecoder
     )
 
@@ -410,3 +414,23 @@ encodeCommentData comment =
         , ( "video", Encode.string comment.video )
         , ( "comment", Encode.string comment.comment )
         ]
+
+
+---- USER INFO ----
+
+type alias UserInfo =
+    { id : String }
+
+
+type alias UserInfoData =
+    KintoData UserInfo
+
+
+emptyUserInfo =
+    { id = "" }
+
+
+userInfoDecoder : Decode.Decoder UserInfo
+userInfoDecoder =
+    Decode.succeed UserInfo
+        |> Pipeline.required "id" Decode.string

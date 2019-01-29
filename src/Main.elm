@@ -14,6 +14,7 @@ import Page.Admin as Admin
 import Page.CGU as CGU
 import Page.Convention as Convention
 import Page.Home as Home
+import Page.Login as Login
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
@@ -42,6 +43,7 @@ type Page
     | PrivacyPolicyPage PrivacyPolicy.Model
     | AdminPage Admin.Model
     | VideoPage Video.Model
+    | LoginPage Login.Model
     | NotFound
 
 
@@ -62,6 +64,7 @@ type Msg
     | PrivacyPolicyMsg PrivacyPolicy.Msg
     | AdminMsg Admin.Msg
     | VideoMsg Video.Msg
+    | LoginMsg Login.Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | NewTimestamp Time.Posix
@@ -136,6 +139,9 @@ setRoute url oldModel =
 
         Just (Route.Video videoID title) ->
             toPage VideoPage (Video.init videoID title) VideoMsg
+
+        Just Route.Login ->
+            toPage LoginPage Login.init LoginMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -249,6 +255,32 @@ update msg ({ page, session } as model) =
         ( VideoMsg videoMsg, VideoPage videoModel ) ->
             toPage VideoPage VideoMsg (Video.update session) videoMsg videoModel
 
+        ( LoginMsg loginMsg, LoginPage loginModel ) ->
+            let
+                ( newModel, newCmd ) =
+                    toPage LoginPage LoginMsg (Login.update session) loginMsg loginModel
+            in
+            case loginMsg of
+                -- Special case: if we retrieved the list of upcoming video using the credentials, then they are
+                -- correct, and we can store them in the session for future use
+                Login.UserInfoReceived (Ok _) ->
+                    let
+                        updatedSession =
+                            { session | loginForm = loginModel.loginForm }
+                    in
+                    ( { newModel | session = updatedSession }, newCmd )
+
+                -- Special case: on logout, remove the credentials from the session
+                Login.Logout ->
+                    let
+                        updatedSession =
+                            { session | loginForm = emptyLoginForm }
+                    in
+                    ( { newModel | session = updatedSession }, newCmd )
+
+                _ ->
+                    ( newModel, newCmd )
+
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
@@ -356,6 +388,9 @@ subscriptions model =
             VideoPage _ ->
                 Sub.none
 
+            LoginPage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -419,6 +454,11 @@ view model =
             Video.view model.session videoModel
                 |> mapMsg VideoMsg
                 |> Page.frame (pageConfig Page.Video)
+
+        LoginPage loginModel ->
+            Login.view model.session loginModel
+                |> mapMsg LoginMsg
+                |> Page.frame (pageConfig Page.Login)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )
