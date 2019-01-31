@@ -207,7 +207,8 @@ viewVideoDetails timezone url navigatorShare video =
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.title
 
-        shareUrl = Url.toString url
+        shareUrl =
+            Url.toString url
 
         navigatorShareButton =
             if navigatorShare then
@@ -334,12 +335,7 @@ viewCommentDetails timezone contributorsData comment =
 viewCommentForm : Data.Kinto.Comment -> Data.Session.UserData -> Data.Kinto.KintoData Data.Kinto.Comment -> H.Html Msg
 viewCommentForm commentForm userData commentData =
     if not <| Data.Session.isLoggedIn userData then
-        H.div []
-            [ H.p []
-                [ H.text "Pour ajouter une contribution veuillez vous "
-                , H.a [ Route.href Route.Login ] [ H.text "connecter" ]
-                ]
-            ]
+        Page.Utils.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
     else
         let

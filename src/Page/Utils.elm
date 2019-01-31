@@ -9,6 +9,7 @@ module Page.Utils exposing
     , posixToDate
     , submitButton
     , successNotification
+    , viewConnectNow
     , viewPublicVideo
     , viewVideo
     , viewVideoModal
@@ -321,3 +322,13 @@ onChange tagger =
 optgroup : String -> List (H.Html msg) -> H.Html msg
 optgroup label nodes =
     H.optgroup [ HA.property "label" <| Encode.string label ] nodes
+
+
+viewConnectNow : String -> String -> H.Html msg
+viewConnectNow label linkLabel =
+        H.div [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ H.text label
+                , H.a [ Route.href Route.Login ] [ H.text linkLabel ]
+                ]
+            ]

@@ -206,12 +206,7 @@ view { timezone, userData } { errorList, videoListData, contactListData, publish
                             ]
 
               else
-                H.div [ HA.class "section section-white" ]
-                    [ H.div [ HA.class "container" ]
-                        [ H.text "Pour accéder à cette page veuillez vous "
-                        , H.a [ Route.href Route.Login ] [ H.text "connecter" ]
-                        ]
-                    ]
+                Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
             ]
       ]
     )
