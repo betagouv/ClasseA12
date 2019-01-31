@@ -4,6 +4,7 @@ module Data.Session exposing
     , decodeUserData
     , emptyUserData
     , encodeUserData
+    , isLoggedIn
     )
 
 import Data.Kinto
@@ -40,6 +41,11 @@ emptyUserData =
     , userID = ""
     , profile = ""
     }
+
+
+isLoggedIn : UserData -> Bool
+isLoggedIn userData =
+    userData /= emptyUserData
 
 
 encodeUserData : UserData -> Encode.Value

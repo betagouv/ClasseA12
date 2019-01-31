@@ -70,6 +70,7 @@ type Msg
     | NewTimestamp Time.Posix
     | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
     | AdjustTimeZone Time.Zone
+    | Logout
 
 
 setRoute : Url -> Model -> ( Model, Cmd Msg )
@@ -340,6 +341,13 @@ update msg ({ page, session } as model) =
             in
             ( { model | session = { modelSession | timezone = zone } }, Cmd.none )
 
+        ( Logout, _ ) ->
+            let
+                updatedSession =
+                    { session | userData = emptyUserData }
+            in
+            ( { model | session = updatedSession }, Ports.logoutSession () )
+
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -408,7 +416,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session
+            Page.Config model.session Logout
 
         mapMsg msg ( title, content ) =
             ( title, content |> List.map (Html.map msg) )

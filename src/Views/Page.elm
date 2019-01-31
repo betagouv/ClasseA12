@@ -1,7 +1,7 @@
 module Views.Page exposing (ActivePage(..), Config, frame)
 
 import Browser exposing (Document)
-import Data.Session exposing (Session)
+import Data.Session exposing (Session, isLoggedIn)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, src, title)
 import Html.Events exposing (onClick)
@@ -22,13 +22,14 @@ type ActivePage
     | NotFound
 
 
-type alias Config =
+type alias Config msg =
     { session : Session
+    , logoutMsg : msg
     , activePage : ActivePage
     }
 
 
-frame : Config -> ( String, List (Html.Html msg) ) -> Document msg
+frame : Config msg -> ( String, List (Html.Html msg) ) -> Document msg
 frame config ( title, content ) =
     { title = title ++ " | Classe à 12"
     , body =
@@ -38,9 +39,26 @@ frame config ( title, content ) =
     }
 
 
-viewHeader : Config -> Html msg
-viewHeader { activePage } =
+viewHeader : Config msg -> Html msg
+viewHeader { activePage, session, logoutMsg } =
     let
+        loginIcon =
+            a [ Route.href Route.Login, title "Se connecter" ]
+                [ i [ class "fas fa-sign-in-alt" ] []
+                ]
+
+        logoutIcon =
+            button [ class "button-link", onClick logoutMsg, title "Se déconnecter" ]
+                [ i [ class "fas fa-sign-out-alt" ] []
+                ]
+
+        loginLogoutIcon =
+            if isLoggedIn session.userData then
+                logoutIcon
+
+            else
+                loginIcon
+
         linkMaybeActive page route caption =
             li [ class "nav__item" ]
                 [ a
@@ -74,6 +92,7 @@ viewHeader { activePage } =
                     , linkMaybeActive About Route.About "Classe à 12 ?"
                     , linkMaybeActive Participate Route.Participate "Je participe !"
                     , linkMaybeActive Newsletter Route.Newsletter "Inscrivez-vous à notre infolettre"
+                    , li [ class "nav__item" ] [ loginLogoutIcon ]
                     ]
                 ]
             ]
