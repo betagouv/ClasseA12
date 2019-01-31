@@ -27,6 +27,7 @@ type alias Model =
     , contributors : Data.Kinto.KintoData Data.Kinto.ProfileList
     , commentForm : Data.Kinto.Comment
     , commentData : Data.Kinto.KintoData Data.Kinto.Comment
+    , refreshing : Bool
     }
 
 
@@ -49,6 +50,7 @@ init videoID title session =
       , contributors = Data.Kinto.NotRequested
       , commentForm = Data.Kinto.emptyComment
       , commentData = Data.Kinto.NotRequested
+      , refreshing = False
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
@@ -83,7 +85,16 @@ update session msg model =
             ( { model | comments = Data.Kinto.Failed error }, Cmd.none )
 
         ContributorsReceived (Ok contributors) ->
-            ( { model | contributors = Data.Kinto.Received contributors }, Cmd.none )
+            ( { model
+                | contributors = Data.Kinto.Received contributors
+
+                -- If we were refreshing the comments and contributors data, it's now done.
+                , refreshing = False
+                , commentData = Data.Kinto.NotRequested
+                , commentForm = Data.Kinto.emptyComment
+              }
+            , Cmd.none
+            )
 
         ContributorsReceived (Err error) ->
             ( { model | contributors = Data.Kinto.Failed error }, Cmd.none )
@@ -107,14 +118,20 @@ update session msg model =
             )
 
         CommentAdded (Ok comment) ->
-            ( { model | commentData = Data.Kinto.Received comment }, Cmd.none )
+            ( { model
+                | commentData = Data.Kinto.Received comment
+                , refreshing = True
+              }
+              -- Refresh the list of comments (and then contributors)
+            , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+            )
 
         CommentAdded (Err error) ->
             ( { model | commentData = Data.Kinto.Failed error }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData } =
+view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -133,11 +150,8 @@ view { timezone, navigatorShare, url, userData } { video, title, comments, contr
                     [ viewVideo timezone url navigatorShare video
                     ]
                 , H.div [ HA.class "container" ]
-                    [ viewComments timezone comments contributors commentData
+                    [ viewComments timezone comments contributors
                     , case commentData of
-                        Data.Kinto.Received comment ->
-                            H.div [] [ H.text "Merci de votre contribution !" ]
-
                         Data.Kinto.Failed error ->
                             H.div []
                                 [ H.text "Erreur lors de l'ajout de la contribution : "
@@ -145,7 +159,7 @@ view { timezone, navigatorShare, url, userData } { video, title, comments, contr
                                 ]
 
                         _ ->
-                            viewCommentForm commentForm userData commentData
+                            viewCommentForm commentForm userData refreshing commentData
                     ]
                 ]
             ]
@@ -277,26 +291,15 @@ viewComments :
     Time.Zone
     -> Data.Kinto.KintoData Data.Kinto.CommentList
     -> Data.Kinto.KintoData Data.Kinto.ProfileList
-    -> Data.Kinto.KintoData Data.Kinto.Comment
     -> H.Html Msg
-viewComments timezone commentsData contributorsData commentData =
-    let
-        addedComment =
-            case commentData of
-                Data.Kinto.Received comment ->
-                    -- If a new comment was just added, display it.
-                    [ comment ]
-
-                _ ->
-                    []
-    in
+viewComments timezone commentsData contributorsData =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.Kinto.Received comments ->
                 H.div [ HA.class "comment-wrapper" ]
                     [ H.h3 [] [ H.text "Contributions" ]
                     , H.ul [ HA.class "comment-list" ]
-                        ((comments.objects ++ addedComment)
+                        (comments.objects
                             |> List.map (viewCommentDetails timezone contributorsData)
                         )
                     ]
@@ -332,8 +335,13 @@ viewCommentDetails timezone contributorsData comment =
         ]
 
 
-viewCommentForm : Data.Kinto.Comment -> Data.Session.UserData -> Data.Kinto.KintoData Data.Kinto.Comment -> H.Html Msg
-viewCommentForm commentForm userData commentData =
+viewCommentForm :
+    Data.Kinto.Comment
+    -> Data.Session.UserData
+    -> Bool
+    -> Data.Kinto.KintoData Data.Kinto.Comment
+    -> H.Html Msg
+viewCommentForm commentForm userData refreshing commentData =
     if not <| Data.Session.isLoggedIn userData then
         Page.Utils.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
@@ -347,6 +355,13 @@ viewCommentForm commentForm userData commentData =
                     case commentData of
                         Data.Kinto.Requested ->
                             Page.Utils.Loading
+
+                        Data.Kinto.Received _ ->
+                            if refreshing then
+                                Page.Utils.Loading
+
+                            else
+                                Page.Utils.NotLoading
 
                         _ ->
                             Page.Utils.NotLoading
