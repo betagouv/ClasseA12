@@ -84,7 +84,7 @@ setRoute url oldModel =
 
         model =
             -- Save the current URL.
-            { oldModel | session = { session | url = url } }
+            { oldModel | session = { session | prevUrl = session.url, url = url } }
 
         toPage page subInit subMsg =
             let
@@ -180,6 +180,7 @@ init flags url navKey =
             , timestamp = Time.millisToPosix 0
             , navigatorShare = navigatorShare
             , url = url
+            , prevUrl = url
             }
 
         ( routeModel, routeCmd ) =
@@ -255,7 +256,7 @@ update msg ({ page, session } as model) =
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
                         [ Ports.saveSession <| encodeUserData userData
-                        , Route.pushUrl model.navKey Route.Home
+                        , Nav.pushUrl model.navKey <| Url.toString session.prevUrl
                         , newCmd
                         ]
                     )

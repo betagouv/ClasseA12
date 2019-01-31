@@ -23,6 +23,7 @@ type alias Session =
     , timestamp : Time.Posix
     , navigatorShare : Bool
     , url : Url
+    , prevUrl : Url
     }
 
 
