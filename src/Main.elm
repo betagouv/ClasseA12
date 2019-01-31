@@ -252,13 +252,21 @@ update msg ({ page, session } as model) =
 
                         updatedSession =
                             { session | userData = userData }
+
+                        redirectCmd =
+                            if session.prevUrl /= session.url then
+                                [ Nav.pushUrl model.navKey <| Url.toString session.prevUrl ]
+
+                            else
+                                [ Route.pushUrl model.navKey Route.Home ]
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
-                        [ Ports.saveSession <| encodeUserData userData
-                        , Nav.pushUrl model.navKey <| Url.toString session.prevUrl
-                        , newCmd
-                        ]
+                        ([ Ports.saveSession <| encodeUserData userData
+                         , newCmd
+                         ]
+                            ++ redirectCmd
+                        )
                     )
 
                 _ ->
