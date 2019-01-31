@@ -37,7 +37,7 @@ init session =
             }
 
         modelAndCommands =
-            if session.userData /= Data.Session.emptyUserData then
+            if Data.Session.isLoggedIn session.userData then
                 useLogin session.kintoURL initialModel
 
             else

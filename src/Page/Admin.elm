@@ -1,7 +1,7 @@
 module Page.Admin exposing (Model, Msg(..), init, update, view)
 
 import Data.Kinto exposing (ContactList, ContactListData, DeletedRecord, Video, VideoList, VideoListData)
-import Data.Session exposing (UserData, Session, decodeUserData, emptyUserData, encodeUserData)
+import Data.Session exposing (Session, UserData, decodeUserData, emptyUserData, encodeUserData)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -12,13 +12,13 @@ import Request.Kinto exposing (authClient)
 import Request.KintoContact
 import Request.KintoUpcoming
 import Request.KintoVideo
+import Route
 import Time
 import Url
 
 
 type alias Model =
-    { loginForm : UserData
-    , videoListData : VideoListData
+    { videoListData : VideoListData
     , contactListData : ContactListData
     , errorList : List String
     , publishingVideos : PublishingVideos
@@ -31,10 +31,7 @@ type alias PublishingVideos =
 
 
 type Msg
-    = UpdateLoginForm UserData
-    | Login
-    | Logout
-    | VideoListFetched (Result Kinto.Error VideoList)
+    = VideoListFetched (Result Kinto.Error VideoList)
     | ContactListFetched (Result Kinto.Error ContactList)
     | DiscardError Int
     | PublishVideo Video
@@ -47,8 +44,7 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     let
         initialModel =
-            { loginForm = session.userData
-            , videoListData = Data.Kinto.NotRequested
+            { videoListData = Data.Kinto.NotRequested
             , contactListData = Data.Kinto.NotRequested
             , errorList = []
             , publishingVideos = []
@@ -56,8 +52,20 @@ init session =
             }
 
         modelAndCommands =
-            if session.userData /= Data.Session.emptyUserData then
-                useLogin session.kintoURL initialModel
+            if Data.Session.isLoggedIn session.userData then
+                let
+                    client =
+                        authClient session.kintoURL session.userData.username session.userData.password
+                in
+                ( { initialModel
+                    | videoListData = Data.Kinto.Requested
+                    , contactListData = Data.Kinto.Requested
+                  }
+                , Cmd.batch
+                    [ Request.KintoUpcoming.getVideoList client VideoListFetched
+                    , Request.KintoContact.getContactList client ContactListFetched
+                    ]
+                )
 
             else
                 ( initialModel, Cmd.none )
@@ -68,15 +76,6 @@ init session =
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
-        UpdateLoginForm loginForm ->
-            ( { model | loginForm = loginForm }, Cmd.none )
-
-        Login ->
-            useLogin session.kintoURL model
-
-        Logout ->
-            ( { model | loginForm = emptyUserData, videoListData = Data.Kinto.NotRequested }, Ports.logoutSession () )
-
         VideoListFetched (Ok videoList) ->
             ( { model | videoListData = Data.Kinto.Received videoList }, Cmd.none )
 
@@ -176,32 +175,8 @@ update session msg model =
             ( { model | activeVideo = activeVideo }, Cmd.none )
 
 
-isLoginFormComplete : UserData -> Bool
-isLoginFormComplete loginForm =
-    loginForm.username /= "" && loginForm.password /= ""
-
-
-useLogin : String -> Model -> ( Model, Cmd Msg )
-useLogin kintoURL model =
-    if isLoginFormComplete model.loginForm then
-        let
-            client =
-                authClient kintoURL model.loginForm.username model.loginForm.password
-        in
-        ( { model | videoListData = Data.Kinto.Requested }
-        , Cmd.batch
-            [ Request.KintoUpcoming.getVideoList client VideoListFetched
-            , Request.KintoContact.getContactList client ContactListFetched
-            , Ports.saveSession <| encodeUserData model.loginForm
-            ]
-        )
-
-    else
-        ( model, Cmd.none )
-
-
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone } { errorList, videoListData, contactListData, loginForm, publishingVideos, activeVideo } =
+view { timezone, userData } { errorList, videoListData, contactListData, publishingVideos, activeVideo } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -212,29 +187,31 @@ view { timezone } { errorList, videoListData, contactListData, loginForm, publis
             ]
       , H.div [ HA.class "main" ]
             [ Page.Utils.errorList errorList DiscardError
-            , case videoListData of
-                Data.Kinto.Received videoList ->
-                    H.section [ HA.class "section section-grey cards" ]
-                        [ H.div [ HA.class "container" ]
-                            ([ H.div [ HA.class "form__group logout-button" ]
-                                [ H.button
-                                    [ HA.class "button logout-button warning large"
-                                    , HE.onClick Logout
-                                    ]
-                                    [ H.text "Se déconnecter" ]
-                                , H.text " "
-                                , downloadContacts contactListData
-                                ]
-                             ]
-                                ++ viewVideoList timezone publishingVideos activeVideo videoList
-                            )
-                        ]
+            , if Data.Session.isLoggedIn userData then
+                case videoListData of
+                    Data.Kinto.Received videoList ->
+                        H.section [ HA.class "section section-grey cards" ]
+                            [ H.div [ HA.class "container" ]
+                                ([ H.div [ HA.class "form__group logout-button" ]
+                                    [ downloadContacts contactListData ]
+                                 ]
+                                    ++ viewVideoList timezone publishingVideos activeVideo videoList
+                                )
+                            ]
 
-                _ ->
-                    H.div [ HA.class "section section-white" ]
-                        [ H.div [ HA.class "container" ]
-                            [ viewLoginForm loginForm videoListData ]
+                    _ ->
+                        H.div [ HA.class "section section-white" ]
+                            [ H.div [ HA.class "container" ]
+                                [ H.text "Chargement des vidéos et des contacts en cours..." ]
+                            ]
+
+              else
+                H.div [ HA.class "section section-white" ]
+                    [ H.div [ HA.class "container" ]
+                        [ H.text "Pour accéder à cette page veuillez vous "
+                        , H.a [ Route.href Route.Login ] [ H.text "connecter" ]
                         ]
+                    ]
             ]
       ]
     )
@@ -298,50 +275,3 @@ contactListHref contactList =
         |> Url.percentEncode
         |> (++) "data:text/csv;charset=utf-8,"
         |> HA.href
-
-
-viewLoginForm : UserData -> VideoListData -> H.Html Msg
-viewLoginForm loginForm videoListData =
-    let
-        formComplete =
-            isLoginFormComplete loginForm
-
-        buttonState =
-            if formComplete then
-                case videoListData of
-                    Data.Kinto.Requested ->
-                        Page.Utils.Loading
-
-                    _ ->
-                        Page.Utils.NotLoading
-
-            else
-                Page.Utils.Disabled
-
-        submitButton =
-            Page.Utils.submitButton "Utiliser ces identifiants" buttonState
-    in
-    H.form
-        [ HE.onSubmit Login ]
-        [ H.h1 [] [ H.text "Formulaire de connexion" ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "username" ] [ H.text "Username" ]
-            , H.input
-                [ HA.type_ "text"
-                , HA.id "username"
-                , HA.value loginForm.username
-                , HE.onInput <| \username -> UpdateLoginForm { loginForm | username = username }
-                ]
-                []
-            ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "password" ] [ H.text "Password" ]
-            , H.input
-                [ HA.type_ "password"
-                , HA.value loginForm.password
-                , HE.onInput <| \password -> UpdateLoginForm { loginForm | password = password }
-                ]
-                []
-            ]
-        , submitButton
-        ]

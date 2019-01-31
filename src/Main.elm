@@ -228,30 +228,7 @@ update msg ({ page, session } as model) =
             toPage PrivacyPolicyPage PrivacyPolicyMsg (PrivacyPolicy.update session) privacyPolicyMsg privacyPolicyModel
 
         ( AdminMsg adminMsg, AdminPage adminModel ) ->
-            let
-                ( newModel, newCmd ) =
-                    toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
-            in
-            case adminMsg of
-                -- Special case: if we retrieved the list of upcoming video using the credentials, then they are
-                -- correct, and we can store them in the session for future use
-                Admin.VideoListFetched (Ok _) ->
-                    let
-                        updatedSession =
-                            { session | userData = adminModel.loginForm }
-                    in
-                    ( { newModel | session = updatedSession }, newCmd )
-
-                -- Special case: on logout, remove the credentials from the session
-                Admin.Logout ->
-                    let
-                        updatedSession =
-                            { session | userData = emptyUserData }
-                    in
-                    ( { newModel | session = updatedSession }, newCmd )
-
-                _ ->
-                    ( newModel, newCmd )
+            toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
 
         ( VideoMsg videoMsg, VideoPage videoModel ) ->
             toPage VideoPage VideoMsg (Video.update session) videoMsg videoModel

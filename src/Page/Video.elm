@@ -333,8 +333,7 @@ viewCommentDetails timezone contributorsData comment =
 
 viewCommentForm : Data.Kinto.Comment -> Data.Session.UserData -> Data.Kinto.KintoData Data.Kinto.Comment -> H.Html Msg
 viewCommentForm commentForm userData commentData =
-    if userData.profile == "" then
-        -- No logged in user.
+    if not <| Data.Session.isLoggedIn userData then
         H.div []
             [ H.p []
                 [ H.text "Pour ajouter une contribution veuillez vous "
