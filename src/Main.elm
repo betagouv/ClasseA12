@@ -62,7 +62,6 @@ type Msg
     | PrivacyPolicyMsg PrivacyPolicy.Msg
     | AdminMsg Admin.Msg
     | VideoMsg Video.Msg
-    | RouteChanged (Maybe Route)
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | NewTimestamp Time.Posix
@@ -70,9 +69,19 @@ type Msg
     | AdjustTimeZone Time.Zone
 
 
-setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
-setRoute maybeRoute model =
+setRoute : Url -> Model -> ( Model, Cmd Msg )
+setRoute url oldModel =
     let
+        maybeRoute =
+            Route.fromUrl url
+
+        session =
+            oldModel.session
+
+        model =
+            -- Save the current URL.
+            { oldModel | session = { session | url = url } }
+
         toPage page subInit subMsg =
             let
                 ( subModel, subCmds ) =
@@ -163,10 +172,11 @@ init flags url navKey =
             , kintoURL = kintoURL
             , timestamp = Time.millisToPosix 0
             , navigatorShare = navigatorShare
+            , url = url
             }
 
         ( routeModel, routeCmd ) =
-            setRoute (Route.fromUrl url)
+            setRoute url
                 { navKey = navKey
                 , page = HomePage (Home.init session |> (\( model, _ ) -> model))
                 , session = session
@@ -239,9 +249,6 @@ update msg ({ page, session } as model) =
         ( VideoMsg videoMsg, VideoPage videoModel ) ->
             toPage VideoPage VideoMsg (Video.update session) videoMsg videoModel
 
-        ( RouteChanged route, _ ) ->
-            setRoute route model
-
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
@@ -267,7 +274,7 @@ update msg ({ page, session } as model) =
                     )
 
         ( UrlChanged url, _ ) ->
-            setRoute (Route.fromUrl url) model
+            setRoute url model
 
         ( NewTimestamp timestamp, _ ) ->
             let

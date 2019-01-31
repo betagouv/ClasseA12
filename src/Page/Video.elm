@@ -12,7 +12,7 @@ import Page.Utils
 import Ports
 import Request.KintoVideo
 import Time
-import Url
+import Url exposing (Url)
 
 
 type alias Model =
@@ -51,7 +51,7 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare } { video, title } =
+view { timezone, navigatorShare, url } { video, title } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -67,7 +67,7 @@ view { timezone, navigatorShare } { video, title } =
       , H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ viewVideo timezone navigatorShare video
+                    [ viewVideo timezone url navigatorShare video
                     ]
                 ]
             ]
@@ -85,11 +85,11 @@ viewTitle videoData =
             H.p [] []
 
 
-viewVideo : Time.Zone -> Bool -> Data.Kinto.KintoData Data.Kinto.Video -> H.Html Msg
-viewVideo timezone navigatorShare videoData =
+viewVideo : Time.Zone -> Url -> Bool -> Data.Kinto.KintoData Data.Kinto.Video -> H.Html Msg
+viewVideo timezone url navigatorShare videoData =
     case videoData of
         Data.Kinto.Received video ->
-            viewVideoDetails timezone navigatorShare video
+            viewVideoDetails timezone url navigatorShare video
 
         Data.Kinto.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -98,8 +98,8 @@ viewVideo timezone navigatorShare videoData =
             H.p [] [ H.text "Vidéo non trouvée" ]
 
 
-viewVideoDetails : Time.Zone -> Bool -> Data.Kinto.Video -> H.Html Msg
-viewVideoDetails timezone navigatorShare video =
+viewVideoDetails : Time.Zone -> Url -> Bool -> Data.Kinto.Video -> H.Html Msg
+viewVideoDetails timezone url navigatorShare video =
     let
         keywordsNode =
             if video.keywords /= [] then
@@ -128,6 +128,8 @@ viewVideoDetails timezone navigatorShare video =
 
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.title
+
+        shareUrl = Url.toString url
 
         navigatorShareButton =
             if navigatorShare then
@@ -162,7 +164,7 @@ viewVideoDetails timezone navigatorShare video =
                     ]
                  , H.li []
                     [ H.a
-                        [ HA.href <| "whatsapp://send?text=" ++ shareText
+                        [ HA.href <| "whatsapp://send?text=" ++ shareText ++ " : " ++ shareUrl
                         , HA.property "data-action" (Encode.string "share/whatsapp/share")
                         , HA.title "Partager la vidéo par whatsapp"
                         ]

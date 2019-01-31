@@ -10,6 +10,7 @@ import Data.Kinto
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Time
+import Url exposing (Url)
 
 
 type alias Session =
@@ -20,6 +21,7 @@ type alias Session =
     , kintoURL : String
     , timestamp : Time.Posix
     , navigatorShare : Bool
+    , url : Url
     }
 
 
