@@ -91,6 +91,10 @@ viewHeader { activePage, session, logoutMsg } =
                     [ linkMaybeActive Home Route.Home "Nos vidéos"
                     , linkMaybeActive About Route.About "Classe à 12 ?"
                     , linkMaybeActive Participate Route.Participate "Je participe !"
+                    , li [ class "nav__item" ]
+                        [ a [ href "mailto:contact@classea12.beta.gouv.fr?subject=Classes à 12 sur beta.gouv.fr" ]
+                            [ text "Contactez-nous" ]
+                        ]
                     , linkMaybeActive Newsletter Route.Newsletter "Inscrivez-vous à notre infolettre"
                     , li [ class "nav__item" ] [ loginLogoutIcon ]
                     ]
