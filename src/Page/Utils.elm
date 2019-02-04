@@ -5,6 +5,7 @@ module Page.Utils exposing
     , errorNotification
     , notification
     , onChange
+    , onFileSelected
     , optgroup
     , posixToDate
     , submitButton
@@ -326,9 +327,14 @@ optgroup label nodes =
 
 viewConnectNow : String -> String -> H.Html msg
 viewConnectNow label linkLabel =
-        H.div [ HA.class "section section-white" ]
-            [ H.div [ HA.class "container" ]
-                [ H.text label
-                , H.a [ Route.href Route.Login ] [ H.text linkLabel ]
-                ]
+    H.div [ HA.class "section section-white" ]
+        [ H.div [ HA.class "container" ]
+            [ H.text label
+            , H.a [ Route.href Route.Login ] [ H.text linkLabel ]
             ]
+        ]
+
+
+onFileSelected : msg -> H.Attribute msg
+onFileSelected msg =
+    HE.on "change" (Decode.succeed msg)

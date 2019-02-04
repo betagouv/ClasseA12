@@ -298,7 +298,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                     , HA.type_ "file"
                     , HA.id "video"
                     , HA.accept "video/*"
-                    , onFileSelected VideoSelected
+                    , Page.Utils.onFileSelected VideoSelected
                     ]
                     []
                 , H.span [ HA.class "file-cta" ]
@@ -505,10 +505,6 @@ formInput input id label placeholder value onInput isVisible =
             ]
             []
         ]
-
-
-onFileSelected msg =
-    HE.on "change" (Decode.succeed VideoSelected)
 
 
 randomString : Random.Generator String

@@ -39,6 +39,7 @@ type Msg
     | UpdateCommentForm Data.Kinto.Comment
     | AddComment
     | CommentAdded (Result Kinto.Error Data.Kinto.Comment)
+    | AttachmentSelected
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -128,6 +129,9 @@ update session msg model =
 
         CommentAdded (Err error) ->
             ( { model | commentData = Data.Kinto.Failed error }, Cmd.none )
+
+        AttachmentSelected ->
+            ( model, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
@@ -382,6 +386,18 @@ viewCommentForm commentForm userData refreshing commentData =
                     [ HA.id "comment"
                     , HA.value commentForm.comment
                     , HE.onInput <| \comment -> UpdateCommentForm { commentForm | comment = comment }
+                    ]
+                    []
+                ]
+            , H.div [ HA.class "form__group" ]
+                [ H.label [ HA.for "attachment" ]
+                    [ H.text "Envoyer un fichier image, doc..." ]
+                , H.input
+                    [ HA.class "file-input"
+                    , HA.type_ "file"
+                    , HA.id "attachment"
+                    , HA.accept "image/*,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    , Page.Utils.onFileSelected AttachmentSelected
                     ]
                     []
                 ]
