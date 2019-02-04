@@ -32,6 +32,7 @@ type alias Model =
     , refreshing : Bool
     , attachmentData : Data.Kinto.KintoData Data.Kinto.Attachment
     , attachmentSelected : Bool
+    , progress : Page.Utils.Progress
     }
 
 
@@ -45,6 +46,7 @@ type Msg
     | AddComment
     | CommentAdded (Result Kinto.Error Data.Kinto.Comment)
     | AttachmentSent String
+    | ProgressUpdated Decode.Value
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -59,6 +61,7 @@ init videoID title session =
       , refreshing = False
       , attachmentData = Data.Kinto.NotRequested
       , attachmentSelected = False
+      , progress = Page.Utils.emptyProgress
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
@@ -162,6 +165,14 @@ update session msg model =
         CommentAdded (Err error) ->
             ( { model | commentData = Data.Kinto.Failed error }, Cmd.none )
 
+        ProgressUpdated value ->
+            let
+                progress =
+                    Decode.decodeValue Page.Utils.progressDecoder value
+                        |> Result.withDefault Page.Utils.emptyProgress
+            in
+            ( { model | progress = progress }, Cmd.none )
+
         AttachmentSent response ->
             let
                 result =
@@ -189,6 +200,7 @@ update session msg model =
                 , commentForm = Data.Kinto.emptyComment
                 , attachmentData = kintoData
                 , attachmentSelected = False
+                , progress = Page.Utils.emptyProgress
               }
               -- Refresh the list of comments (and then contributors)
             , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
@@ -196,7 +208,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData } =
+view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData, progress } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -230,7 +242,7 @@ view { timezone, navigatorShare, url, userData } { video, title, comments, contr
                                 ]
 
                         _ ->
-                            viewCommentForm commentForm userData refreshing commentData attachmentData
+                            viewCommentForm commentForm userData refreshing commentData attachmentData progress
                     ]
                 ]
             ]
@@ -423,8 +435,9 @@ viewCommentForm :
     -> Bool
     -> Data.Kinto.KintoData Data.Kinto.Comment
     -> Data.Kinto.KintoData Data.Kinto.Attachment
+    -> Page.Utils.Progress
     -> H.Html Msg
-viewCommentForm commentForm userData refreshing commentData attachmentData =
+viewCommentForm commentForm userData refreshing commentData attachmentData progress =
     if not <| Data.Session.isLoggedIn userData then
         Page.Utils.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
@@ -463,29 +476,48 @@ viewCommentForm commentForm userData refreshing commentData attachmentData =
             submitButton =
                 Page.Utils.submitButton "Ajouter cette contribution" buttonState
         in
-        H.form
-            [ HE.onSubmit AddComment ]
-            [ H.h3 [] [ H.text "Ajouter une contribution" ]
-            , H.div [ HA.class "form__group" ]
-                [ H.label [ HA.for "comment" ]
-                    [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
-                , H.textarea
-                    [ HA.id "comment"
-                    , HA.value commentForm.comment
-                    , HE.onInput <| \comment -> UpdateCommentForm { commentForm | comment = comment }
+        H.div []
+            [ H.form
+                [ HE.onSubmit AddComment ]
+                [ H.h3 [] [ H.text "Ajouter une contribution" ]
+                , H.div [ HA.class "form__group" ]
+                    [ H.label [ HA.for "comment" ]
+                        [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
+                    , H.textarea
+                        [ HA.id "comment"
+                        , HA.value commentForm.comment
+                        , HE.onInput <| \comment -> UpdateCommentForm { commentForm | comment = comment }
+                        ]
+                        []
                     ]
-                    []
-                ]
-            , H.div [ HA.class "form__group" ]
-                [ H.label [ HA.for "attachment" ]
-                    [ H.text "Envoyer un fichier image, doc..." ]
-                , H.input
-                    [ HA.class "file-input"
-                    , HA.type_ "file"
-                    , HA.id "attachment"
-                    , Page.Utils.onFileSelected AttachmentSelected
+                , H.div [ HA.class "form__group" ]
+                    [ H.label [ HA.for "attachment" ]
+                        [ H.text "Envoyer un fichier image, doc..." ]
+                    , H.input
+                        [ HA.class "file-input"
+                        , HA.type_ "file"
+                        , HA.id "attachment"
+                        , Page.Utils.onFileSelected AttachmentSelected
+                        ]
+                        []
                     ]
-                    []
+                , submitButton
                 ]
-            , submitButton
+            , H.div
+                [ HA.classList
+                    [ ( "modal__backdrop", True )
+                    , ( "is-active", attachmentData == Data.Kinto.Requested )
+                    ]
+                ]
+                [ H.div [ HA.class "modal" ]
+                    [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
+                    , H.p [] [ H.text progress.message ]
+                    , H.progress
+                        [ HA.class "is-large"
+                        , HA.value <| String.fromInt progress.percentage
+                        , HA.max "100"
+                        ]
+                        [ H.text <| String.fromInt progress.percentage ++ "%" ]
+                    ]
+                ]
             ]

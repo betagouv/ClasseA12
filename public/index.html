@@ -84,6 +84,12 @@
       return new Blob([ia], { type: mimetype });
     }
 
+    const collectionToMessage = {
+      "thumbnails": "Envoi de la miniature",
+      "upcoming": "Envoi de la vidéo",
+      "comments": "Envoi de la pièce jointe",
+    }
+
     function xhrForAttachment(collection, recordID, credentials, errorCallback) {
       // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
       let xhr = new XMLHttpRequest();
@@ -91,7 +97,7 @@
       xhr.upload.addEventListener("progress", function (event) {
         if (event.lengthComputable) {
           const percentage = Math.round(event.loaded * 100 / event.total);
-          const message = collection == "thumbnails" ? "Envoi de la miniature" : "Envoi de la vidéo";
+          const message = collectionToMessage[collection];
           app.ports.progressUpdate.send({ "percentage": percentage, "message": message });
         }
       }, false);

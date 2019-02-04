@@ -384,8 +384,12 @@ subscriptions model =
                 Sub.none
 
             VideoPage _ ->
-                Ports.attachmentSubmitted Video.AttachmentSent
-                    |> Platform.Sub.map VideoMsg
+                Sub.batch
+                    ([ Ports.attachmentSubmitted Video.AttachmentSent
+                     , Ports.progressUpdate Video.ProgressUpdated
+                     ]
+                        |> List.map (Platform.Sub.map VideoMsg)
+                    )
 
             LoginPage _ ->
                 Sub.none

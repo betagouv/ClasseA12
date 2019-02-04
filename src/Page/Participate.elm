@@ -8,7 +8,6 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Json.Decode as Decode
-import Json.Decode.Pipeline as Pipeline
 import Kinto
 import Page.Utils
 import Ports
@@ -25,7 +24,7 @@ type alias Model =
     { newVideo : NewVideo
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
-    , progress : Progress
+    , progress : Page.Utils.Progress
     , approved : Bool
     , preSelectedKeywords : Keywords
     , freeformKeywords : String
@@ -41,17 +40,6 @@ noKeywords =
     Data.Kinto.keywordList
         |> List.map (\( keyword, _ ) -> ( keyword, False ))
         |> Dict.fromList
-
-
-type alias Progress =
-    { percentage : Int
-    , message : String
-    }
-
-
-emptyProgress : Progress
-emptyProgress =
-    { percentage = 0, message = "" }
 
 
 type Credentials
@@ -78,7 +66,7 @@ init session =
     ( { newVideo = emptyNewVideo
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
-      , progress = emptyProgress
+      , progress = Page.Utils.emptyProgress
       , approved = False
       , preSelectedKeywords = noKeywords
       , freeformKeywords = ""
@@ -157,14 +145,9 @@ update _ msg model =
 
         ProgressUpdated value ->
             let
-                progressDecoder =
-                    Decode.succeed Progress
-                        |> Pipeline.required "percentage" Decode.int
-                        |> Pipeline.required "message" Decode.string
-
                 progress =
-                    Decode.decodeValue progressDecoder value
-                        |> Result.withDefault emptyProgress
+                    Decode.decodeValue Page.Utils.progressDecoder value
+                        |> Result.withDefault Page.Utils.emptyProgress
             in
             ( { model | progress = progress }, Cmd.none )
 
@@ -205,7 +188,7 @@ update _ msg model =
                 , approved = False
                 , freeformKeywords = ""
                 , videoObjectUrl = Nothing
-                , progress = emptyProgress
+                , progress = Page.Utils.emptyProgress
               }
             , Cmd.none
             )
@@ -267,7 +250,7 @@ displaySubmitVideoForm :
         | newVideo : NewVideo
         , newVideoKintoData : KintoData Video
         , videoObjectUrl : Maybe String
-        , progress : Progress
+        , progress : Page.Utils.Progress
         , approved : Bool
         , preSelectedKeywords : Keywords
         , freeformKeywords : String
