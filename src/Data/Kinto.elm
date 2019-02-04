@@ -371,6 +371,7 @@ type alias Comment =
     , video : String
     , comment : String
     , last_modified : Time.Posix
+    , attachment : Attachment
     }
 
 
@@ -388,6 +389,7 @@ emptyComment =
     , video = ""
     , comment = ""
     , last_modified = Time.millisToPosix 0
+    , attachment = emptyAttachment
     }
 
 
@@ -399,6 +401,7 @@ commentDecoder =
         |> Pipeline.required "video" Decode.string
         |> Pipeline.required "comment" Decode.string
         |> Pipeline.required "last_modified" posixDecoder
+        |> Pipeline.optional "attachment" attachmentDecoder emptyAttachment
 
 
 decodeCommentList : Decode.Value -> Result Decode.Error (List Comment)
@@ -413,8 +416,8 @@ encodeCommentData comment =
         [ ( "profile", Encode.string comment.profile )
         , ( "video", Encode.string comment.video )
         , ( "comment", Encode.string comment.comment )
+        , ( "attachment", encodeAttachmentData comment.attachment )
         ]
-
 
 
 ---- USER INFO ----

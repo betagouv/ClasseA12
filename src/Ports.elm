@@ -1,10 +1,13 @@
 port module Ports exposing
-    ( SubmitVideoData
+    ( SubmitAttachmentData
+    , SubmitVideoData
+    , attachmentSubmitted
     , logoutSession
     , navigatorShare
     , newURL
     , progressUpdate
     , saveSession
+    , submitAttachment
     , submitVideo
     , videoObjectUrl
     , videoSelected
@@ -53,3 +56,17 @@ port logoutSession : () -> Cmd msg
 
 
 port navigatorShare : String -> Cmd msg
+
+
+type alias SubmitAttachmentData =
+    { nodeID : String
+    , commentID : String
+    , login : String
+    , password : String
+    }
+
+
+port submitAttachment : SubmitAttachmentData -> Cmd msg
+
+
+port attachmentSubmitted : (String -> msg) -> Sub msg

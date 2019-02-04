@@ -5,6 +5,8 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
+import Http
+import Json.Decode as Decode
 import Json.Encode as Encode
 import Kinto
 import Markdown
@@ -28,6 +30,7 @@ type alias Model =
     , commentForm : Data.Kinto.Comment
     , commentData : Data.Kinto.KintoData Data.Kinto.Comment
     , refreshing : Bool
+    , attachmentData : Data.Kinto.KintoData Data.Kinto.Attachment
     }
 
 
@@ -39,7 +42,7 @@ type Msg
     | UpdateCommentForm Data.Kinto.Comment
     | AddComment
     | CommentAdded (Result Kinto.Error Data.Kinto.Comment)
-    | AttachmentSelected
+    | AttachmentSent String
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -52,6 +55,7 @@ init videoID title session =
       , commentForm = Data.Kinto.emptyComment
       , commentData = Data.Kinto.NotRequested
       , refreshing = False
+      , attachmentData = Data.Kinto.NotRequested
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
@@ -114,28 +118,68 @@ update session msg model =
                 client =
                     Request.Kinto.authClient session.kintoURL session.userData.username session.userData.password
             in
-            ( { model | commentForm = updatedCommentForm }
+            ( { model
+                | commentForm = updatedCommentForm
+                , commentData = Data.Kinto.Requested
+              }
             , Request.KintoComment.submitComment client updatedCommentForm CommentAdded
             )
 
         CommentAdded (Ok comment) ->
+            let
+                submitAttachmentData : Ports.SubmitAttachmentData
+                submitAttachmentData =
+                    { nodeID = "attachment"
+                    , commentID = comment.id
+                    , login = session.userData.username
+                    , password = session.userData.password
+                    }
+            in
             ( { model
                 | commentData = Data.Kinto.Received comment
-                , refreshing = True
+                , commentForm = Data.Kinto.emptyComment
+                , attachmentData = Data.Kinto.Requested
               }
-              -- Refresh the list of comments (and then contributors)
-            , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+              -- Upload the attachment
+            , Ports.submitAttachment submitAttachmentData
             )
 
         CommentAdded (Err error) ->
             ( { model | commentData = Data.Kinto.Failed error }, Cmd.none )
 
-        AttachmentSelected ->
-            ( model, Cmd.none )
+        AttachmentSent response ->
+            let
+                result =
+                    Decode.decodeString Data.Kinto.attachmentDecoder response
+                        |> Result.mapError
+                            (\_ ->
+                                Decode.decodeString Kinto.errorDecoder response
+                                    |> Result.map
+                                        (\errorDetail ->
+                                            Kinto.KintoError errorDetail.code errorDetail.message errorDetail
+                                        )
+                                    |> Result.withDefault (Kinto.NetworkError Http.NetworkError)
+                            )
+
+                kintoData =
+                    case result of
+                        Ok attachment ->
+                            Data.Kinto.Received attachment
+
+                        Err error ->
+                            Data.Kinto.Failed error
+            in
+            ( { model
+                | refreshing = True
+                , attachmentData = kintoData
+              }
+              -- Refresh the list of comments (and then contributors)
+            , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+            )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing } =
+view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -155,15 +199,21 @@ view { timezone, navigatorShare, url, userData } { video, title, comments, contr
                     ]
                 , H.div [ HA.class "container" ]
                     [ viewComments timezone comments contributors
-                    , case commentData of
-                        Data.Kinto.Failed error ->
+                    , case ( commentData, attachmentData ) of
+                        ( Data.Kinto.Failed error, _ ) ->
                             H.div []
                                 [ H.text "Erreur lors de l'ajout de la contribution : "
                                 , H.text <| Kinto.errorToString error
                                 ]
 
+                        ( _, Data.Kinto.Failed error ) ->
+                            H.div []
+                                [ H.text "Erreur lors de l'ajout du fichier : "
+                                , H.text <| Kinto.errorToString error
+                                ]
+
                         _ ->
-                            viewCommentForm commentForm userData refreshing commentData
+                            viewCommentForm commentForm userData refreshing commentData attachmentData
                     ]
                 ]
             ]
@@ -331,11 +381,22 @@ viewCommentDetails timezone contributorsData comment =
 
                 _ ->
                     comment.profile
+
+        attachment =
+            if comment.attachment /= Data.Kinto.emptyAttachment then
+                H.div []
+                    [ H.text "Pièce jointe : "
+                    , H.a [ HA.href comment.attachment.location ] [ H.text comment.attachment.filename ]
+                    ]
+
+            else
+                H.div [] []
     in
     H.li [ HA.class "comment panel" ]
         [ H.time [] [ H.text <| Page.Utils.posixToDate timezone comment.last_modified ]
         , H.span [ HA.class "comment-author" ] [ H.text contributorName ]
         , Markdown.toHtml [] comment.comment
+        , attachment
         ]
 
 
@@ -344,8 +405,9 @@ viewCommentForm :
     -> Data.Session.UserData
     -> Bool
     -> Data.Kinto.KintoData Data.Kinto.Comment
+    -> Data.Kinto.KintoData Data.Kinto.Attachment
     -> H.Html Msg
-viewCommentForm commentForm userData refreshing commentData =
+viewCommentForm commentForm userData refreshing commentData attachmentData =
     if not <| Data.Session.isLoggedIn userData then
         Page.Utils.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
@@ -361,11 +423,19 @@ viewCommentForm commentForm userData refreshing commentData =
                             Page.Utils.Loading
 
                         Data.Kinto.Received _ ->
-                            if refreshing then
-                                Page.Utils.Loading
+                            case attachmentData of
+                                Data.Kinto.Requested ->
+                                    Page.Utils.Loading
 
-                            else
-                                Page.Utils.NotLoading
+                                Data.Kinto.Received _ ->
+                                    if refreshing then
+                                        Page.Utils.Loading
+
+                                    else
+                                        Page.Utils.NotLoading
+
+                                _ ->
+                                    Page.Utils.NotLoading
 
                         _ ->
                             Page.Utils.NotLoading
@@ -396,8 +466,6 @@ viewCommentForm commentForm userData refreshing commentData =
                     [ HA.class "file-input"
                     , HA.type_ "file"
                     , HA.id "attachment"
-                    , HA.accept "image/*,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    , Page.Utils.onFileSelected AttachmentSelected
                     ]
                     []
                 ]

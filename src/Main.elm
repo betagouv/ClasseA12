@@ -384,7 +384,8 @@ subscriptions model =
                 Sub.none
 
             VideoPage _ ->
-                Sub.none
+                Ports.attachmentSubmitted Video.AttachmentSent
+                    |> Platform.Sub.map VideoMsg
 
             LoginPage _ ->
                 Sub.none
