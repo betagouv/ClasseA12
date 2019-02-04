@@ -31,6 +31,7 @@ type alias Model =
     , commentData : Data.Kinto.KintoData Data.Kinto.Comment
     , refreshing : Bool
     , attachmentData : Data.Kinto.KintoData Data.Kinto.Attachment
+    , attachmentSelected : Bool
     }
 
 
@@ -40,6 +41,7 @@ type Msg
     | CommentsReceived (Result Kinto.Error Data.Kinto.CommentList)
     | ContributorsReceived (Result Kinto.Error Data.Kinto.ProfileList)
     | UpdateCommentForm Data.Kinto.Comment
+    | AttachmentSelected
     | AddComment
     | CommentAdded (Result Kinto.Error Data.Kinto.Comment)
     | AttachmentSent String
@@ -56,6 +58,7 @@ init videoID title session =
       , commentData = Data.Kinto.NotRequested
       , refreshing = False
       , attachmentData = Data.Kinto.NotRequested
+      , attachmentSelected = False
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
@@ -107,6 +110,9 @@ update session msg model =
         UpdateCommentForm commentForm ->
             ( { model | commentForm = commentForm }, Cmd.none )
 
+        AttachmentSelected ->
+            ( { model | attachmentSelected = True }, Cmd.none )
+
         AddComment ->
             let
                 commentForm =
@@ -126,23 +132,32 @@ update session msg model =
             )
 
         CommentAdded (Ok comment) ->
-            let
-                submitAttachmentData : Ports.SubmitAttachmentData
-                submitAttachmentData =
-                    { nodeID = "attachment"
-                    , commentID = comment.id
-                    , login = session.userData.username
-                    , password = session.userData.password
-                    }
-            in
-            ( { model
-                | commentData = Data.Kinto.Received comment
-                , commentForm = Data.Kinto.emptyComment
-                , attachmentData = Data.Kinto.Requested
-              }
-              -- Upload the attachment
-            , Ports.submitAttachment submitAttachmentData
-            )
+            if model.attachmentSelected then
+                let
+                    submitAttachmentData : Ports.SubmitAttachmentData
+                    submitAttachmentData =
+                        { nodeID = "attachment"
+                        , commentID = comment.id
+                        , login = session.userData.username
+                        , password = session.userData.password
+                        }
+                in
+                ( { model
+                    | commentData = Data.Kinto.Received comment
+                    , attachmentData = Data.Kinto.Requested
+                  }
+                  -- Upload the attachment
+                , Ports.submitAttachment submitAttachmentData
+                )
+
+            else
+                ( { model
+                    | commentData = Data.Kinto.Received comment
+                    , refreshing = True
+                  }
+                  -- Refresh the list of comments (and then contributors)
+                , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+                )
 
         CommentAdded (Err error) ->
             ( { model | commentData = Data.Kinto.Failed error }, Cmd.none )
@@ -171,7 +186,9 @@ update session msg model =
             in
             ( { model
                 | refreshing = True
+                , commentForm = Data.Kinto.emptyComment
                 , attachmentData = kintoData
+                , attachmentSelected = False
               }
               -- Refresh the list of comments (and then contributors)
             , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
@@ -466,6 +483,7 @@ viewCommentForm commentForm userData refreshing commentData attachmentData =
                     [ HA.class "file-input"
                     , HA.type_ "file"
                     , HA.id "attachment"
+                    , Page.Utils.onFileSelected AttachmentSelected
                     ]
                     []
                 ]

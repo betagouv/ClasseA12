@@ -412,12 +412,22 @@ decodeCommentList =
 
 encodeCommentData : Comment -> Encode.Value
 encodeCommentData comment =
+    let
+        encodedAttachment =
+            if comment.attachment /= emptyAttachment then
+                [ ( "attachment", encodeAttachmentData comment.attachment ) ]
+
+            else
+                []
+    in
     Encode.object
-        [ ( "profile", Encode.string comment.profile )
-        , ( "video", Encode.string comment.video )
-        , ( "comment", Encode.string comment.comment )
-        , ( "attachment", encodeAttachmentData comment.attachment )
-        ]
+        ([ ( "profile", Encode.string comment.profile )
+         , ( "video", Encode.string comment.video )
+         , ( "comment", Encode.string comment.comment )
+         ]
+            ++ encodedAttachment
+        )
+
 
 
 ---- USER INFO ----
