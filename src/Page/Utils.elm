@@ -185,8 +185,8 @@ viewPublicVideo timezone timestamp video =
                 timestampMillis =
                     Time.posixToMillis timestamp
 
-                creationDateMillis =
-                    Time.posixToMillis video.creation_date
+                publishDateMillis =
+                    Time.posixToMillis video.publish_date
             in
             if timestampMillis == 0 then
                 -- The timestamp isn't initialized yet
@@ -194,7 +194,7 @@ viewPublicVideo timezone timestamp video =
 
             else
                 timestampMillis
-                    - creationDateMillis
+                    - publishDateMillis
                     -- A video is recent if it's less than 15 days.
                     |> (>) (15 * 24 * 60 * 60 * 1000)
 

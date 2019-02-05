@@ -12,6 +12,7 @@ import Request.Kinto exposing (authClient)
 import Request.KintoContact
 import Request.KintoUpcoming
 import Request.KintoVideo
+import Task
 import Time
 import Url
 
@@ -37,7 +38,8 @@ type Msg
     | VideoListFetched (Result Kinto.Error VideoList)
     | ContactListFetched (Result Kinto.Error ContactList)
     | DiscardError Int
-    | PublishVideo Video
+    | GetTimestamp Video
+    | PublishVideo Video Time.Posix
     | VideoPublished (Result Kinto.Error Video)
     | VideoRemoved Video (Result Kinto.Error DeletedRecord)
     | ToggleVideo Data.Kinto.Video
@@ -104,13 +106,21 @@ update session msg model =
             , Cmd.none
             )
 
-        PublishVideo video ->
+        GetTimestamp video ->
+            ( { model | publishingVideos = model.publishingVideos ++ [ video ] }
+            , Task.perform (PublishVideo video) Time.now
+            )
+
+        PublishVideo video timestamp ->
             let
                 client =
                     authClient session.kintoURL session.loginForm.username session.loginForm.password
+
+                timestampedVideo =
+                    { video | publish_date = timestamp }
             in
-            ( { model | publishingVideos = model.publishingVideos ++ [ video ] }
-            , Request.KintoVideo.publishVideo video client VideoPublished
+            ( model
+            , Request.KintoVideo.publishVideo timestampedVideo client VideoPublished
             )
 
         VideoPublished (Ok video) ->
@@ -136,7 +146,7 @@ update session msg model =
                         Data.Kinto.Received videos ->
                             videos.objects
                                 -- We remove the video from the list of upcoming videos, as it's just been deleted
-                                |> List.filter ((/=) video)
+                                |> List.filter (\publishedVideo -> publishedVideo.id /= video.id)
                                 -- Update the "objects" field in the Kinto.Pager record with the filtered list of videos
                                 |> (\videoList -> { videos | objects = videoList })
                                 |> Data.Kinto.Received
@@ -261,7 +271,8 @@ viewVideo timezone publishingVideos video =
                 Page.Utils.NotLoading
 
         publishNode =
-            [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| PublishVideo video) ]
+            -- Before publishing the video, get the timestamp (so we can use it as the publish_date)
+            [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| GetTimestamp video) ]
     in
     Page.Utils.viewVideo timezone (ToggleVideo video) publishNode video
 

@@ -47,6 +47,11 @@ VIDEOS_COLLECTIONS_METADATA = {
                     "title": "Date de cr\u00e9ation",
                     "description": "Date d'envoi de la vid\u00e9o",
                 },
+                "publish_date": {
+                    "type": "number",
+                    "title": "Date de publication",
+                    "description": "Date de publication de la vid\u00e9o",
+                },
             },
         },
         "uiSchema": {
@@ -58,6 +63,7 @@ VIDEOS_COLLECTIONS_METADATA = {
                 "duration",
                 "thumbnail",
                 "creation_date",
+                "publish_date",
             ],
             "description": {"ui:widget": "textarea", "ui:options": {"rows": 5}},
         },
@@ -70,6 +76,7 @@ VIDEOS_COLLECTIONS_METADATA = {
             "description",
             "duration",
             "creation_date",
+            "publish_date",
         ],
     },
 }
