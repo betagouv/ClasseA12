@@ -308,7 +308,15 @@ posixToDate timezone posix =
                     "12"
 
         day =
-            String.fromInt <| Time.toDay timezone posix
+            Time.toDay timezone posix
+                |> String.fromInt
+                |> (\str ->
+                        if String.length str < 2 then
+                            "0" ++ str
+
+                        else
+                            str
+                   )
     in
     year ++ "-" ++ month ++ "-" ++ day
 
