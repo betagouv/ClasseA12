@@ -350,6 +350,16 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                     []
                 , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
                     [ H.text "CE1" ]
+                , H.input
+                    [ HA.id "grade-cp-ce1"
+                    , HA.type_ "radio"
+                    , HA.name "grade"
+                    , HA.checked <| newVideo.grade == "CP et CE1"
+                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "CP et CE1" })
+                    ]
+                    []
+                , H.label [ HA.for "grade-cp-ce1", HA.class "label-inline" ]
+                    [ H.text "CP et CE1" ]
                 ]
             ]
         , formInput

@@ -16,7 +16,7 @@ VIDEOS_COLLECTIONS_METADATA = {
                     "description": "Titre de la vid\u00e9o",
                 },
                 "grade": {
-                    "enum": ["CP", "CE1"],
+                    "enum": ["CP", "CE1", "CP et CE1"],
                     "type": "string",
                     "title": "Niveau",
                     "description": "Classe concernée",
