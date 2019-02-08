@@ -390,7 +390,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
         , formInput
             H.input
             "freeform-keyword"
-            "Préciser (parmis les mots clés grisés ci-dessus) ou ajouter des mots clés"
+            "Préciser (parmi les mots clés grisés ci-dessus) ou ajouter des mots clés"
             "Liste de mots clés séparés par des virgules"
             freeformKeywords
             UpdateFreeformKeywords
@@ -562,7 +562,7 @@ checkbox msg ( key, value ) =
                     )
                 |> Maybe.withDefault []
     in
-     H.div [HA.class "keywords" ]
+    H.div [ HA.class "keywords" ]
         ([ H.input
             [ HA.type_ "checkbox"
             , HA.id id
@@ -574,7 +574,6 @@ checkbox msg ( key, value ) =
          ]
             ++ includedKeywords
         )
-    
 
 
 viewKeywords : Keywords -> (String -> Msg) -> List (H.Html Msg)
