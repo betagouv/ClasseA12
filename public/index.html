@@ -62,9 +62,10 @@
     };
 
     function uuidv4() {
-      return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-      )
+      function getRandValue(c) {
+        return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+      }
+      return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, getRandValue)
     }
 
     function dataURItoBlob(dataURI) {
@@ -87,7 +88,7 @@
     function xhrForAttachment(collection, recordID, credentials) {
       // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
       let xhr = new XMLHttpRequest();
-      xhr.open("POST", `${KINTO_URL}buckets/classea12/collections/${collection}/records/${recordID}/attachment`);
+      xhr.open("POST", KINTO_URL + "buckets/classea12/collections/" + collection + "/records/" + recordID + "/attachment");
       xhr.upload.addEventListener("progress", function (event) {
         if (event.lengthComputable) {
           const percentage = Math.round(event.loaded * 100 / event.total);
@@ -104,8 +105,13 @@
     }
 
     // A new video record has been created, upload the selected video file as an attachment
-    app.ports.submitVideo.subscribe(function ({ nodeID, videoNodeID, videoData, login, password }) {
-      const credentials = btoa(`${login}:${password}`);
+    app.ports.submitVideo.subscribe(function (data) {
+      const nodeID = data.nodeID;
+      const videoNodeID = data.videoNodeID;
+      const videoData = data.videoData;
+      const login = data.login;
+      const password = data.password;
+      const credentials = btoa(login + ":" + password);
       const fileInput = document.getElementById(nodeID);
       if (fileInput === null) {
         console.error("Didn't find a file input with id", nodeID);
@@ -126,7 +132,7 @@
 
       // Upload the thumbnail as an attachment
       const recordID = uuidv4();
-      const filename = `${recordID}.png`;
+      const filename = recordID + ".png";
       let thumbnailData = new FormData();
       thumbnailData.append('attachment', thumbnail, filename);
       thumbnailData.append('data', JSON.stringify({ "for": recordID }));
@@ -159,20 +165,36 @@
 
     });
 
+    // Event polyfill for IE.
+    (function () {
+      if (typeof window.CustomEvent === "function") return false; //If not IE
+
+      function CustomEvent(event, params) {
+        params = params || { bubbles: false, cancelable: false, detail: undefined };
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        return evt;
+      }
+
+      CustomEvent.prototype = window.Event.prototype;
+
+      window.Event = CustomEvent;
+    })();
+
     // A new url has been loaded using pushstate, we need to tell matomo/piwik (analytics) by firing an event
     app.ports.newURL.subscribe(function (url) {
       window.dispatchEvent(new Event('newURL'));
     });
 
-    app.ports.saveSession.subscribe(sessionData => {
+    app.ports.saveSession.subscribe(function (sessionData) {
       localStorage.setItem("session", JSON.stringify(sessionData));
     });
 
-    app.ports.logoutSession.subscribe(() => {
+    app.ports.logoutSession.subscribe(function () {
       localStorage.removeItem("session");
     });
 
-    app.ports.navigatorShare.subscribe(shareText => {
+    app.ports.navigatorShare.subscribe(function (shareText) {
       if (navigator.share !== undefined) {
         navigator.share({ url: document.location.href, text: shareText });
       }
