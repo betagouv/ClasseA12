@@ -10,6 +10,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Kinto
 import Page.About as About
+import Page.Activate as Activate
 import Page.Admin as Admin
 import Page.CGU as CGU
 import Page.Convention as Convention
@@ -46,6 +47,7 @@ type Page
     | VideoPage Video.Model
     | LoginPage Login.Model
     | RegisterPage Register.Model
+    | ActivatePage Activate.Model
     | NotFound
 
 
@@ -68,6 +70,7 @@ type Msg
     | VideoMsg Video.Msg
     | LoginMsg Login.Msg
     | RegisterMsg Register.Msg
+    | ActivateMsg Activate.Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | NewTimestamp Time.Posix
@@ -149,6 +152,9 @@ setRoute url oldModel =
 
         Just Route.Register ->
             toPage RegisterPage Register.init RegisterMsg
+
+        Just (Route.Activate userID activationKey) ->
+            toPage ActivatePage (Activate.init userID activationKey) ActivateMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -281,6 +287,9 @@ update msg ({ page, session } as model) =
         ( RegisterMsg registerMsg, RegisterPage registerModel ) ->
             toPage RegisterPage RegisterMsg (Register.update session) registerMsg registerModel
 
+        ( ActivateMsg activateMsg, ActivatePage activateModel ) ->
+            toPage ActivatePage ActivateMsg (Activate.update session) activateMsg activateModel
+
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
@@ -406,6 +415,9 @@ subscriptions model =
             RegisterPage _ ->
                 Sub.none
 
+            ActivatePage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -479,6 +491,11 @@ view model =
             Register.view model.session registerModel
                 |> mapMsg RegisterMsg
                 |> Page.frame (pageConfig Page.Register)
+
+        ActivatePage activateModel ->
+            Activate.view model.session activateModel
+                |> mapMsg ActivateMsg
+                |> Page.frame (pageConfig Page.Activate)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )

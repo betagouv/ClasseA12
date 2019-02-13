@@ -1,4 +1,4 @@
-module Request.KintoAccount exposing (UserInfo, UserInfoData, register)
+module Request.KintoAccount exposing (UserInfo, UserInfoData, activate, register)
 
 import Data.Kinto
 import Http
@@ -51,4 +51,15 @@ register serverURL email password message =
     HttpBuilder.post accountURL
         |> HttpBuilder.withExpectJson userInfoDataDecoder
         |> HttpBuilder.withJsonBody encodedData
+        |> HttpBuilder.send message
+
+
+activate : String -> String -> String -> (Result Http.Error UserInfo -> msg) -> Cmd msg
+activate serverURL userID activationKey message =
+    let
+        accountURL =
+            serverURL ++ "accounts/" ++ userID ++ "/validate/" ++ activationKey
+    in
+    HttpBuilder.post accountURL
+        |> HttpBuilder.withExpectJson userInfoDecoder
         |> HttpBuilder.send message

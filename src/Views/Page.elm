@@ -20,6 +20,7 @@ type ActivePage
     | Video
     | Login
     | Register
+    | Activate
     | NotFound
 
 

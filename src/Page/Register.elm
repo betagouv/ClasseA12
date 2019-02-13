@@ -72,7 +72,7 @@ update session msg model =
                 kintoError =
                     Kinto.extractError error
             in
-            ( { model | error = Just <| "Inscription échouée : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model | error = Just <| "Inscription échouéeba : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
 
 
 isRegisterFormComplete : RegisterForm -> Bool
@@ -108,7 +108,6 @@ view _ { error, registerForm, userInfoData } =
                         Data.Kinto.Received userInfo ->
                             H.div []
                                 [ H.text "Votre compte a été créé ! Il vous reste à l'activer : un mail vient de vous être envoyé avec un code d'activation. "
-                                , H.a [] [ H.text "Entrer le code d'activation" ]
                                 ]
 
                         _ ->
