@@ -18,6 +18,7 @@ import Page.Login as Login
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
+import Page.Register as Register
 import Page.Video as Video
 import Platform.Sub
 import Ports
@@ -44,6 +45,7 @@ type Page
     | AdminPage Admin.Model
     | VideoPage Video.Model
     | LoginPage Login.Model
+    | RegisterPage Register.Model
     | NotFound
 
 
@@ -65,6 +67,7 @@ type Msg
     | AdminMsg Admin.Msg
     | VideoMsg Video.Msg
     | LoginMsg Login.Msg
+    | RegisterMsg Register.Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | NewTimestamp Time.Posix
@@ -143,6 +146,9 @@ setRoute url oldModel =
 
         Just Route.Login ->
             toPage LoginPage Login.init LoginMsg
+
+        Just Route.Register ->
+            toPage RegisterPage Register.init RegisterMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -240,7 +246,7 @@ update msg ({ page, session } as model) =
                     toPage LoginPage LoginMsg (Login.update session) loginMsg loginModel
             in
             case loginMsg of
-                -- Special case: if we retrieved the list of upcoming video using the credentials, then they are
+                -- Special case: if we retrieved the user info, then the credentials are
                 -- correct, and we can store them in the session for future use
                 Login.UserInfoReceived (Ok userInfo) ->
                     let
@@ -271,6 +277,9 @@ update msg ({ page, session } as model) =
 
                 _ ->
                     ( newModel, newCmd )
+
+        ( RegisterMsg registerMsg, RegisterPage registerModel ) ->
+            toPage RegisterPage RegisterMsg (Register.update session) registerMsg registerModel
 
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
@@ -394,6 +403,9 @@ subscriptions model =
             LoginPage _ ->
                 Sub.none
 
+            RegisterPage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -462,6 +474,11 @@ view model =
             Login.view model.session loginModel
                 |> mapMsg LoginMsg
                 |> Page.frame (pageConfig Page.Login)
+
+        RegisterPage registerModel ->
+            Register.view model.session registerModel
+                |> mapMsg RegisterMsg
+                |> Page.frame (pageConfig Page.Register)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )

@@ -252,3 +252,10 @@ ul.comment-list .comment-author {
     font-weight: 700;
     margin-left: 1em;
 }
+span.invalid {
+    color: red;
+    padding-left: 1em;
+}
+input.invalid {
+    border: 1px solid red;
+}

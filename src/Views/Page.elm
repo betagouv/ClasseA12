@@ -19,6 +19,7 @@ type ActivePage
     | Admin
     | Video
     | Login
+    | Register
     | NotFound
 
 

@@ -19,6 +19,7 @@ type Route
     | Admin
     | Video String String
     | Login
+    | Register
 
 
 parser : Parser (Route -> a) a
@@ -34,6 +35,7 @@ parser =
         , Parser.map Admin (Parser.s "admin")
         , Parser.map Video (Parser.s "video" </> Parser.string </> Parser.string)
         , Parser.map Login (Parser.s "connexion")
+        , Parser.map Register (Parser.s "inscription")
         ]
 
 
@@ -91,5 +93,8 @@ toString route =
 
                 Login ->
                     [ "connexion" ]
+
+                Register ->
+                    [ "inscription" ]
     in
     "/" ++ String.join "/" pieces

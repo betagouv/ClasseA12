@@ -1,7 +1,7 @@
 module Page.Login exposing (Model, Msg(..), init, update, view)
 
 import Data.Kinto
-import Data.Session exposing (UserData, Session, decodeUserData, emptyUserData, encodeUserData)
+import Data.Session exposing (Session, UserData, decodeUserData, emptyUserData, encodeUserData)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -11,6 +11,7 @@ import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
 import Request.KintoUserInfo
+import Route
 
 
 type alias Model =
@@ -64,7 +65,11 @@ update session msg model =
             )
 
         UserInfoReceived (Err error) ->
-            ( { model | error = Just "Connexion échouée", userInfoData = Data.Kinto.NotRequested }, Cmd.none )
+            let
+                kintoError =
+                    Kinto.extractError error
+            in
+            ( { model | error = Just <| "Connexion échouée : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
 
 
 isLoginFormComplete : UserData -> Bool
@@ -101,7 +106,8 @@ view _ { error, loginForm, userInfoData } =
                 _ ->
                     H.div [ HA.class "section section-white" ]
                         [ H.div [ HA.class "container" ]
-                            [ viewLoginForm loginForm userInfoData ]
+                            [ viewLoginForm loginForm userInfoData
+                            ]
                         ]
             ]
       ]
@@ -152,6 +158,8 @@ viewLoginForm loginForm userInfoData =
                 []
             ]
         , submitButton
+        , H.text " "
+        , H.a [ Route.href Route.Register ] [ H.text "Je n'ai pas encore de compte" ]
         ]
 
 
