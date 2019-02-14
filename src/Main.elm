@@ -19,6 +19,7 @@ import Page.Login as Login
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
+import Page.Profile as Profile
 import Page.Register as Register
 import Page.Video as Video
 import Platform.Sub
@@ -48,6 +49,7 @@ type Page
     | LoginPage Login.Model
     | RegisterPage Register.Model
     | ActivatePage Activate.Model
+    | ProfilePage Profile.Model
     | NotFound
 
 
@@ -71,6 +73,7 @@ type Msg
     | LoginMsg Login.Msg
     | RegisterMsg Register.Msg
     | ActivateMsg Activate.Msg
+    | ProfileMsg Profile.Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | NewTimestamp Time.Posix
@@ -155,6 +158,9 @@ setRoute url oldModel =
 
         Just (Route.Activate userID activationKey) ->
             toPage ActivatePage (Activate.init userID activationKey) ActivateMsg
+
+        Just Route.Profile ->
+            toPage ProfilePage Profile.init ProfileMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -266,11 +272,17 @@ update msg ({ page, session } as model) =
                             { session | userData = userData }
 
                         redirectCmd =
-                            if session.prevUrl /= session.url then
-                                [ Nav.pushUrl model.navKey <| Url.toString session.prevUrl ]
+                            case userInfo.profile of
+                                Just profile ->
+                                    if session.prevUrl /= session.url then
+                                        [ Nav.pushUrl model.navKey <| Url.toString session.prevUrl ]
 
-                            else
-                                [ Route.pushUrl model.navKey Route.Home ]
+                                    else
+                                        [ Route.pushUrl model.navKey Route.Home ]
+
+                                Nothing ->
+                                    -- Profile not created yet.
+                                    [ Route.pushUrl model.navKey Route.Profile ]
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
@@ -289,6 +301,35 @@ update msg ({ page, session } as model) =
 
         ( ActivateMsg activateMsg, ActivatePage activateModel ) ->
             toPage ActivatePage ActivateMsg (Activate.update session) activateMsg activateModel
+
+        ( ProfileMsg profileMsg, ProfilePage profileModel ) ->
+            let
+                ( newModel, newCmd ) =
+                    toPage ProfilePage ProfileMsg (Profile.update session) profileMsg profileModel
+            in
+            case profileMsg of
+                -- Special case: if we associated the profile to the user record, then
+                -- we can store the updated user and profile in the session for future use
+                Profile.ProfileAssociated profile (Ok userInfo) ->
+                    let
+                        userData =
+                            session.userData
+
+                        updatedUserData =
+                            { userData | userID = userInfo.id, profile = Just profile.id }
+
+                        updatedSession =
+                            { session | userData = updatedUserData }
+                    in
+                    ( { newModel | session = updatedSession }
+                    , Cmd.batch
+                        [ Ports.saveSession <| encodeUserData userData
+                        , newCmd
+                        ]
+                    )
+
+                _ ->
+                    ( newModel, newCmd )
 
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
@@ -418,6 +459,9 @@ subscriptions model =
             ActivatePage _ ->
                 Sub.none
 
+            ProfilePage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -496,6 +540,11 @@ view model =
             Activate.view model.session activateModel
                 |> mapMsg ActivateMsg
                 |> Page.frame (pageConfig Page.Activate)
+
+        ProfilePage profileModel ->
+            Profile.view model.session profileModel
+                |> mapMsg ProfileMsg
+                |> Page.frame (pageConfig Page.Profile)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )

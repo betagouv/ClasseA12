@@ -21,6 +21,7 @@ type ActivePage
     | Login
     | Register
     | Activate
+    | Profile
     | NotFound
 
 

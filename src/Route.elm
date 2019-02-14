@@ -21,6 +21,7 @@ type Route
     | Login
     | Register
     | Activate String String
+    | Profile
 
 
 parser : Parser (Route -> a) a
@@ -38,6 +39,7 @@ parser =
         , Parser.map Login (Parser.s "connexion")
         , Parser.map Register (Parser.s "inscription")
         , Parser.map Activate (Parser.s "activation" </> Parser.string </> Parser.string)
+        , Parser.map Profile (Parser.s "profil")
         ]
 
 
@@ -104,5 +106,8 @@ toString route =
                     , userID
                     , activationKey
                     ]
+
+                Profile ->
+                    [ "profil" ]
     in
     "/" ++ String.join "/" pieces

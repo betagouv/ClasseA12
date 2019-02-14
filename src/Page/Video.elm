@@ -117,22 +117,28 @@ update session msg model =
             ( { model | attachmentSelected = True }, Cmd.none )
 
         AddComment ->
-            let
-                commentForm =
-                    model.commentForm
+            case session.userData.profile of
+                Just profile ->
+                    let
+                        commentForm =
+                            model.commentForm
 
-                updatedCommentForm =
-                    { commentForm | video = model.videoID, profile = session.userData.profile }
+                        updatedCommentForm =
+                            { commentForm | video = model.videoID, profile = profile }
 
-                client =
-                    Request.Kinto.authClient session.kintoURL session.userData.username session.userData.password
-            in
-            ( { model
-                | commentForm = updatedCommentForm
-                , commentData = Data.Kinto.Requested
-              }
-            , Request.KintoComment.submitComment client updatedCommentForm CommentAdded
-            )
+                        client =
+                            Request.Kinto.authClient session.kintoURL session.userData.username session.userData.password
+                    in
+                    ( { model
+                        | commentForm = updatedCommentForm
+                        , commentData = Data.Kinto.Requested
+                      }
+                    , Request.KintoComment.submitComment client updatedCommentForm CommentAdded
+                    )
+
+                Nothing ->
+                    -- Profile not created yet: we shouldn't be there.
+                    ( model, Cmd.none )
 
         CommentAdded (Ok comment) ->
             if model.attachmentSelected then

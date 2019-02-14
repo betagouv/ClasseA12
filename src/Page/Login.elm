@@ -68,8 +68,20 @@ update session msg model =
             let
                 kintoError =
                     Kinto.extractError error
+
+                message =
+                    case kintoError of
+                        Kinto.KintoError code _ _ ->
+                            if code == 403 then
+                                "Est-ce que l'email et le mot de passe sont corrects ? Est-ce que le compte existe ?"
+
+                            else
+                                Kinto.errorToString kintoError
+
+                        _ ->
+                            Kinto.errorToString kintoError
             in
-            ( { model | error = Just <| "Connexion échouée : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model | error = Just <| "Connexion échouée : " ++ message, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
 
 
 isLoginFormComplete : UserData -> Bool

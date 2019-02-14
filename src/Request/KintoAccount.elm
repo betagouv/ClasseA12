@@ -1,4 +1,4 @@
-module Request.KintoAccount exposing (UserInfo, UserInfoData, activate, register)
+module Request.KintoAccount exposing (UserInfo, UserInfoData, activate, associateProfile, register)
 
 import Data.Kinto
 import Http
@@ -55,11 +55,37 @@ register serverURL email password message =
 
 
 activate : String -> String -> String -> (Result Http.Error UserInfo -> msg) -> Cmd msg
-activate serverURL userID activationKey message =
+activate serverURL email activationKey message =
     let
         accountURL =
-            serverURL ++ "accounts/" ++ userID ++ "/validate/" ++ activationKey
+            serverURL ++ "accounts/" ++ email ++ "/validate/" ++ activationKey
     in
     HttpBuilder.post accountURL
         |> HttpBuilder.withExpectJson userInfoDecoder
+        |> HttpBuilder.send message
+
+
+associateProfile : String -> String -> String -> String -> (Result Http.Error Data.Kinto.UserInfo -> msg) -> Cmd msg
+associateProfile serverURL email password profileID message =
+    let
+        accountURL =
+            serverURL ++ "accounts/" ++ email
+
+        ( credsHeader, credsValue ) =
+            Kinto.Basic email password
+                |> Kinto.headersForAuth
+
+        encodedUpdatedAccount =
+            Encode.object
+                [ ( "profile", Encode.string profileID )
+                , ( "password", Encode.string password )
+                ]
+
+        encodedData =
+            Encode.object [ ( "data", encodedUpdatedAccount ) ]
+    in
+    HttpBuilder.patch accountURL
+        |> HttpBuilder.withHeader credsHeader credsValue
+        |> HttpBuilder.withExpectJson Data.Kinto.userInfoDataDecoder
+        |> HttpBuilder.withJsonBody encodedData
         |> HttpBuilder.send message

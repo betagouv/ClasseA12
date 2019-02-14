@@ -10,6 +10,7 @@ module Data.Kinto exposing
     , KintoData(..)
     , NewVideo
     , Profile
+    , ProfileData
     , ProfileList
     , ProfileListData
     , UserInfo
@@ -39,6 +40,7 @@ module Data.Kinto exposing
     , encodeVideoData
     , keywordList
     , profileDecoder
+    , userInfoDataDecoder
     , userInfoDecoder
     , videoDecoder
     )
@@ -322,6 +324,10 @@ type alias Profile =
     }
 
 
+type alias ProfileData =
+    KintoData Profile
+
+
 type alias ProfileList =
     Kinto.Pager Profile
 
@@ -435,7 +441,7 @@ encodeCommentData comment =
 
 type alias UserInfo =
     { id : String
-    , profile : String
+    , profile : Maybe String
     }
 
 
@@ -453,4 +459,9 @@ userInfoDecoder : Decode.Decoder UserInfo
 userInfoDecoder =
     Decode.succeed UserInfo
         |> Pipeline.required "id" Decode.string
-        |> Pipeline.required "profile" Decode.string
+        |> Pipeline.optional "profile" (Decode.maybe Decode.string) Nothing
+
+
+userInfoDataDecoder : Decode.Decoder UserInfo
+userInfoDataDecoder =
+    Decode.field "data" userInfoDecoder

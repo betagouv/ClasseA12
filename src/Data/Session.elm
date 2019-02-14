@@ -31,7 +31,7 @@ type alias UserData =
     { username : String
     , password : String
     , userID : String
-    , profile : String
+    , profile : Maybe String
     }
 
 
@@ -40,23 +40,35 @@ emptyUserData =
     { username = ""
     , password = ""
     , userID = ""
-    , profile = ""
+    , profile = Nothing
     }
 
 
 isLoggedIn : UserData -> Bool
 isLoggedIn userData =
-    userData /= emptyUserData
+    case userData.profile of
+        Just profile ->
+            userData /= emptyUserData
+
+        Nothing ->
+            False
 
 
 encodeUserData : UserData -> Encode.Value
 encodeUserData userData =
     Encode.object
-        [ ( "username", Encode.string userData.username )
-        , ( "password", Encode.string userData.password )
-        , ( "userID", Encode.string userData.userID )
-        , ( "profile", Encode.string userData.profile )
-        ]
+        ([ ( "username", Encode.string userData.username )
+         , ( "password", Encode.string userData.password )
+         , ( "userID", Encode.string userData.userID )
+         ]
+            ++ (case userData.profile of
+                    Just profile ->
+                        [ ( "profile", Encode.string profile ) ]
+
+                    Nothing ->
+                        []
+               )
+        )
 
 
 decodeUserData : Decode.Decoder UserData
@@ -66,4 +78,4 @@ decodeUserData =
         (Decode.field "username" Decode.string)
         (Decode.field "password" Decode.string)
         (Decode.field "userID" Decode.string)
-        (Decode.field "profile" Decode.string)
+        (Decode.field "profile" (Decode.maybe Decode.string))
