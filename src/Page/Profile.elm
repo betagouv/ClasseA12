@@ -16,40 +16,65 @@ import Route
 
 
 type alias Model =
-    { profileForm : Data.Kinto.Profile
+    { pageState : PageState
+    , profileForm : Data.Kinto.Profile
     , error : Maybe String
     , profileData : Data.Kinto.ProfileData
     , userInfoData : Data.Kinto.UserInfoData
     }
 
 
+type PageState
+    = CreateProfile
+    | GetProfile
+    | EditProfile Data.Kinto.Profile
+
+
 type Msg
     = UpdateProfileForm Data.Kinto.Profile
     | SubmitProfile
+    | UpdateProfile
     | DiscardError
+    | ProfileFetched (Result Kinto.Error Data.Kinto.Profile)
     | ProfileCreated (Result Kinto.Error Data.Kinto.Profile)
     | ProfileAssociated Data.Kinto.Profile (Result Http.Error Data.Kinto.UserInfo)
+    | ProfileUpdated (Result Kinto.Error Data.Kinto.Profile)
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    let
-        guessedName =
-            session.userData.username
-                |> String.split "@"
-                |> List.head
-                |> Maybe.withDefault ""
+    case session.userData.profile of
+        Just profile ->
+            -- Profile edition
+            ( { pageState = GetProfile
+              , profileForm = Data.Kinto.emptyProfile
+              , error = Nothing
+              , profileData = Data.Kinto.NotRequested
+              , userInfoData = Data.Kinto.NotRequested
+              }
+            , Request.KintoProfile.getProfile session.kintoURL profile ProfileFetched
+            )
 
-        emptyProfile =
-            Data.Kinto.emptyProfile
-    in
-    ( { profileForm = { emptyProfile | name = guessedName }
-      , error = Nothing
-      , profileData = Data.Kinto.NotRequested
-      , userInfoData = Data.Kinto.NotRequested
-      }
-    , Cmd.none
-    )
+        Nothing ->
+            -- Profile creation
+            let
+                guessedName =
+                    session.userData.username
+                        |> String.split "@"
+                        |> List.head
+                        |> Maybe.withDefault ""
+
+                emptyProfile =
+                    Data.Kinto.emptyProfile
+            in
+            ( { pageState = CreateProfile
+              , profileForm = { emptyProfile | name = guessedName }
+              , error = Nothing
+              , profileData = Data.Kinto.NotRequested
+              , userInfoData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -61,8 +86,36 @@ update session msg model =
         SubmitProfile ->
             submitProfile session model
 
+        UpdateProfile ->
+            updateProfile session model
+
         DiscardError ->
             ( { model | error = Nothing }, Cmd.none )
+
+        ProfileFetched (Ok profile) ->
+            let
+                profileForm =
+                    model.profileForm
+
+                updatedProfileForm =
+                    { profileForm | name = profile.name, bio = profile.bio, id = profile.id }
+            in
+            ( { model
+                | error = Nothing
+                , profileData = Data.Kinto.Received profile
+                , profileForm = updatedProfileForm
+                , pageState = EditProfile profile
+              }
+            , Cmd.none
+            )
+
+        ProfileFetched (Err error) ->
+            ( { model
+                | error = Just <| "Récupération du profil échouée : " ++ Kinto.errorToString error
+                , profileData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
 
         ProfileCreated (Ok profile) ->
             ( { model | error = Nothing, profileData = Data.Kinto.Received profile, userInfoData = Data.Kinto.Requested }
@@ -92,6 +145,14 @@ update session msg model =
             in
             ( { model | error = Just <| "Association du profil échouée : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
 
+        ProfileUpdated (Ok profile) ->
+            ( { model | error = Nothing, profileData = Data.Kinto.Received profile }
+            , Cmd.none
+            )
+
+        ProfileUpdated (Err error) ->
+            ( { model | error = Just <| "Mise à jour du profil échouée : " ++ Kinto.errorToString error, profileData = Data.Kinto.NotRequested }, Cmd.none )
+
 
 isProfileFormComplete : Data.Kinto.Profile -> Bool
 isProfileFormComplete profileForm =
@@ -113,44 +174,101 @@ submitProfile { kintoURL, userData } model =
         ( model, Cmd.none )
 
 
+updateProfile : { a | kintoURL : String, userData : Data.Session.UserData } -> Model -> ( Model, Cmd Msg )
+updateProfile { kintoURL, userData } model =
+    if isProfileFormComplete model.profileForm && userData /= Data.Session.emptyUserData then
+        let
+            client =
+                Request.Kinto.authClient kintoURL userData.username userData.password
+        in
+        ( { model | profileData = Data.Kinto.Requested }
+        , Request.KintoProfile.updateProfile client model.profileForm ProfileUpdated
+        )
+
+    else
+        ( model, Cmd.none )
+
+
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { userData } { error, profileForm, profileData, userInfoData } =
-    ( "Création du profil"
+view { userData } { pageState, error, profileForm, profileData, userInfoData } =
+    let
+        title =
+            case pageState of
+                CreateProfile ->
+                    "Création du profil"
+
+                _ ->
+                    "Édition du profil"
+    in
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text <| "Création du profil" ]
+                , H.h1 [] [ H.text title ]
                 ]
             ]
       , H.div [ HA.class "main" ]
             [ viewError error
             , H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    (if userData /= Data.Session.emptyUserData then
-                        [ case userInfoData of
-                            Data.Kinto.Received _ ->
-                                H.div []
-                                    [ H.text "Votre profil a été créé ! Vous pouvez maintenant "
-                                    , H.a [ Route.href Route.Home ] [ H.text "comment sur des vidéos" ]
-                                    , H.text " ou "
-                                    , H.a [ Route.href Route.Participate ] [ H.text "en proposer !" ]
-                                    ]
+                    [ if userData /= Data.Session.emptyUserData then
+                        case pageState of
+                            GetProfile ->
+                                H.div [] [ H.text "Un instant, récupération de votre profil..." ]
 
-                            _ ->
-                                viewProfileForm profileForm profileData userInfoData
-                        ]
+                            EditProfile profile ->
+                                viewEditProfileForm pageState profileForm profileData userInfoData
 
-                     else
-                        [ Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter" ]
-                    )
+                            CreateProfile ->
+                                case userInfoData of
+                                    Data.Kinto.Received _ ->
+                                        H.div []
+                                            [ H.text "Votre profil a été créé ! Vous pouvez maintenant "
+                                            , H.a [ Route.href Route.Home ] [ H.text "commenter sur des vidéos" ]
+                                            , H.text " ou "
+                                            , H.a [ Route.href Route.Participate ] [ H.text "en proposer !" ]
+                                            ]
+
+                                    _ ->
+                                        viewCreateProfileForm pageState profileForm profileData userInfoData
+
+                      else
+                        Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
+                    ]
                 ]
             ]
       ]
     )
 
 
-viewProfileForm : Data.Kinto.Profile -> Data.Kinto.ProfileData -> Data.Kinto.UserInfoData -> H.Html Msg
-viewProfileForm profileForm profileData userInfoData =
+viewProfileForm : H.Html Msg -> Msg -> Data.Kinto.Profile -> H.Html Msg
+viewProfileForm submitButton msg profileForm =
+    H.form
+        [ HE.onSubmit msg ]
+        [ H.div [ HA.class "form__group" ]
+            [ H.label [ HA.for "name" ] [ H.text "Nom d'usage (utilisé comme identité sur ce site)" ]
+            , H.input
+                [ HA.type_ "text"
+                , HA.id "name"
+                , HA.value profileForm.name
+                , HE.onInput <| \name -> UpdateProfileForm { profileForm | name = name }
+                ]
+                []
+            ]
+        , H.div [ HA.class "form__group" ]
+            [ H.label [ HA.for "bio" ] [ H.text "Bio (description facultative)" ]
+            , H.textarea
+                [ HA.value profileForm.bio
+                , HE.onInput <| \bio -> UpdateProfileForm { profileForm | bio = bio }
+                ]
+                []
+            ]
+        , submitButton
+        ]
+
+
+viewCreateProfileForm : PageState -> Data.Kinto.Profile -> Data.Kinto.ProfileData -> Data.Kinto.UserInfoData -> H.Html Msg
+viewCreateProfileForm pageState profileForm profileData userInfoData =
     let
         formComplete =
             isProfileFormComplete profileForm
@@ -179,28 +297,31 @@ viewProfileForm profileForm profileData userInfoData =
         submitButton =
             Page.Utils.submitButton "Créer mon profil" buttonState
     in
-    H.form
-        [ HE.onSubmit SubmitProfile ]
-        [ H.h1 [] [ H.text "Formulaire de création de profil" ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "name" ] [ H.text "Nom d'usage (utilisé comme identité sur ce site)" ]
-            , H.input
-                [ HA.type_ "text"
-                , HA.id "name"
-                , HA.value profileForm.name
-                , HE.onInput <| \name -> UpdateProfileForm { profileForm | name = name }
-                ]
-                []
-            ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "bio" ] [ H.text "Bio (description facultative)" ]
-            , H.textarea
-                [ HE.onInput <| \bio -> UpdateProfileForm { profileForm | bio = bio }
-                ]
-                []
-            ]
-        , submitButton
-        ]
+    viewProfileForm submitButton SubmitProfile profileForm
+
+
+viewEditProfileForm : PageState -> Data.Kinto.Profile -> Data.Kinto.ProfileData -> Data.Kinto.UserInfoData -> H.Html Msg
+viewEditProfileForm pageState profileForm profileData userInfoData =
+    let
+        formComplete =
+            isProfileFormComplete profileForm
+
+        buttonState =
+            if formComplete then
+                case profileData of
+                    Data.Kinto.Requested ->
+                        Page.Utils.Loading
+
+                    _ ->
+                        Page.Utils.NotLoading
+
+            else
+                Page.Utils.Disabled
+
+        submitButton =
+            Page.Utils.submitButton "Mettre à jour mon profil" buttonState
+    in
+    viewProfileForm submitButton UpdateProfile profileForm
 
 
 viewError : Maybe String -> H.Html Msg

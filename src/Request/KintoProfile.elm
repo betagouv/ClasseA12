@@ -1,4 +1,4 @@
-module Request.KintoProfile exposing (getProfile, getProfileList, submitProfile)
+module Request.KintoProfile exposing (getProfile, getProfileList, submitProfile, updateProfile)
 
 import Data.Kinto
 import Kinto
@@ -7,8 +7,15 @@ import Request.Kinto
 
 submitProfile : Request.Kinto.AuthClient -> Data.Kinto.Profile -> (Result Kinto.Error Data.Kinto.Profile -> msg) -> Cmd msg
 submitProfile (Request.Kinto.AuthClient client) profile message =
-        client
+    client
         |> Kinto.create recordResource (Data.Kinto.encodeProfileData profile)
+        |> Kinto.send message
+
+
+updateProfile : Request.Kinto.AuthClient -> Data.Kinto.Profile -> (Result Kinto.Error Data.Kinto.Profile -> msg) -> Cmd msg
+updateProfile (Request.Kinto.AuthClient client) profile message =
+    client
+        |> Kinto.update recordResource profile.id (Data.Kinto.encodeProfileData profile)
         |> Kinto.send message
 
 

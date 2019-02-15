@@ -363,7 +363,7 @@ encodeProfileData : Profile -> Encode.Value
 encodeProfileData profile =
     Encode.object
         [ ( "name", Encode.string profile.name )
-        , ( "bio", Encode.string profile.name )
+        , ( "bio", Encode.string profile.bio )
         ]
 
 
