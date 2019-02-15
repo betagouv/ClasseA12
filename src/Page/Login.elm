@@ -160,7 +160,7 @@ viewLoginForm loginForm userInfoData =
         [ HE.onSubmit Login ]
         [ H.h1 [] [ H.text "Formulaire de connexion" ]
         , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "username" ] [ H.text "Username" ]
+            [ H.label [ HA.for "username" ] [ H.text "Email de connexion" ]
             , H.input
                 [ HA.type_ "text"
                 , HA.id "username"
@@ -170,7 +170,7 @@ viewLoginForm loginForm userInfoData =
                 []
             ]
         , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "password" ] [ H.text "Password" ]
+            [ H.label [ HA.for "password" ] [ H.text "Mot de passe" ]
             , H.input
                 [ HA.type_ "password"
                 , HA.value loginForm.password
