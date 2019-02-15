@@ -3,16 +3,12 @@ module Page.Utils exposing
     , Progress
     , button
     , emptyProgress
-    , errorList
-    , errorNotification
-    , notification
     , onChange
     , onFileSelected
     , optgroup
     , posixToDate
     , progressDecoder
     , submitButton
-    , successNotification
     , viewConnectNow
     , viewPublicVideo
     , viewVideo
@@ -82,44 +78,6 @@ button label buttonState maybeOnClick =
           else
             H.text label
         ]
-
-
-
----- NOTIFICATIONS ----
-
-
-errorList : List String -> (Int -> msg) -> H.Html msg
-errorList errors discardErrorMsg =
-    H.div []
-        (errors
-            |> List.indexedMap
-                (\index error ->
-                    errorNotification [ H.text error ] (discardErrorMsg index)
-                )
-        )
-
-
-notification : String -> List (H.Html msg) -> msg -> H.Html msg
-notification status content discardMsg =
-    H.div [ HA.class <| "notification closable " ++ status ]
-        ([ H.button
-            [ HA.class "close"
-            , HE.onClick discardMsg
-            ]
-            [ H.i [ HA.class "fas fa-times" ] [] ]
-         ]
-            ++ content
-        )
-
-
-successNotification : List (H.Html msg) -> msg -> H.Html msg
-successNotification content discardMsg =
-    notification "success" content discardMsg
-
-
-errorNotification : List (H.Html msg) -> msg -> H.Html msg
-errorNotification content discardMsg =
-    notification "error" content discardMsg
 
 
 
@@ -269,6 +227,10 @@ viewVideoModal toggleVideo activeVideo =
                 ]
 
 
+
+---- DATES ----
+
+
 posixToDate : Time.Zone -> Time.Posix -> String
 posixToDate timezone posix =
     let
@@ -317,6 +279,10 @@ posixToDate timezone posix =
             String.fromInt <| Time.toDay timezone posix
     in
     year ++ "-" ++ month ++ "-" ++ day
+
+
+
+---- FORMS AND EVENTS ----
 
 
 onChange : (String -> msg) -> H.Attribute msg

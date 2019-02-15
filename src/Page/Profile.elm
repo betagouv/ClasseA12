@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Kinto
+import Page.Common.Notifications as Notifications
 import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
@@ -18,9 +19,9 @@ import Route
 type alias Model =
     { pageState : PageState
     , profileForm : Data.Kinto.Profile
-    , error : Maybe String
     , profileData : Data.Kinto.ProfileData
     , userInfoData : Data.Kinto.UserInfoData
+    , notifications : Notifications.Model
     }
 
 
@@ -34,7 +35,7 @@ type Msg
     = UpdateProfileForm Data.Kinto.Profile
     | SubmitProfile
     | UpdateProfile
-    | DiscardError
+    | NotificationMsg Notifications.Msg
     | ProfileFetched (Result Kinto.Error Data.Kinto.Profile)
     | ProfileCreated (Result Kinto.Error Data.Kinto.Profile)
     | ProfileAssociated Data.Kinto.Profile (Result Http.Error Data.Kinto.UserInfo)
@@ -48,9 +49,9 @@ init session =
             -- Profile edition
             ( { pageState = GetProfile
               , profileForm = Data.Kinto.emptyProfile
-              , error = Nothing
               , profileData = Data.Kinto.NotRequested
               , userInfoData = Data.Kinto.NotRequested
+              , notifications = Notifications.init
               }
             , Request.KintoProfile.getProfile session.kintoURL profile ProfileFetched
             )
@@ -69,9 +70,9 @@ init session =
             in
             ( { pageState = CreateProfile
               , profileForm = { emptyProfile | name = guessedName }
-              , error = Nothing
               , profileData = Data.Kinto.NotRequested
               , userInfoData = Data.Kinto.NotRequested
+              , notifications = Notifications.init
               }
             , Cmd.none
             )
@@ -89,9 +90,6 @@ update session msg model =
         UpdateProfile ->
             updateProfile session model
 
-        DiscardError ->
-            ( { model | error = Nothing }, Cmd.none )
-
         ProfileFetched (Ok profile) ->
             let
                 profileForm =
@@ -101,8 +99,7 @@ update session msg model =
                     { profileForm | name = profile.name, bio = profile.bio, id = profile.id }
             in
             ( { model
-                | error = Nothing
-                , profileData = Data.Kinto.Received profile
+                | profileData = Data.Kinto.Received profile
                 , profileForm = updatedProfileForm
                 , pageState = EditProfile profile
               }
@@ -111,14 +108,17 @@ update session msg model =
 
         ProfileFetched (Err error) ->
             ( { model
-                | error = Just <| "Récupération du profil échouée : " ++ Kinto.errorToString error
+                | notifications =
+                    "Récupération du profil échouée : "
+                        ++ Kinto.errorToString error
+                        |> Notifications.addError model.notifications
                 , profileData = Data.Kinto.NotRequested
               }
             , Cmd.none
             )
 
         ProfileCreated (Ok profile) ->
-            ( { model | error = Nothing, profileData = Data.Kinto.Received profile, userInfoData = Data.Kinto.Requested }
+            ( { model | profileData = Data.Kinto.Received profile, userInfoData = Data.Kinto.Requested }
             , Request.KintoAccount.associateProfile
                 session.kintoURL
                 session.userData.username
@@ -128,12 +128,19 @@ update session msg model =
             )
 
         ProfileCreated (Err error) ->
-            ( { model | error = Just <| "Création du profil échouée : " ++ Kinto.errorToString error, profileData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model
+                | notifications =
+                    "Création du profil échouée : "
+                        ++ Kinto.errorToString error
+                        |> Notifications.addError model.notifications
+                , profileData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
 
         ProfileAssociated profile (Ok userInfo) ->
             ( { model
-                | error = Nothing
-                , userInfoData = Data.Kinto.Received userInfo
+                | userInfoData = Data.Kinto.Received userInfo
               }
             , Cmd.none
             )
@@ -143,15 +150,39 @@ update session msg model =
                 kintoError =
                     Kinto.extractError error
             in
-            ( { model | error = Just <| "Association du profil échouée : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model
+                | notifications =
+                    "Association du profil échouée : "
+                        ++ Kinto.errorToString kintoError
+                        |> Notifications.addError model.notifications
+                , userInfoData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
 
         ProfileUpdated (Ok profile) ->
-            ( { model | error = Nothing, profileData = Data.Kinto.Received profile }
+            ( { model
+                | notifications =
+                    "Profil mis à jour !"
+                        |> Notifications.addSuccess model.notifications
+                , profileData = Data.Kinto.Received profile
+              }
             , Cmd.none
             )
 
         ProfileUpdated (Err error) ->
-            ( { model | error = Just <| "Mise à jour du profil échouée : " ++ Kinto.errorToString error, profileData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model
+                | notifications =
+                    "Mise à jour du profil échouée : "
+                        ++ Kinto.errorToString error
+                        |> Notifications.addError model.notifications
+                , profileData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
 isProfileFormComplete : Data.Kinto.Profile -> Bool
@@ -190,7 +221,7 @@ updateProfile { kintoURL, userData } model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { userData } { pageState, error, profileForm, profileData, userInfoData } =
+view { userData } { pageState, profileForm, profileData, userInfoData, notifications } =
     let
         title =
             case pageState of
@@ -208,7 +239,7 @@ view { userData } { pageState, error, profileForm, profileData, userInfoData } =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ viewError error
+            [ H.map NotificationMsg (Notifications.view notifications)
             , H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
                     [ if userData /= Data.Session.emptyUserData then
@@ -322,13 +353,3 @@ viewEditProfileForm pageState profileForm profileData userInfoData =
             Page.Utils.submitButton "Mettre à jour mon profil" buttonState
     in
     viewProfileForm submitButton UpdateProfile profileForm
-
-
-viewError : Maybe String -> H.Html Msg
-viewError maybeError =
-    case maybeError of
-        Just error ->
-            Page.Utils.errorNotification [ H.text error ] DiscardError
-
-        Nothing ->
-            H.div [] []

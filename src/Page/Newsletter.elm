@@ -6,18 +6,19 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
+import Page.Common.Notifications as Notifications
 import Page.Utils
 import Random
 import Random.Char
 import Random.String
 import Request.KintoContact
 import Route
-import Page.Utils
 
 
 type alias Model =
     { contact : Contact
     , newContactKintoData : KintoData Contact
+    , notifications : Notifications.Model
     }
 
 
@@ -30,13 +31,14 @@ type Msg
     | GenerateRandomPassword
     | SubmitNewContact RandomPassword
     | NewContactSubmitted (Result Kinto.Error Contact)
-    | DiscardNotification
+    | NotificationMsg Notifications.Msg
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { contact = emptyContact
       , newContactKintoData = NotRequested
+      , notifications = Notifications.init
       }
     , Cmd.none
     )
@@ -57,21 +59,32 @@ update session msg model =
             )
 
         NewContactSubmitted (Ok contact) ->
-            ( { model | newContactKintoData = Received contact, contact = emptyContact }
+            ( { model
+                | newContactKintoData = Received contact
+                , contact = emptyContact
+                , notifications =
+                    "Vous êtes maintenant inscrit à l'infolettre !"
+                        |> Notifications.addSuccess model.notifications
+              }
             , Cmd.none
             )
 
         NewContactSubmitted (Err error) ->
-            ( { model | newContactKintoData = Failed error }
+            ( { model
+                | newContactKintoData = NotRequested
+                , notifications =
+                    Kinto.errorToString error
+                        |> Notifications.addError model.notifications
+              }
             , Cmd.none
             )
 
-        DiscardNotification ->
-            ( { model | newContactKintoData = NotRequested }, Cmd.none )
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { contact, newContactKintoData } =
+view _ { contact, newContactKintoData, notifications } =
     let
         buttonState =
             if contact.name == "" || contact.email == "" || contact.role == "" then
@@ -94,10 +107,10 @@ view _ { contact, newContactKintoData } =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ H.div [ HA.class "section section-white" ]
+            [ H.map NotificationMsg (Notifications.view notifications)
+            , H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ displayKintoData newContactKintoData
-                    , H.form [ HE.onSubmit GenerateRandomPassword ]
+                    [ H.form [ HE.onSubmit GenerateRandomPassword ]
                         [ formInput
                             "nom"
                             "text"
@@ -164,23 +177,6 @@ formInput id type_ label placeholder value onInput =
             ]
             []
         ]
-
-
-displayKintoData : KintoData Contact -> H.Html Msg
-displayKintoData kintoData =
-    case kintoData of
-        Failed error ->
-            Page.Utils.errorNotification [ H.text (Kinto.errorToString error) ] DiscardNotification
-
-        Received _ ->
-            Page.Utils.successNotification
-                [ H.text "Vous êtes maintenant inscrit à l'infolettre ! "
-                , H.a [ Route.href Route.Home ] [ H.text "Retourner à la liste de vidéos" ]
-                ]
-                DiscardNotification
-
-        _ ->
-            H.div [] []
 
 
 generateRandomPassword : Cmd Msg

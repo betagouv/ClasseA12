@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Kinto
+import Page.Common.Notifications as Notifications
 import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
@@ -17,14 +18,14 @@ import Route
 type alias Model =
     { userID : String
     , activationKey : String
-    , error : Maybe String
+    , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
     }
 
 
 type Msg
     = Activate
-    | DiscardError
+    | NotificationMsg Notifications.Msg
     | AccountActivated (Result Http.Error Request.KintoAccount.UserInfo)
 
 
@@ -32,7 +33,7 @@ init : String -> String -> Session -> ( Model, Cmd Msg )
 init userID activationKey session =
     ( { userID = userID
       , activationKey = activationKey
-      , error = Nothing
+      , notifications = Notifications.init
       , userInfoData = Data.Kinto.NotRequested
       }
     , Cmd.none
@@ -47,11 +48,8 @@ update session msg model =
             , Request.KintoAccount.activate session.kintoURL model.userID model.activationKey AccountActivated
             )
 
-        DiscardError ->
-            ( { model | error = Nothing }, Cmd.none )
-
         AccountActivated (Ok userInfo) ->
-            ( { model | error = Nothing, userInfoData = Data.Kinto.Received userInfo }
+            ( { model | userInfoData = Data.Kinto.Received userInfo }
             , Cmd.none
             )
 
@@ -60,11 +58,22 @@ update session msg model =
                 kintoError =
                     Kinto.extractError error
             in
-            ( { model | error = Just <| "Activation échouée : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model
+                | notifications =
+                    "Activation échouée : "
+                        ++ Kinto.errorToString kintoError
+                        |> Notifications.addError model.notifications
+                , userInfoData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { error, userInfoData, userID } =
+view _ { notifications, userInfoData, userID } =
     ( "Activation"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -73,7 +82,7 @@ view _ { error, userInfoData, userID } =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ viewError error
+            [ H.map NotificationMsg (Notifications.view notifications)
             , H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
                     [ case userInfoData of
@@ -111,13 +120,3 @@ viewActivationForm userID userInfoData =
         [ H.h1 [] [ H.text <| "Activation du compte " ++ userID ]
         , submitButton
         ]
-
-
-viewError : Maybe String -> H.Html Msg
-viewError maybeError =
-    case maybeError of
-        Just error ->
-            Page.Utils.errorNotification [ H.text error ] DiscardError
-
-        Nothing ->
-            H.div [] []

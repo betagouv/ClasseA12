@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Kinto
+import Page.Common.Notifications as Notifications
 import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
@@ -16,7 +17,7 @@ import Route
 
 type alias Model =
     { loginForm : UserData
-    , error : Maybe String
+    , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Data.Kinto.UserInfo
     }
 
@@ -24,7 +25,7 @@ type alias Model =
 type Msg
     = UpdateLoginForm UserData
     | Login
-    | DiscardError
+    | NotificationMsg Notifications.Msg
     | UserInfoReceived (Result Http.Error Data.Kinto.UserInfo)
 
 
@@ -33,8 +34,8 @@ init session =
     let
         initialModel =
             { loginForm = session.userData
-            , error = Nothing
             , userInfoData = Data.Kinto.NotRequested
+            , notifications = Notifications.init
             }
 
         modelAndCommands =
@@ -56,11 +57,8 @@ update session msg model =
         Login ->
             useLogin session.kintoURL model
 
-        DiscardError ->
-            ( { model | error = Nothing }, Cmd.none )
-
         UserInfoReceived (Ok userInfo) ->
-            ( { model | error = Nothing, userInfoData = Data.Kinto.Received userInfo }
+            ( { model | userInfoData = Data.Kinto.Received userInfo }
             , Cmd.none
             )
 
@@ -81,7 +79,18 @@ update session msg model =
                         _ ->
                             Kinto.errorToString kintoError
             in
-            ( { model | error = Just <| "Connexion échouée : " ++ message, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model
+                | notifications =
+                    "Connection échouée : "
+                        ++ message
+                        |> Notifications.addError model.notifications
+                , userInfoData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
 isLoginFormComplete : UserData -> Bool
@@ -101,7 +110,7 @@ useLogin kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { error, loginForm, userInfoData } =
+view _ { notifications, loginForm, userInfoData } =
     ( "Connexion"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -110,7 +119,7 @@ view _ { error, loginForm, userInfoData } =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ viewError error
+            [ H.map NotificationMsg (Notifications.view notifications)
             , case userInfoData of
                 Data.Kinto.Received userInfo ->
                     H.div [] [ H.text "Vous êtes maintenant connecté" ]
@@ -173,13 +182,3 @@ viewLoginForm loginForm userInfoData =
         , H.text " "
         , H.a [ Route.href Route.Register ] [ H.text "Je n'ai pas encore de compte" ]
         ]
-
-
-viewError : Maybe String -> H.Html Msg
-viewError maybeError =
-    case maybeError of
-        Just error ->
-            Page.Utils.errorNotification [ H.text error ] DiscardError
-
-        Nothing ->
-            H.div [] []

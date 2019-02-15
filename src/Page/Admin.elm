@@ -6,6 +6,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
+import Page.Common.Notifications as Notifications
 import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
@@ -20,7 +21,7 @@ import Url
 type alias Model =
     { videoListData : VideoListData
     , contactListData : ContactListData
-    , errorList : List String
+    , notifications : Notifications.Model
     , publishingVideos : PublishingVideos
     , activeVideo : Maybe Data.Kinto.Video
     }
@@ -33,7 +34,7 @@ type alias PublishingVideos =
 type Msg
     = VideoListFetched (Result Kinto.Error VideoList)
     | ContactListFetched (Result Kinto.Error ContactList)
-    | DiscardError Int
+    | NotificationMsg Notifications.Msg
     | PublishVideo Video
     | VideoPublished (Result Kinto.Error Video)
     | VideoRemoved Video (Result Kinto.Error DeletedRecord)
@@ -46,7 +47,7 @@ init session =
         initialModel =
             { videoListData = Data.Kinto.NotRequested
             , contactListData = Data.Kinto.NotRequested
-            , errorList = []
+            , notifications = Notifications.init
             , publishingVideos = []
             , activeVideo = Nothing
             }
@@ -82,7 +83,9 @@ update session msg model =
         VideoListFetched (Err err) ->
             ( { model
                 | videoListData = Data.Kinto.Failed err
-                , errorList = [ Kinto.errorToString err ] ++ model.errorList
+                , notifications =
+                    Kinto.errorToString err
+                        |> Notifications.addError model.notifications
               }
             , Cmd.none
             )
@@ -93,13 +96,10 @@ update session msg model =
         ContactListFetched (Err err) ->
             ( { model
                 | contactListData = Data.Kinto.Failed err
-                , errorList = [ Kinto.errorToString err ] ++ model.errorList
+                , notifications =
+                    Kinto.errorToString err
+                        |> Notifications.addError model.notifications
               }
-            , Cmd.none
-            )
-
-        DiscardError index ->
-            ( { model | errorList = List.take index model.errorList ++ List.drop (index + 1) model.errorList }
             , Cmd.none
             )
 
@@ -123,7 +123,9 @@ update session msg model =
 
         VideoPublished (Err err) ->
             ( { model
-                | errorList = [ Kinto.errorToString err ] ++ model.errorList
+                | notifications =
+                    Kinto.errorToString err
+                        |> Notifications.addError model.notifications
               }
             , Cmd.none
             )
@@ -156,7 +158,9 @@ update session msg model =
 
         VideoRemoved video (Err err) ->
             ( { model
-                | errorList = [ Kinto.errorToString err ] ++ model.errorList
+                | notifications =
+                    Kinto.errorToString err
+                        |> Notifications.addError model.notifications
               }
             , Cmd.none
             )
@@ -174,9 +178,12 @@ update session msg model =
             in
             ( { model | activeVideo = activeVideo }, Cmd.none )
 
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, userData } { errorList, videoListData, contactListData, publishingVideos, activeVideo } =
+view { timezone, userData } { notifications, videoListData, contactListData, publishingVideos, activeVideo } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -186,7 +193,7 @@ view { timezone, userData } { errorList, videoListData, contactListData, publish
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ Page.Utils.errorList errorList DiscardError
+            [ H.map NotificationMsg (Notifications.view notifications)
             , if Data.Session.isLoggedIn userData then
                 case videoListData of
                     Data.Kinto.Received videoList ->

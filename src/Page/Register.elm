@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Kinto
+import Page.Common.Notifications as Notifications
 import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
@@ -16,7 +17,7 @@ import Route
 
 type alias Model =
     { registerForm : RegisterForm
-    , error : Maybe String
+    , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
     }
 
@@ -36,14 +37,14 @@ emptyRegisterForm =
 type Msg
     = UpdateRegisterForm RegisterForm
     | Register
-    | DiscardError
+    | NotificationMsg Notifications.Msg
     | UserInfoReceived (Result Http.Error Request.KintoAccount.UserInfo)
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { registerForm = emptyRegisterForm
-      , error = Nothing
+      , notifications = Notifications.init
       , userInfoData = Data.Kinto.NotRequested
       }
     , Cmd.none
@@ -59,11 +60,8 @@ update session msg model =
         Register ->
             registerAccount session.kintoURL model
 
-        DiscardError ->
-            ( { model | error = Nothing }, Cmd.none )
-
         UserInfoReceived (Ok userInfo) ->
-            ( { model | error = Nothing, userInfoData = Data.Kinto.Received userInfo }
+            ( { model | userInfoData = Data.Kinto.Received userInfo }
             , Cmd.none
             )
 
@@ -72,7 +70,18 @@ update session msg model =
                 kintoError =
                     Kinto.extractError error
             in
-            ( { model | error = Just <| "Inscription échouéeba : " ++ Kinto.errorToString kintoError, userInfoData = Data.Kinto.NotRequested }, Cmd.none )
+            ( { model
+                | notifications =
+                    "Inscription échouée : "
+                        ++ Kinto.errorToString kintoError
+                        |> Notifications.addError model.notifications
+                , userInfoData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
 isRegisterFormComplete : RegisterForm -> Bool
@@ -92,7 +101,7 @@ registerAccount kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { error, registerForm, userInfoData } =
+view _ { notifications, registerForm, userInfoData } =
     ( "Inscription"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -101,7 +110,7 @@ view _ { error, registerForm, userInfoData } =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ viewError error
+            [ H.map NotificationMsg (Notifications.view notifications)
             , H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
                     [ case userInfoData of
@@ -182,13 +191,3 @@ viewRegisterForm registerForm userInfoData =
             ]
         , submitButton
         ]
-
-
-viewError : Maybe String -> H.Html Msg
-viewError maybeError =
-    case maybeError of
-        Just error ->
-            Page.Utils.errorNotification [ H.text error ] DiscardError
-
-        Nothing ->
-            H.div [] []
