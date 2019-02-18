@@ -151,7 +151,7 @@ view _ { contact, newContactKintoData, notifications } =
                             ]
                         , H.p []
                             [ H.text "Vous pouvez vous désinscrire à tout moment en nous contactant à l'adresse "
-                            , H.a [ HA.href "mailto:contact@classea12.beta.gouv.fr?subject=désinscription infolettre" ] [ H.text "contact@classea12.beta.gouv.fr" ]
+                            , H.a [ HA.href "mailto:classea12@education.gouv.fr?subject=désinscription infolettre" ] [ H.text "classea12@education.gouv.fr" ]
                             , H.text "."
                             ]
                         ]

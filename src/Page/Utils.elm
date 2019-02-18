@@ -149,8 +149,8 @@ viewPublicVideo timezone timestamp video =
                 timestampMillis =
                     Time.posixToMillis timestamp
 
-                creationDateMillis =
-                    Time.posixToMillis video.creation_date
+                publishDateMillis =
+                    Time.posixToMillis video.publish_date
             in
             if timestampMillis == 0 then
                 -- The timestamp isn't initialized yet
@@ -158,7 +158,7 @@ viewPublicVideo timezone timestamp video =
 
             else
                 timestampMillis
-                    - creationDateMillis
+                    - publishDateMillis
                     -- A video is recent if it's less than 15 days.
                     |> (>) (15 * 24 * 60 * 60 * 1000)
 
@@ -276,7 +276,15 @@ posixToDate timezone posix =
                     "12"
 
         day =
-            String.fromInt <| Time.toDay timezone posix
+            Time.toDay timezone posix
+                |> String.fromInt
+                |> (\str ->
+                        if String.length str < 2 then
+                            "0" ++ str
+
+                        else
+                            str
+                   )
     in
     year ++ "-" ++ month ++ "-" ++ day
 

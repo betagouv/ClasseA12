@@ -333,6 +333,16 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                     []
                 , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
                     [ H.text "CE1" ]
+                , H.input
+                    [ HA.id "grade-cp-ce1"
+                    , HA.type_ "radio"
+                    , HA.name "grade"
+                    , HA.checked <| newVideo.grade == "CP et CE1"
+                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "CP et CE1" })
+                    ]
+                    []
+                , H.label [ HA.for "grade-cp-ce1", HA.class "label-inline" ]
+                    [ H.text "CP et CE1" ]
                 ]
             ]
         , formInput
@@ -363,7 +373,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
         , formInput
             H.input
             "freeform-keyword"
-            "Préciser (parmis les mots clés grisés ci-dessus) ou ajouter des mots clés"
+            "Préciser (parmi les mots clés grisés ci-dessus) ou ajouter des mots clés"
             "Liste de mots clés séparés par des virgules"
             freeformKeywords
             UpdateFreeformKeywords
@@ -531,7 +541,7 @@ checkbox msg ( key, value ) =
                     )
                 |> Maybe.withDefault []
     in
-     H.div [HA.class "keywords" ]
+    H.div [ HA.class "keywords" ]
         ([ H.input
             [ HA.type_ "checkbox"
             , HA.id id
@@ -543,7 +553,6 @@ checkbox msg ( key, value ) =
          ]
             ++ includedKeywords
         )
-    
 
 
 viewKeywords : Keywords -> (String -> Msg) -> List (H.Html Msg)

@@ -98,6 +98,7 @@ type alias Video =
     , duration : Int
     , thumbnail : String
     , creation_date : Time.Posix
+    , publish_date : Time.Posix
     }
 
 
@@ -112,6 +113,7 @@ emptyVideo =
     , duration = 0
     , thumbnail = ""
     , creation_date = Time.millisToPosix 0
+    , publish_date = Time.millisToPosix 0
     }
 
 
@@ -121,6 +123,7 @@ type alias NewVideo =
     , keywords : List String
     , description : String
     , creation_date : Time.Posix
+    , publish_date : Time.Posix
     }
 
 
@@ -130,6 +133,7 @@ emptyNewVideo =
     , grade = "CP"
     , keywords = []
     , creation_date = Time.millisToPosix 0
+    , publish_date = Time.millisToPosix 0
     }
 
 
@@ -146,6 +150,7 @@ videoDecoder =
         |> Pipeline.required "duration" Decode.int
         |> Pipeline.required "thumbnail" Decode.string
         |> Pipeline.optional "creation_date" posixDecoder (Time.millisToPosix 0)
+        |> Pipeline.optional "publish_date" posixDecoder (Time.millisToPosix 0)
 
 
 posixDecoder : Decode.Decoder Time.Posix
@@ -185,6 +190,7 @@ encodeNewVideoData video =
         , ( "grade", Encode.string video.grade )
         , ( "keywords", encodeKeywords video.keywords )
         , ( "creation_date", encodePosix video.creation_date )
+        , ( "publish_date", encodePosix video.publish_date )
         ]
 
 
@@ -201,6 +207,7 @@ encodeVideoData video =
         , ( "duration", Encode.int video.duration )
         , ( "thumbnail", Encode.string video.thumbnail )
         , ( "creation_date", encodePosix video.creation_date )
+        , ( "publish_date", encodePosix video.publish_date )
         ]
 
 

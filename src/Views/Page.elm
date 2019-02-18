@@ -95,7 +95,7 @@ viewHeader { activePage, session, logoutMsg } =
                     , linkMaybeActive About Route.About "Classe à 12 ?"
                     , linkMaybeActive Participate Route.Participate "Je participe !"
                     , li [ class "nav__item" ]
-                        [ a [ href "mailto:contact@classea12.beta.gouv.fr?subject=Classes à 12 sur beta.gouv.fr" ]
+                        [ a [ href "mailto:classea12@education.gouv.fr?subject=Classes à 12 sur beta.gouv.fr" ]
                             [ text "Contactez-nous" ]
                         ]
                     , linkMaybeActive Newsletter Route.Newsletter "Inscrivez-vous à notre infolettre"
@@ -128,7 +128,7 @@ viewFooter session =
                             ]
                         ]
                     , li []
-                        [ a [ href "mailto:contact@classea12.beta.gouv.fr?subject=Classes à 12 sur beta.gouv.fr", class "icon icon-mail" ]
+                        [ a [ href "mailto:classea12@education.gouv.fr?subject=Classes à 12 sur beta.gouv.fr", class "icon icon-mail" ]
                             [ i [ class "fas fa-envelope fa-2x" ] []
                             ]
                         ]
