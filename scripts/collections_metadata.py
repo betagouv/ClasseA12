@@ -52,6 +52,11 @@ VIDEOS_COLLECTIONS_METADATA = {
                     "title": "Date de publication",
                     "description": "Date de publication de la vid\u00e9o",
                 },
+                "profile": {
+                    "type": "string",
+                    "title": "Profil",
+                    "description": "Profil correspond au compte qui a cr\u00e9\u00e9 la vid\u00e9o",
+                },
             },
         },
         "uiSchema": {
@@ -64,6 +69,7 @@ VIDEOS_COLLECTIONS_METADATA = {
                 "thumbnail",
                 "creation_date",
                 "publish_date",
+                "profile",
             ],
             "description": {"ui:widget": "textarea", "ui:options": {"rows": 5}},
         },

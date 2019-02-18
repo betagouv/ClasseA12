@@ -11,9 +11,6 @@ import Json.Decode as Decode
 import Kinto
 import Page.Utils
 import Ports
-import Random
-import Random.Char
-import Random.String
 import Request.KintoUpcoming
 import Route
 import Task
@@ -49,8 +46,7 @@ type Credentials
 type Msg
     = UpdateVideoForm NewVideo
     | GetTimestamp
-    | GenerateRandomCredentials Time.Posix
-    | SubmitNewVideo Time.Posix Credentials
+    | SubmitNewVideo Time.Posix
     | DiscardNotification
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
@@ -76,59 +72,64 @@ init session =
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update { userData } msg model =
     case msg of
         UpdateVideoForm video ->
             ( { model | newVideo = video }, Cmd.none )
 
         GetTimestamp ->
-            ( model, Task.perform GenerateRandomCredentials Time.now )
+            ( model, Task.perform SubmitNewVideo Time.now )
 
-        GenerateRandomCredentials timestamp ->
-            -- TODO : this is only there temporarily, and will be replaced by the user's credentials
-            ( model, generateRandomCredentials timestamp )
+        SubmitNewVideo timestamp ->
+            case userData.profile of
+                Just profile ->
+                    let
+                        newVideo =
+                            model.newVideo
 
-        SubmitNewVideo timestamp (Credentials ( login, password )) ->
-            let
-                newVideo =
-                    model.newVideo
+                        timestampedVideo =
+                            { newVideo | creation_date = timestamp }
 
-                timestampedVideo =
-                    { newVideo | creation_date = timestamp }
+                        updatedKeywords =
+                            model.freeformKeywords
+                                -- Split the keywords into a list
+                                |> String.split ","
+                                -- Remove the extraneous spaces
+                                |> List.map String.trim
+                                -- Remove the empty keywords
+                                |> List.filter (\keyword -> keyword /= "")
+                                -- Add the keywords to the current video keywords
+                                |> List.foldl
+                                    (\keyword keywords ->
+                                        Dict.insert keyword True keywords
+                                    )
+                                    model.preSelectedKeywords
 
-                updatedKeywords =
-                    model.freeformKeywords
-                        -- Split the keywords into a list
-                        |> String.split ","
-                        -- Remove the extraneous spaces
-                        |> List.map String.trim
-                        -- Remove the empty keywords
-                        |> List.filter (\keyword -> keyword /= "")
-                        -- Add the keywords to the current video keywords
-                        |> List.foldl
-                            (\keyword keywords ->
-                                Dict.insert keyword True keywords
-                            )
-                            model.preSelectedKeywords
+                        videoToSubmit =
+                            { timestampedVideo
+                                | keywords = keywordsToList updatedKeywords
+                                , profile = profile
+                            }
 
-                videoToSubmit =
-                    { timestampedVideo | keywords = keywordsToList updatedKeywords }
+                        submitVideoData : Ports.SubmitVideoData
+                        submitVideoData =
+                            { nodeID = "video"
+                            , videoNodeID = "uploaded-video"
+                            , videoData = Data.Kinto.encodeNewVideoData videoToSubmit
+                            , login = userData.username
+                            , password = userData.password
+                            }
+                    in
+                    ( { model
+                        | newVideoKintoData = Requested
+                        , newVideo = videoToSubmit
+                      }
+                    , Ports.submitVideo submitVideoData
+                    )
 
-                submitVideoData : Ports.SubmitVideoData
-                submitVideoData =
-                    { nodeID = "video"
-                    , videoNodeID = "uploaded-video"
-                    , videoData = Data.Kinto.encodeNewVideoData videoToSubmit
-                    , login = login
-                    , password = password
-                    }
-            in
-            ( { model
-                | newVideoKintoData = Requested
-                , newVideo = videoToSubmit
-              }
-            , Ports.submitVideo submitVideoData
-            )
+                Nothing ->
+                    -- Not profile information in the session? We should never reach this state.
+                    ( model, Cmd.none )
 
         DiscardNotification ->
             ( { model | newVideoKintoData = NotRequested }, Cmd.none )
@@ -206,7 +207,7 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ model =
+view { userData } model =
     ( "Je participe !"
     , [ H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
@@ -237,7 +238,11 @@ view _ model =
                                 ]
                             ]
                         ]
-                    , displaySubmitVideoForm model
+                    , if not <| Data.Session.isLoggedIn userData then
+                        Page.Utils.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+
+                      else
+                        displaySubmitVideoForm model
                     ]
                 ]
             ]
@@ -498,25 +503,6 @@ formInput input id label placeholder value onInput isVisible =
             ]
             []
         ]
-
-
-randomString : Random.Generator String
-randomString =
-    Random.String.string 20 Random.Char.latin
-
-
-stringPair : Random.Generator ( String, String )
-stringPair =
-    Random.pair randomString randomString
-
-
-generateRandomCredentials : Time.Posix -> Cmd Msg
-generateRandomCredentials timestamp =
-    Random.generate
-        (SubmitNewVideo timestamp)
-        (stringPair
-            |> Random.map Credentials
-        )
 
 
 onSelectMultiple : (List String -> Msg) -> H.Attribute Msg
