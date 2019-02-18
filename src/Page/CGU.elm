@@ -92,12 +92,12 @@ view _ _ =
                     , H.p [] [ H.text "L'historique de consultation de l'Utilisateur n'est jamais rendu public, ni communiqué à des tiers, en dehors des cas prévus par la loi." ]
                     , H.p []
                         [ H.text "En application de la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés, l'Utilisateur dispose d'un droit d'accès, de rectification et d'opposition auprès de «\u{00A0}Classe à 12\u{00A0}». Ce droit s'exerce par courriel adressé à "
-                        , H.a [ HA.href "mailto:contact@classea12.beta.gouv.fr?subject=droit d'accès, rectification ou opposition" ] [ H.text "contact@classea12.beta.gouv.fr" ]
+                        , H.a [ HA.href "mailto:classea12@education.gouv.fr?subject=droit d'accès, rectification ou opposition" ] [ H.text "classea12@education.gouv.fr" ]
                         , H.text "."
                         ]
                     , H.p []
                         [ H.text "Conformément à la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés, toute personne dont les données nominatives figurent dans «\u{00A0}Classe à 12\u{00A0}» ou sont utilisées de toute autre manière dans le cadre du présent site, dispose des droits suivants qu’elle peut exercer en prenant contact auprès du délégué à la protection des données (DPO) à l’adresse suivante : "
-                        , H.a [ HA.href "mailto:contact@classea12.beta.gouv.fr" ] [ H.text "contact@classea12.beta.gouv.fr" ]
+                        , H.a [ HA.href "mailto:classea12@education.gouv.fr" ] [ H.text "classea12@education.gouv.fr" ]
                         , H.text "."
                         ]
                     , H.ul []
