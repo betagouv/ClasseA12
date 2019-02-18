@@ -156,8 +156,8 @@ setRoute url oldModel =
         Just Route.Register ->
             toPage RegisterPage Register.init RegisterMsg
 
-        Just (Route.Activate userID activationKey) ->
-            toPage ActivatePage (Activate.init userID activationKey) ActivateMsg
+        Just (Route.Activate username activationKey) ->
+            toPage ActivatePage (Activate.init username activationKey) ActivateMsg
 
         Just Route.Profile ->
             toPage ProfilePage Profile.init ProfileMsg
@@ -266,7 +266,7 @@ update msg ({ page, session } as model) =
                             loginModel.loginForm
 
                         userData =
-                            { loginForm | userID = userInfo.id, profile = userInfo.profile }
+                            { loginForm | username = userInfo.id, profile = userInfo.profile }
 
                         updatedSession =
                             { session | userData = userData }
@@ -316,7 +316,7 @@ update msg ({ page, session } as model) =
                             session.userData
 
                         updatedUserData =
-                            { userData | userID = userInfo.id, profile = Just profile.id }
+                            { userData | username = userInfo.id, profile = Just profile.id }
 
                         updatedSession =
                             { session | userData = updatedUserData }

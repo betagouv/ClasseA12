@@ -30,7 +30,6 @@ type alias Session =
 type alias UserData =
     { username : String
     , password : String
-    , userID : String
     , profile : Maybe String
     }
 
@@ -39,7 +38,6 @@ emptyUserData : UserData
 emptyUserData =
     { username = ""
     , password = ""
-    , userID = ""
     , profile = Nothing
     }
 
@@ -59,7 +57,6 @@ encodeUserData userData =
     Encode.object
         ([ ( "username", Encode.string userData.username )
          , ( "password", Encode.string userData.password )
-         , ( "userID", Encode.string userData.userID )
          ]
             ++ (case userData.profile of
                     Just profile ->
@@ -73,9 +70,8 @@ encodeUserData userData =
 
 decodeUserData : Decode.Decoder UserData
 decodeUserData =
-    Decode.map4
+    Decode.map3
         UserData
         (Decode.field "username" Decode.string)
         (Decode.field "password" Decode.string)
-        (Decode.field "userID" Decode.string)
         (Decode.field "profile" (Decode.maybe Decode.string))

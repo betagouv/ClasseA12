@@ -16,7 +16,7 @@ import Route
 
 
 type alias Model =
-    { userID : String
+    { username : String
     , activationKey : String
     , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
@@ -30,8 +30,8 @@ type Msg
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
-init userID activationKey session =
-    ( { userID = userID
+init username activationKey session =
+    ( { username = username
       , activationKey = activationKey
       , notifications = Notifications.init
       , userInfoData = Data.Kinto.NotRequested
@@ -45,7 +45,7 @@ update session msg model =
     case msg of
         Activate ->
             ( { model | userInfoData = Data.Kinto.Requested }
-            , Request.KintoAccount.activate session.kintoURL model.userID model.activationKey AccountActivated
+            , Request.KintoAccount.activate session.kintoURL model.username model.activationKey AccountActivated
             )
 
         AccountActivated (Ok userInfo) ->
@@ -73,7 +73,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { notifications, userInfoData, userID } =
+view _ { notifications, userInfoData, username } =
     ( "Activation"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -93,7 +93,7 @@ view _ { notifications, userInfoData, userID } =
                                 ]
 
                         _ ->
-                            viewActivationForm userID userInfoData
+                            viewActivationForm username userInfoData
                     ]
                 ]
             ]
@@ -102,7 +102,7 @@ view _ { notifications, userInfoData, userID } =
 
 
 viewActivationForm : String -> Request.KintoAccount.UserInfoData -> H.Html Msg
-viewActivationForm userID userInfoData =
+viewActivationForm username userInfoData =
     let
         buttonState =
             case userInfoData of
@@ -117,6 +117,6 @@ viewActivationForm userID userInfoData =
     in
     H.form
         [ HE.onSubmit Activate ]
-        [ H.h1 [] [ H.text <| "Activation du compte " ++ userID ]
+        [ H.h1 [] [ H.text <| "Activation du compte " ++ username ]
         , submitButton
         ]

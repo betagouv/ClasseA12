@@ -101,9 +101,9 @@ toString route =
                 Register ->
                     [ "inscription" ]
 
-                Activate userID activationKey ->
+                Activate username activationKey ->
                     [ "activation"
-                    , userID
+                    , username
                     , activationKey
                     ]
 
