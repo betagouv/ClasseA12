@@ -40,6 +40,7 @@ type Msg
     | ProfileCreated (Result Kinto.Error Data.Kinto.Profile)
     | ProfileAssociated Data.Kinto.Profile (Result Http.Error Data.Kinto.UserInfo)
     | ProfileUpdated (Result Kinto.Error Data.Kinto.Profile)
+    | Logout
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -183,6 +184,10 @@ update session msg model =
 
         NotificationMsg notificationMsg ->
             ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+
+        Logout ->
+            -- This message is dealt with in the `Main` module.
+            ( model, Cmd.none )
 
 
 isProfileFormComplete : Data.Kinto.Profile -> Bool
@@ -350,6 +355,9 @@ viewEditProfileForm pageState profileForm profileData userInfoData =
                 Page.Utils.Disabled
 
         submitButton =
-            Page.Utils.submitButton "Mettre à jour mon profil" buttonState
+            H.div []
+                [ Page.Utils.submitButton "Mettre à jour mon profil" buttonState
+                , H.button [ HA.class "button warning", HE.onClick Logout ] [ H.text "Me déconnecter" ]
+                ]
     in
     viewProfileForm submitButton UpdateProfile profileForm

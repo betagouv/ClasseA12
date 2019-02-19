@@ -25,14 +25,13 @@ type ActivePage
     | NotFound
 
 
-type alias Config msg =
+type alias Config =
     { session : Session
-    , logoutMsg : msg
     , activePage : ActivePage
     }
 
 
-frame : Config msg -> ( String, List (Html.Html msg) ) -> Document msg
+frame : Config -> ( String, List (Html.Html msg) ) -> Document msg
 frame config ( title, content ) =
     { title = title ++ " | Classe à 12"
     , body =
@@ -42,22 +41,24 @@ frame config ( title, content ) =
     }
 
 
-viewHeader : Config msg -> Html msg
-viewHeader { activePage, session, logoutMsg } =
+viewHeader : Config -> Html msg
+viewHeader { activePage, session } =
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
                 [ i [ class "fas fa-sign-in-alt" ] []
+                , text " Se connecter"
                 ]
 
-        logoutIcon =
-            button [ class "button-link", onClick logoutMsg, title "Se déconnecter" ]
-                [ i [ class "fas fa-sign-out-alt" ] []
+        profileIcon =
+            a [ Route.href Route.Profile, title "Éditer son profil" ]
+                [ i [ class "far fa-user-circle" ] []
+                , text <| " " ++ session.userData.username
                 ]
 
-        loginLogoutIcon =
+        loginProfileIcon =
             if isLoggedIn session.userData then
-                logoutIcon
+                profileIcon
 
             else
                 loginIcon
@@ -99,7 +100,7 @@ viewHeader { activePage, session, logoutMsg } =
                             [ text "Contactez-nous" ]
                         ]
                     , linkMaybeActive Newsletter Route.Newsletter "Inscrivez-vous à notre infolettre"
-                    , li [ class "nav__item" ] [ loginLogoutIcon ]
+                    , li [ class "nav__item" ] [ loginProfileIcon ]
                     ]
                 ]
             ]

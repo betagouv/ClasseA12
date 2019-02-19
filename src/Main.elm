@@ -79,7 +79,6 @@ type Msg
     | NewTimestamp Time.Posix
     | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
     | AdjustTimeZone Time.Zone
-    | Logout
 
 
 setRoute : Url -> Model -> ( Model, Cmd Msg )
@@ -308,9 +307,9 @@ update msg ({ page, session } as model) =
                     toPage ProfilePage ProfileMsg (Profile.update session) profileMsg profileModel
             in
             case profileMsg of
-                -- Special case: if we associated the profile to the user record, then
-                -- we can store the updated user and profile in the session for future use
                 Profile.ProfileAssociated profile (Ok userInfo) ->
+                    -- Special case: if we associated the profile to the user record, then
+                    -- we can store the updated user and profile in the session for future use
                     let
                         userData =
                             session.userData
@@ -324,6 +323,19 @@ update msg ({ page, session } as model) =
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
                         [ Ports.saveSession <| encodeUserData userData
+                        , newCmd
+                        ]
+                    )
+
+                Profile.Logout ->
+                    let
+                        updatedSession =
+                            { session | userData = emptyUserData }
+                    in
+                    ( { newModel | session = updatedSession }
+                    , Cmd.batch
+                        [ Ports.logoutSession ()
+                        , Route.pushUrl model.navKey Route.Home
                         , newCmd
                         ]
                     )
@@ -385,13 +397,6 @@ update msg ({ page, session } as model) =
                     model.session
             in
             ( { model | session = { modelSession | timezone = zone } }, Cmd.none )
-
-        ( Logout, _ ) ->
-            let
-                updatedSession =
-                    { session | userData = emptyUserData }
-            in
-            ( { model | session = updatedSession }, Ports.logoutSession () )
 
         ( _, NotFound ) ->
             ( { model | page = NotFound }
@@ -475,7 +480,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session Logout
+            Page.Config model.session
 
         mapMsg msg ( title, content ) =
             ( title, content |> List.map (Html.map msg) )
