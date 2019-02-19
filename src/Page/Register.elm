@@ -19,6 +19,7 @@ type alias Model =
     { registerForm : RegisterForm
     , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
+    , approved : Bool
     }
 
 
@@ -39,6 +40,7 @@ type Msg
     | Register
     | NotificationMsg Notifications.Msg
     | UserInfoReceived (Result Http.Error Request.KintoAccount.UserInfo)
+    | OnApproved Bool
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -46,6 +48,7 @@ init session =
     ( { registerForm = emptyRegisterForm
       , notifications = Notifications.init
       , userInfoData = Data.Kinto.NotRequested
+      , approved = False
       }
     , Cmd.none
     )
@@ -83,15 +86,18 @@ update session msg model =
         NotificationMsg notificationMsg ->
             ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
+        OnApproved approved ->
+            ( { model | approved = approved }, Cmd.none )
 
-isRegisterFormComplete : RegisterForm -> Bool
-isRegisterFormComplete registerForm =
-    registerForm.email /= "" && registerForm.password /= "" && registerForm.password == registerForm.password2
+
+isRegisterFormComplete : RegisterForm -> Bool -> Bool
+isRegisterFormComplete registerForm approved =
+    approved && registerForm.email /= "" && registerForm.password /= "" && registerForm.password == registerForm.password2
 
 
 registerAccount : String -> Model -> ( Model, Cmd Msg )
 registerAccount kintoURL model =
-    if isRegisterFormComplete model.registerForm then
+    if isRegisterFormComplete model.registerForm model.approved then
         ( { model | userInfoData = Data.Kinto.Requested }
         , Request.KintoAccount.register kintoURL model.registerForm.email model.registerForm.password UserInfoReceived
         )
@@ -101,7 +107,7 @@ registerAccount kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { notifications, registerForm, userInfoData } =
+view _ { notifications, registerForm, userInfoData, approved } =
     ( "Inscription"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -120,7 +126,7 @@ view _ { notifications, registerForm, userInfoData } =
                                 ]
 
                         _ ->
-                            viewRegisterForm registerForm userInfoData
+                            viewRegisterForm registerForm userInfoData approved
                     ]
                 ]
             ]
@@ -128,11 +134,11 @@ view _ { notifications, registerForm, userInfoData } =
     )
 
 
-viewRegisterForm : RegisterForm -> Request.KintoAccount.UserInfoData -> H.Html Msg
-viewRegisterForm registerForm userInfoData =
+viewRegisterForm : RegisterForm -> Request.KintoAccount.UserInfoData -> Bool -> H.Html Msg
+viewRegisterForm registerForm userInfoData approved =
     let
         formComplete =
-            isRegisterFormComplete registerForm
+            isRegisterFormComplete registerForm approved
 
         buttonState =
             if formComplete then
@@ -155,6 +161,17 @@ viewRegisterForm registerForm userInfoData =
     H.form
         [ HE.onSubmit Register ]
         [ H.h1 [] [ H.text "Formulaire de création de compte" ]
+        , H.p []
+            [ H.text "L'utilisation de ce service est régi par une "
+            , H.a
+                [ Route.href Route.Convention ]
+                [ H.text "charte de bonne conduite" ]
+            , H.text " et des "
+            , H.a
+                [ Route.href Route.CGU ]
+                [ H.text "conditions générales d'utilisation" ]
+            , H.text "."
+            ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "email" ] [ H.text "Email (adresse académique uniquement)" ]
             , H.input
@@ -188,6 +205,18 @@ viewRegisterForm registerForm userInfoData =
                 , HE.onInput <| \password2 -> UpdateRegisterForm { registerForm | password2 = password2 }
                 ]
                 []
+            ]
+        , H.div
+            [ HA.class "form__group" ]
+            [ H.input
+                [ HA.id "approve_CGU"
+                , HA.type_ "checkbox"
+                , HA.checked approved
+                , HE.onCheck OnApproved
+                ]
+                []
+            , H.label [ HA.for "approveCGU", HA.class "label-inline" ]
+                [ H.text "J'ai lu et j'accepte d'adhérer à la charte de bonne conduite" ]
             ]
         , submitButton
         ]

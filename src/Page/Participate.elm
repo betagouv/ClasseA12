@@ -22,7 +22,6 @@ type alias Model =
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
     , progress : Page.Utils.Progress
-    , approved : Bool
     , preSelectedKeywords : Keywords
     , freeformKeywords : String
     }
@@ -52,7 +51,6 @@ type Msg
     | VideoObjectUrlReceived Decode.Value
     | ProgressUpdated Decode.Value
     | AttachmentSent String
-    | OnApproved Bool
     | UpdatePreSelectedKeywords String
     | UpdateFreeformKeywords String
 
@@ -63,7 +61,6 @@ init session =
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
       , progress = Page.Utils.emptyProgress
-      , approved = False
       , preSelectedKeywords = noKeywords
       , freeformKeywords = ""
       }
@@ -186,16 +183,12 @@ update { userData } msg model =
             ( { model
                 | newVideo = emptyNewVideo
                 , newVideoKintoData = kintoData
-                , approved = False
                 , freeformKeywords = ""
                 , videoObjectUrl = Nothing
                 , progress = Page.Utils.emptyProgress
               }
             , Cmd.none
             )
-
-        OnApproved approved ->
-            ( { model | approved = approved }, Cmd.none )
 
         UpdatePreSelectedKeywords keyword ->
             ( { model | preSelectedKeywords = toggleKeyword keyword model.preSelectedKeywords }
@@ -214,17 +207,6 @@ view { userData } model =
                 [ H.div [ HA.class "container" ]
                     [ displayKintoData model.newVideoKintoData
                     , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
-                    , H.p []
-                        [ H.text "L'utilisation de ce service est régi par une "
-                        , H.a
-                            [ Route.href Route.Convention ]
-                            [ H.text "charte de bonne conduite" ]
-                        , H.text " et des "
-                        , H.a
-                            [ Route.href Route.CGU ]
-                            [ H.text "conditions générales d'utilisation" ]
-                        , H.text "."
-                        ]
                     , H.p []
                         [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
                         , H.ul []
@@ -256,12 +238,11 @@ displaySubmitVideoForm :
         , newVideoKintoData : KintoData Video
         , videoObjectUrl : Maybe String
         , progress : Page.Utils.Progress
-        , approved : Bool
         , preSelectedKeywords : Keywords
         , freeformKeywords : String
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, approved, preSelectedKeywords, freeformKeywords } =
+displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, preSelectedKeywords, freeformKeywords } =
     let
         videoSelected =
             videoObjectUrl
@@ -383,30 +364,10 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
             freeformKeywords
             UpdateFreeformKeywords
             videoSelected
-        , H.div
-            [ HA.class "form__group"
-            , HA.style "display"
-                (if videoSelected then
-                    "block"
-
-                 else
-                    "none"
-                )
-            ]
-            [ H.input
-                [ HA.id "approve_CGU"
-                , HA.type_ "checkbox"
-                , HA.checked approved
-                , HE.onCheck OnApproved
-                ]
-                []
-            , H.label [ HA.for "approveCGU", HA.class "label-inline" ]
-                [ H.text "J'ai lu et j'accepte d'adhérer à la charte de bonne conduite" ]
-            ]
         , H.button
             [ HA.type_ "submit"
             , HA.class "button"
-            , HA.disabled (newVideo.title == "" || not approved)
+            , HA.disabled (newVideo.title == "")
             , HA.style "display"
                 (if videoSelected then
                     "block"
