@@ -21,6 +21,7 @@ type ActivePage
     | Login
     | Register
     | ResetPassword
+    | SetNewPassword
     | Activate
     | Profile
     | NotFound

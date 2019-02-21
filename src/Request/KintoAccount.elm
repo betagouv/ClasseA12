@@ -1,4 +1,13 @@
-module Request.KintoAccount exposing (PasswordReset, UserInfo, UserInfoData, activate, associateProfile, register, resetPassword)
+module Request.KintoAccount exposing
+    ( PasswordReset
+    , UserInfo
+    , UserInfoData
+    , activate
+    , associateProfile
+    , register
+    , resetPassword
+    , setNewPassword
+    )
 
 import Data.Kinto
 import Http
@@ -120,4 +129,28 @@ resetPassword serverURL email message =
     in
     HttpBuilder.post accountURL
         |> HttpBuilder.withExpectJson passwordResetDecoder
+        |> HttpBuilder.send message
+
+
+setNewPassword : String -> String -> String -> String -> (Result Http.Error Data.Kinto.UserInfo -> msg) -> Cmd msg
+setNewPassword serverURL email oldPassword newPassword message =
+    let
+        ( credsHeader, credsValue ) =
+            Kinto.Basic email oldPassword
+                |> Kinto.headersForAuth
+
+        accountURL =
+            serverURL ++ "accounts/" ++ email
+
+        encodedAccount =
+            Encode.object
+                [ ( "password", Encode.string newPassword ) ]
+
+        encodedData =
+            Encode.object [ ( "data", encodedAccount ) ]
+    in
+    HttpBuilder.patch accountURL
+        |> HttpBuilder.withHeader credsHeader credsValue
+        |> HttpBuilder.withExpectJson Data.Kinto.userInfoDataDecoder
+        |> HttpBuilder.withJsonBody encodedData
         |> HttpBuilder.send message

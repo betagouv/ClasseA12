@@ -22,6 +22,7 @@ import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
 import Page.Register as Register
 import Page.ResetPassword as ResetPassword
+import Page.SetNewPassword as SetNewPassword
 import Page.Video as Video
 import Platform.Sub
 import Ports
@@ -50,6 +51,7 @@ type Page
     | LoginPage Login.Model
     | RegisterPage Register.Model
     | ResetPasswordPage ResetPassword.Model
+    | SetNewPasswordPage SetNewPassword.Model
     | ActivatePage Activate.Model
     | ProfilePage Profile.Model
     | NotFound
@@ -75,6 +77,7 @@ type Msg
     | LoginMsg Login.Msg
     | RegisterMsg Register.Msg
     | ResetPasswordMsg ResetPassword.Msg
+    | SetNewPasswordMsg SetNewPassword.Msg
     | ActivateMsg Activate.Msg
     | ProfileMsg Profile.Msg
     | UrlChanged Url
@@ -160,6 +163,9 @@ setRoute url oldModel =
 
         Just Route.ResetPassword ->
             toPage ResetPasswordPage ResetPassword.init ResetPasswordMsg
+
+        Just (Route.SetNewPassword email temporaryPassword) ->
+            toPage SetNewPasswordPage (SetNewPassword.init email temporaryPassword) SetNewPasswordMsg
 
         Just (Route.Activate username activationKey) ->
             toPage ActivatePage (Activate.init username activationKey) ActivateMsg
@@ -306,6 +312,9 @@ update msg ({ page, session } as model) =
 
         ( ResetPasswordMsg resetPasswordMsg, ResetPasswordPage resetPasswordModel ) ->
             toPage ResetPasswordPage ResetPasswordMsg (ResetPassword.update session) resetPasswordMsg resetPasswordModel
+
+        ( SetNewPasswordMsg setNewPasswordMsg, SetNewPasswordPage setNewPasswordModel ) ->
+            toPage SetNewPasswordPage SetNewPasswordMsg (SetNewPassword.update session) setNewPasswordMsg setNewPasswordModel
 
         ( ActivateMsg activateMsg, ActivatePage activateModel ) ->
             toPage ActivatePage ActivateMsg (Activate.update session) activateMsg activateModel
@@ -473,6 +482,9 @@ subscriptions model =
             ResetPasswordPage _ ->
                 Sub.none
 
+            SetNewPasswordPage _ ->
+                Sub.none
+
             ActivatePage _ ->
                 Sub.none
 
@@ -557,6 +569,11 @@ view model =
             ResetPassword.view model.session resetPasswordModel
                 |> mapMsg ResetPasswordMsg
                 |> Page.frame (pageConfig Page.ResetPassword)
+
+        SetNewPasswordPage setNewPasswordModel ->
+            SetNewPassword.view model.session setNewPasswordModel
+                |> mapMsg SetNewPasswordMsg
+                |> Page.frame (pageConfig Page.SetNewPassword)
 
         ActivatePage activateModel ->
             Activate.view model.session activateModel

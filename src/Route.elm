@@ -21,6 +21,7 @@ type Route
     | Login
     | Register
     | ResetPassword
+    | SetNewPassword String String
     | Activate String String
     | Profile
 
@@ -40,6 +41,7 @@ parser =
         , Parser.map Login (Parser.s "connexion")
         , Parser.map Register (Parser.s "inscription")
         , Parser.map ResetPassword (Parser.s "oubli-mot-de-passe")
+        , Parser.map SetNewPassword (Parser.s "nouveau-mot-de-passe" </> Parser.string </> Parser.string)
         , Parser.map Activate (Parser.s "activation" </> Parser.string </> Parser.string)
         , Parser.map Profile (Parser.s "profil")
         ]
@@ -105,6 +107,12 @@ toString route =
 
                 ResetPassword ->
                     [ "oubli-mot-de-passe" ]
+
+                SetNewPassword username temporaryPassword ->
+                    [ "nouveau-mot-de-passe"
+                    , username
+                    , temporaryPassword
+                    ]
 
                 Activate username activationKey ->
                     [ "activation"
