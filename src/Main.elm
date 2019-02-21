@@ -285,11 +285,7 @@ update msg ({ page, session } as model) =
                         redirectCmd =
                             case userInfo.profile of
                                 Just profile ->
-                                    if session.prevUrl /= session.url then
-                                        [ Nav.pushUrl model.navKey <| Url.toString session.prevUrl ]
-
-                                    else
-                                        [ Route.pushUrl model.navKey Route.Home ]
+                                    [ redirectToPrevUrl session model ]
 
                                 Nothing ->
                                     -- Profile not created yet.
@@ -425,6 +421,36 @@ update msg ({ page, session } as model) =
             ( model
             , Cmd.none
             )
+
+
+redirectToPrevUrl : Session -> Model -> Cmd Msg
+redirectToPrevUrl session model =
+    let
+        shouldRedirectToPrevPage =
+            case Route.fromUrl session.prevUrl of
+                Nothing ->
+                    False
+
+                Just Route.Login ->
+                    False
+
+                Just (Route.Activate _ _) ->
+                    False
+
+                Just Route.ResetPassword ->
+                    False
+
+                Just (Route.SetNewPassword _ _) ->
+                    False
+
+                _ ->
+                    True
+    in
+    if session.prevUrl /= session.url && shouldRedirectToPrevPage then
+        Nav.pushUrl model.navKey <| Url.toString session.prevUrl
+
+    else
+        Route.pushUrl model.navKey Route.Home
 
 
 
