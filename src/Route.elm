@@ -20,6 +20,7 @@ type Route
     | Video String String
     | Login
     | Register
+    | ResetPassword
     | Activate String String
     | Profile
 
@@ -38,6 +39,7 @@ parser =
         , Parser.map Video (Parser.s "video" </> Parser.string </> Parser.string)
         , Parser.map Login (Parser.s "connexion")
         , Parser.map Register (Parser.s "inscription")
+        , Parser.map ResetPassword (Parser.s "oubli-mot-de-passe")
         , Parser.map Activate (Parser.s "activation" </> Parser.string </> Parser.string)
         , Parser.map Profile (Parser.s "profil")
         ]
@@ -100,6 +102,9 @@ toString route =
 
                 Register ->
                     [ "inscription" ]
+
+                ResetPassword ->
+                    [ "oubli-mot-de-passe" ]
 
                 Activate username activationKey ->
                     [ "activation"

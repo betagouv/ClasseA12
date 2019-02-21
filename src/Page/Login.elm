@@ -9,8 +9,6 @@ import Http
 import Kinto
 import Page.Common.Notifications as Notifications
 import Page.Utils
-import Ports
-import Request.Kinto exposing (authClient)
 import Request.KintoUserInfo
 import Route
 
@@ -179,6 +177,9 @@ viewLoginForm loginForm userInfoData =
                 []
             ]
         , submitButton
-        , H.text " "
-        , H.a [ Route.href Route.Register ] [ H.text "Je n'ai pas encore de compte" ]
+        , H.p []
+            [ H.a [ Route.href Route.Register ] [ H.text "Je n'ai pas encore de compte" ]
+            , H.text " - "
+            , H.a [ Route.href Route.ResetPassword ] [ H.text "J'ai oublié mon mot de passe" ]
+            ]
         ]

@@ -9,8 +9,6 @@ import Http
 import Kinto
 import Page.Common.Notifications as Notifications
 import Page.Utils
-import Ports
-import Request.Kinto exposing (authClient)
 import Request.KintoAccount
 import Route
 

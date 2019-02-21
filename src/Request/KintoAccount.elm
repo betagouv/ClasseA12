@@ -1,4 +1,4 @@
-module Request.KintoAccount exposing (UserInfo, UserInfoData, activate, associateProfile, register)
+module Request.KintoAccount exposing (PasswordReset, UserInfo, UserInfoData, activate, associateProfile, register, resetPassword)
 
 import Data.Kinto
 import Http
@@ -9,11 +9,8 @@ import Json.Encode as Encode
 import Kinto
 
 
-
--- This is different than then Data.Kinto.UserInfo: it doesn't have a profile field yet.
-
-
 type alias UserInfo =
+    -- This is different than then Data.Kinto.UserInfo: it doesn't have a profile field yet.
     { id : String, password : String }
 
 
@@ -88,4 +85,39 @@ associateProfile serverURL email password profileID message =
         |> HttpBuilder.withHeader credsHeader credsValue
         |> HttpBuilder.withExpectJson Data.Kinto.userInfoDataDecoder
         |> HttpBuilder.withJsonBody encodedData
+        |> HttpBuilder.send message
+
+
+
+---- RESET PASSWORD ----
+
+
+type alias PasswordReset =
+    -- What we get back from a POST to `/accounts/<user email>/reset-password` is a confirmation message.
+    { message : String }
+
+
+passwordResetDecoder : Decode.Decoder PasswordReset
+passwordResetDecoder =
+    Decode.succeed PasswordReset
+        |> Pipeline.required "message" Decode.string
+        |> Decode.andThen
+            -- Make sure the confirmation message we get back from the endpoint is the correct one.
+            (\resp ->
+                if resp.message == "A temporary reset password has been sent by mail" then
+                    Decode.succeed resp
+
+                else
+                    Decode.fail resp.message
+            )
+
+
+resetPassword : String -> String -> (Result Http.Error PasswordReset -> msg) -> Cmd msg
+resetPassword serverURL email message =
+    let
+        accountURL =
+            serverURL ++ "accounts/" ++ email ++ "/reset-password"
+    in
+    HttpBuilder.post accountURL
+        |> HttpBuilder.withExpectJson passwordResetDecoder
         |> HttpBuilder.send message

@@ -21,6 +21,7 @@ import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
 import Page.Register as Register
+import Page.ResetPassword as ResetPassword
 import Page.Video as Video
 import Platform.Sub
 import Ports
@@ -48,6 +49,7 @@ type Page
     | VideoPage Video.Model
     | LoginPage Login.Model
     | RegisterPage Register.Model
+    | ResetPasswordPage ResetPassword.Model
     | ActivatePage Activate.Model
     | ProfilePage Profile.Model
     | NotFound
@@ -72,6 +74,7 @@ type Msg
     | VideoMsg Video.Msg
     | LoginMsg Login.Msg
     | RegisterMsg Register.Msg
+    | ResetPasswordMsg ResetPassword.Msg
     | ActivateMsg Activate.Msg
     | ProfileMsg Profile.Msg
     | UrlChanged Url
@@ -154,6 +157,9 @@ setRoute url oldModel =
 
         Just Route.Register ->
             toPage RegisterPage Register.init RegisterMsg
+
+        Just Route.ResetPassword ->
+            toPage ResetPasswordPage ResetPassword.init ResetPasswordMsg
 
         Just (Route.Activate username activationKey) ->
             toPage ActivatePage (Activate.init username activationKey) ActivateMsg
@@ -297,6 +303,9 @@ update msg ({ page, session } as model) =
 
         ( RegisterMsg registerMsg, RegisterPage registerModel ) ->
             toPage RegisterPage RegisterMsg (Register.update session) registerMsg registerModel
+
+        ( ResetPasswordMsg resetPasswordMsg, ResetPasswordPage resetPasswordModel ) ->
+            toPage ResetPasswordPage ResetPasswordMsg (ResetPassword.update session) resetPasswordMsg resetPasswordModel
 
         ( ActivateMsg activateMsg, ActivatePage activateModel ) ->
             toPage ActivatePage ActivateMsg (Activate.update session) activateMsg activateModel
@@ -461,6 +470,9 @@ subscriptions model =
             RegisterPage _ ->
                 Sub.none
 
+            ResetPasswordPage _ ->
+                Sub.none
+
             ActivatePage _ ->
                 Sub.none
 
@@ -540,6 +552,11 @@ view model =
             Register.view model.session registerModel
                 |> mapMsg RegisterMsg
                 |> Page.frame (pageConfig Page.Register)
+
+        ResetPasswordPage resetPasswordModel ->
+            ResetPassword.view model.session resetPasswordModel
+                |> mapMsg ResetPasswordMsg
+                |> Page.frame (pageConfig Page.ResetPassword)
 
         ActivatePage activateModel ->
             Activate.view model.session activateModel
