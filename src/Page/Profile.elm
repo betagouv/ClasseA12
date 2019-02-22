@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Kinto
+import Markdown
 import Page.Common.Notifications as Notifications
 import Page.Utils
 import Ports
@@ -28,6 +29,7 @@ type alias Model =
 type PageState
     = CreateProfile
     | GetProfile
+    | ViewProfile Data.Kinto.Profile
     | EditProfile Data.Kinto.Profile
 
 
@@ -36,25 +38,35 @@ type Msg
     | SubmitProfile
     | UpdateProfile
     | NotificationMsg Notifications.Msg
-    | ProfileFetched (Result Kinto.Error Data.Kinto.Profile)
+    | ProfileFetchedForEdit (Result Kinto.Error Data.Kinto.Profile)
+    | ProfileFetchedForView (Result Kinto.Error Data.Kinto.Profile)
     | ProfileCreated (Result Kinto.Error Data.Kinto.Profile)
     | ProfileAssociated Data.Kinto.Profile (Result Http.Error Data.Kinto.UserInfo)
     | ProfileUpdated (Result Kinto.Error Data.Kinto.Profile)
     | Logout
 
 
-init : Session -> ( Model, Cmd Msg )
-init session =
-    case session.userData.profile of
+init : Maybe String -> Session -> ( Model, Cmd Msg )
+init maybeProfile session =
+    case maybeProfile of
         Just profile ->
-            -- Profile edition
+            let
+                msg =
+                    if profile == Maybe.withDefault "no user profile" session.userData.profile then
+                        -- Profile edition
+                        ProfileFetchedForEdit
+
+                    else
+                        -- View profile from other user
+                        ProfileFetchedForView
+            in
             ( { pageState = GetProfile
               , profileForm = Data.Kinto.emptyProfile
               , profileData = Data.Kinto.NotRequested
               , userInfoData = Data.Kinto.NotRequested
               , notifications = Notifications.init
               }
-            , Request.KintoProfile.getProfile session.kintoURL profile ProfileFetched
+            , Request.KintoProfile.getProfile session.kintoURL profile msg
             )
 
         Nothing ->
@@ -91,7 +103,7 @@ update session msg model =
         UpdateProfile ->
             updateProfile session model
 
-        ProfileFetched (Ok profile) ->
+        ProfileFetchedForEdit (Ok profile) ->
             let
                 profileForm =
                     model.profileForm
@@ -107,7 +119,26 @@ update session msg model =
             , Cmd.none
             )
 
-        ProfileFetched (Err error) ->
+        ProfileFetchedForEdit (Err error) ->
+            ( { model
+                | notifications =
+                    "Récupération du profil échouée : "
+                        ++ Kinto.errorToString error
+                        |> Notifications.addError model.notifications
+                , profileData = Data.Kinto.NotRequested
+              }
+            , Cmd.none
+            )
+
+        ProfileFetchedForView (Ok profile) ->
+            ( { model
+                | profileData = Data.Kinto.Received profile
+                , pageState = ViewProfile profile
+              }
+            , Cmd.none
+            )
+
+        ProfileFetchedForView (Err error) ->
             ( { model
                 | notifications =
                     "Récupération du profil échouée : "
@@ -247,15 +278,19 @@ view { userData } { pageState, profileForm, profileData, userInfoData, notificat
             [ H.map NotificationMsg (Notifications.view notifications)
             , H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ if userData /= Data.Session.emptyUserData then
-                        case pageState of
-                            GetProfile ->
-                                H.div [] [ H.text "Un instant, récupération de votre profil..." ]
+                    [ case pageState of
+                        GetProfile ->
+                            H.div [] [ H.text "Un instant, récupération du profil..." ]
 
-                            EditProfile profile ->
-                                viewEditProfileForm pageState profileForm profileData userInfoData
+                        ViewProfile profile ->
+                            viewProfile profile
 
-                            CreateProfile ->
+                        EditProfile profile ->
+                            viewEditProfileForm pageState profileForm profileData userInfoData
+
+                        CreateProfile ->
+                            if userData /= Data.Session.emptyUserData then
+                                -- User is logged in, and creating their profile
                                 case userInfoData of
                                     Data.Kinto.Received _ ->
                                         H.div []
@@ -268,13 +303,22 @@ view { userData } { pageState, profileForm, profileData, userInfoData, notificat
                                     _ ->
                                         viewCreateProfileForm pageState profileForm profileData userInfoData
 
-                      else
-                        Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
+                            else
+                                -- User not logged in
+                                Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
                     ]
                 ]
             ]
       ]
     )
+
+
+viewProfile : Data.Kinto.Profile -> H.Html Msg
+viewProfile profileData =
+    H.div []
+        [ H.h3 [] [ H.text <| "Profil de " ++ profileData.name ]
+        , Markdown.toHtml [] profileData.bio
+        ]
 
 
 viewProfileForm : H.Html Msg -> Msg -> Data.Kinto.Profile -> H.Html Msg

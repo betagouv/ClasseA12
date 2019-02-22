@@ -23,7 +23,7 @@ type Route
     | ResetPassword
     | SetNewPassword String String
     | Activate String String
-    | Profile
+    | Profile (Maybe String)
 
 
 parser : Parser (Route -> a) a
@@ -43,7 +43,8 @@ parser =
         , Parser.map ResetPassword (Parser.s "oubli-mot-de-passe")
         , Parser.map SetNewPassword (Parser.s "nouveau-mot-de-passe" </> Parser.string </> Parser.string)
         , Parser.map Activate (Parser.s "activation" </> Parser.string </> Parser.string)
-        , Parser.map Profile (Parser.s "profil")
+        , Parser.map (Profile Nothing) (Parser.s "profil")
+        , Parser.map (\profile -> Profile (Just profile)) (Parser.s "profil" </> Parser.string)
         ]
 
 
@@ -120,7 +121,12 @@ toString route =
                     , activationKey
                     ]
 
-                Profile ->
+                Profile Nothing ->
                     [ "profil" ]
+
+                Profile (Just profile) ->
+                    [ "profil"
+                    , profile
+                    ]
     in
     "/" ++ String.join "/" pieces

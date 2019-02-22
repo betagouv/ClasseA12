@@ -170,8 +170,8 @@ setRoute url oldModel =
         Just (Route.Activate username activationKey) ->
             toPage ActivatePage (Activate.init username activationKey) ActivateMsg
 
-        Just Route.Profile ->
-            toPage ProfilePage Profile.init ProfileMsg
+        Just (Route.Profile maybeProfile) ->
+            toPage ProfilePage (Profile.init maybeProfile) ProfileMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -289,7 +289,7 @@ update msg ({ page, session } as model) =
 
                                 Nothing ->
                                     -- Profile not created yet.
-                                    [ Route.pushUrl model.navKey Route.Profile ]
+                                    [ Route.pushUrl model.navKey <| Route.Profile Nothing]
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
