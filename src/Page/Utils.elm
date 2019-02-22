@@ -84,8 +84,8 @@ button label buttonState maybeOnClick =
 ---- VIDEOS ----
 
 
-viewVideo : Time.Zone -> msg -> List (H.Html msg) -> Data.Kinto.Video -> H.Html msg
-viewVideo timezone toggleVideo footerNodes video =
+viewVideo : Time.Zone -> msg -> List (H.Html msg) -> Data.Kinto.Video -> String -> H.Html msg
+viewVideo timezone toggleVideo footerNodes video authorName =
     let
         keywordsNode =
             if video.keywords /= [] then
@@ -116,7 +116,10 @@ viewVideo timezone toggleVideo footerNodes video =
                 [ HA.class "card__content" ]
                 [ H.h3 [] [ H.text video.title ]
                 , H.div [ HA.class "card__meta" ]
-                    [ H.time [] [ H.text <| posixToDate timezone video.creation_date ] ]
+                    [ H.time [] [ H.text <| posixToDate timezone video.creation_date ]
+                    , H.text " "
+                    , H.a [ Route.href <| Route.Profile (Just video.profile) ] [ H.text authorName ]
+                    ]
                 , Markdown.toHtml [] video.description
                 ]
             ]

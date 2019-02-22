@@ -11,6 +11,7 @@ import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
 import Request.KintoContact
+import Request.KintoProfile
 import Request.KintoUpcoming
 import Request.KintoVideo
 import Task
@@ -20,6 +21,7 @@ import Url
 
 type alias Model =
     { videoListData : VideoListData
+    , videoAuthorsData : Data.Kinto.KintoData Data.Kinto.ProfileList
     , contactListData : ContactListData
     , notifications : Notifications.Model
     , publishingVideos : PublishingVideos
@@ -33,6 +35,7 @@ type alias PublishingVideos =
 
 type Msg
     = VideoListFetched (Result Kinto.Error VideoList)
+    | VideoAuthorsFetched (Result Kinto.Error Data.Kinto.ProfileList)
     | ContactListFetched (Result Kinto.Error ContactList)
     | NotificationMsg Notifications.Msg
     | GetTimestamp Video
@@ -47,6 +50,7 @@ init session =
     let
         initialModel =
             { videoListData = Data.Kinto.NotRequested
+            , videoAuthorsData = Data.Kinto.NotRequested
             , contactListData = Data.Kinto.NotRequested
             , notifications = Notifications.init
             , publishingVideos = []
@@ -79,11 +83,31 @@ update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
         VideoListFetched (Ok videoList) ->
-            ( { model | videoListData = Data.Kinto.Received videoList }, Cmd.none )
+            let
+                authorIDs =
+                    videoList.objects
+                        |> List.map (\video -> video.profile)
+            in
+            ( { model | videoListData = Data.Kinto.Received videoList }
+            , Request.KintoProfile.getProfileList session.kintoURL authorIDs VideoAuthorsFetched
+            )
 
         VideoListFetched (Err err) ->
             ( { model
                 | videoListData = Data.Kinto.Failed err
+                , notifications =
+                    Kinto.errorToString err
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            )
+
+        VideoAuthorsFetched (Ok videoAuthors) ->
+            ( { model | videoAuthorsData = Data.Kinto.Received videoAuthors }, Cmd.none )
+
+        VideoAuthorsFetched (Err err) ->
+            ( { model
+                | videoAuthorsData = Data.Kinto.Failed err
                 , notifications =
                     Kinto.errorToString err
                         |> Notifications.addError model.notifications
@@ -192,7 +216,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, userData } { notifications, videoListData, contactListData, publishingVideos, activeVideo } =
+view { timezone, userData } { notifications, videoListData, videoAuthorsData, contactListData, publishingVideos, activeVideo } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -211,7 +235,7 @@ view { timezone, userData } { notifications, videoListData, contactListData, pub
                                 ([ H.div [ HA.class "form__group logout-button" ]
                                     [ downloadContacts contactListData ]
                                  ]
-                                    ++ viewVideoList timezone publishingVideos activeVideo videoList
+                                    ++ viewVideoList timezone publishingVideos activeVideo videoList videoAuthorsData
                                 )
                             ]
 
@@ -228,18 +252,18 @@ view { timezone, userData } { notifications, videoListData, contactListData, pub
     )
 
 
-viewVideoList : Time.Zone -> PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> List (H.Html Msg)
-viewVideoList timezone publishingVideos activeVideo videoList =
+viewVideoList : Time.Zone -> PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> Data.Kinto.KintoData Data.Kinto.ProfileList -> List (H.Html Msg)
+viewVideoList timezone publishingVideos activeVideo videoList videoAuthorsData =
     [ Page.Utils.viewVideoModal ToggleVideo activeVideo
     , H.div [ HA.class "row" ]
         (videoList.objects
-            |> List.map (viewVideo timezone publishingVideos)
+            |> List.map (viewVideo timezone publishingVideos videoAuthorsData)
         )
     ]
 
 
-viewVideo : Time.Zone -> PublishingVideos -> Data.Kinto.Video -> H.Html Msg
-viewVideo timezone publishingVideos video =
+viewVideo : Time.Zone -> PublishingVideos -> Data.Kinto.KintoData Data.Kinto.ProfileList -> Data.Kinto.Video -> H.Html Msg
+viewVideo timezone publishingVideos videoAuthorsData video =
     let
         buttonState =
             if List.member video publishingVideos then
@@ -251,8 +275,21 @@ viewVideo timezone publishingVideos video =
         publishNode =
             -- Before publishing the video, get the timestamp (so we can use it as the publish_date)
             [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| GetTimestamp video) ]
+
+        authorName =
+            case videoAuthorsData of
+                Data.Kinto.Received videoAuthors ->
+                    videoAuthors.objects
+                        |> List.filter (\author -> author.id == video.profile)
+                        |> List.head
+                        |> Maybe.map (\author -> author.name)
+                        -- If we didn't find any profile, display the profile ID.
+                        |> Maybe.withDefault video.profile
+
+                _ ->
+                    video.profile
     in
-    Page.Utils.viewVideo timezone (ToggleVideo video) publishNode video
+    Page.Utils.viewVideo timezone (ToggleVideo video) publishNode video authorName
 
 
 downloadContacts : Data.Kinto.ContactListData -> H.Html Msg

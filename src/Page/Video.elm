@@ -24,6 +24,7 @@ import Url exposing (Url)
 type alias Model =
     { videoID : String
     , video : Data.Kinto.KintoData Data.Kinto.Video
+    , videoAuthor : Data.Kinto.ProfileData
     , title : String
     , comments : Data.Kinto.KintoData Data.Kinto.CommentList
     , contributors : Data.Kinto.KintoData Data.Kinto.ProfileList
@@ -38,6 +39,7 @@ type alias Model =
 
 type Msg
     = VideoReceived (Result Kinto.Error Data.Kinto.Video)
+    | VideoAuthorReceived (Result Kinto.Error Data.Kinto.Profile)
     | ShareVideo String
     | CommentsReceived (Result Kinto.Error Data.Kinto.CommentList)
     | ContributorsReceived (Result Kinto.Error Data.Kinto.ProfileList)
@@ -53,6 +55,7 @@ init : String -> String -> Session -> ( Model, Cmd Msg )
 init videoID title session =
     ( { videoID = videoID
       , video = Data.Kinto.Requested
+      , videoAuthor = Data.Kinto.NotRequested
       , title = title
       , comments = Data.Kinto.Requested
       , contributors = Data.Kinto.NotRequested
@@ -74,10 +77,18 @@ update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
         VideoReceived (Ok video) ->
-            ( { model | video = Data.Kinto.Received video }, Cmd.none )
+            ( { model | video = Data.Kinto.Received video }
+            , Request.KintoProfile.getProfile session.kintoURL video.profile VideoAuthorReceived
+            )
 
         VideoReceived (Err error) ->
             ( { model | video = Data.Kinto.Failed error }, Cmd.none )
+
+        VideoAuthorReceived (Ok profile) ->
+            ( { model | videoAuthor = Data.Kinto.Received profile }, Cmd.none )
+
+        VideoAuthorReceived (Err error) ->
+            ( { model | videoAuthor = Data.Kinto.Failed error }, Cmd.none )
 
         ShareVideo shareText ->
             ( model, Ports.navigatorShare shareText )
@@ -214,7 +225,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData, progress } =
+view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData, progress, videoAuthor } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -230,7 +241,7 @@ view { timezone, navigatorShare, url, userData } { video, title, comments, contr
       , H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ viewVideo timezone url navigatorShare video
+                    [ viewVideo timezone url navigatorShare video videoAuthor
                     ]
                 , H.div [ HA.class "container" ]
                     [ viewComments timezone comments contributors
@@ -266,11 +277,11 @@ viewTitle videoData =
             H.p [] []
 
 
-viewVideo : Time.Zone -> Url -> Bool -> Data.Kinto.KintoData Data.Kinto.Video -> H.Html Msg
-viewVideo timezone url navigatorShare videoData =
+viewVideo : Time.Zone -> Url -> Bool -> Data.Kinto.KintoData Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html Msg
+viewVideo timezone url navigatorShare videoData profileData =
     case videoData of
         Data.Kinto.Received video ->
-            viewVideoDetails timezone url navigatorShare video
+            viewVideoDetails timezone url navigatorShare video profileData
 
         Data.Kinto.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -279,8 +290,8 @@ viewVideo timezone url navigatorShare videoData =
             H.p [] [ H.text "Vidéo non trouvée" ]
 
 
-viewVideoDetails : Time.Zone -> Url -> Bool -> Data.Kinto.Video -> H.Html Msg
-viewVideoDetails timezone url navigatorShare video =
+viewVideoDetails : Time.Zone -> Url -> Bool -> Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html Msg
+viewVideoDetails timezone url navigatorShare video profileData =
     let
         keywordsNode =
             if video.keywords /= [] then
@@ -297,12 +308,23 @@ viewVideoDetails timezone url navigatorShare video =
             else
                 []
 
+        authorName =
+            case profileData of
+                Data.Kinto.Received profile ->
+                    profile.name
+
+                _ ->
+                    video.profile
+
         detailsNodes =
             [ H.div []
                 [ Page.Utils.viewVideoPlayer video.attachment
                 , H.h3 [] [ H.text video.title ]
                 , H.div []
-                    [ H.time [] [ H.text <| Page.Utils.posixToDate timezone video.creation_date ] ]
+                    [ H.time [] [ H.text <| Page.Utils.posixToDate timezone video.creation_date ]
+                    , H.text " "
+                    , H.a [ Route.href <| Route.Profile (Just video.profile) ] [ H.text authorName ]
+                    ]
                 , Markdown.toHtml [] video.description
                 ]
             ]
