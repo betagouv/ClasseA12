@@ -171,7 +171,14 @@ setRoute url oldModel =
             toPage ActivatePage (Activate.init username activationKey) ActivateMsg
 
         Just (Route.Profile maybeProfile) ->
-            toPage ProfilePage (Profile.init maybeProfile) ProfileMsg
+            -- Treat a special case: going to the `/profil` url without a profile ID, but the user is connected
+            -- and has a profile: if that happens, redirect to `/profil/<profile id>`.
+            case ( maybeProfile, session.userData.profile ) of
+                ( Nothing, Just userProfile ) ->
+                    ( oldModel, Route.pushUrl oldModel.navKey <| Route.Profile (Just userProfile) )
+
+                ( _, _ ) ->
+                    toPage ProfilePage (Profile.init maybeProfile) ProfileMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -289,7 +296,7 @@ update msg ({ page, session } as model) =
 
                                 Nothing ->
                                     -- Profile not created yet.
-                                    [ Route.pushUrl model.navKey <| Route.Profile Nothing]
+                                    [ Route.pushUrl model.navKey <| Route.Profile Nothing ]
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
