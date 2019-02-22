@@ -10,48 +10,73 @@ import Json.Encode as Encode
 import Kinto
 import NaturalOrdering
 import Page.Utils
+import Request.KintoProfile
+import Request.KintoVideo
 import Set
+import Task
 import Time
 
 
 type alias Model =
     { search : String
-    , activeVideo : Maybe Data.Kinto.Video
+    , videoData : Data.Kinto.VideoListData
+    , authorsData : Data.Kinto.KintoData Data.Kinto.ProfileList
+    , timestamp : Time.Posix
     }
 
 
 type Msg
     = UpdateSearch String
-    | ToggleVideo Data.Kinto.Video
+    | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
+    | AuthorsFetched (Result Kinto.Error Data.Kinto.ProfileList)
+    | NewTimestamp Time.Posix
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { search = "", activeVideo = Nothing }, Cmd.none )
+    ( { search = ""
+      , videoData = Data.Kinto.Requested
+      , authorsData = Data.Kinto.NotRequested
+      , timestamp = Time.millisToPosix 0
+      }
+    , Cmd.batch
+        [ Request.KintoVideo.getVideoList session.kintoURL VideoListReceived
+        , Task.perform NewTimestamp Time.now
+        ]
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update session msg model =
     case msg of
         UpdateSearch newSearch ->
             ( { model | search = newSearch }, Cmd.none )
 
-        ToggleVideo video ->
+        VideoListReceived (Ok videoList) ->
             let
-                activeVideo =
-                    case model.activeVideo of
-                        -- Toggle the active video
-                        Just v ->
-                            Nothing
-
-                        Nothing ->
-                            Just video
+                authorIDs =
+                    videoList.objects
+                        |> List.map (\video -> video.profile)
             in
-            ( { model | activeVideo = activeVideo }, Cmd.none )
+            ( { model | videoData = Data.Kinto.Received videoList }
+            , Request.KintoProfile.getProfileList session.kintoURL authorIDs AuthorsFetched
+            )
+
+        VideoListReceived (Err error) ->
+            ( { model | videoData = Data.Kinto.Failed error }, Cmd.none )
+
+        AuthorsFetched (Ok authors) ->
+            ( { model | authorsData = Data.Kinto.Received authors }, Cmd.none )
+
+        AuthorsFetched (Err error) ->
+            ( { model | authorsData = Data.Kinto.Failed error }, Cmd.none )
+
+        NewTimestamp timestamp ->
+            ( { model | timestamp = timestamp }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { videoData, timezone, timestamp } ({ search } as model) =
+view { timezone } ({ search, videoData, authorsData, timestamp } as model) =
     ( "Liste des vidéos"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__banner" ] []
@@ -93,8 +118,13 @@ view { videoData, timezone, timestamp } ({ search } as model) =
     )
 
 
-viewVideoList : Time.Zone -> Time.Posix -> { a | activeVideo : Maybe Data.Kinto.Video, search : String } -> Data.Kinto.VideoList -> List (H.Html Msg)
-viewVideoList timezone timestamp { activeVideo, search } videoList =
+viewVideoList :
+    Time.Zone
+    -> Time.Posix
+    -> { a | search : String, authorsData : Data.Kinto.KintoData Data.Kinto.ProfileList }
+    -> Data.Kinto.VideoList
+    -> List (H.Html Msg)
+viewVideoList timezone timestamp { search, authorsData } videoList =
     let
         keywordList =
             videoList.objects
@@ -118,7 +148,7 @@ viewVideoList timezone timestamp { activeVideo, search } videoList =
         videoCards =
             if filteredVideoList /= [] then
                 filteredVideoList
-                    |> List.map (\video -> Page.Utils.viewPublicVideo timezone timestamp video)
+                    |> List.map (\video -> Page.Utils.viewPublicVideo timezone timestamp video authorsData)
 
             else
                 [ H.text "Pas de vidéos trouvée" ]

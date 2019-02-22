@@ -15,12 +15,10 @@ import Url exposing (Url)
 
 
 type alias Session =
-    { videoData : Data.Kinto.VideoListData
-    , userData : UserData
+    { userData : UserData
     , timezone : Time.Zone
     , version : String
     , kintoURL : String
-    , timestamp : Time.Posix
     , navigatorShare : Bool
     , url : Url
     , prevUrl : Url

@@ -26,7 +26,6 @@ import Page.SetNewPassword as SetNewPassword
 import Page.Video as Video
 import Platform.Sub
 import Ports
-import Request.KintoVideo exposing (getVideoList)
 import Route exposing (Route)
 import Task
 import Time
@@ -82,8 +81,6 @@ type Msg
     | ProfileMsg Profile.Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
-    | NewTimestamp Time.Posix
-    | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
     | AdjustTimeZone Time.Zone
 
 
@@ -119,17 +116,7 @@ setRoute url oldModel =
             )
 
         Just Route.Home ->
-            let
-                ( homeModel, commands ) =
-                    toPage HomePage Home.init HomeMsg
-            in
-            ( homeModel
-              -- When loading the home for the first time, request the list of videos
-            , Cmd.batch
-                [ getVideoList model.session.kintoURL VideoListReceived
-                , Task.perform NewTimestamp Time.now
-                ]
-            )
+            toPage HomePage Home.init HomeMsg
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -208,12 +195,10 @@ init flags url navKey =
 
         session : Session
         session =
-            { videoData = Data.Kinto.Requested
-            , userData = userData
+            { userData = userData
             , timezone = Time.utc
             , version = version
             , kintoURL = kintoURL
-            , timestamp = Time.millisToPosix 0
             , navigatorShare = navigatorShare
             , url = url
             , prevUrl = url
@@ -390,27 +375,6 @@ update msg ({ page, session } as model) =
 
         ( UrlChanged url, _ ) ->
             setRoute url model
-
-        ( NewTimestamp timestamp, _ ) ->
-            let
-                modelSession =
-                    model.session
-            in
-            ( { model | session = { modelSession | timestamp = timestamp } }, Cmd.none )
-
-        ( VideoListReceived (Ok videoList), _ ) ->
-            let
-                modelSession =
-                    model.session
-            in
-            ( { model | session = { modelSession | videoData = Data.Kinto.Received videoList } }, Cmd.none )
-
-        ( VideoListReceived (Err error), _ ) ->
-            let
-                modelSession =
-                    model.session
-            in
-            ( { model | session = { modelSession | videoData = Data.Kinto.Failed error } }, Cmd.none )
 
         ( AdjustTimeZone zone, _ ) ->
             let

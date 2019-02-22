@@ -129,8 +129,8 @@ viewVideo timezone toggleVideo footerNodes video authorName =
         (cardNodes ++ keywordsNode ++ footerNodes)
 
 
-viewPublicVideo : Time.Zone -> Time.Posix -> Data.Kinto.Video -> H.Html msg
-viewPublicVideo timezone timestamp video =
+viewPublicVideo : Time.Zone -> Time.Posix -> Data.Kinto.Video -> Data.Kinto.KintoData Data.Kinto.ProfileList -> H.Html msg
+viewPublicVideo timezone timestamp video authorsData =
     let
         keywordsNode =
             if video.keywords /= [] then
@@ -165,6 +165,18 @@ viewPublicVideo timezone timestamp video =
                     -- A video is recent if it's less than 15 days.
                     |> (>) (15 * 24 * 60 * 60 * 1000)
 
+        authorName =
+            case authorsData of
+                Data.Kinto.Received authors ->
+                    authors.objects
+                        |> List.filter (\author -> author.id == video.profile)
+                        |> List.head
+                        |> Maybe.map (\author -> author.name)
+                        -- If we didn't find any profile, display the profile ID.
+                        |> Maybe.withDefault video.profile
+
+                _ -> video.profile
+
         cardNodes =
             [ H.div
                 [ HA.class "card__cover" ]
@@ -188,7 +200,10 @@ viewPublicVideo timezone timestamp video =
                 [ HA.class "card__content" ]
                 [ H.h3 [] [ H.text video.title ]
                 , H.div [ HA.class "card__meta" ]
-                    [ H.time [] [ H.text <| posixToDate timezone video.creation_date ] ]
+                    [ H.time [] [ H.text <| posixToDate timezone video.creation_date ]
+                    , H.text " "
+                    , H.a [ Route.href <| Route.Profile (Just video.profile) ] [ H.text authorName ]
+                    ]
                 , Markdown.toHtml [] video.description
                 ]
             ]
