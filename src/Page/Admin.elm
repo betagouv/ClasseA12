@@ -216,11 +216,11 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, userData } { notifications, videoListData, videoAuthorsData, contactListData, publishingVideos, activeVideo } =
+view { timezone, userData, staticFiles } { notifications, videoListData, videoAuthorsData, contactListData, publishingVideos, activeVideo } =
     ( "Administration"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Administration" ]
                 , H.p [] [ H.text "Modération des vidéos et des commentaires" ]
                 ]

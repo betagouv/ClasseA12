@@ -96,11 +96,11 @@ resetPassword kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { notifications, resetForm, passwordReset } =
+view session { notifications, resetForm, passwordReset } =
     ( "Oubli du mot de passe"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Oubli du mot de passe" ]
                 ]
             ]

@@ -6,3 +6,4 @@
 /public/app.js
 /venv/
 __pycache__
+.cache

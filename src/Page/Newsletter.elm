@@ -84,7 +84,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { contact, newContactKintoData, notifications } =
+view session { contact, newContactKintoData, notifications } =
     let
         buttonState =
             if contact.name == "" || contact.email == "" || contact.role == "" then
@@ -101,7 +101,7 @@ view _ { contact, newContactKintoData, notifications } =
     ( "Inscrivez-vous à notre infolettre"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Inscrivez-vous à notre infolettre" ]
                 , H.p [] [ H.text "Tenez-vous au courant des nouvelles vidéos et de l'actualité du projet !" ]
                 ]

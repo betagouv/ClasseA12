@@ -76,13 +76,13 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone } ({ search, videoData, authorsData, timestamp } as model) =
+view { timezone, staticFiles } ({ search, videoData, authorsData, timestamp } as model) =
     ( "Liste des vidéos"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__banner" ] []
             , H.div [ HA.class "hero__container" ]
                 [ H.img
-                    [ HA.src "/logo_ca12.png"
+                    [ HA.src staticFiles.logo_ca12
                     , HA.class "hero__logo"
                     ]
                     []

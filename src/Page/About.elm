@@ -24,11 +24,11 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ model =
+view session model =
     ( "Classe à 12 ?"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png" , HA.class "hero__logo" ] []
+                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Classe à 12 ?" ]
                 , H.p [] [ H.text "Prêt ? Filmez ! Partagez !" ]
                 ]

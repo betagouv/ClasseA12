@@ -26,11 +26,11 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ _ =
+view session _ =
     ( "Charte de bonne conduite du site"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Charte de bonne conduite" ]
                 , H.p [] [ H.text "du site « Classe à 12 » du Ministère de l’éducation et de la jeunesse" ]
                 ]

@@ -257,7 +257,7 @@ updateProfile { kintoURL, userData } model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { userData } { pageState, profileForm, profileData, userInfoData, notifications } =
+view { staticFiles, userData } { pageState, profileForm, profileData, userInfoData, notifications } =
     let
         title =
             case pageState of
@@ -273,7 +273,7 @@ view { userData } { pageState, profileForm, profileData, userInfoData, notificat
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text title ]
                 ]
             ]

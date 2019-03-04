@@ -200,7 +200,7 @@ update { userData } msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { userData } model =
+view { staticFiles, userData } model =
     ( "Je participe !"
     , [ H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
@@ -211,12 +211,12 @@ view { userData } model =
                         [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
                         , H.ul []
                             [ H.li []
-                                [ H.a [ HA.href "/documents/Autorisation-captation-image-mineur_2017.pdf" ]
-                                    [ H.text "Autorisation-captation-image-mineur_2017.pdf" ]
+                                [ H.a [ HA.href staticFiles.autorisationCaptationImageMineur ]
+                                    [ H.text "Autorisation captation image mineur" ]
                                 ]
                             , H.li []
-                                [ H.a [ HA.href "/documents/Autorisation-captation-image-majeur_2017.pdf" ]
-                                    [ H.text "Autorisation-captation-image-majeur_2017.pdf" ]
+                                [ H.a [ HA.href staticFiles.autorisationCaptationImageMajeur ]
+                                    [ H.text "Autorisation captation image majeur" ]
                                 ]
                             ]
                         ]

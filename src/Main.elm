@@ -3,7 +3,8 @@ port module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.Kinto
-import Data.Session exposing (Session, decodeUserData, emptyUserData, encodeUserData)
+import Data.Session exposing (Session, decodeStaticFiles, decodeUserData, emptyStaticFiles, emptyUserData, encodeUserData)
+import Dict
 import Html exposing (..)
 import Http
 import Json.Decode as Decode
@@ -193,6 +194,11 @@ init flags url navKey =
             Decode.decodeValue (Decode.field "navigatorShare" Decode.bool) flags
                 |> Result.withDefault False
 
+        staticFiles =
+            -- Decode a StaticFiles record from the "staticFiles" field in the value
+            Decode.decodeValue (Decode.field "staticFiles" decodeStaticFiles) flags
+                |> Result.withDefault emptyStaticFiles
+
         session : Session
         session =
             { userData = userData
@@ -200,6 +206,7 @@ init flags url navKey =
             , version = version
             , kintoURL = kintoURL
             , navigatorShare = navigatorShare
+            , staticFiles = staticFiles
             , url = url
             , prevUrl = url
             }

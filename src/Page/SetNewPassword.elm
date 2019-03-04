@@ -102,11 +102,11 @@ setNewPassword kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view _ { email, notifications, setNewPasswordForm, userInfoData } =
+view session { email, notifications, setNewPasswordForm, userInfoData } =
     ( "Nouveau mot de passe"
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Nouveau mot de passe" ]
                 ]
             ]

@@ -225,7 +225,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData, progress, videoAuthor } =
+view { timezone, navigatorShare, staticFiles, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData, progress, videoAuthor } =
     ( "Vidéo : "
         ++ (title
                 |> Url.percentDecode
@@ -233,7 +233,7 @@ view { timezone, navigatorShare, url, userData } { video, title, comments, contr
            )
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src "/logo_ca12.png", HA.class "hero__logo" ] []
+                [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Vidéo" ]
                 , viewTitle video
                 ]

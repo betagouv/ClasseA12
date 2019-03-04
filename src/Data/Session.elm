@@ -1,13 +1,16 @@
 module Data.Session exposing
     ( Session
     , UserData
+    , decodeStaticFiles
     , decodeUserData
+    , emptyStaticFiles
     , emptyUserData
     , encodeUserData
     , isLoggedIn
     )
 
 import Data.Kinto
+import Dict
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Time
@@ -20,6 +23,7 @@ type alias Session =
     , version : String
     , kintoURL : String
     , navigatorShare : Bool
+    , staticFiles : StaticFiles
     , url : Url
     , prevUrl : Url
     }
@@ -73,3 +77,30 @@ decodeUserData =
         (Decode.field "username" Decode.string)
         (Decode.field "password" Decode.string)
         (Decode.field "profile" (Decode.maybe Decode.string))
+
+
+type alias StaticFiles =
+    { logo : String
+    , logo_ca12 : String
+    , autorisationCaptationImageMineur : String
+    , autorisationCaptationImageMajeur : String
+    }
+
+
+emptyStaticFiles : StaticFiles
+emptyStaticFiles =
+    { logo = ""
+    , logo_ca12 = ""
+    , autorisationCaptationImageMineur = ""
+    , autorisationCaptationImageMajeur = ""
+    }
+
+
+decodeStaticFiles : Decode.Decoder StaticFiles
+decodeStaticFiles =
+    Decode.map4
+        StaticFiles
+        (Decode.field "logo" Decode.string)
+        (Decode.field "logo_ca12" Decode.string)
+        (Decode.field "autorisationCaptationImageMineur" Decode.string)
+        (Decode.field "autorisationCaptationImageMajeur" Decode.string)
