@@ -264,8 +264,11 @@ view { userData } { pageState, profileForm, profileData, userInfoData, notificat
                 CreateProfile ->
                     "Création du profil"
 
-                _ ->
+                EditProfile _ ->
                     "Édition du profil"
+
+                _ ->
+                    "Profil"
     in
     ( title
     , [ H.div [ HA.class "hero" ]
