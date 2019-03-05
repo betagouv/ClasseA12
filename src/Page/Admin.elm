@@ -58,7 +58,7 @@ init session =
             }
 
         modelAndCommands =
-            if Data.Session.isLoggedIn session.userData then
+            if Data.Session.isLoggedIn session.userData && session.userData.username == "classea12admin" then
                 let
                     client =
                         authClient session.kintoURL session.userData.username session.userData.password
@@ -228,22 +228,29 @@ view { timezone, userData, staticFiles } { notifications, videoListData, videoAu
       , H.div [ HA.class "main" ]
             [ H.map NotificationMsg (Notifications.view notifications)
             , if Data.Session.isLoggedIn userData then
-                case videoListData of
-                    Data.Kinto.Received videoList ->
-                        H.section [ HA.class "section section-grey cards" ]
-                            [ H.div [ HA.class "container" ]
-                                ([ H.div [ HA.class "form__group logout-button" ]
-                                    [ downloadContacts contactListData ]
-                                 ]
-                                    ++ viewVideoList timezone publishingVideos activeVideo videoList videoAuthorsData
-                                )
-                            ]
+                if userData.username == "classea12admin" then
+                    case videoListData of
+                        Data.Kinto.Received videoList ->
+                            H.section [ HA.class "section section-grey cards" ]
+                                [ H.div [ HA.class "container" ]
+                                    ([ H.div [ HA.class "form__group logout-button" ]
+                                        [ downloadContacts contactListData ]
+                                     ]
+                                        ++ viewVideoList timezone publishingVideos activeVideo videoList videoAuthorsData
+                                    )
+                                ]
 
-                    _ ->
-                        H.div [ HA.class "section section-white" ]
-                            [ H.div [ HA.class "container" ]
-                                [ H.text "Chargement des vidéos et des contacts en cours..." ]
-                            ]
+                        _ ->
+                            H.div [ HA.class "section section-white" ]
+                                [ H.div [ HA.class "container" ]
+                                    [ H.text "Chargement des vidéos et des contacts en cours..." ]
+                                ]
+
+                else
+                    H.div [ HA.class "section section-white" ]
+                        [ H.div [ HA.class "container" ]
+                            [ H.text "Cette page est réservée aux administrateurs" ]
+                        ]
 
               else
                 Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
