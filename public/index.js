@@ -1,11 +1,11 @@
 import { Elm } from "../src/Main.elm";
 
-const KINTO_URL = "https://kinto-dev.classea12.beta.gouv.fr/v1/";
+const KINTO_URL = process.env.KINTO_URL;
 const loginForm = window.localStorage.getItem("session");
 const app = Elm.Main.init({
     flags: {
         loginForm: loginForm,
-        version: "%VERSION%",
+        version: process.env.VERSION,
         kintoURL: KINTO_URL,
         navigatorShare: navigator.share !== undefined,
         staticFiles: {
