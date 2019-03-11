@@ -60,7 +60,7 @@ function uuidv4() {
 function dataURItoBlob(dataURI) {
     // convert base64 data component to raw binary data held in a string
     // A data URI looks like that: "data:image/jpeg;base64,<base64 encoded data>"
-    splitted = dataURI.split(",");
+    const splitted = dataURI.split(",");
     const mimetype = splitted[0].replace("data:", "").replace(";base64", "");
     const data = splitted[1];
     const byteString = atob(data);
