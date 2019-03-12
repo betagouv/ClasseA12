@@ -9,9 +9,11 @@ import Http
 import Json.Encode as Encode
 import Kinto
 import NaturalOrdering
+import Page.Common.Video
 import Page.Utils
 import Request.KintoProfile
 import Request.KintoVideo
+import Route
 import Set
 import Task
 import Time
@@ -148,7 +150,7 @@ viewVideoList timezone timestamp { search, authorsData } videoList =
         videoCards =
             if filteredVideoList /= [] then
                 filteredVideoList
-                    |> List.map (\video -> Page.Utils.viewPublicVideo timezone timestamp video authorsData)
+                    |> List.map (\video -> viewPublicVideo timezone timestamp video authorsData)
 
             else
                 [ H.text "Pas de vidéos trouvée" ]
@@ -197,3 +199,63 @@ viewVideoList timezone timestamp { search, authorsData } videoList =
             ]
         ]
     ]
+
+
+viewPublicVideo : Time.Zone -> Time.Posix -> Data.Kinto.Video -> Data.Kinto.KintoData Data.Kinto.ProfileList -> H.Html msg
+viewPublicVideo timezone timestamp video authorsData =
+    let
+        isVideoRecent =
+            let
+                timestampMillis =
+                    Time.posixToMillis timestamp
+
+                publishDateMillis =
+                    Time.posixToMillis video.publish_date
+            in
+            if timestampMillis == 0 then
+                -- The timestamp isn't initialized yet
+                False
+
+            else
+                timestampMillis
+                    - publishDateMillis
+                    -- A video is recent if it's less than 15 days.
+                    |> (>) (15 * 24 * 60 * 60 * 1000)
+
+        profileData =
+            case authorsData of
+                Data.Kinto.Received authors ->
+                    authors.objects
+                        |> List.filter (\author -> author.id == video.profile)
+                        |> List.head
+                        |> Maybe.map Data.Kinto.Received
+                        |> Maybe.withDefault Data.Kinto.NotRequested
+
+                _ ->
+                    Data.Kinto.NotRequested
+    in
+    H.a
+        [ HA.class "card"
+        , Route.href <| Route.Video video.id video.title
+        ]
+        [ H.div
+            [ HA.class "card__cover" ]
+            [ H.div
+                [ HA.class "new-video"
+                , HA.style "display" <|
+                    if isVideoRecent then
+                        "block"
+
+                    else
+                        "none"
+                ]
+                [ H.text "Nouveauté !" ]
+            , H.img
+                [ HA.alt video.title
+                , HA.src video.thumbnail
+                ]
+                []
+            ]
+        , Page.Common.Video.details timezone video profileData
+        , Page.Common.Video.keywords video
+        ]

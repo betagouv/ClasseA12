@@ -10,6 +10,8 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Kinto
 import Markdown
+import Page.Common.Dates
+import Page.Common.Video
 import Page.Utils
 import Ports
 import Request.Kinto
@@ -293,42 +295,6 @@ viewVideo timezone url navigatorShare videoData profileData =
 viewVideoDetails : Time.Zone -> Url -> Bool -> Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html Msg
 viewVideoDetails timezone url navigatorShare video profileData =
     let
-        keywordsNode =
-            if video.keywords /= [] then
-                [ H.div []
-                    (video.keywords
-                        |> List.map
-                            (\keyword ->
-                                H.div [ HA.class "label" ]
-                                    [ H.text keyword ]
-                            )
-                    )
-                ]
-
-            else
-                []
-
-        authorName =
-            case profileData of
-                Data.Kinto.Received profile ->
-                    profile.name
-
-                _ ->
-                    video.profile
-
-        detailsNodes =
-            [ H.div []
-                [ Page.Utils.viewVideoPlayer video.attachment
-                , H.h3 [] [ H.text video.title ]
-                , H.div []
-                    [ H.time [] [ H.text <| Page.Utils.posixToDate timezone video.creation_date ]
-                    , H.text " "
-                    , H.a [ Route.href <| Route.Profile (Just video.profile) ] [ H.text authorName ]
-                    ]
-                , Markdown.toHtml [] video.description
-                ]
-            ]
-
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.title
 
@@ -350,8 +316,8 @@ viewVideoDetails timezone url navigatorShare video profileData =
             else
                 []
 
-        shareNodes =
-            [ H.ul [ HA.class "social" ]
+        shareButtons =
+             H.ul [ HA.class "social" ]
                 ([ H.li []
                     [ H.a
                         [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
@@ -391,11 +357,14 @@ viewVideoDetails timezone url navigatorShare video profileData =
                  ]
                     ++ navigatorShareButton
                 )
-            ]
     in
     H.div
         []
-        (detailsNodes ++ keywordsNode ++ shareNodes)
+        [ Page.Common.Video.player video.attachment
+        , Page.Common.Video.details timezone video profileData
+        , Page.Common.Video.keywords video
+        , shareButtons
+        ]
 
 
 viewComments :
@@ -450,7 +419,7 @@ viewCommentDetails timezone contributorsData comment =
                 H.div [] []
     in
     H.li [ HA.class "comment panel" ]
-        [ H.time [] [ H.text <| Page.Utils.posixToDate timezone comment.last_modified ]
+        [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone comment.last_modified ]
         , H.a
             [ Route.href <| Route.Profile (Just comment.profile)
             , HA.class "comment-author"

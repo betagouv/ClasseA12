@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
 import Page.Common.Notifications as Notifications
+import Page.Common.Video
 import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
@@ -261,12 +262,29 @@ view { timezone, userData, staticFiles } { notifications, videoListData, videoAu
 
 viewVideoList : Time.Zone -> PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> Data.Kinto.KintoData Data.Kinto.ProfileList -> List (H.Html Msg)
 viewVideoList timezone publishingVideos activeVideo videoList videoAuthorsData =
-    [ Page.Utils.viewVideoModal ToggleVideo activeVideo
+    [ viewVideoModal ToggleVideo activeVideo
     , H.div [ HA.class "row" ]
         (videoList.objects
             |> List.map (viewVideo timezone publishingVideos videoAuthorsData)
         )
     ]
+
+
+viewVideoModal : (Data.Kinto.Video -> msg) -> Maybe Data.Kinto.Video -> H.Html msg
+viewVideoModal toggleVideo activeVideo =
+    case activeVideo of
+        Nothing ->
+            H.div [] []
+
+        Just video ->
+            H.div
+                [ HA.class "modal__backdrop is-active"
+                , HE.onClick (toggleVideo video)
+                ]
+                [ H.div [ HA.class "modal" ] [ Page.Common.Video.player video.attachment ]
+                , H.button [ HA.class "modal__close" ]
+                    [ H.i [ HA.class "fas fa-times fa-2x" ] [] ]
+                ]
 
 
 viewVideo : Time.Zone -> PublishingVideos -> Data.Kinto.KintoData Data.Kinto.ProfileList -> Data.Kinto.Video -> H.Html Msg
@@ -281,22 +299,35 @@ viewVideo timezone publishingVideos videoAuthorsData video =
 
         publishNode =
             -- Before publishing the video, get the timestamp (so we can use it as the publish_date)
-            [ Page.Utils.button "Publier cette vidéo" buttonState (Just <| GetTimestamp video) ]
+            Page.Utils.button "Publier cette vidéo" buttonState (Just <| GetTimestamp video)
 
-        authorName =
+        profileData =
             case videoAuthorsData of
                 Data.Kinto.Received videoAuthors ->
                     videoAuthors.objects
                         |> List.filter (\author -> author.id == video.profile)
                         |> List.head
-                        |> Maybe.map (\author -> author.name)
-                        -- If we didn't find any profile, display the profile ID.
-                        |> Maybe.withDefault video.profile
+                        |> Maybe.map Data.Kinto.Received
+                        |> Maybe.withDefault Data.Kinto.NotRequested
 
                 _ ->
-                    video.profile
+                    Data.Kinto.NotRequested
     in
-    Page.Utils.viewVideo timezone (ToggleVideo video) publishNode video authorName
+    H.div
+        [ HA.class "card" ]
+        [ H.div
+            [ HA.class "card__cover" ]
+            [ H.img
+                [ HA.alt video.title
+                , HA.src video.thumbnail
+                , HE.onClick (ToggleVideo video)
+                ]
+                []
+            ]
+        , Page.Common.Video.details timezone video profileData
+        , Page.Common.Video.keywords video
+        , publishNode
+        ]
 
 
 downloadContacts : Data.Kinto.ContactListData -> H.Html Msg
