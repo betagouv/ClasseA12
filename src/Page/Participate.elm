@@ -10,7 +10,7 @@ import Http
 import Json.Decode as Decode
 import Kinto
 import Page.Common.Components
-import Page.Utils
+import Page.Common.Progress
 import Ports
 import Request.KintoUpcoming
 import Route
@@ -22,7 +22,7 @@ type alias Model =
     { newVideo : NewVideo
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
-    , progress : Page.Utils.Progress
+    , progress : Page.Common.Progress.Progress
     , preSelectedKeywords : Keywords
     , freeformKeywords : String
     }
@@ -61,7 +61,7 @@ init session =
     ( { newVideo = emptyNewVideo
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
-      , progress = Page.Utils.emptyProgress
+      , progress = Page.Common.Progress.empty
       , preSelectedKeywords = noKeywords
       , freeformKeywords = ""
       }
@@ -145,8 +145,8 @@ update { userData } msg model =
         ProgressUpdated value ->
             let
                 progress =
-                    Decode.decodeValue Page.Utils.progressDecoder value
-                        |> Result.withDefault Page.Utils.emptyProgress
+                    Decode.decodeValue Page.Common.Progress.decoder value
+                        |> Result.withDefault Page.Common.Progress.empty
             in
             ( { model | progress = progress }, Cmd.none )
 
@@ -186,7 +186,7 @@ update { userData } msg model =
                 , newVideoKintoData = kintoData
                 , freeformKeywords = ""
                 , videoObjectUrl = Nothing
-                , progress = Page.Utils.emptyProgress
+                , progress = Page.Common.Progress.empty
               }
             , Cmd.none
             )
@@ -238,7 +238,7 @@ displaySubmitVideoForm :
         | newVideo : NewVideo
         , newVideoKintoData : KintoData Video
         , videoObjectUrl : Maybe String
-        , progress : Page.Utils.Progress
+        , progress : Page.Common.Progress.Progress
         , preSelectedKeywords : Keywords
         , freeformKeywords : String
     }

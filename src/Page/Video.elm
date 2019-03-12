@@ -12,8 +12,8 @@ import Kinto
 import Markdown
 import Page.Common.Components
 import Page.Common.Dates
+import Page.Common.Progress
 import Page.Common.Video
-import Page.Utils
 import Ports
 import Request.Kinto
 import Request.KintoComment
@@ -36,7 +36,7 @@ type alias Model =
     , refreshing : Bool
     , attachmentData : Data.Kinto.KintoData Data.Kinto.Attachment
     , attachmentSelected : Bool
-    , progress : Page.Utils.Progress
+    , progress : Page.Common.Progress.Progress
     }
 
 
@@ -67,7 +67,7 @@ init videoID title session =
       , refreshing = False
       , attachmentData = Data.Kinto.NotRequested
       , attachmentSelected = False
-      , progress = Page.Utils.emptyProgress
+      , progress = Page.Common.Progress.empty
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
@@ -188,8 +188,8 @@ update session msg model =
         ProgressUpdated value ->
             let
                 progress =
-                    Decode.decodeValue Page.Utils.progressDecoder value
-                        |> Result.withDefault Page.Utils.emptyProgress
+                    Decode.decodeValue Page.Common.Progress.decoder value
+                        |> Result.withDefault Page.Common.Progress.empty
             in
             ( { model | progress = progress }, Cmd.none )
 
@@ -220,7 +220,7 @@ update session msg model =
                 , commentForm = Data.Kinto.emptyComment
                 , attachmentData = kintoData
                 , attachmentSelected = False
-                , progress = Page.Utils.emptyProgress
+                , progress = Page.Common.Progress.empty
               }
               -- Refresh the list of comments (and then contributors)
             , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
@@ -437,7 +437,7 @@ viewCommentForm :
     -> Bool
     -> Data.Kinto.KintoData Data.Kinto.Comment
     -> Data.Kinto.KintoData Data.Kinto.Attachment
-    -> Page.Utils.Progress
+    -> Page.Common.Progress.Progress
     -> H.Html Msg
 viewCommentForm commentForm userData refreshing commentData attachmentData progress =
     if not <| Data.Session.isLoggedIn userData then

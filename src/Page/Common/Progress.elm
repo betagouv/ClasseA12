@@ -1,21 +1,7 @@
-module Page.Utils exposing
-    ( Progress
-    , emptyProgress
-    , progressDecoder
-    )
+module Page.Common.Progress exposing (Progress, decoder, empty)
 
-import Html as H
-import Html.Attributes as HA
-import Html.Events as HE
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
-import Json.Encode as Encode
-import Route
-import Time
-
-
-
----- HTTP progress updates ----
 
 
 type alias Progress =
@@ -24,12 +10,12 @@ type alias Progress =
     }
 
 
-emptyProgress : Progress
-emptyProgress =
+empty : Progress
+empty =
     { percentage = 0, message = "" }
 
 
-progressDecoder =
+decoder =
     Decode.succeed Progress
         |> Pipeline.required "percentage" Decode.int
         |> Pipeline.required "message" Decode.string
