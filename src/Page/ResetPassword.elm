@@ -7,8 +7,8 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Kinto
+import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Page.Utils
 import Request.KintoAccount
 
 
@@ -133,16 +133,16 @@ viewResetForm resetForm passwordReset =
             if formComplete then
                 case passwordReset of
                     Data.Kinto.Requested ->
-                        Page.Utils.Loading
+                        Page.Common.Components.Loading
 
                     _ ->
-                        Page.Utils.NotLoading
+                        Page.Common.Components.NotLoading
 
             else
-                Page.Utils.Disabled
+                Page.Common.Components.Disabled
 
         submitButton =
-            Page.Utils.submitButton "M'envoyer un mail de réinitialisation" buttonState
+            Page.Common.Components.submitButton "M'envoyer un mail de réinitialisation" buttonState
     in
     H.form
         [ HE.onSubmit ResetPassword ]

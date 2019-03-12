@@ -8,7 +8,7 @@ import Html.Events as HE
 import Kinto
 import Page.Common.Notifications as Notifications
 import Page.Common.Video
-import Page.Utils
+import Page.Common.Components
 import Ports
 import Request.Kinto exposing (authClient)
 import Request.KintoContact
@@ -254,7 +254,7 @@ view { timezone, userData, staticFiles } { notifications, videoListData, videoAu
                         ]
 
               else
-                Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
+                Page.Common.Components.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
             ]
       ]
     )
@@ -292,14 +292,14 @@ viewVideo timezone publishingVideos videoAuthorsData video =
     let
         buttonState =
             if List.member video publishingVideos then
-                Page.Utils.Loading
+                Page.Common.Components.Loading
 
             else
-                Page.Utils.NotLoading
+                Page.Common.Components.NotLoading
 
         publishNode =
             -- Before publishing the video, get the timestamp (so we can use it as the publish_date)
-            Page.Utils.button "Publier cette vidéo" buttonState (Just <| GetTimestamp video)
+            Page.Common.Components.button "Publier cette vidéo" buttonState (Just <| GetTimestamp video)
 
         profileData =
             case videoAuthorsData of

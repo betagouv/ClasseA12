@@ -9,8 +9,8 @@ import Http
 import Json.Encode as Encode
 import Kinto
 import NaturalOrdering
+import Page.Common.Components
 import Page.Common.Video
-import Page.Utils
 import Request.KintoProfile
 import Request.KintoVideo
 import Route
@@ -165,13 +165,13 @@ viewVideoList timezone timestamp { search, authorsData } videoList =
                     [ H.select
                         [ HA.id "keywords"
                         , HA.value search
-                        , Page.Utils.onChange UpdateSearch
+                        , Page.Common.Components.onChange UpdateSearch
                         ]
-                        [ Page.Utils.optgroup "Afficher :"
+                        [ Page.Common.Components.optgroup "Afficher :"
                             [ H.option [ HA.value "" ] [ H.text "Toutes les vidéos pédagogiques" ]
                             , H.option [ HA.value "Le projet Classe à 12" ] [ H.text "Les vidéos à propos du projet Classe à 12" ]
                             ]
-                        , Page.Utils.optgroup "Filtrer les vidéos par mot clé :"
+                        , Page.Common.Components.optgroup "Filtrer les vidéos par mot clé :"
                             (keywordList
                                 |> List.map
                                     (\keyword ->

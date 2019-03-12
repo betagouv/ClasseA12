@@ -9,6 +9,7 @@ import Html.Events as HE
 import Http
 import Json.Decode as Decode
 import Kinto
+import Page.Common.Components
 import Page.Utils
 import Ports
 import Request.KintoUpcoming
@@ -221,7 +222,7 @@ view { staticFiles, userData } model =
                             ]
                         ]
                     , if not <| Data.Session.isLoggedIn userData then
-                        Page.Utils.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+                        Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
                       else
                         displaySubmitVideoForm model
@@ -267,7 +268,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
                     , HA.type_ "file"
                     , HA.id "video"
                     , HA.accept "video/*"
-                    , Page.Utils.onFileSelected VideoSelected
+                    , Page.Common.Components.onFileSelected VideoSelected
                     ]
                     []
                 , H.span [ HA.class "file-cta" ]

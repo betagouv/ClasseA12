@@ -10,6 +10,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Kinto
 import Markdown
+import Page.Common.Components
 import Page.Common.Dates
 import Page.Common.Video
 import Page.Utils
@@ -317,7 +318,7 @@ viewVideoDetails timezone url navigatorShare video profileData =
                 []
 
         shareButtons =
-             H.ul [ HA.class "social" ]
+            H.ul [ HA.class "social" ]
                 ([ H.li []
                     [ H.a
                         [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
@@ -440,7 +441,7 @@ viewCommentForm :
     -> H.Html Msg
 viewCommentForm commentForm userData refreshing commentData attachmentData progress =
     if not <| Data.Session.isLoggedIn userData then
-        Page.Utils.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+        Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
     else
         let
@@ -451,31 +452,31 @@ viewCommentForm commentForm userData refreshing commentData attachmentData progr
                 if formComplete then
                     case commentData of
                         Data.Kinto.Requested ->
-                            Page.Utils.Loading
+                            Page.Common.Components.Loading
 
                         Data.Kinto.Received _ ->
                             case attachmentData of
                                 Data.Kinto.Requested ->
-                                    Page.Utils.Loading
+                                    Page.Common.Components.Loading
 
                                 Data.Kinto.Received _ ->
                                     if refreshing then
-                                        Page.Utils.Loading
+                                        Page.Common.Components.Loading
 
                                     else
-                                        Page.Utils.NotLoading
+                                        Page.Common.Components.NotLoading
 
                                 _ ->
-                                    Page.Utils.NotLoading
+                                    Page.Common.Components.NotLoading
 
                         _ ->
-                            Page.Utils.NotLoading
+                            Page.Common.Components.NotLoading
 
                 else
-                    Page.Utils.Disabled
+                    Page.Common.Components.Disabled
 
             submitButton =
-                Page.Utils.submitButton "Ajouter cette contribution" buttonState
+                Page.Common.Components.submitButton "Ajouter cette contribution" buttonState
         in
         H.div []
             [ H.form
@@ -498,7 +499,7 @@ viewCommentForm commentForm userData refreshing commentData attachmentData progr
                         [ HA.class "file-input"
                         , HA.type_ "file"
                         , HA.id "attachment"
-                        , Page.Utils.onFileSelected AttachmentSelected
+                        , Page.Common.Components.onFileSelected AttachmentSelected
                         ]
                         []
                     ]

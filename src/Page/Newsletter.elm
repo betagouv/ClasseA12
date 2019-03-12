@@ -6,8 +6,8 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
+import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Page.Utils
 import Random
 import Random.Char
 import Random.String
@@ -88,15 +88,15 @@ view session { contact, newContactKintoData, notifications } =
     let
         buttonState =
             if contact.name == "" || contact.email == "" || contact.role == "" then
-                Page.Utils.Disabled
+                Page.Common.Components.Disabled
 
             else
                 case newContactKintoData of
                     Requested ->
-                        Page.Utils.Loading
+                        Page.Common.Components.Loading
 
                     _ ->
-                        Page.Utils.NotLoading
+                        Page.Common.Components.NotLoading
     in
     ( "Inscrivez-vous à notre infolettre"
     , [ H.div [ HA.class "hero" ]
@@ -132,7 +132,7 @@ view session { contact, newContactKintoData, notifications } =
                             , H.select
                                 [ HA.id "role"
                                 , HA.value contact.role
-                                , Page.Utils.onChange
+                                , Page.Common.Components.onChange
                                     (\role ->
                                         UpdateContactForm { contact | role = role }
                                     )
@@ -143,7 +143,7 @@ view session { contact, newContactKintoData, notifications } =
                                 , H.option [ HA.value "Formateur" ] [ H.text "Formateur" ]
                                 ]
                             ]
-                        , Page.Utils.submitButton "M'inscrire à l'infolettre" buttonState
+                        , Page.Common.Components.submitButton "M'inscrire à l'infolettre" buttonState
                         , H.p []
                             [ H.text "En renseignant votre nom et votre adresse email, vous acceptez de recevoir des informations ponctuelles par courrier électronique et vous prenez connaissance de notre "
                             , H.a [ Route.href Route.PrivacyPolicy ] [ H.text "politique de confidentialité" ]

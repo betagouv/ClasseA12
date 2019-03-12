@@ -8,8 +8,8 @@ import Html.Events as HE
 import Http
 import Kinto
 import Markdown
+import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Page.Utils
 import Ports
 import Request.Kinto exposing (authClient)
 import Request.KintoAccount
@@ -308,7 +308,7 @@ view { staticFiles, userData } { pageState, profileForm, profileData, userInfoDa
 
                             else
                                 -- User not logged in
-                                Page.Utils.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
+                                Page.Common.Components.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
                     ]
                 ]
             ]
@@ -360,25 +360,25 @@ viewCreateProfileForm pageState profileForm profileData userInfoData =
             if formComplete then
                 case profileData of
                     Data.Kinto.Requested ->
-                        Page.Utils.Loading
+                        Page.Common.Components.Loading
 
                     Data.Kinto.Received _ ->
                         -- Profile created
                         case userInfoData of
                             Data.Kinto.Requested ->
-                                Page.Utils.Loading
+                                Page.Common.Components.Loading
 
                             _ ->
-                                Page.Utils.NotLoading
+                                Page.Common.Components.NotLoading
 
                     _ ->
-                        Page.Utils.NotLoading
+                        Page.Common.Components.NotLoading
 
             else
-                Page.Utils.Disabled
+                Page.Common.Components.Disabled
 
         submitButton =
-            Page.Utils.submitButton "Créer mon profil" buttonState
+            Page.Common.Components.submitButton "Créer mon profil" buttonState
     in
     viewProfileForm submitButton SubmitProfile profileForm
 
@@ -393,17 +393,17 @@ viewEditProfileForm pageState profileForm profileData userInfoData =
             if formComplete then
                 case profileData of
                     Data.Kinto.Requested ->
-                        Page.Utils.Loading
+                        Page.Common.Components.Loading
 
                     _ ->
-                        Page.Utils.NotLoading
+                        Page.Common.Components.NotLoading
 
             else
-                Page.Utils.Disabled
+                Page.Common.Components.Disabled
 
         submitButton =
             H.div []
-                [ Page.Utils.submitButton "Mettre à jour mon profil" buttonState
+                [ Page.Common.Components.submitButton "Mettre à jour mon profil" buttonState
                 , H.button [ HA.class "button warning", HE.onClick Logout ] [ H.text "Me déconnecter" ]
                 ]
     in
