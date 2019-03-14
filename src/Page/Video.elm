@@ -1,5 +1,6 @@
 module Page.Video exposing (Model, Msg(..), init, update, view)
 
+import Browser.Dom as Dom
 import Data.Kinto
 import Data.Session exposing (Session)
 import Html as H
@@ -20,6 +21,7 @@ import Request.KintoComment
 import Request.KintoProfile
 import Request.KintoVideo
 import Route
+import Task
 import Time
 import Url exposing (Url)
 
@@ -52,6 +54,8 @@ type Msg
     | CommentAdded (Result Kinto.Error Data.Kinto.Comment)
     | AttachmentSent String
     | ProgressUpdated Decode.Value
+    | CommentSelected String
+    | NoOp
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -79,9 +83,15 @@ init videoID title session =
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         VideoReceived (Ok video) ->
             ( { model | video = Data.Kinto.Received video }
-            , Request.KintoProfile.getProfile session.kintoURL video.profile VideoAuthorReceived
+            , Cmd.batch
+                [ Request.KintoProfile.getProfile session.kintoURL video.profile VideoAuthorReceived
+                , scrollToComment session.url.fragment
+                ]
             )
 
         VideoReceived (Err error) ->
@@ -103,7 +113,10 @@ update session msg model =
                         |> List.map (\comment -> comment.profile)
             in
             ( { model | comments = Data.Kinto.Received comments }
-            , Request.KintoProfile.getProfileList session.kintoURL contributorIDs ContributorsReceived
+            , Cmd.batch
+                [ Request.KintoProfile.getProfileList session.kintoURL contributorIDs ContributorsReceived
+                , scrollToComment session.url.fragment
+                ]
             )
 
         CommentsReceived (Err error) ->
@@ -225,6 +238,24 @@ update session msg model =
               -- Refresh the list of comments (and then contributors)
             , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
             )
+
+        CommentSelected commentID ->
+            ( model, scrollToComment <| Just commentID)
+
+
+scrollToComment : Maybe String -> Cmd Msg
+scrollToComment maybeCommentID =
+    case maybeCommentID of
+        Just commentID ->
+            Dom.getElement commentID
+                |> Task.andThen
+                    (\comment ->
+                        Dom.setViewport 0 comment.element.y
+                    )
+                |> Task.attempt (\_ -> NoOp)
+
+        Nothing ->
+            Cmd.none
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
@@ -419,8 +450,17 @@ viewCommentDetails timezone contributorsData comment =
             else
                 H.div [] []
     in
-    H.li [ HA.class "comment panel" ]
-        [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone comment.last_modified ]
+    H.li
+        [ HA.class "comment panel"
+        , HA.id comment.id
+        ]
+        [ H.a
+            [ HA.href <| "#" ++ comment.id
+            , HA.class "comment-link"
+            , HE.onClick <| CommentSelected comment.id
+            ]
+            [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone comment.last_modified ]
+            ]
         , H.a
             [ Route.href <| Route.Profile (Just comment.profile)
             , HA.class "comment-author"

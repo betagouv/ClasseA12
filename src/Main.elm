@@ -381,7 +381,12 @@ update msg ({ page, session } as model) =
                     )
 
         ( UrlChanged url, _ ) ->
-            setRoute url model
+            if url.path == model.session.url.path then
+                -- Link was to an anchor in the same page.
+                ( model, Cmd.none )
+
+            else
+                setRoute url model
 
         ( AdjustTimeZone zone, _ ) ->
             let
