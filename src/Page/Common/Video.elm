@@ -3,14 +3,16 @@ module Page.Common.Video exposing (details, keywords, player)
 import Data.Kinto
 import Html as H
 import Html.Attributes as HA
+import Html.Events as HE
+import Json.Decode as Decode
 import Markdown
 import Page.Common.Dates
 import Route
 import Time
 
 
-player : Data.Kinto.Attachment -> H.Html msg
-player attachment =
+player : msg -> Data.Kinto.Attachment -> H.Html msg
+player canplayMessage attachment =
     H.video
         [ HA.src <| attachment.location
 
@@ -18,6 +20,7 @@ player attachment =
         , HA.attribute "type" attachment.mimetype
         , HA.controls True
         , HA.preload "metadata"
+        , HE.on "canplay" (Decode.succeed canplayMessage)
         ]
         [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
 

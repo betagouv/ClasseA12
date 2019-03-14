@@ -56,6 +56,7 @@ type Msg
     | ProgressUpdated Decode.Value
     | CommentSelected String
     | NoOp
+    | VideoCanPlay
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -90,7 +91,7 @@ update session msg model =
             ( { model | video = Data.Kinto.Received video }
             , Cmd.batch
                 [ Request.KintoProfile.getProfile session.kintoURL video.profile VideoAuthorReceived
-                , scrollToComment session.url.fragment
+                , scrollToComment session.url.fragment model
                 ]
             )
 
@@ -115,7 +116,7 @@ update session msg model =
             ( { model | comments = Data.Kinto.Received comments }
             , Cmd.batch
                 [ Request.KintoProfile.getProfileList session.kintoURL contributorIDs ContributorsReceived
-                , scrollToComment session.url.fragment
+                , scrollToComment session.url.fragment model
                 ]
             )
 
@@ -240,22 +241,32 @@ update session msg model =
             )
 
         CommentSelected commentID ->
-            ( model, scrollToComment <| Just commentID)
+            ( model, scrollToComment (Just commentID) model )
+
+        VideoCanPlay ->
+            ( model
+            , scrollToComment session.url.fragment model
+            )
 
 
-scrollToComment : Maybe String -> Cmd Msg
-scrollToComment maybeCommentID =
-    case maybeCommentID of
-        Just commentID ->
-            Dom.getElement commentID
-                |> Task.andThen
-                    (\comment ->
-                        Dom.setViewport 0 comment.element.y
-                    )
-                |> Task.attempt (\_ -> NoOp)
+scrollToComment : Maybe String -> Model -> Cmd Msg
+scrollToComment maybeCommentID model =
+    if model.comments /= Data.Kinto.Requested && model.video /= Data.Kinto.Requested then
+        -- Only scroll to the selected comment if we received both the video and the comments.
+        case maybeCommentID of
+            Just commentID ->
+                Dom.getElement commentID
+                    |> Task.andThen
+                        (\comment ->
+                            Dom.setViewport 0 comment.element.y
+                        )
+                    |> Task.attempt (\_ -> NoOp)
 
-        Nothing ->
-            Cmd.none
+            Nothing ->
+                Cmd.none
+
+    else
+        Cmd.none
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
@@ -392,7 +403,7 @@ viewVideoDetails timezone url navigatorShare video profileData =
     in
     H.div
         []
-        [ Page.Common.Video.player video.attachment
+        [ Page.Common.Video.player VideoCanPlay video.attachment
         , Page.Common.Video.details timezone video profileData
         , Page.Common.Video.keywords video
         , shareButtons
