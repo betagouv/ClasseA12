@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, href, pushUrl)
+module Route exposing (Route(..), fromUrl, href, pushUrl, toString)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
@@ -24,6 +24,7 @@ type Route
     | SetNewPassword String String
     | Activate String String
     | Profile (Maybe String)
+    | Comments
 
 
 parser : Parser (Route -> a) a
@@ -45,6 +46,7 @@ parser =
         , Parser.map Activate (Parser.s "activation" </> Parser.string </> Parser.string)
         , Parser.map (Profile Nothing) (Parser.s "profil")
         , Parser.map (\profile -> Profile (Just profile)) (Parser.s "profil" </> Parser.string)
+        , Parser.map Comments (Parser.s "commentaires")
         ]
 
 
@@ -128,5 +130,8 @@ toString route =
                     [ "profil"
                     , profile
                     ]
+
+                Comments ->
+                    [ "commentaires" ]
     in
     "/" ++ String.join "/" pieces

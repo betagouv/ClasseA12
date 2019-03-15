@@ -76,7 +76,7 @@ init videoID title session =
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
-        , Request.KintoComment.getCommentList session.kintoURL videoID CommentsReceived
+        , Request.KintoComment.getVideoCommentList session.kintoURL videoID CommentsReceived
         ]
     )
 
@@ -193,7 +193,7 @@ update session msg model =
                     , refreshing = True
                   }
                   -- Refresh the list of comments (and then contributors)
-                , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+                , Request.KintoComment.getVideoCommentList session.kintoURL model.videoID CommentsReceived
                 )
 
         CommentAdded (Err error) ->
@@ -237,7 +237,7 @@ update session msg model =
                 , progress = Page.Common.Progress.empty
               }
               -- Refresh the list of comments (and then contributors)
-            , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+            , Request.KintoComment.getVideoCommentList session.kintoURL model.videoID CommentsReceived
             )
 
         CommentSelected commentID ->

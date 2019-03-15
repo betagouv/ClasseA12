@@ -1,7 +1,7 @@
 -- Published videos
 
 
-module Request.KintoVideo exposing (getVideo, getVideoList, publishVideo)
+module Request.KintoVideo exposing (getVideo, getVideoList, getVideoListRequest, publishVideo)
 
 import Data.Kinto
 import Kinto
@@ -22,14 +22,20 @@ recordResource =
 
 getVideoList : String -> (Result Kinto.Error Data.Kinto.VideoList -> msg) -> Cmd msg
 getVideoList serverURL message =
+    getVideoListRequest serverURL
+        |> Kinto.sort [ "-creation_date" ]
+        |> Kinto.send message
+
+
+getVideoListRequest : String -> Kinto.Request Data.Kinto.VideoList
+getVideoListRequest serverURL =
     let
         (Request.Kinto.AnonymousClient client) =
             Request.Kinto.anonymousClient serverURL
     in
     client
         |> Kinto.getList recordResource
-        |> Kinto.sort [ "-creation_date" ]
-        |> Kinto.send message
+
 
 getVideo : String -> String -> (Result Kinto.Error Data.Kinto.Video -> msg) -> Cmd msg
 getVideo serverURL videoID message =

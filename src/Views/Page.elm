@@ -24,6 +24,7 @@ type ActivePage
     | SetNewPassword
     | Activate
     | Profile
+    | Comments
     | NotFound
 
 
