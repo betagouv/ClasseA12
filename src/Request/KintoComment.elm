@@ -1,4 +1,4 @@
-module Request.KintoComment exposing (getCommentList, getCommentListRequest, getVideoCommentList, submitComment)
+module Request.KintoComment exposing (getCommentListRequest, getVideoCommentList, submitComment)
 
 import Data.Kinto
 import Kinto
@@ -21,14 +21,7 @@ getVideoCommentList : String -> String -> (Result Kinto.Error Data.Kinto.Comment
 getVideoCommentList serverURL videoID message =
     getCommentListRequest serverURL
         |> Kinto.filter (Kinto.EQUAL "video" videoID)
-        |> Kinto.sort [ "last_modified" ]
-        |> Kinto.send message
-
-
-getCommentList : String -> (Result Kinto.Error Data.Kinto.CommentList -> msg) -> Cmd msg
-getCommentList serverURL message =
-    getCommentListRequest serverURL
-        |> Kinto.sort [ "last_modified" ]
+        |> Kinto.sort [ "-last_modified" ]
         |> Kinto.send message
 
 
