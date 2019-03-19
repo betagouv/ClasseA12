@@ -67,7 +67,7 @@ view session { title, notifications, commentDataList } =
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "List des commentaires" ]
+                , H.h1 [] [ H.text "Liste des commentaires" ]
                 ]
             ]
       , H.div [ HA.class "main" ]
