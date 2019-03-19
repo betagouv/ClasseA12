@@ -14,7 +14,8 @@ import Route
 
 
 type alias Model =
-    { email : String
+    { title : String
+    , email : String
     , temporaryPassword : String
     , setNewPasswordForm : SetNewPasswordForm
     , notifications : Notifications.Model
@@ -42,7 +43,8 @@ type Msg
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
 init email temporaryPassword session =
-    ( { email = email
+    ( { title = "Nouveau mot de passe"
+      , email = email
       , temporaryPassword = temporaryPassword
       , setNewPasswordForm = emptySetNewPasswordForm
       , notifications = Notifications.init
@@ -102,8 +104,8 @@ setNewPassword kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session { email, notifications, setNewPasswordForm, userInfoData } =
-    ( "Nouveau mot de passe"
+view session { title, email, notifications, setNewPasswordForm, userInfoData } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []

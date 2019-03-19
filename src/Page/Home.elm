@@ -20,7 +20,8 @@ import Time
 
 
 type alias Model =
-    { search : String
+    { title : String
+    , search : String
     , videoData : Data.Kinto.VideoListData
     , authorsData : Data.Kinto.KintoData Data.Kinto.ProfileList
     , timestamp : Time.Posix
@@ -36,7 +37,8 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { search = ""
+    ( { title = "Liste des vidéos"
+      , search = ""
       , videoData = Data.Kinto.Requested
       , authorsData = Data.Kinto.NotRequested
       , timestamp = Time.millisToPosix 0
@@ -78,8 +80,8 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, staticFiles } ({ search, videoData, authorsData, timestamp } as model) =
-    ( "Liste des vidéos"
+view { timezone, staticFiles } ({ title, search, videoData, authorsData, timestamp } as model) =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__banner" ] []
             , H.div [ HA.class "hero__container" ]

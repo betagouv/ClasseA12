@@ -198,8 +198,11 @@ app.ports.submitAttachment.subscribe(function ({ nodeID, commentID, login, passw
 })();
 
 // A new url has been loaded using pushstate, we need to tell matomo/piwik (analytics) by firing an event
-app.ports.newURL.subscribe(function (url) {
-    window.dispatchEvent(new Event('newURL'));
+app.ports.newURL.subscribe(function ([url, title]) {
+    const event = new window.CustomEvent("newURL", {
+        "detail": { "url": url, "title": title }
+    });
+    window.dispatchEvent(event);
 });
 
 app.ports.saveSession.subscribe(function (sessionData) {

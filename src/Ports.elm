@@ -46,7 +46,7 @@ port progressUpdate : (Decode.Value -> msg) -> Sub msg
 
 port newURL :
     -- As we're using pushstate, we have to explicitely warn javascript (and analytics) of any url change
-    String -> Cmd msg
+    (String, String) -> Cmd msg
 
 
 port saveSession : Encode.Value -> Cmd msg

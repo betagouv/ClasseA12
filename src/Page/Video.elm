@@ -25,10 +25,11 @@ import Url exposing (Url)
 
 
 type alias Model =
-    { videoID : String
+    { title : String
+    , videoID : String
     , video : Data.Kinto.KintoData Data.Kinto.Video
     , videoAuthor : Data.Kinto.ProfileData
-    , title : String
+    , videoTitle : String
     , comments : Data.Kinto.KintoData Data.Kinto.CommentList
     , contributors : Data.Kinto.KintoData Data.Kinto.ProfileList
     , commentForm : Data.Kinto.Comment
@@ -55,11 +56,20 @@ type Msg
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
-init videoID title session =
-    ( { videoID = videoID
+init videoID videoTitle session =
+    let
+        title =
+            "Vidéo : "
+                ++ (videoTitle
+                        |> Url.percentDecode
+                        |> Maybe.withDefault videoTitle
+                   )
+    in
+    ( { title = title
+      , videoID = videoID
       , video = Data.Kinto.Requested
       , videoAuthor = Data.Kinto.NotRequested
-      , title = title
+      , videoTitle = videoTitle
       , comments = Data.Kinto.Requested
       , contributors = Data.Kinto.NotRequested
       , commentForm = Data.Kinto.emptyComment
@@ -228,12 +238,8 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, staticFiles, url, userData } { video, title, comments, contributors, commentForm, commentData, refreshing, attachmentData, progress, videoAuthor } =
-    ( "Vidéo : "
-        ++ (title
-                |> Url.percentDecode
-                |> Maybe.withDefault title
-           )
+view { timezone, navigatorShare, staticFiles, url, userData } { title, video, comments, contributors, commentForm, commentData, refreshing, attachmentData, progress, videoAuthor } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []

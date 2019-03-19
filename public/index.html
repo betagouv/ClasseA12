@@ -37,9 +37,11 @@
       g.type = 'text/javascript'; g.async = true; g.defer = true; g.src = u + 'piwik.js'; s.parentNode.insertBefore(g, s);
     })();
 
-    window.addEventListener("newURL", function () {
-      window._paq.push(['setCustomUrl', document.location]);
-      window._paq.push(['setDocumentTitle', document.title]);
+    window.addEventListener("newURL", function (e) {
+      const detail = e.detail;
+      console.log(detail);
+      window._paq.push(['setCustomUrl', detail.url]);
+      window._paq.push(['setDocumentTitle', detail.title]);
       window._paq.push(['trackPageView']);
     });
   </script>

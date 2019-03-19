@@ -14,7 +14,8 @@ import Route
 
 
 type alias Model =
-    { loginForm : UserData
+    { title : String
+    , loginForm : UserData
     , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Data.Kinto.UserInfo
     }
@@ -31,7 +32,8 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     let
         initialModel =
-            { loginForm = session.userData
+            { title = "Connexion"
+            , loginForm = session.userData
             , userInfoData = Data.Kinto.NotRequested
             , notifications = Notifications.init
             }
@@ -108,8 +110,8 @@ useLogin kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session { notifications, loginForm, userInfoData } =
-    ( "Connexion"
+view session { title, notifications, loginForm, userInfoData } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []

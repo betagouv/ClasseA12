@@ -6,7 +6,7 @@ import Html.Attributes as HA
 
 
 type alias Model =
-    {}
+    { title : String }
 
 
 type Msg
@@ -15,7 +15,7 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( {}, Cmd.none )
+    ( { title = "Classe à 12 ?" }, Cmd.none )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -24,8 +24,8 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session model =
-    ( "Classe à 12 ?"
+view session { title } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []

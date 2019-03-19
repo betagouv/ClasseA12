@@ -6,7 +6,7 @@ import Html.Attributes as HA
 
 
 type alias Model =
-    {}
+    { title : String }
 
 
 type Msg
@@ -15,7 +15,7 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( {}
+    ( { title = "Conditions générales d’utilisation" }
     , Cmd.none
     )
 
@@ -26,8 +26,8 @@ update _ msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session _ =
-    ( "Conditions générales d’utilisation"
+view session { title } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []

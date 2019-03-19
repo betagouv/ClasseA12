@@ -7,14 +7,15 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Kinto
-import Page.Common.Notifications as Notifications
 import Page.Common.Components
+import Page.Common.Notifications as Notifications
 import Request.KintoAccount
 import Route
 
 
 type alias Model =
-    { username : String
+    { title : String
+    , username : String
     , activationKey : String
     , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
@@ -29,7 +30,8 @@ type Msg
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
 init username activationKey session =
-    ( { username = username
+    ( { title = "Activation"
+      , username = username
       , activationKey = activationKey
       , notifications = Notifications.init
       , userInfoData = Data.Kinto.NotRequested
@@ -71,8 +73,8 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session { notifications, userInfoData, username } =
-    ( "Activation"
+view session { title, notifications, userInfoData, username } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []

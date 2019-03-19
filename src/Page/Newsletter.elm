@@ -16,7 +16,8 @@ import Route
 
 
 type alias Model =
-    { contact : Contact
+    { title : String
+    , contact : Contact
     , newContactKintoData : KintoData Contact
     , notifications : Notifications.Model
     }
@@ -36,7 +37,8 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { contact = emptyContact
+    ( { title = "Inscrivez-vous à notre infolettre"
+      , contact = emptyContact
       , newContactKintoData = NotRequested
       , notifications = Notifications.init
       }
@@ -84,7 +86,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session { contact, newContactKintoData, notifications } =
+view session { title, contact, newContactKintoData, notifications } =
     let
         buttonState =
             if contact.name == "" || contact.email == "" || contact.role == "" then
@@ -98,7 +100,7 @@ view session { contact, newContactKintoData, notifications } =
                     _ ->
                         Page.Common.Components.NotLoading
     in
-    ( "Inscrivez-vous à notre infolettre"
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []

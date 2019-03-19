@@ -6,9 +6,9 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
+import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Page.Common.Video
-import Page.Common.Components
 import Ports
 import Request.Kinto exposing (authClient)
 import Request.KintoContact
@@ -21,7 +21,8 @@ import Url
 
 
 type alias Model =
-    { videoListData : VideoListData
+    { title : String
+    , videoListData : VideoListData
     , videoAuthorsData : Data.Kinto.KintoData Data.Kinto.ProfileList
     , contactListData : ContactListData
     , notifications : Notifications.Model
@@ -50,7 +51,8 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     let
         initialModel =
-            { videoListData = Data.Kinto.NotRequested
+            { title = "Administration"
+            , videoListData = Data.Kinto.NotRequested
             , videoAuthorsData = Data.Kinto.NotRequested
             , contactListData = Data.Kinto.NotRequested
             , notifications = Notifications.init
@@ -217,8 +219,8 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, userData, staticFiles } { notifications, videoListData, videoAuthorsData, contactListData, publishingVideos, activeVideo } =
-    ( "Administration"
+view { timezone, userData, staticFiles } { title, notifications, videoListData, videoAuthorsData, contactListData, publishingVideos, activeVideo } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []

@@ -106,7 +106,7 @@ setRoute url oldModel =
             ( { model | page = page subModel }
             , Cmd.batch
                 [ Cmd.map subMsg subCmds
-                , Ports.newURL "new url"
+                , Ports.newURL <| ( Url.toString url, subModel.title )
                 ]
             )
     in

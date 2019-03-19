@@ -19,7 +19,8 @@ import Time
 
 
 type alias Model =
-    { newVideo : NewVideo
+    { title : String
+    , newVideo : NewVideo
     , newVideoKintoData : KintoData Video
     , videoObjectUrl : Maybe String
     , progress : Page.Common.Progress.Progress
@@ -58,7 +59,8 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { newVideo = emptyNewVideo
+    ( { title = "Je participe !"
+      , newVideo = emptyNewVideo
       , newVideoKintoData = NotRequested
       , videoObjectUrl = Nothing
       , progress = Page.Common.Progress.empty
@@ -202,7 +204,7 @@ update { userData } msg model =
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view { staticFiles, userData } model =
-    ( "Je participe !"
+    ( model.title
     , [ H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]

@@ -14,7 +14,8 @@ import Route
 
 
 type alias Model =
-    { registerForm : RegisterForm
+    { title : String
+    , registerForm : RegisterForm
     , notifications : Notifications.Model
     , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
     , approved : Bool
@@ -43,7 +44,8 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { registerForm = emptyRegisterForm
+    ( { title = "Inscription"
+      , registerForm = emptyRegisterForm
       , notifications = Notifications.init
       , userInfoData = Data.Kinto.NotRequested
       , approved = False
@@ -105,8 +107,8 @@ registerAccount kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session { notifications, registerForm, userInfoData, approved } =
-    ( "Inscription"
+view session { title, notifications, registerForm, userInfoData, approved } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []

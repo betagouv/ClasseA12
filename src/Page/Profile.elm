@@ -18,7 +18,8 @@ import Route
 
 
 type alias Model =
-    { pageState : PageState
+    { title : String
+    , pageState : PageState
     , profileForm : Data.Kinto.Profile
     , profileData : Data.Kinto.ProfileData
     , userInfoData : Data.Kinto.UserInfoData
@@ -51,16 +52,22 @@ init maybeProfile session =
     case maybeProfile of
         Just profile ->
             let
-                msg =
+                ( msg, title ) =
                     if profile == Maybe.withDefault "no user profile" session.userData.profile then
                         -- Profile edition
-                        ProfileFetchedForEdit
+                        ( ProfileFetchedForEdit, "Édition du profil" )
 
                     else
                         -- View profile from other user
-                        ProfileFetchedForView
+                        ( ProfileFetchedForView, "Profil" )
             in
-            ( { pageState = GetProfile
+            ( { title =
+                    if msg == ProfileFetchedForEdit then
+                        "Édition du profil"
+
+                    else
+                        "Profil"
+              , pageState = GetProfile
               , profileForm = Data.Kinto.emptyProfile
               , profileData = Data.Kinto.NotRequested
               , userInfoData = Data.Kinto.NotRequested
@@ -81,7 +88,8 @@ init maybeProfile session =
                 emptyProfile =
                     Data.Kinto.emptyProfile
             in
-            ( { pageState = CreateProfile
+            ( { title = "Création du profil"
+              , pageState = CreateProfile
               , profileForm = { emptyProfile | name = guessedName }
               , profileData = Data.Kinto.NotRequested
               , userInfoData = Data.Kinto.NotRequested
@@ -257,19 +265,7 @@ updateProfile { kintoURL, userData } model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { staticFiles, userData } { pageState, profileForm, profileData, userInfoData, notifications } =
-    let
-        title =
-            case pageState of
-                CreateProfile ->
-                    "Création du profil"
-
-                EditProfile _ ->
-                    "Édition du profil"
-
-                _ ->
-                    "Profil"
-    in
+view { staticFiles, userData } { title, pageState, profileForm, profileData, userInfoData, notifications } =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]

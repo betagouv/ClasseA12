@@ -13,7 +13,8 @@ import Request.KintoAccount
 
 
 type alias Model =
-    { resetForm : ResetForm
+    { title : String
+    , resetForm : ResetForm
     , notifications : Notifications.Model
     , passwordReset : Data.Kinto.KintoData Request.KintoAccount.PasswordReset
     }
@@ -38,7 +39,8 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { resetForm = emptyResetForm
+    ( { title = "Oubli du mot de passe"
+      , resetForm = emptyResetForm
       , notifications = Notifications.init
       , passwordReset = Data.Kinto.NotRequested
       }
@@ -96,8 +98,8 @@ resetPassword kintoURL model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view session { notifications, resetForm, passwordReset } =
-    ( "Oubli du mot de passe"
+view session { title, notifications, resetForm, passwordReset } =
+    ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
