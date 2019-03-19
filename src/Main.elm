@@ -14,6 +14,7 @@ import Page.About as About
 import Page.Activate as Activate
 import Page.Admin as Admin
 import Page.CGU as CGU
+import Page.Comments as Comments
 import Page.Convention as Convention
 import Page.Home as Home
 import Page.Login as Login
@@ -54,6 +55,7 @@ type Page
     | SetNewPasswordPage SetNewPassword.Model
     | ActivatePage Activate.Model
     | ProfilePage Profile.Model
+    | CommentsPage Comments.Model
     | NotFound
 
 
@@ -80,6 +82,7 @@ type Msg
     | SetNewPasswordMsg SetNewPassword.Msg
     | ActivateMsg Activate.Msg
     | ProfileMsg Profile.Msg
+    | CommentsMsg Comments.Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | AdjustTimeZone Time.Zone
@@ -167,6 +170,9 @@ setRoute url oldModel =
 
                 ( _, _ ) ->
                     toPage ProfilePage (Profile.init maybeProfile) ProfileMsg
+
+        Just Route.Comments ->
+            toPage CommentsPage Comments.init CommentsMsg
 
 
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -356,6 +362,9 @@ update msg ({ page, session } as model) =
                 _ ->
                     ( newModel, newCmd )
 
+        ( CommentsMsg commentsMsg, CommentsPage commentsModel ) ->
+            toPage CommentsPage CommentsMsg (Comments.update session) commentsMsg commentsModel
+
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
@@ -381,7 +390,12 @@ update msg ({ page, session } as model) =
                     )
 
         ( UrlChanged url, _ ) ->
-            setRoute url model
+            if url.path == model.session.url.path then
+                -- Link was to an anchor in the same page.
+                ( model, Cmd.none )
+
+            else
+                setRoute url model
 
         ( AdjustTimeZone zone, _ ) ->
             let
@@ -495,6 +509,9 @@ subscriptions model =
             ProfilePage _ ->
                 Sub.none
 
+            CommentsPage _ ->
+                Sub.none
+
             NotFound ->
                 Sub.none
         ]
@@ -588,6 +605,11 @@ view model =
             Profile.view model.session profileModel
                 |> mapMsg ProfileMsg
                 |> Page.frame (pageConfig Page.Profile)
+
+        CommentsPage commentsModel ->
+            Comments.view model.session commentsModel
+                |> mapMsg CommentsMsg
+                |> Page.frame (pageConfig Page.Comments)
 
         NotFound ->
             ( "Not Found", [ Html.text "Not found" ] )

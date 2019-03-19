@@ -1,5 +1,6 @@
 module Page.Video exposing (Model, Msg(..), init, update, view)
 
+import Browser.Dom as Dom
 import Data.Kinto
 import Data.Session exposing (Session)
 import Html as H
@@ -20,6 +21,7 @@ import Request.KintoComment
 import Request.KintoProfile
 import Request.KintoVideo
 import Route
+import Task
 import Time
 import Url exposing (Url)
 
@@ -53,6 +55,9 @@ type Msg
     | CommentAdded (Result Kinto.Error Data.Kinto.Comment)
     | AttachmentSent String
     | ProgressUpdated Decode.Value
+    | CommentSelected String
+    | NoOp
+    | VideoCanPlay
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -81,7 +86,7 @@ init videoID videoTitle session =
       }
     , Cmd.batch
         [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
-        , Request.KintoComment.getCommentList session.kintoURL videoID CommentsReceived
+        , Request.KintoComment.getVideoCommentList session.kintoURL videoID CommentsReceived
         ]
     )
 
@@ -89,9 +94,15 @@ init videoID videoTitle session =
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         VideoReceived (Ok video) ->
             ( { model | video = Data.Kinto.Received video }
-            , Request.KintoProfile.getProfile session.kintoURL video.profile VideoAuthorReceived
+            , Cmd.batch
+                [ Request.KintoProfile.getProfile session.kintoURL video.profile VideoAuthorReceived
+                , scrollToComment session.url.fragment model
+                ]
             )
 
         VideoReceived (Err error) ->
@@ -113,7 +124,10 @@ update session msg model =
                         |> List.map (\comment -> comment.profile)
             in
             ( { model | comments = Data.Kinto.Received comments }
-            , Request.KintoProfile.getProfileList session.kintoURL contributorIDs ContributorsReceived
+            , Cmd.batch
+                [ Request.KintoProfile.getProfileList session.kintoURL contributorIDs ContributorsReceived
+                , scrollToComment session.url.fragment model
+                ]
             )
 
         CommentsReceived (Err error) ->
@@ -189,7 +203,7 @@ update session msg model =
                     , refreshing = True
                   }
                   -- Refresh the list of comments (and then contributors)
-                , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+                , Request.KintoComment.getVideoCommentList session.kintoURL model.videoID CommentsReceived
                 )
 
         CommentAdded (Err error) ->
@@ -233,8 +247,36 @@ update session msg model =
                 , progress = Page.Common.Progress.empty
               }
               -- Refresh the list of comments (and then contributors)
-            , Request.KintoComment.getCommentList session.kintoURL model.videoID CommentsReceived
+            , Request.KintoComment.getVideoCommentList session.kintoURL model.videoID CommentsReceived
             )
+
+        CommentSelected commentID ->
+            ( model, scrollToComment (Just commentID) model )
+
+        VideoCanPlay ->
+            ( model
+            , scrollToComment session.url.fragment model
+            )
+
+
+scrollToComment : Maybe String -> Model -> Cmd Msg
+scrollToComment maybeCommentID model =
+    if model.comments /= Data.Kinto.Requested && model.video /= Data.Kinto.Requested then
+        -- Only scroll to the selected comment if we received both the video and the comments.
+        case maybeCommentID of
+            Just commentID ->
+                Dom.getElement commentID
+                    |> Task.andThen
+                        (\comment ->
+                            Dom.setViewport 0 comment.element.y
+                        )
+                    |> Task.attempt (\_ -> NoOp)
+
+            Nothing ->
+                Cmd.none
+
+    else
+        Cmd.none
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
@@ -367,7 +409,7 @@ viewVideoDetails timezone url navigatorShare video profileData =
     in
     H.div
         []
-        [ Page.Common.Video.player video.attachment
+        [ Page.Common.Video.player VideoCanPlay video.attachment
         , Page.Common.Video.details timezone video profileData
         , Page.Common.Video.keywords video
         , shareButtons
@@ -425,8 +467,17 @@ viewCommentDetails timezone contributorsData comment =
             else
                 H.div [] []
     in
-    H.li [ HA.class "comment panel" ]
-        [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone comment.last_modified ]
+    H.li
+        [ HA.class "comment panel"
+        , HA.id comment.id
+        ]
+        [ H.a
+            [ HA.href <| "#" ++ comment.id
+            , HA.class "comment-link"
+            , HE.onClick <| CommentSelected comment.id
+            ]
+            [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone comment.last_modified ]
+            ]
         , H.a
             [ Route.href <| Route.Profile (Just comment.profile)
             , HA.class "comment-author"

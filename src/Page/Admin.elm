@@ -36,7 +36,8 @@ type alias PublishingVideos =
 
 
 type Msg
-    = VideoListFetched (Result Kinto.Error VideoList)
+    = NoOp
+    | VideoListFetched (Result Kinto.Error VideoList)
     | VideoAuthorsFetched (Result Kinto.Error Data.Kinto.ProfileList)
     | ContactListFetched (Result Kinto.Error ContactList)
     | NotificationMsg Notifications.Msg
@@ -85,6 +86,9 @@ init session =
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
+        NoOp ->
+            ( model, Cmd.none )
+
         VideoListFetched (Ok videoList) ->
             let
                 authorIDs =
@@ -272,7 +276,7 @@ viewVideoList timezone publishingVideos activeVideo videoList videoAuthorsData =
     ]
 
 
-viewVideoModal : (Data.Kinto.Video -> msg) -> Maybe Data.Kinto.Video -> H.Html msg
+viewVideoModal : (Data.Kinto.Video -> Msg) -> Maybe Data.Kinto.Video -> H.Html Msg
 viewVideoModal toggleVideo activeVideo =
     case activeVideo of
         Nothing ->
@@ -283,7 +287,7 @@ viewVideoModal toggleVideo activeVideo =
                 [ HA.class "modal__backdrop is-active"
                 , HE.onClick (toggleVideo video)
                 ]
-                [ H.div [ HA.class "modal" ] [ Page.Common.Video.player video.attachment ]
+                [ H.div [ HA.class "modal" ] [ Page.Common.Video.player NoOp video.attachment ]
                 , H.button [ HA.class "modal__close" ]
                     [ H.i [ HA.class "fas fa-times fa-2x" ] [] ]
                 ]

@@ -1,4 +1,4 @@
-module Request.KintoProfile exposing (getProfile, getProfileList, submitProfile, updateProfile)
+module Request.KintoProfile exposing (getProfile, getProfileList, getProfileListRequest, submitProfile, updateProfile)
 
 import Data.Kinto
 import Kinto
@@ -37,6 +37,13 @@ getProfile serverURL profileID message =
 
 getProfileList : String -> List String -> (Result Kinto.Error Data.Kinto.ProfileList -> msg) -> Cmd msg
 getProfileList serverURL profileIDs message =
+    getProfileListRequest serverURL profileIDs
+        |> Kinto.sort [ "last_modified" ]
+        |> Kinto.send message
+
+
+getProfileListRequest : String -> List String -> Kinto.Request Data.Kinto.ProfileList
+getProfileListRequest serverURL profileIDs =
     let
         (Request.Kinto.AnonymousClient client) =
             Request.Kinto.anonymousClient serverURL
@@ -44,5 +51,3 @@ getProfileList serverURL profileIDs message =
     client
         |> Kinto.getList recordResource
         |> Kinto.filter (Kinto.IN "id" profileIDs)
-        |> Kinto.sort [ "last_modified" ]
-        |> Kinto.send message

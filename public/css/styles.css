@@ -271,3 +271,6 @@ span.invalid {
 input.invalid {
     border: 1px solid red;
 }
+.comment-link {
+    text-decoration: none;
+}
