@@ -4,6 +4,7 @@ import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Html exposing (Attribute)
 import Html.Attributes as Attr
+import String.Normalize
 import Url exposing (Url)
 import Url.Parser as Parser exposing ((</>), Parser)
 
@@ -98,8 +99,7 @@ toString route =
                     [ "video"
                     , videoID
                     , title
-                        |> String.replace "." ""
-                        |> Url.percentEncode
+                        |> String.Normalize.slug
                     ]
 
                 Login ->
