@@ -61,12 +61,7 @@ init maybeProfile session =
                         -- View profile from other user
                         ( ProfileFetchedForView, "Profil" )
             in
-            ( { title =
-                    if msg == ProfileFetchedForEdit then
-                        "Édition du profil"
-
-                    else
-                        "Profil"
+            ( { title = title
               , pageState = GetProfile
               , profileForm = Data.Kinto.emptyProfile
               , profileData = Data.Kinto.NotRequested
