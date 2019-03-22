@@ -20,6 +20,7 @@ import Page.Home as Home
 import Page.Login as Login
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
+import Page.PeerTube as PeerTube
 import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
 import Page.Register as Register
@@ -41,6 +42,7 @@ type alias Flags =
 
 type Page
     = HomePage Home.Model
+    | PeerTubePage PeerTube.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
     | NewsletterPage Newsletter.Model
@@ -68,6 +70,7 @@ type alias Model =
 
 type Msg
     = HomeMsg Home.Msg
+    | PeerTubeMsg PeerTube.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
     | NewsletterMsg Newsletter.Msg
@@ -121,6 +124,9 @@ setRoute url oldModel =
 
         Just Route.Home ->
             toPage HomePage Home.init HomeMsg
+
+        Just Route.PeerTube ->
+            toPage PeerTubePage PeerTube.init PeerTubeMsg
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -246,6 +252,9 @@ update msg ({ page, session } as model) =
     case ( msg, page ) of
         ( HomeMsg homeMsg, HomePage homeModel ) ->
             toPage HomePage HomeMsg (Home.update session) homeMsg homeModel
+
+        ( PeerTubeMsg peerTubeMsg, PeerTubePage peerTubeModel ) ->
+            toPage PeerTubePage PeerTubeMsg (PeerTube.update session) peerTubeMsg peerTubeModel
 
         ( AboutMsg aboutMsg, AboutPage aboutModel ) ->
             toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
@@ -456,6 +465,9 @@ subscriptions model =
             HomePage _ ->
                 Sub.none
 
+            PeerTubePage _ ->
+                Sub.none
+
             AboutPage _ ->
                 Sub.none
 
@@ -535,6 +547,11 @@ view model =
             Home.view model.session homeModel
                 |> mapMsg HomeMsg
                 |> Page.frame (pageConfig Page.Home)
+
+        PeerTubePage peerTubeModel ->
+            PeerTube.view model.session peerTubeModel
+                |> mapMsg PeerTubeMsg
+                |> Page.frame (pageConfig Page.PeerTube)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel

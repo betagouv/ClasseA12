@@ -11,6 +11,7 @@ import Url.Parser as Parser exposing ((</>), Parser)
 
 type Route
     = Home
+    | PeerTube
     | About
     | Participate
     | Newsletter
@@ -32,6 +33,7 @@ parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
+        , Parser.map PeerTube (Parser.s "peertube")
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map Newsletter (Parser.s "infolettre")
@@ -73,6 +75,9 @@ toString route =
             case route of
                 Home ->
                     []
+
+                PeerTube ->
+                    [ "peertube" ]
 
                 About ->
                     [ "apropos" ]
