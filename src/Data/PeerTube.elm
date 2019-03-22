@@ -5,11 +5,19 @@ import Json.Decode.Pipeline as Pipeline
 
 
 type alias Account =
-    { name : String, displayName : String }
+    { name : String
+    , displayName : String
+    , description : String
+    }
 
 
 type alias Video =
-    { previewPath : String, name : String, embedPath : String, uuid : String, account : Account }
+    { previewPath : String
+    , name : String
+    , embedPath : String
+    , uuid : String
+    , account : Account
+    }
 
 
 type RemoteData a
@@ -38,6 +46,7 @@ accountDecoder =
     Decode.succeed Account
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "displayName" Decode.string
+        |> Pipeline.optional "description" Decode.string ""
 
 
 videoDecoder : Decode.Decoder Video

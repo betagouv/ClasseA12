@@ -11,6 +11,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Http
+import Markdown
 import Request.PeerTube exposing (getAccount)
 
 
@@ -44,18 +45,18 @@ update session msg model =
 view : Session -> Model -> ( String, List (H.Html Msg) )
 view session model =
     let
-        accountElement : H.Html Msg
-        accountElement =
+        accountElements : List (H.Html Msg)
+        accountElements =
             case model.accountData of
                 Received account ->
-                    H.h1 [] [ H.text account.displayName ]
+                    [ H.h1 [] [ H.text account.displayName ], H.p [] [ Markdown.toHtml [] account.description ] ]
 
                 Requested ->
-                    H.text "Chargement…"
+                    [ H.text "Chargement…" ]
 
                 _ ->
-                    H.text "tout le reste"
+                    [ H.text "tout le reste" ]
     in
     ( model.title
-    , [ H.article [] [ accountElement ] ]
+    , [ H.article [] accountElements ]
     )
