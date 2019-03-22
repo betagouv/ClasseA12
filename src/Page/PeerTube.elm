@@ -6,6 +6,7 @@ import Html as H
 import Html.Attributes as HA
 import Http
 import Request.PeerTube exposing (getVideoList)
+import Route
 
 
 type alias Model =
@@ -46,14 +47,16 @@ view session model =
                 |> List.map
                     (\video ->
                         H.li []
-                            [ H.img
-                                [ HA.src ("https://peertube.scopyleft.fr" ++ video.previewPath)
-                                , HA.width 400
-                                , HA.height 200
+                            [ H.a [Route.href <| Route.PeerTubeVideo video.uuid]
+                                [ H.img
+                                    [ HA.src ("https://peertube.scopyleft.fr" ++ video.previewPath)
+                                    , HA.width 400
+                                    , HA.height 200
+                                    ]
+                                    []
+                                , H.caption [] [ H.text video.name ]
+                                , H.span [] [ H.text video.account.displayName ]
                                 ]
-                                []
-                            , H.caption [] [ H.text video.name ]
-                            , H.span [] [ H.text video.account.displayName ]
                             ]
                     )
             )

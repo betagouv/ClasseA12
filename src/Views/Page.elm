@@ -11,6 +11,7 @@ import Route
 type ActivePage
     = Home
     | PeerTube
+    | PeerTubeVideo
     | About
     | Participate
     | Newsletter

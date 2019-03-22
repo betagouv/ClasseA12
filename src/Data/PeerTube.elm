@@ -1,4 +1,4 @@
-module Data.PeerTube exposing (Account, Uuid, Video, dataDecoder)
+module Data.PeerTube exposing (Account, Uuid, Video, dataDecoder, videoDecoder)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
@@ -13,7 +13,7 @@ type alias Account =
 
 
 type alias Video =
-    { previewPath : String, name : String, account : Account }
+    { previewPath : String, name : String, embedPath : String, uuid : String, account : Account }
 
 
 
@@ -42,4 +42,6 @@ videoDecoder =
     Decode.succeed Video
         |> Pipeline.required "previewPath" Decode.string
         |> Pipeline.required "name" Decode.string
+        |> Pipeline.required "embedPath" Decode.string
+        |> Pipeline.required "uuid" Decode.string
         |> Pipeline.required "account" accountDecoder
