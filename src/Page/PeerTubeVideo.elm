@@ -1,18 +1,12 @@
 module Page.PeerTubeVideo exposing (Model, Msg, init, update, view)
 
-import Data.PeerTube exposing (Video)
+import Data.PeerTube exposing (RemoteData(..), Video)
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Http
 import Request.PeerTube exposing (getVideo)
-
-
-type RemoteData a
-    = NotRequested
-    | Requested
-    | Received a
-    | Failed String
+import Route
 
 
 type alias Model =
@@ -56,6 +50,10 @@ view session model =
                         , HA.height 800
                         ]
                         []
+                    , H.a
+                        [ Route.href <| Route.PeerTubeAccount video.account.name
+                        ]
+                        [ H.text ("Proposé par " ++ video.account.name) ]
                     ]
 
                 Requested ->

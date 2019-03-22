@@ -1,6 +1,6 @@
-module Request.PeerTube exposing (getVideoList, getVideo)
+module Request.PeerTube exposing (getAccount, getVideo, getVideoList)
 
-import Data.PeerTube exposing (Video, dataDecoder, videoDecoder)
+import Data.PeerTube exposing (Account, Video, accountDecoder, dataDecoder, videoDecoder)
 import Http
 
 
@@ -22,3 +22,13 @@ videoRequest videoID =
 getVideo : String -> (Result Http.Error Video -> msg) -> Cmd msg
 getVideo videoID message =
     Http.send message (videoRequest videoID)
+
+
+accountRequest : String -> Http.Request Account
+accountRequest accountName =
+    Http.get ("https://peertube.scopyleft.fr/api/v1/accounts/" ++ accountName) accountDecoder
+
+
+getAccount : String -> (Result Http.Error Account -> msg) -> Cmd msg
+getAccount accountName message =
+    Http.send message (accountRequest accountName)

@@ -1,19 +1,22 @@
-module Data.PeerTube exposing (Account, Uuid, Video, dataDecoder, videoDecoder)
+module Data.PeerTube exposing (Account, RemoteData(..), Video, accountDecoder, dataDecoder, videoDecoder)
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 
 
-type Uuid
-    = Uuid String
-
-
 type alias Account =
-    { uuid : Uuid, displayName : String }
+    { name : String, displayName : String }
 
 
 type alias Video =
     { previewPath : String, name : String, embedPath : String, uuid : String, account : Account }
+
+
+type RemoteData a
+    = NotRequested
+    | Requested
+    | Received a
+    | Failed String
 
 
 
@@ -33,7 +36,7 @@ videoListDecoder =
 accountDecoder : Decode.Decoder Account
 accountDecoder =
     Decode.succeed Account
-        |> Pipeline.required "uuid" (Decode.string |> Decode.map Uuid)
+        |> Pipeline.required "name" Decode.string
         |> Pipeline.required "displayName" Decode.string
 
 

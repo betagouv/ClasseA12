@@ -12,6 +12,7 @@ type ActivePage
     = Home
     | PeerTube
     | PeerTubeVideo
+    | PeerTubeAccount
     | About
     | Participate
     | Newsletter
@@ -62,6 +63,7 @@ viewHeader { activePage, session } =
                         [ i [ class "far fa-user-circle" ] []
                         , text <| " " ++ session.userData.username
                         ]
+
                 Nothing ->
                     a [ Route.href <| Route.Profile Nothing, title "Créer son profil" ]
                         [ i [ class "far fa-user-circle" ] []
