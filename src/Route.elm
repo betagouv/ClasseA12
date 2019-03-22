@@ -37,7 +37,7 @@ parser =
         [ Parser.map Home Parser.top
         , Parser.map PeerTube (Parser.s "peertube")
         , Parser.map PeerTubeVideo (Parser.s "peertube" </> Parser.s "video" </> Parser.string)
-        , Parser.map PeerTubeAccount (Parser.s "peertube" </> Parser.s "mon-compte" </> Parser.string)
+        , Parser.map PeerTubeAccount (Parser.s "peertube" </> Parser.s "profil" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map Newsletter (Parser.s "infolettre")
@@ -87,7 +87,7 @@ toString route =
                     [ "peertube", "video", videoID ]
 
                 PeerTubeAccount accountName ->
-                    [ "peertube", "mon-compte", accountName ]
+                    [ "peertube", "profil", accountName ]
 
                 About ->
                     [ "apropos" ]
