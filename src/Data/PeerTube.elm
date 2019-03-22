@@ -16,6 +16,7 @@ type alias Video =
     , name : String
     , embedPath : String
     , uuid : String
+    , description : String
     , account : Account
     }
 
@@ -56,4 +57,5 @@ videoDecoder =
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "embedPath" Decode.string
         |> Pipeline.required "uuid" Decode.string
+        |> Pipeline.optional "description" Decode.string ""
         |> Pipeline.required "account" accountDecoder

@@ -5,6 +5,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Http
+import Markdown
 import Request.PeerTube exposing (getVideo)
 import Route
 
@@ -50,6 +51,7 @@ view session model =
                         , HA.height 800
                         ]
                         []
+                    , Markdown.toHtml [] video.description
                     , H.a
                         [ Route.href <| Route.PeerTubeAccount video.account.name
                         ]
