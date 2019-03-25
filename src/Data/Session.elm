@@ -22,6 +22,7 @@ type alias Session =
     , timezone : Time.Zone
     , version : String
     , kintoURL : String
+    , peerTubeURL : String
     , navigatorShare : Bool
     , staticFiles : StaticFiles
     , url : Url

@@ -209,9 +209,14 @@ init flags url navKey =
                 |> Result.withDefault "dev"
 
         kintoURL =
-            -- Decode a string from the "kintoUrl" field in the value
+            -- Decode a string from the "kintoURL" field in the value
             Decode.decodeValue (Decode.field "kintoURL" Decode.string) flags
                 |> Result.withDefault "No Kinto URL"
+
+        peerTubeURL =
+            -- Decode a string from the "peerTubeURL" field in the value
+            Decode.decodeValue (Decode.field "peerTubeURL" Decode.string) flags
+                |> Result.withDefault "No PeerTube URL"
 
         navigatorShare =
             -- Decode a boolean from the "navigatorShare" field in the value
@@ -229,6 +234,7 @@ init flags url navKey =
             , timezone = Time.utc
             , version = version
             , kintoURL = kintoURL
+            , peerTubeURL = peerTubeURL
             , navigatorShare = navigatorShare
             , staticFiles = staticFiles
             , url = url

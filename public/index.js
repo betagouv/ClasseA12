@@ -1,12 +1,14 @@
 import { Elm } from "../src/Main.elm";
 
 const KINTO_URL = process.env.KINTO_URL;
+const PEERTUBE_URL = "https://peertube.scopyleft.fr/api/v1"
 const loginForm = window.localStorage.getItem("session");
 const app = Elm.Main.init({
     flags: {
         loginForm: loginForm,
         version: process.env.VERSION,
         kintoURL: KINTO_URL,
+        peerTubeURL: PEERTUBE_URL,
         navigatorShare: navigator.share !== undefined,
         staticFiles: {
             "logo": require("./logo.png"),
