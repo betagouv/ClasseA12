@@ -57,21 +57,18 @@ viewHeader { activePage, session } =
                 ]
 
         profileIcon =
-            case session.userData.profile of
-                Just profile ->
-                    a [ Route.href <| Route.Profile (Just profile), title "Éditer son profil" ]
+            case session.userInfo of
+                Just userInfo ->
+                    a [ Route.href <| Route.Profile (Just userInfo.username), title "Éditer son profil" ]
                         [ i [ class "far fa-user-circle" ] []
-                        , text <| " " ++ session.userData.username
+                        , text <| " " ++ userInfo.username
                         ]
 
                 Nothing ->
-                    a [ Route.href <| Route.Profile Nothing, title "Créer son profil" ]
-                        [ i [ class "far fa-user-circle" ] []
-                        , text <| " " ++ session.userData.username
-                        ]
+                    text ""
 
         loginProfileIcon =
-            if isLoggedIn session.userData then
+            if isLoggedIn session.userInfo then
                 profileIcon
 
             else
