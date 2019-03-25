@@ -207,12 +207,17 @@ app.ports.newURL.subscribe(function ([url, title]) {
     window.dispatchEvent(event);
 });
 
-app.ports.saveSession.subscribe(function (sessionData) {
-    localStorage.setItem("session", JSON.stringify(sessionData));
+app.ports.saveUserToken.subscribe(function (userToken) {
+    localStorage.setItem("userToken", JSON.stringify(userToken));
+});
+
+app.ports.saveUserInfo.subscribe(function (userInfo) {
+    localStorage.setItem("userInfo", JSON.stringify(userInfo));
 });
 
 app.ports.logoutSession.subscribe(function () {
-    localStorage.removeItem("session");
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("userInfo");
 });
 
 app.ports.navigatorShare.subscribe(function (shareText) {

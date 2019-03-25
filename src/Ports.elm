@@ -6,7 +6,8 @@ port module Ports exposing
     , navigatorShare
     , newURL
     , progressUpdate
-    , saveSession
+    , saveUserInfo
+    , saveUserToken
     , submitAttachment
     , submitVideo
     , videoObjectUrl
@@ -46,10 +47,13 @@ port progressUpdate : (Decode.Value -> msg) -> Sub msg
 
 port newURL :
     -- As we're using pushstate, we have to explicitely warn javascript (and analytics) of any url change
-    (String, String) -> Cmd msg
+    ( String, String ) -> Cmd msg
 
 
-port saveSession : Encode.Value -> Cmd msg
+port saveUserToken : Encode.Value -> Cmd msg
+
+
+port saveUserInfo : Encode.Value -> Cmd msg
 
 
 port logoutSession : () -> Cmd msg

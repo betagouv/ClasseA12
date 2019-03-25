@@ -307,35 +307,29 @@ update msg ({ page, session } as model) =
                     toPage LoginPage LoginMsg (Login.update session) loginMsg loginModel
             in
             case loginMsg of
-                -- Special case: if we retrieved the user info, then the credentials are
-                -- correct, and we can store them in the session for future use
-                Login.UserInfoReceived (Ok userInfo) ->
+                -- Special case: if we retrieved the user info or token store them in the session for future use
+                Login.UserTokenReceived (Ok userToken) ->
                     let
-                        loginForm =
-                            loginModel.loginForm
-
-                        userData =
-                            { loginForm | username = userInfo.id, profile = userInfo.profile }
-
                         updatedSession =
-                            { session | userData = userData }
-
-                        redirectCmd =
-                            case userInfo.profile of
-                                Just profile ->
-                                    [ redirectToPrevUrl session model ]
-
-                                Nothing ->
-                                    -- Profile not created yet.
-                                    [ Route.pushUrl model.navKey <| Route.Profile Nothing ]
+                            { session | userToken = Just userToken }
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
-                        ([ Ports.saveSession <| encodeUserData userData
-                         , newCmd
-                         ]
-                            ++ redirectCmd
-                        )
+                        [ Ports.saveUserToken <| encodeUserToken userToken
+                        , newCmd
+                        ]
+                    )
+
+                Login.UserInfoReceived (Ok userInfo) ->
+                    let
+                        updatedSession =
+                            { session | userInfo = Just userInfo }
+                    in
+                    ( { newModel | session = updatedSession }
+                    , Cmd.batch
+                        [ Ports.saveUserInfo <| encodeUserInfo userInfo
+                        , newCmd
+                        ]
                     )
 
                 _ ->
