@@ -1,7 +1,8 @@
 module Page.Login exposing (Model, Msg(..), init, update, view)
 
 import Data.Kinto
-import Data.Session exposing (Session, UserData, decodeUserData, emptyUserData, encodeUserData)
+import Data.PeerTube as PeerTube
+import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -9,23 +10,35 @@ import Http
 import Kinto
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Request.KintoUserInfo
+import Request.PeerTube
 import Route
 
 
 type alias Model =
     { title : String
-    , loginForm : UserData
+    , loginForm : LoginForm
     , notifications : Notifications.Model
-    , userInfoData : Data.Kinto.KintoData Data.Kinto.UserInfo
+    , userInfoData : PeerTube.RemoteData PeerTube.UserInfo
+    , userTokenData : PeerTube.RemoteData PeerTube.UserToken
     }
 
 
+type alias LoginForm =
+    { username : String
+    , password : String
+    }
+
+
+emptyLoginForm =
+    { username = "", password = "" }
+
+
 type Msg
-    = UpdateLoginForm UserData
+    = UpdateLoginForm LoginForm
     | Login
     | NotificationMsg Notifications.Msg
-    | UserInfoReceived (Result Http.Error Data.Kinto.UserInfo)
+    | UserTokenReceived (Result Http.Error PeerTube.UserToken)
+    | UserInfoReceived (Result Http.Error PeerTube.UserInfo)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -33,19 +46,13 @@ init session =
     let
         initialModel =
             { title = "Connexion"
-            , loginForm = session.userData
-            , userInfoData = Data.Kinto.NotRequested
+            , loginForm = emptyLoginForm
+            , userInfoData = PeerTube.NotRequested
+            , userTokenData = PeerTube.NotRequested
             , notifications = Notifications.init
             }
-
-        modelAndCommands =
-            if Data.Session.isLoggedIn session.userData then
-                useLogin session.kintoURL initialModel
-
-            else
-                ( initialModel, Cmd.none )
     in
-    modelAndCommands
+    ( initialModel, Cmd.none )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -55,10 +62,29 @@ update session msg model =
             ( { model | loginForm = loginForm }, Cmd.none )
 
         Login ->
-            useLogin session.kintoURL model
+            useLogin session.peerTubeURL model
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+
+        UserTokenReceived (Ok userToken) ->
+            ( { model | userTokenData = PeerTube.Received userToken }
+            , Request.PeerTube.getUserInfo userToken.accessToken session.peerTubeURL UserInfoReceived
+            )
+
+        UserTokenReceived (Err error) ->
+            ( { model
+                | notifications =
+                    "Connection échouée"
+                        |> Notifications.addError model.notifications
+                , userInfoData = PeerTube.NotRequested
+                , userTokenData = PeerTube.Failed "Connexion échouée"
+              }
+            , Cmd.none
+            )
 
         UserInfoReceived (Ok userInfo) ->
-            ( { model | userInfoData = Data.Kinto.Received userInfo }
+            ( { model | userInfoData = PeerTube.Received userInfo }
             , Cmd.none
             )
 
@@ -84,25 +110,22 @@ update session msg model =
                     "Connection échouée : "
                         ++ message
                         |> Notifications.addError model.notifications
-                , userInfoData = Data.Kinto.NotRequested
+                , userInfoData = PeerTube.NotRequested
               }
             , Cmd.none
             )
 
-        NotificationMsg notificationMsg ->
-            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
-
-isLoginFormComplete : UserData -> Bool
+isLoginFormComplete : LoginForm -> Bool
 isLoginFormComplete loginForm =
     loginForm.username /= "" && loginForm.password /= ""
 
 
 useLogin : String -> Model -> ( Model, Cmd Msg )
-useLogin kintoURL model =
+useLogin serverURL model =
     if isLoginFormComplete model.loginForm then
-        ( { model | userInfoData = Data.Kinto.Requested }
-        , Request.KintoUserInfo.getUserInfo kintoURL model.loginForm.username model.loginForm.password UserInfoReceived
+        ( { model | userInfoData = PeerTube.Requested }
+        , Request.PeerTube.login model.loginForm.username model.loginForm.password serverURL UserTokenReceived
         )
 
     else
@@ -121,7 +144,7 @@ view session { title, notifications, loginForm, userInfoData } =
       , H.div [ HA.class "main" ]
             [ H.map NotificationMsg (Notifications.view notifications)
             , case userInfoData of
-                Data.Kinto.Received userInfo ->
+                PeerTube.Received userInfo ->
                     H.div [] [ H.text "Vous êtes maintenant connecté" ]
 
                 _ ->
@@ -135,7 +158,7 @@ view session { title, notifications, loginForm, userInfoData } =
     )
 
 
-viewLoginForm : UserData -> Data.Kinto.UserInfoData -> H.Html Msg
+viewLoginForm : LoginForm -> PeerTube.RemoteData PeerTube.UserInfo -> H.Html Msg
 viewLoginForm loginForm userInfoData =
     let
         formComplete =
@@ -144,7 +167,7 @@ viewLoginForm loginForm userInfoData =
         buttonState =
             if formComplete then
                 case userInfoData of
-                    Data.Kinto.Requested ->
+                    PeerTube.Requested ->
                         Page.Common.Components.Loading
 
                     _ ->
