@@ -1,7 +1,34 @@
-module Data.PeerTube exposing (Account, RemoteData(..), Video, accountDecoder, dataDecoder, videoDecoder)
+module Data.PeerTube exposing
+    ( Account
+    , RemoteData(..)
+    , UserInfo
+    , UserToken
+    , Video
+    , accountDecoder
+    , dataDecoder
+    , encodeUserInfo
+    , encodeUserToken
+    , userInfoDecoder
+    , userTokenDecoder
+    , videoDecoder
+    )
 
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
+import Json.Encode as Encode
+
+
+type alias UserToken =
+    { accessToken : String
+    , expiresIn : Int
+    , refreshToken : String
+    , tokenType : String
+    }
+
+
+type alias UserInfo =
+    { username : String
+    }
 
 
 type alias Account =
@@ -29,7 +56,7 @@ type RemoteData a
 
 
 
----- DECODERS
+---- DECODERS ----
 
 
 dataDecoder : Decode.Decoder (List Video)
@@ -59,3 +86,37 @@ videoDecoder =
         |> Pipeline.required "uuid" Decode.string
         |> Pipeline.optional "description" Decode.string ""
         |> Pipeline.required "account" accountDecoder
+
+
+userTokenDecoder : Decode.Decoder UserToken
+userTokenDecoder =
+    Decode.succeed UserToken
+        |> Pipeline.required "access_token" Decode.string
+        |> Pipeline.required "expires_in" Decode.int
+        |> Pipeline.required "refresh_token" Decode.string
+        |> Pipeline.required "token_type" Decode.string
+
+
+userInfoDecoder : Decode.Decoder UserInfo
+userInfoDecoder =
+    Decode.succeed UserInfo
+        |> Pipeline.required "username" Decode.string
+
+
+
+---- ENCODERS ----
+
+
+encodeUserInfo : UserInfo -> Encode.Value
+encodeUserInfo userInfo =
+    Encode.object [ ( "username", Encode.string userInfo.username ) ]
+
+
+encodeUserToken : UserToken -> Encode.Value
+encodeUserToken userToken =
+    Encode.object
+        [ ( "accessToken", Encode.string userToken.accessToken )
+        , ( "expiresIn", Encode.int userToken.expiresIn )
+        , ( "refreshToken", Encode.string userToken.refreshToken )
+        , ( "tokenType", Encode.string userToken.tokenType )
+        ]
