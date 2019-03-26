@@ -26,7 +26,9 @@ type Msg
 
 init : String -> Session -> ( Model, Cmd Msg )
 init accountName session =
-    ( { accountName = accountName, title = "", accountData = Requested }, getAccount accountName AccountReceived )
+    ( { accountName = accountName, title = "", accountData = Requested }
+    , getAccount accountName session.peerTubeURL AccountReceived
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )

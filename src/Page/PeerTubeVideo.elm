@@ -21,7 +21,9 @@ type Msg
 
 init : String -> Session -> ( Model, Cmd Msg )
 init videoId session =
-    ( { videoId = videoId, title = "View video", videoData = Requested }, getVideo videoId VideoReceived )
+    ( { videoId = videoId, title = "View video", videoData = Requested }
+    , getVideo videoId session.peerTubeURL VideoReceived
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )

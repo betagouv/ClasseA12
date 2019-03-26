@@ -28,24 +28,32 @@ type alias Request a =
     }
 
 
-videoListRequest : Http.Request (List Video)
-videoListRequest =
-    Http.get "https://peertube.scopyleft.fr/api/v1/video-channels/vincent_channel/videos" dataDecoder
+videoListRequest : String -> Http.Request (List Video)
+videoListRequest serverURL =
+    let
+        url =
+            serverURL ++ "/video-channels/vincent_channel/videos"
+    in
+    Http.get url dataDecoder
 
 
-getVideoList : (Result Http.Error (List Video) -> msg) -> Cmd msg
-getVideoList message =
-    Http.send message videoListRequest
+getVideoList : String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getVideoList serverURL message =
+    Http.send message (videoListRequest serverURL)
 
 
-videoRequest : String -> Http.Request Video
-videoRequest videoID =
-    Http.get ("https://peertube.scopyleft.fr/api/v1/videos/" ++ videoID) videoDecoder
+videoRequest : String -> String -> Http.Request Video
+videoRequest videoID serverURL =
+    let
+        url =
+            serverURL ++ "/videos/" ++ videoID
+    in
+    Http.get url videoDecoder
 
 
-getVideo : String -> (Result Http.Error Video -> msg) -> Cmd msg
-getVideo videoID message =
-    Http.send message (videoRequest videoID)
+getVideo : String -> String -> (Result Http.Error Video -> msg) -> Cmd msg
+getVideo videoID serverURL message =
+    Http.send message (videoRequest videoID serverURL)
 
 
 accountRequest : String -> Http.Request Account

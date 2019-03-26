@@ -20,7 +20,9 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { title = "PeerTube testouille", videoList = [] }, getVideoList VideoListReceived )
+    ( { title = "PeerTube testouille", videoList = [] }
+    , getVideoList session.peerTubeURL VideoListReceived
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -47,7 +49,7 @@ view session model =
                 |> List.map
                     (\video ->
                         H.li []
-                            [ H.a [Route.href <| Route.PeerTubeVideo video.uuid]
+                            [ H.a [ Route.href <| Route.PeerTubeVideo video.uuid ]
                                 [ H.img
                                     [ HA.src ("https://peertube.scopyleft.fr" ++ video.previewPath)
                                     , HA.width 400
