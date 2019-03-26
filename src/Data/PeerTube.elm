@@ -1,11 +1,14 @@
 module Data.PeerTube exposing
     ( Account
+    , Comment
     , RemoteData(..)
     , UserInfo
     , UserToken
     , Video
     , accountDecoder
+    , commentDecoder
     , dataDecoder
+    , encodeComment
     , encodeUserInfo
     , encodeUserToken
     , userInfoDecoder
@@ -44,6 +47,16 @@ type alias Video =
     , embedPath : String
     , uuid : String
     , description : String
+    , account : Account
+    }
+
+
+type alias Comment =
+    { id : Int
+    , text : String
+    , videoId : Int
+    , createdAt : String
+    , updatedAt : String
     , account : Account
     }
 
@@ -103,6 +116,17 @@ userInfoDecoder =
         |> Pipeline.required "username" Decode.string
 
 
+commentDecoder : Decode.Decoder Comment
+commentDecoder =
+    Decode.succeed Comment
+        |> Pipeline.required "id" Decode.int
+        |> Pipeline.required "text" Decode.string
+        |> Pipeline.required "videoId" Decode.int
+        |> Pipeline.required "createdAt" Decode.string
+        |> Pipeline.required "updatedAt" Decode.string
+        |> Pipeline.required "account" accountDecoder
+
+
 
 ---- ENCODERS ----
 
@@ -120,3 +144,9 @@ encodeUserToken userToken =
         , ( "refreshToken", Encode.string userToken.refreshToken )
         , ( "tokenType", Encode.string userToken.tokenType )
         ]
+
+
+encodeComment : String -> Encode.Value
+encodeComment text =
+    Encode.object
+        [ ( "text", Encode.string text ) ]
