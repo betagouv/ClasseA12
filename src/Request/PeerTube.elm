@@ -1,4 +1,4 @@
-module Request.PeerTube exposing (getAccount, getUserInfo, getVideo, getVideoList, login)
+module Request.PeerTube exposing (getAccount, getUserInfo, getVideo, getVideoList, login, updateUserAccount)
 
 import Data.PeerTube
     exposing
@@ -56,14 +56,18 @@ getVideo videoID serverURL message =
     Http.send message (videoRequest videoID serverURL)
 
 
-accountRequest : String -> Http.Request Account
-accountRequest accountName =
-    Http.get ("https://peertube.scopyleft.fr/api/v1/accounts/" ++ accountName) accountDecoder
+accountRequest : String -> String -> Http.Request Account
+accountRequest accountName serverURL =
+    let
+        url =
+            serverURL ++ "/accounts/" ++ accountName
+    in
+    Http.get url accountDecoder
 
 
-getAccount : String -> (Result Http.Error Account -> msg) -> Cmd msg
-getAccount accountName message =
-    Http.send message (accountRequest accountName)
+getAccount : String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
+getAccount accountName serverURL message =
+    Http.send message (accountRequest accountName serverURL)
 
 
 loginRequest : String -> String -> String -> Http.Request UserToken

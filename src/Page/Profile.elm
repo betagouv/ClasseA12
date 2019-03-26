@@ -1,6 +1,5 @@
 module Page.Profile exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
@@ -11,37 +10,43 @@ import Kinto
 import Markdown
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Ports
-import Request.Kinto exposing (authClient)
-import Request.KintoAccount
-import Request.KintoProfile
-import Route
+import Request.PeerTube
 
 
 type alias Model =
     { title : String
     , pageState : PageState
-    , profileForm : Data.Kinto.Profile
-    , profileData : Data.Kinto.ProfileData
-    , userInfoData : Data.Kinto.UserInfoData
+    , profileForm : ProfileForm
+    , profileData : Data.PeerTube.RemoteData Data.PeerTube.Account
     , notifications : Notifications.Model
+    }
+
+
+type alias ProfileForm =
+    { displayName : String
+    , description : String
+    }
+
+
+emptyProfileForm =
+    { displayName = ""
+    , description = ""
     }
 
 
 type PageState
     = GetProfile
-    | ViewProfile Data.Kinto.Profile
-    | EditProfile Data.Kinto.Profile
+    | ViewProfile Data.PeerTube.Account
+    | EditProfile Data.PeerTube.Account
 
 
 type Msg
-    = UpdateProfileForm Data.Kinto.Profile
+    = UpdateProfileForm ProfileForm
     | UpdateProfile
     | NotificationMsg Notifications.Msg
-    | ProfileFetchedForEdit (Result Kinto.Error Data.Kinto.Profile)
-    | ProfileFetchedForView (Result Kinto.Error Data.Kinto.Profile)
-    | ProfileAssociated Data.Kinto.Profile (Result Http.Error Data.Kinto.UserInfo)
-    | ProfileUpdated (Result Kinto.Error Data.Kinto.Profile)
+    | ProfileFetchedForEdit (Result Http.Error Data.PeerTube.Account)
+    | ProfileFetchedForView (Result Http.Error Data.PeerTube.Account)
+    | ProfileUpdated (Result Http.Error Data.PeerTube.Account)
     | Logout
 
 
@@ -49,22 +54,25 @@ init : String -> Session -> ( Model, Cmd Msg )
 init profile session =
     let
         ( msg, title ) =
-            if profile == Maybe.withDefault "no user profile" session.userData.profile then
-                -- Profile edition
-                ( ProfileFetchedForEdit, "Édition du profil" )
+            case session.userInfo of
+                Just userInfo ->
+                    if profile == userInfo.username then
+                        -- Profile edition
+                        ( ProfileFetchedForEdit, "Édition du profil" )
 
-            else
-                -- View profile from other user
-                ( ProfileFetchedForView, "Profil" )
+                    else
+                        ( ProfileFetchedForView, "Profil" )
+
+                Nothing ->
+                    ( ProfileFetchedForView, "Profil" )
     in
     ( { title = title
       , pageState = GetProfile
-      , profileForm = Data.Kinto.emptyProfile
-      , profileData = Data.Kinto.NotRequested
-      , userInfoData = Data.Kinto.NotRequested
+      , profileForm = emptyProfileForm
+      , profileData = Data.PeerTube.NotRequested
       , notifications = Notifications.init
       }
-    , Request.KintoProfile.getProfile session.kintoURL profile msg
+    , Request.PeerTube.getAccount session.peerTubeURL profile msg
     )
 
 
@@ -83,10 +91,13 @@ update session msg model =
                     model.profileForm
 
                 updatedProfileForm =
-                    { profileForm | name = profile.name, bio = profile.bio, id = profile.id }
+                    { profileForm
+                        | displayName = profile.displayName
+                        , description = profile.description
+                    }
             in
             ( { model
-                | profileData = Data.Kinto.Received profile
+                | profileData = Data.PeerTube.Received profile
                 , profileForm = updatedProfileForm
                 , pageState = EditProfile profile
               }
@@ -96,17 +107,16 @@ update session msg model =
         ProfileFetchedForEdit (Err error) ->
             ( { model
                 | notifications =
-                    "Récupération du profil échouée : "
-                        ++ Kinto.errorToString error
+                    "Récupération du profil échouée"
                         |> Notifications.addError model.notifications
-                , profileData = Data.Kinto.NotRequested
+                , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
 
         ProfileFetchedForView (Ok profile) ->
             ( { model
-                | profileData = Data.Kinto.Received profile
+                | profileData = Data.PeerTube.Received profile
                 , pageState = ViewProfile profile
               }
             , Cmd.none
@@ -115,32 +125,9 @@ update session msg model =
         ProfileFetchedForView (Err error) ->
             ( { model
                 | notifications =
-                    "Récupération du profil échouée : "
-                        ++ Kinto.errorToString error
+                    "Récupération du profil échouée"
                         |> Notifications.addError model.notifications
-                , profileData = Data.Kinto.NotRequested
-              }
-            , Cmd.none
-            )
-
-        ProfileAssociated profile (Ok userInfo) ->
-            ( { model
-                | userInfoData = Data.Kinto.Received userInfo
-              }
-            , Cmd.none
-            )
-
-        ProfileAssociated _ (Err error) ->
-            let
-                kintoError =
-                    Kinto.extractError error
-            in
-            ( { model
-                | notifications =
-                    "Association du profil échouée : "
-                        ++ Kinto.errorToString kintoError
-                        |> Notifications.addError model.notifications
-                , userInfoData = Data.Kinto.NotRequested
+                , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
@@ -150,7 +137,7 @@ update session msg model =
                 | notifications =
                     "Profil mis à jour !"
                         |> Notifications.addSuccess model.notifications
-                , profileData = Data.Kinto.Received profile
+                , profileData = Data.PeerTube.Received profile
               }
             , Cmd.none
             )
@@ -158,10 +145,9 @@ update session msg model =
         ProfileUpdated (Err error) ->
             ( { model
                 | notifications =
-                    "Mise à jour du profil échouée : "
-                        ++ Kinto.errorToString error
+                    "Mise à jour du profil échouée"
                         |> Notifications.addError model.notifications
-                , profileData = Data.Kinto.NotRequested
+                , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
@@ -174,9 +160,9 @@ update session msg model =
             ( model, Cmd.none )
 
 
-isProfileFormComplete : Data.Kinto.Profile -> Bool
+isProfileFormComplete : ProfileForm -> Bool
 isProfileFormComplete profileForm =
-    profileForm.name /= ""
+    profileForm.displayName /= ""
 
 
 updateProfile :
@@ -185,16 +171,26 @@ updateProfile :
     -> ( Model, Cmd Msg )
 updateProfile { peerTubeURL, userInfo, userToken } model =
     if isProfileFormComplete model.profileForm && Data.Session.isLoggedIn userInfo then
-        ( { model | profileData = Data.PeerTube.Requested }
-        , Request.PeerTube.updateAccount peerTubeURL userToken.accessToken model.profileForm ProfileUpdated
-        )
+        case userToken of
+            Just { accessToken } ->
+                ( { model | profileData = Data.PeerTube.Requested }
+                , Request.PeerTube.updateUserAccount
+                    model.profileForm.displayName
+                    model.profileForm.description
+                    accessToken
+                    peerTubeURL
+                    ProfileUpdated
+                )
+
+            Nothing ->
+                ( model, Cmd.none )
 
     else
         ( model, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { staticFiles, userData } { title, pageState, profileForm, profileData, userInfoData, notifications } =
+view { staticFiles } { title, pageState, profileForm, profileData, notifications } =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -214,7 +210,7 @@ view { staticFiles, userData } { title, pageState, profileForm, profileData, use
                             viewProfile profile
 
                         EditProfile profile ->
-                            viewEditProfileForm pageState profileForm profileData userInfoData
+                            viewEditProfileForm pageState profileForm profileData
                     ]
                 ]
             ]
@@ -222,42 +218,16 @@ view { staticFiles, userData } { title, pageState, profileForm, profileData, use
     )
 
 
-viewProfile : Data.Kinto.Profile -> H.Html Msg
+viewProfile : Data.PeerTube.Account -> H.Html Msg
 viewProfile profileData =
     H.div []
-        [ H.h3 [] [ H.text <| "Profil de " ++ profileData.name ]
-        , Markdown.toHtml [] profileData.bio
+        [ H.h3 [] [ H.text <| "Profil de " ++ profileData.displayName ]
+        , Markdown.toHtml [] profileData.description
         ]
 
 
-viewProfileForm : H.Html Msg -> Msg -> Data.Kinto.Profile -> H.Html Msg
-viewProfileForm submitButton msg profileForm =
-    H.form
-        [ HE.onSubmit msg ]
-        [ H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "name" ] [ H.text "Nom d'usage (utilisé comme identité sur ce site)" ]
-            , H.input
-                [ HA.type_ "text"
-                , HA.id "name"
-                , HA.value profileForm.name
-                , HE.onInput <| \name -> UpdateProfileForm { profileForm | name = name }
-                ]
-                []
-            ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "bio" ] [ H.text "Bio (description facultative)" ]
-            , H.textarea
-                [ HA.value profileForm.bio
-                , HE.onInput <| \bio -> UpdateProfileForm { profileForm | bio = bio }
-                ]
-                []
-            ]
-        , submitButton
-        ]
-
-
-viewEditProfileForm : PageState -> Data.Kinto.Profile -> Data.Kinto.ProfileData -> Data.Kinto.UserInfoData -> H.Html Msg
-viewEditProfileForm pageState profileForm profileData userInfoData =
+viewEditProfileForm : PageState -> ProfileForm -> Data.PeerTube.RemoteData Data.PeerTube.Account -> H.Html Msg
+viewEditProfileForm pageState profileForm profileData =
     let
         formComplete =
             isProfileFormComplete profileForm
@@ -265,7 +235,7 @@ viewEditProfileForm pageState profileForm profileData userInfoData =
         buttonState =
             if formComplete then
                 case profileData of
-                    Data.Kinto.Requested ->
+                    Data.PeerTube.Requested ->
                         Page.Common.Components.Loading
 
                     _ ->
@@ -280,4 +250,25 @@ viewEditProfileForm pageState profileForm profileData userInfoData =
                 , H.button [ HA.class "button warning", HE.onClick Logout ] [ H.text "Me déconnecter" ]
                 ]
     in
-    viewProfileForm submitButton UpdateProfile profileForm
+    H.form
+        [ HE.onSubmit UpdateProfile ]
+        [ H.div [ HA.class "form__group" ]
+            [ H.label [ HA.for "name" ] [ H.text "Nom d'usage (utilisé comme identité sur ce site)" ]
+            , H.input
+                [ HA.type_ "text"
+                , HA.id "name"
+                , HA.value profileForm.displayName
+                , HE.onInput <| \displayName -> UpdateProfileForm { profileForm | displayName = displayName }
+                ]
+                []
+            ]
+        , H.div [ HA.class "form__group" ]
+            [ H.label [ HA.for "bio" ] [ H.text "Bio (description facultative)" ]
+            , H.textarea
+                [ HA.value profileForm.description
+                , HE.onInput <| \description -> UpdateProfileForm { profileForm | description = description }
+                ]
+                []
+            ]
+        , submitButton
+        ]
