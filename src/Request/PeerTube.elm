@@ -115,6 +115,40 @@ getUserInfo accessToken serverURL message =
     Http.send message (getUserInfoRequest accessToken serverURL)
 
 
+updateUserAccountRequest : String -> String -> String -> String -> Http.Request Account
+updateUserAccountRequest displayName description accessToken serverURL =
+    let
+        url =
+            serverURL ++ "/users/me"
+
+        body =
+            Encode.object
+                [ ( "displayName", Encode.string displayName )
+                , ( "description", Encode.string description )
+                ]
+                |> Http.jsonBody
+
+        request : Request Account
+        request =
+            { method = "POST"
+            , headers = []
+            , url = url
+            , body = body
+            , expect = Http.expectJson accountDecoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+    in
+    request
+        |> withHeader "Authorization" ("Bearer " ++ accessToken)
+        |> Http.request
+
+
+updateUserAccount : String -> String -> String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
+updateUserAccount displayName description accessToken serverURL message =
+    Http.send message (updateUserAccountRequest displayName description accessToken serverURL)
+
+
 withHeader : String -> String -> Request a -> Request a
 withHeader headerName headerValue request =
     let

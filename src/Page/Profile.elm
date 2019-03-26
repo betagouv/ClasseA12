@@ -75,10 +75,7 @@ init maybeProfile session =
             -- Profile creation
             let
                 guessedName =
-                    session.userData.username
-                        |> String.split "@"
-                        |> List.head
-                        |> Maybe.withDefault ""
+                    session.userInfo.username
 
                 emptyProfile =
                     Data.Kinto.emptyProfile
@@ -229,9 +226,9 @@ isProfileFormComplete profileForm =
     profileForm.name /= ""
 
 
-submitProfile : { a | kintoURL : String, userData : Data.Session.UserData } -> Model -> ( Model, Cmd Msg )
-submitProfile { kintoURL, userData } model =
-    if isProfileFormComplete model.profileForm && userData /= Data.Session.emptyUserData then
+submitProfile : { a | peerTubeURL : String, userInfo : Data.Session.UserInfo } -> Model -> ( Model, Cmd Msg )
+submitProfile { peerTubeURL, userInfo } model =
+    if isProfileFormComplete model.profileForm && userInfo /= Data.Session.emptyUserData then
         let
             client =
                 Request.Kinto.authClient kintoURL userData.username userData.password
