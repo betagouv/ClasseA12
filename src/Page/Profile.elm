@@ -1,6 +1,7 @@
 module Page.Profile exposing (Model, Msg(..), init, update, view)
 
 import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
@@ -28,67 +29,43 @@ type alias Model =
 
 
 type PageState
-    = CreateProfile
-    | GetProfile
+    = GetProfile
     | ViewProfile Data.Kinto.Profile
     | EditProfile Data.Kinto.Profile
 
 
 type Msg
     = UpdateProfileForm Data.Kinto.Profile
-    | SubmitProfile
     | UpdateProfile
     | NotificationMsg Notifications.Msg
     | ProfileFetchedForEdit (Result Kinto.Error Data.Kinto.Profile)
     | ProfileFetchedForView (Result Kinto.Error Data.Kinto.Profile)
-    | ProfileCreated (Result Kinto.Error Data.Kinto.Profile)
     | ProfileAssociated Data.Kinto.Profile (Result Http.Error Data.Kinto.UserInfo)
     | ProfileUpdated (Result Kinto.Error Data.Kinto.Profile)
     | Logout
 
 
-init : Maybe String -> Session -> ( Model, Cmd Msg )
-init maybeProfile session =
-    case maybeProfile of
-        Just profile ->
-            let
-                ( msg, title ) =
-                    if profile == Maybe.withDefault "no user profile" session.userData.profile then
-                        -- Profile edition
-                        ( ProfileFetchedForEdit, "Édition du profil" )
+init : String -> Session -> ( Model, Cmd Msg )
+init profile session =
+    let
+        ( msg, title ) =
+            if profile == Maybe.withDefault "no user profile" session.userData.profile then
+                -- Profile edition
+                ( ProfileFetchedForEdit, "Édition du profil" )
 
-                    else
-                        -- View profile from other user
-                        ( ProfileFetchedForView, "Profil" )
-            in
-            ( { title = title
-              , pageState = GetProfile
-              , profileForm = Data.Kinto.emptyProfile
-              , profileData = Data.Kinto.NotRequested
-              , userInfoData = Data.Kinto.NotRequested
-              , notifications = Notifications.init
-              }
-            , Request.KintoProfile.getProfile session.kintoURL profile msg
-            )
-
-        Nothing ->
-            -- Profile creation
-            let
-                guessedName =
-                    session.userInfo.username
-
-                emptyProfile =
-                    Data.Kinto.emptyProfile
-            in
-            ( { title = "Création du profil"
-              , pageState = CreateProfile
-              , profileForm = { emptyProfile | name = guessedName }
-              , profileData = Data.Kinto.NotRequested
-              , userInfoData = Data.Kinto.NotRequested
-              , notifications = Notifications.init
-              }
-            , Cmd.none
-            )
+            else
+                -- View profile from other user
+                ( ProfileFetchedForView, "Profil" )
+    in
+    ( { title = title
+      , pageState = GetProfile
+      , profileForm = Data.Kinto.emptyProfile
+      , profileData = Data.Kinto.NotRequested
+      , userInfoData = Data.Kinto.NotRequested
+      , notifications = Notifications.init
+      }
+    , Request.KintoProfile.getProfile session.kintoURL profile msg
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -96,9 +73,6 @@ update session msg model =
     case msg of
         UpdateProfileForm profileForm ->
             ( { model | profileForm = profileForm }, Cmd.none )
-
-        SubmitProfile ->
-            submitProfile session model
 
         UpdateProfile ->
             updateProfile session model
@@ -142,27 +116,6 @@ update session msg model =
             ( { model
                 | notifications =
                     "Récupération du profil échouée : "
-                        ++ Kinto.errorToString error
-                        |> Notifications.addError model.notifications
-                , profileData = Data.Kinto.NotRequested
-              }
-            , Cmd.none
-            )
-
-        ProfileCreated (Ok profile) ->
-            ( { model | profileData = Data.Kinto.Received profile, userInfoData = Data.Kinto.Requested }
-            , Request.KintoAccount.associateProfile
-                session.kintoURL
-                session.userData.username
-                session.userData.password
-                profile.id
-                (ProfileAssociated profile)
-            )
-
-        ProfileCreated (Err error) ->
-            ( { model
-                | notifications =
-                    "Création du profil échouée : "
                         ++ Kinto.errorToString error
                         |> Notifications.addError model.notifications
                 , profileData = Data.Kinto.NotRequested
@@ -226,30 +179,14 @@ isProfileFormComplete profileForm =
     profileForm.name /= ""
 
 
-submitProfile : { a | peerTubeURL : String, userInfo : Data.Session.UserInfo } -> Model -> ( Model, Cmd Msg )
-submitProfile { peerTubeURL, userInfo } model =
-    if isProfileFormComplete model.profileForm && userInfo /= Data.Session.emptyUserData then
-        let
-            client =
-                Request.Kinto.authClient kintoURL userData.username userData.password
-        in
-        ( { model | profileData = Data.Kinto.Requested }
-        , Request.KintoProfile.submitProfile client model.profileForm ProfileCreated
-        )
-
-    else
-        ( model, Cmd.none )
-
-
-updateProfile : { a | kintoURL : String, userData : Data.Session.UserData } -> Model -> ( Model, Cmd Msg )
-updateProfile { kintoURL, userData } model =
-    if isProfileFormComplete model.profileForm && userData /= Data.Session.emptyUserData then
-        let
-            client =
-                Request.Kinto.authClient kintoURL userData.username userData.password
-        in
-        ( { model | profileData = Data.Kinto.Requested }
-        , Request.KintoProfile.updateProfile client model.profileForm ProfileUpdated
+updateProfile :
+    { a | peerTubeURL : String, userInfo : Maybe Data.PeerTube.UserInfo, userToken : Maybe Data.PeerTube.UserToken }
+    -> Model
+    -> ( Model, Cmd Msg )
+updateProfile { peerTubeURL, userInfo, userToken } model =
+    if isProfileFormComplete model.profileForm && Data.Session.isLoggedIn userInfo then
+        ( { model | profileData = Data.PeerTube.Requested }
+        , Request.PeerTube.updateAccount peerTubeURL userToken.accessToken model.profileForm ProfileUpdated
         )
 
     else
@@ -278,25 +215,6 @@ view { staticFiles, userData } { title, pageState, profileForm, profileData, use
 
                         EditProfile profile ->
                             viewEditProfileForm pageState profileForm profileData userInfoData
-
-                        CreateProfile ->
-                            if userData /= Data.Session.emptyUserData then
-                                -- User is logged in, and creating their profile
-                                case userInfoData of
-                                    Data.Kinto.Received _ ->
-                                        H.div []
-                                            [ H.text "Votre profil a été créé ! Vous pouvez maintenant "
-                                            , H.a [ Route.href Route.Home ] [ H.text "commenter sur des vidéos" ]
-                                            , H.text " ou "
-                                            , H.a [ Route.href Route.Participate ] [ H.text "en proposer !" ]
-                                            ]
-
-                                    _ ->
-                                        viewCreateProfileForm pageState profileForm profileData userInfoData
-
-                            else
-                                -- User not logged in
-                                Page.Common.Components.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
                     ]
                 ]
             ]
@@ -336,39 +254,6 @@ viewProfileForm submitButton msg profileForm =
             ]
         , submitButton
         ]
-
-
-viewCreateProfileForm : PageState -> Data.Kinto.Profile -> Data.Kinto.ProfileData -> Data.Kinto.UserInfoData -> H.Html Msg
-viewCreateProfileForm pageState profileForm profileData userInfoData =
-    let
-        formComplete =
-            isProfileFormComplete profileForm
-
-        buttonState =
-            if formComplete then
-                case profileData of
-                    Data.Kinto.Requested ->
-                        Page.Common.Components.Loading
-
-                    Data.Kinto.Received _ ->
-                        -- Profile created
-                        case userInfoData of
-                            Data.Kinto.Requested ->
-                                Page.Common.Components.Loading
-
-                            _ ->
-                                Page.Common.Components.NotLoading
-
-                    _ ->
-                        Page.Common.Components.NotLoading
-
-            else
-                Page.Common.Components.Disabled
-
-        submitButton =
-            Page.Common.Components.submitButton "Créer mon profil" buttonState
-    in
-    viewProfileForm submitButton SubmitProfile profileForm
 
 
 viewEditProfileForm : PageState -> Data.Kinto.Profile -> Data.Kinto.ProfileData -> Data.Kinto.UserInfoData -> H.Html Msg
