@@ -1,18 +1,30 @@
-module Request.PeerTube exposing (getAccount, getUserInfo, getVideo, getVideoList, login, updateUserAccount)
+module Request.PeerTube exposing
+    ( getAccount
+    , getUserInfo
+    , getVideo
+    , getVideoCommentList
+    , getVideoList
+    , login
+    , submitComment
+    , updateUserAccount
+    )
 
 import Data.PeerTube
     exposing
         ( Account
+        , Comment
         , UserInfo
         , UserToken
         , Video
         , accountDecoder
+        , commentDecoder
         , dataDecoder
         , userInfoDecoder
         , userTokenDecoder
         , videoDecoder
         )
 import Http
+import Json.Decode as Decode
 import Json.Encode as Encode
 import Url
 
@@ -142,7 +154,7 @@ updateUserAccountRequest displayName description accessToken serverURL =
 
         request : Request Account
         request =
-            { method = "POST"
+            { method = "PUT"
             , headers = []
             , url = url
             , body = body
@@ -168,3 +180,50 @@ withHeader headerName headerValue request =
             Http.header headerName headerValue
     in
     { request | headers = header :: request.headers }
+
+
+videoCommentListRequest : String -> String -> Http.Request (List Comment)
+videoCommentListRequest videoID serverURL =
+    let
+        url =
+            serverURL ++ "/videos/" ++ videoID ++ "/comment-threads"
+    in
+    Http.get url (Decode.list commentDecoder)
+
+
+getVideoCommentList : String -> String -> (Result Http.Error (List Comment) -> msg) -> Cmd msg
+getVideoCommentList videoID serverURL message =
+    Http.send message (videoCommentListRequest videoID serverURL)
+
+
+submitCommentRequest : String -> String -> String -> String -> Http.Request Comment
+submitCommentRequest comment videoID accessToken serverURL =
+    let
+        url =
+            serverURL ++ "/videos/" ++ videoID ++ "/comment-threads"
+
+        body =
+            Encode.object
+                [ ( "text", Encode.string comment )
+                ]
+                |> Http.jsonBody
+
+        request : Request Comment
+        request =
+            { method = "POST"
+            , headers = []
+            , url = url
+            , body = body
+            , expect = Http.expectJson commentDecoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+    in
+    request
+        |> withHeader "Authorization" ("Bearer " ++ accessToken)
+        |> Http.request
+
+
+submitComment : String -> String -> String -> String -> (Result Http.Error Comment -> msg) -> Cmd msg
+submitComment comment videoID accessToken serverURL message =
+    Http.send message (submitCommentRequest comment videoID accessToken serverURL)
