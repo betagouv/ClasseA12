@@ -144,7 +144,7 @@ viewCommentDetails timezone { comment, contributor, video } =
             [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone comment.last_modified ]
             ]
         , H.a
-            [ Route.href <| Route.Profile (Just comment.profile)
+            [ Route.href <| Route.Profile comment.profile
             , HA.class "comment-author"
             ]
             [ H.text contributorName ]

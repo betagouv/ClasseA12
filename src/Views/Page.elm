@@ -59,7 +59,7 @@ viewHeader { activePage, session } =
         profileIcon =
             case session.userInfo of
                 Just userInfo ->
-                    a [ Route.href <| Route.Profile (Just userInfo.username), title "Éditer son profil" ]
+                    a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
                         [ i [ class "far fa-user-circle" ] []
                         , text <| " " ++ userInfo.username
                         ]
