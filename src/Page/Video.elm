@@ -363,7 +363,7 @@ viewCommentForm :
     -> Data.PeerTube.RemoteData Data.PeerTube.Comment
     -> H.Html Msg
 viewCommentForm comment userInfo refreshing commentData =
-    if not <| Data.Session.isLoggedIn userInfo then
+    if not <| Data.Session.isPeerTubeLoggedIn userInfo then
         Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
     else

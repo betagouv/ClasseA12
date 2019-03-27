@@ -3,6 +3,7 @@ port module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session, decodeStaticFiles, decodeUserData, emptyStaticFiles, emptyUserData, encodeUserData)
 import Dict
 import Html exposing (..)
@@ -180,14 +181,7 @@ setRoute url oldModel =
             toPage ActivatePage (Activate.init username activationKey) ActivateMsg
 
         Just (Route.Profile maybeProfile) ->
-            -- Treat a special case: going to the `/profil` url without a profile ID, but the user is connected
-            -- and has a profile: if that happens, redirect to `/profil/<profile id>`.
-            case ( maybeProfile, session.userData.profile ) of
-                ( Nothing, Just userProfile ) ->
-                    ( oldModel, Route.pushUrl oldModel.navKey <| Route.Profile (Just userProfile) )
-
-                ( _, _ ) ->
-                    toPage ProfilePage (Profile.init maybeProfile) ProfileMsg
+            toPage ProfilePage (Profile.init maybeProfile) ProfileMsg
 
         Just Route.Comments ->
             toPage CommentsPage Comments.init CommentsMsg
@@ -202,6 +196,22 @@ init flags url navKey =
                 -- Decode a loginForm from the value
                 |> Result.andThen (Decode.decodeString decodeUserData)
                 |> Result.withDefault emptyUserData
+
+        userToken =
+            -- Decode a string from the "userToken" field in the value (stored in the localstorage)
+            Decode.decodeValue (Decode.field "userToken" Decode.string) flags
+                -- Decode a userToken from the value
+                |> Result.andThen (Decode.decodeString Data.PeerTube.userTokenDecoder)
+                |> Result.map Just
+                |> Result.withDefault Nothing
+
+        userInfo =
+            -- Decode a string from the "userInfo" field in the value (stored in the localstorage)
+            Decode.decodeValue (Decode.field "userInfo" Decode.string) flags
+                -- Decode a userInfo from the value
+                |> Result.andThen (Decode.decodeString Data.PeerTube.userInfoDecoder)
+                |> Result.map Just
+                |> Result.withDefault Nothing
 
         version =
             -- Decode a string from the "version" field in the value
@@ -239,6 +249,8 @@ init flags url navKey =
             , staticFiles = staticFiles
             , url = url
             , prevUrl = url
+            , userToken = userToken
+            , userInfo = userInfo
             }
 
         ( routeModel, routeCmd ) =
@@ -315,7 +327,7 @@ update msg ({ page, session } as model) =
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
-                        [ Ports.saveUserToken <| encodeUserToken userToken
+                        [ Ports.saveUserToken <| Data.PeerTube.encodeUserToken userToken
                         , newCmd
                         ]
                     )
@@ -327,7 +339,7 @@ update msg ({ page, session } as model) =
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
-                        [ Ports.saveUserInfo <| encodeUserInfo userInfo
+                        [ Ports.saveUserInfo <| Data.PeerTube.encodeUserInfo userInfo
                         , newCmd
                         ]
                     )
@@ -353,27 +365,8 @@ update msg ({ page, session } as model) =
                     toPage ProfilePage ProfileMsg (Profile.update session) profileMsg profileModel
             in
             case profileMsg of
-                Profile.ProfileAssociated profile (Ok userInfo) ->
-                    -- Special case: if we associated the profile to the user record, then
-                    -- we can store the updated user and profile in the session for future use
-                    let
-                        userData =
-                            session.userData
-
-                        updatedUserData =
-                            { userData | username = userInfo.id, profile = Just profile.id }
-
-                        updatedSession =
-                            { session | userData = updatedUserData }
-                    in
-                    ( { newModel | session = updatedSession }
-                    , Cmd.batch
-                        [ Ports.saveSession <| encodeUserData userData
-                        , newCmd
-                        ]
-                    )
-
                 Profile.Logout ->
+                    -- Special case: if the user logged out, we can remove the stored session.
                     let
                         updatedSession =
                             { session | userData = emptyUserData }
@@ -520,12 +513,7 @@ subscriptions model =
                 Sub.none
 
             VideoPage _ ->
-                Sub.batch
-                    ([ Ports.attachmentSubmitted Video.AttachmentSent
-                     , Ports.progressUpdate Video.ProgressUpdated
-                     ]
-                        |> List.map (Platform.Sub.map VideoMsg)
-                    )
+                Sub.none
 
             LoginPage _ ->
                 Sub.none

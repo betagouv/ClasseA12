@@ -42,7 +42,7 @@ details timezone video profileData =
         , H.div []
             [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone video.creation_date ]
             , H.text " "
-            , H.a [ Route.href <| Route.Profile (Just video.profile) ] [ H.text authorName ]
+            , H.a [ Route.href <| Route.Profile video.profile ] [ H.text authorName ]
             ]
         , Markdown.toHtml [] video.description
         ]

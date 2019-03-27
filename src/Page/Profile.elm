@@ -72,7 +72,7 @@ init profile session =
       , profileData = Data.PeerTube.NotRequested
       , notifications = Notifications.init
       }
-    , Request.PeerTube.getAccount session.peerTubeURL profile msg
+    , Request.PeerTube.getAccount profile session.peerTubeURL msg
     )
 
 
@@ -170,7 +170,7 @@ updateProfile :
     -> Model
     -> ( Model, Cmd Msg )
 updateProfile { peerTubeURL, userInfo, userToken } model =
-    if isProfileFormComplete model.profileForm && Data.Session.isLoggedIn userInfo then
+    if isProfileFormComplete model.profileForm && Data.Session.isPeerTubeLoggedIn userInfo then
         case userToken of
             Just { accessToken } ->
                 ( { model | profileData = Data.PeerTube.Requested }

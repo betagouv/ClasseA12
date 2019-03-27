@@ -3,9 +3,13 @@ import { Elm } from "../src/Main.elm";
 const KINTO_URL = process.env.KINTO_URL;
 const PEERTUBE_URL = "https://peertube.scopyleft.fr/api/v1"
 const loginForm = window.localStorage.getItem("session");
+const userToken = window.localStorage.getItem("userToken");
+const userInfo = window.localStorage.getItem("userInfo");
 const app = Elm.Main.init({
     flags: {
         loginForm: loginForm,
+        userToken: userToken,
+        userInfo: userInfo,
         version: process.env.VERSION,
         kintoURL: KINTO_URL,
         peerTubeURL: PEERTUBE_URL,
@@ -163,25 +167,25 @@ app.ports.submitVideo.subscribe(function (data) {
 });
 
 // A new comment record has been created, upload the selected file as an attachment
-app.ports.submitAttachment.subscribe(function ({ nodeID, commentID, login, password }) {
-    const credentials = btoa(`${login}:${password}`);
-    const fileInput = document.getElementById(nodeID);
-    if (fileInput === null) {
-        console.error("Didn't find a file input with id", nodeID);
-        return;
-    }
+// app.ports.submitAttachment.subscribe(function ({ nodeID, commentID, login, password }) {
+//     const credentials = btoa(`${login}:${password}`);
+//     const fileInput = document.getElementById(nodeID);
+//     if (fileInput === null) {
+//         console.error("Didn't find a file input with id", nodeID);
+//         return;
+//     }
 
-    const file = fileInput.files[0];
-    // Create a multipart form to upload the file.
-    let formData = new FormData();
-    formData.append('attachment', file);
+//     const file = fileInput.files[0];
+//     // Create a multipart form to upload the file.
+//     let formData = new FormData();
+//     formData.append('attachment', file);
 
-    let xhrAttachment = xhrForAttachment("comments", commentID, credentials, app.ports.attachmentSubmitted.send);
-    xhrAttachment.onload = function () {
-        app.ports.attachmentSubmitted.send(this.response);
-    }
-    xhrAttachment.send(formData);
-});
+//     let xhrAttachment = xhrForAttachment("comments", commentID, credentials, app.ports.attachmentSubmitted.send);
+//     xhrAttachment.onload = function () {
+//         app.ports.attachmentSubmitted.send(this.response);
+//     }
+//     xhrAttachment.send(formData);
+// });
 
 // Event polyfill for IE.
 (function () {
@@ -216,6 +220,7 @@ app.ports.saveUserInfo.subscribe(function (userInfo) {
 });
 
 app.ports.logoutSession.subscribe(function () {
+    localStorage.removeItem("session");
     localStorage.removeItem("userToken");
     localStorage.removeItem("userInfo");
 });

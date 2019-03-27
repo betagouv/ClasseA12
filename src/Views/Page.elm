@@ -1,7 +1,7 @@
 module Views.Page exposing (ActivePage(..), Config, frame)
 
 import Browser exposing (Document)
-import Data.Session exposing (Session, isLoggedIn)
+import Data.Session exposing (Session, isPeerTubeLoggedIn)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, src, title)
 import Html.Events exposing (onClick)
@@ -68,7 +68,7 @@ viewHeader { activePage, session } =
                     text ""
 
         loginProfileIcon =
-            if isLoggedIn session.userInfo then
+            if isPeerTubeLoggedIn session.userInfo then
                 profileIcon
 
             else
