@@ -209,7 +209,7 @@ init flags url navKey =
             -- Decode a string from the "userInfo" field in the value (stored in the localstorage)
             Decode.decodeValue (Decode.field "userInfo" Decode.string) flags
                 -- Decode a userInfo from the value
-                |> Result.andThen (Decode.decodeString Data.PeerTube.userInfoDecoder)
+                |> Result.andThen (Decode.decodeString Data.Session.userInfoDecoder)
                 |> Result.map Just
                 |> Result.withDefault Nothing
 

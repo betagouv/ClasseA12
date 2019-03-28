@@ -8,11 +8,13 @@ module Data.Session exposing
     , encodeUserData
     , isLoggedIn
     , isPeerTubeLoggedIn
+    , userInfoDecoder
     )
 
 import Data.PeerTube
 import Dict
 import Json.Decode as Decode
+import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 import Time
 import Url exposing (Url)
@@ -115,3 +117,10 @@ decodeStaticFiles =
         (Decode.field "logo_ca12" Decode.string)
         (Decode.field "autorisationCaptationImageMineur" Decode.string)
         (Decode.field "autorisationCaptationImageMajeur" Decode.string)
+
+
+userInfoDecoder : Decode.Decoder Data.PeerTube.UserInfo
+userInfoDecoder =
+    Decode.succeed Data.PeerTube.UserInfo
+        |> Pipeline.required "username" Decode.string
+        |> Pipeline.required "channelID" Decode.int
