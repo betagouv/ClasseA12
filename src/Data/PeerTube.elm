@@ -110,10 +110,41 @@ userTokenDecoder =
         |> Pipeline.required "token_type" Decode.string
 
 
+type alias Channel =
+    Int
+
+
+videoChannelDecoder : Decode.Decoder Channel
+videoChannelDecoder =
+    Decode.succeed identity
+        |> Pipeline.required "id" Decode.int
+
+
+videoChannelListDecoder : Decode.Decoder (List Channel)
+videoChannelListDecoder =
+    Decode.list videoChannelDecoder
+
+
+videoChannelIDDecoder : Decode.Decoder Channel
+videoChannelIDDecoder =
+    videoChannelListDecoder
+        |> Decode.andThen
+            (\channelList ->
+                -- We're only interested in the first channel
+                case List.head channelList of
+                    Just channelID ->
+                        Decode.succeed channelID
+
+                    Nothing ->
+                        Decode.fail "pas de chaîne trouvée"
+            )
+
+
 userInfoDecoder : Decode.Decoder UserInfo
 userInfoDecoder =
     Decode.succeed UserInfo
         |> Pipeline.required "username" Decode.string
+        |> Pipeline.required "videoChannels" videoChannelIDDecoder
 
 
 commentDecoder : Decode.Decoder Comment
@@ -133,7 +164,10 @@ commentDecoder =
 
 encodeUserInfo : UserInfo -> Encode.Value
 encodeUserInfo userInfo =
-    Encode.object [ ( "username", Encode.string userInfo.username ) ]
+    Encode.object
+        [ ( "username", Encode.string userInfo.username )
+        , ( "channelID", Encode.int userInfo.channelID )
+        ]
 
 
 encodeUserToken : UserToken -> Encode.Value
