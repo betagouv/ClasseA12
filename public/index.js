@@ -122,32 +122,6 @@ app.ports.submitVideo.subscribe(function (data) {
         return;
     }
 
-    // Get the duration from the video.
-    // videoData.duration = parseInt(videoNode.duration, 10);
-
-    // Create a thumbnail from the video.
-    // const canvas = document.getElementById("thumbnail-preview");
-    // const thumbnail = dataURItoBlob(canvas.toDataURL("image/png"));
-
-    // Upload the thumbnail as an attachment
-    // const recordID = uuidv4();
-    // const filename = recordID + ".png";
-    // let thumbnailData = new FormData();
-    // thumbnailData.append('attachment', thumbnail, filename);
-    // thumbnailData.append('data', JSON.stringify({ "for": recordID }));
-
-    // const url = KINTO_URL + "buckets/classea12/collections/thumbnails/records/" + uuidv4() + "/attachment";
-    // let xhrThumbnail = xhrForAttachment(url, "Envoi de la miniature", access_token, "Bearer", app.ports.videoSubmitted.send);
-    // xhrThumbnail.onload = function () {
-    // The thumbnail was uploaded, now upload the video.
-    // const response = JSON.parse(this.response);
-    // if (!response.location) {
-    //     console.error("Error while uploading the thumbnail", response);
-    //     app.ports.videoSubmitted.send(this.response);
-    //     return;
-    // }
-    // videoData.thumbnail = response.location;
-
     const file = fileInput.files[0];
     // Create a multipart form to upload the file.
     let formData = new FormData();
@@ -163,6 +137,12 @@ app.ports.submitVideo.subscribe(function (data) {
     videoData.keywords.forEach(function (keyword) {
         formData.append('tags[]', keyword);
     });
+
+    // Create a thumbnail from the video.
+    const canvas = document.getElementById("thumbnail-preview");
+    const thumbnail = dataURItoBlob(canvas.toDataURL("image/jpeg"));
+    const thumbnailFilename = uuidv4() + ".jpg";
+    formData.append('thumbnailfile', thumbnail, thumbnailFilename);
 
     const url = PEERTUBE_URL + "/videos/upload";
     let xhrVideo = xhrForAttachment(url, "Envoi de la vidéo", access_token, "Bearer", app.ports.videoSubmitted.send);
