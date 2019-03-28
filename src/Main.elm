@@ -339,9 +339,11 @@ update msg ({ page, session } as model) =
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch
-                        [ Ports.saveUserInfo <| Data.PeerTube.encodeUserInfo userInfo
-                        , newCmd
-                        ]
+                        ([ Ports.saveUserInfo <| Data.PeerTube.encodeUserInfo userInfo
+                         , newCmd
+                         ]
+                            ++ [ redirectToPrevUrl session model ]
+                        )
                     )
 
                 _ ->
@@ -369,7 +371,11 @@ update msg ({ page, session } as model) =
                     -- Special case: if the user logged out, we can remove the stored session.
                     let
                         updatedSession =
-                            { session | userData = emptyUserData }
+                            { session
+                                | userData = emptyUserData
+                                , userInfo = Nothing
+                                , userToken = Nothing
+                            }
                     in
                     ( { newModel | session = updatedSession }
                     , Cmd.batch

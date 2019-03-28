@@ -124,12 +124,12 @@ update session msg model =
 
         AddComment ->
             case session.userToken of
-                Just { accessToken } ->
+                Just { access_token } ->
                     ( { model | commentData = Data.PeerTube.Requested }
                     , Request.PeerTube.submitComment
                         model.comment
                         model.videoID
-                        accessToken
+                        access_token
                         session.peerTubeURL
                         CommentAdded
                     )

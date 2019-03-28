@@ -69,7 +69,7 @@ update session msg model =
 
         UserTokenReceived (Ok userToken) ->
             ( { model | userTokenData = PeerTube.Received userToken }
-            , Request.PeerTube.getUserInfo userToken.accessToken session.peerTubeURL UserInfoReceived
+            , Request.PeerTube.getUserInfo userToken.access_token session.peerTubeURL UserInfoReceived
             )
 
         UserTokenReceived (Err error) ->
@@ -89,26 +89,9 @@ update session msg model =
             )
 
         UserInfoReceived (Err error) ->
-            let
-                kintoError =
-                    Kinto.extractError error
-
-                message =
-                    case kintoError of
-                        Kinto.KintoError code _ _ ->
-                            if code == 403 then
-                                "Est-ce que l'email et le mot de passe sont corrects ? Est-ce que le compte existe ?"
-
-                            else
-                                Kinto.errorToString kintoError
-
-                        _ ->
-                            Kinto.errorToString kintoError
-            in
             ( { model
                 | notifications =
-                    "Connection échouée : "
-                        ++ message
+                    "Connection échouée"
                         |> Notifications.addError model.notifications
                 , userInfoData = PeerTube.NotRequested
               }

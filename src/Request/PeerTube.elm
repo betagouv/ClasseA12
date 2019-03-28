@@ -113,7 +113,7 @@ login username password serverURL message =
 
 
 getUserInfoRequest : String -> String -> Http.Request UserInfo
-getUserInfoRequest accessToken serverURL =
+getUserInfoRequest access_token serverURL =
     let
         url =
             serverURL ++ "/users/me"
@@ -130,17 +130,17 @@ getUserInfoRequest accessToken serverURL =
             }
     in
     request
-        |> withHeader "Authorization" ("Bearer " ++ accessToken)
+        |> withHeader "Authorization" ("Bearer " ++ access_token)
         |> Http.request
 
 
 getUserInfo : String -> String -> (Result Http.Error UserInfo -> msg) -> Cmd msg
-getUserInfo accessToken serverURL message =
-    Http.send message (getUserInfoRequest accessToken serverURL)
+getUserInfo access_token serverURL message =
+    Http.send message (getUserInfoRequest access_token serverURL)
 
 
 updateUserAccountRequest : String -> String -> String -> String -> Http.Request Account
-updateUserAccountRequest displayName description accessToken serverURL =
+updateUserAccountRequest displayName description access_token serverURL =
     let
         url =
             serverURL ++ "/users/me"
@@ -164,13 +164,13 @@ updateUserAccountRequest displayName description accessToken serverURL =
             }
     in
     request
-        |> withHeader "Authorization" ("Bearer " ++ accessToken)
+        |> withHeader "Authorization" ("Bearer " ++ access_token)
         |> Http.request
 
 
 updateUserAccount : String -> String -> String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
-updateUserAccount displayName description accessToken serverURL message =
-    Http.send message (updateUserAccountRequest displayName description accessToken serverURL)
+updateUserAccount displayName description access_token serverURL message =
+    Http.send message (updateUserAccountRequest displayName description access_token serverURL)
 
 
 withHeader : String -> String -> Request a -> Request a
@@ -197,7 +197,7 @@ getVideoCommentList videoID serverURL message =
 
 
 submitCommentRequest : String -> String -> String -> String -> Http.Request Comment
-submitCommentRequest comment videoID accessToken serverURL =
+submitCommentRequest comment videoID access_token serverURL =
     let
         url =
             serverURL ++ "/videos/" ++ videoID ++ "/comment-threads"
@@ -220,10 +220,10 @@ submitCommentRequest comment videoID accessToken serverURL =
             }
     in
     request
-        |> withHeader "Authorization" ("Bearer " ++ accessToken)
+        |> withHeader "Authorization" ("Bearer " ++ access_token)
         |> Http.request
 
 
 submitComment : String -> String -> String -> String -> (Result Http.Error Comment -> msg) -> Cmd msg
-submitComment comment videoID accessToken serverURL message =
-    Http.send message (submitCommentRequest comment videoID accessToken serverURL)
+submitComment comment videoID access_token serverURL message =
+    Http.send message (submitCommentRequest comment videoID access_token serverURL)

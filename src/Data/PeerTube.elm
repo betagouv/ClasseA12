@@ -22,10 +22,10 @@ import Json.Encode as Encode
 
 
 type alias UserToken =
-    { accessToken : String
-    , expiresIn : Int
-    , refreshToken : String
-    , tokenType : String
+    { access_token : String
+    , expires_in : Int
+    , refresh_token : String
+    , token_type : String
     }
 
 
@@ -139,10 +139,10 @@ encodeUserInfo userInfo =
 encodeUserToken : UserToken -> Encode.Value
 encodeUserToken userToken =
     Encode.object
-        [ ( "accessToken", Encode.string userToken.accessToken )
-        , ( "expiresIn", Encode.int userToken.expiresIn )
-        , ( "refreshToken", Encode.string userToken.refreshToken )
-        , ( "tokenType", Encode.string userToken.tokenType )
+        [ ( "access_token", Encode.string userToken.access_token )
+        , ( "expires_in", Encode.int userToken.expires_in )
+        , ( "refresh_token", Encode.string userToken.refresh_token )
+        , ( "token_type", Encode.string userToken.token_type )
         ]
 
 

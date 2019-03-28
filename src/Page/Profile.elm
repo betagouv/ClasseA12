@@ -172,12 +172,12 @@ updateProfile :
 updateProfile { peerTubeURL, userInfo, userToken } model =
     if isProfileFormComplete model.profileForm && Data.Session.isPeerTubeLoggedIn userInfo then
         case userToken of
-            Just { accessToken } ->
+            Just { access_token } ->
                 ( { model | profileData = Data.PeerTube.Requested }
                 , Request.PeerTube.updateUserAccount
                     model.profileForm.displayName
                     model.profileForm.description
-                    accessToken
+                    access_token
                     peerTubeURL
                     ProfileUpdated
                 )
