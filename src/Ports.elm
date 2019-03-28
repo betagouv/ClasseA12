@@ -31,8 +31,8 @@ type alias SubmitVideoData =
     { nodeID : String
     , videoNodeID : String
     , videoData : Decode.Value
-    , login : String
-    , password : String
+    , channelID : Int
+    , access_token : String
     }
 
 

@@ -1,27 +1,23 @@
 module Page.Participate exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (KintoData(..), NewVideo, Video, emptyNewVideo, emptyVideo)
+import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Dict
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-import Http
 import Json.Decode as Decode
-import Kinto
 import Page.Common.Components
 import Page.Common.Progress
 import Ports
-import Request.KintoUpcoming
 import Route
-import Task
-import Time
 
 
 type alias Model =
     { title : String
-    , newVideo : NewVideo
-    , newVideoKintoData : KintoData Video
+    , newVideo : Data.PeerTube.NewVideo
+    , newVideoData : Data.PeerTube.RemoteData Data.PeerTube.VideoUploaded
     , videoObjectUrl : Maybe String
     , progress : Page.Common.Progress.Progress
     , preSelectedKeywords : Keywords
@@ -40,19 +36,14 @@ noKeywords =
         |> Dict.fromList
 
 
-type Credentials
-    = Credentials ( String, String )
-
-
 type Msg
-    = UpdateVideoForm NewVideo
-    | GetTimestamp
-    | SubmitNewVideo Time.Posix
+    = UpdateVideoForm Data.PeerTube.NewVideo
+    | SubmitNewVideo
     | DiscardNotification
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
     | ProgressUpdated Decode.Value
-    | AttachmentSent String
+    | VideoUploaded String
     | UpdatePreSelectedKeywords String
     | UpdateFreeformKeywords String
 
@@ -60,8 +51,8 @@ type Msg
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { title = "Je participe !"
-      , newVideo = emptyNewVideo
-      , newVideoKintoData = NotRequested
+      , newVideo = Data.PeerTube.emptyNewVideo
+      , newVideoData = Data.PeerTube.NotRequested
       , videoObjectUrl = Nothing
       , progress = Page.Common.Progress.empty
       , preSelectedKeywords = noKeywords
@@ -72,67 +63,65 @@ init session =
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update { userData } msg model =
+update { userInfo, userToken } msg model =
     case msg of
         UpdateVideoForm video ->
             ( { model | newVideo = video }, Cmd.none )
 
-        GetTimestamp ->
-            ( model, Task.perform SubmitNewVideo Time.now )
+        SubmitNewVideo ->
+            if Data.Session.isPeerTubeLoggedIn userInfo then
+                let
+                    access_token =
+                        userToken
+                            |> Maybe.map .access_token
+                            |> Maybe.withDefault ""
 
-        SubmitNewVideo timestamp ->
-            case userData.profile of
-                Just profile ->
-                    let
-                        newVideo =
-                            model.newVideo
+                    channelID =
+                        userInfo
+                            |> Maybe.map .channelID
+                            -- TODO : replace the userInfo record with a type like `Anonymous | User String Int`
+                            |> Maybe.withDefault 0
 
-                        timestampedVideo =
-                            { newVideo | creation_date = timestamp }
+                    newVideo =
+                        model.newVideo
 
-                        updatedKeywords =
-                            model.freeformKeywords
-                                -- Split the keywords into a list
-                                |> String.split ","
-                                -- Remove the extraneous spaces
-                                |> List.map String.trim
-                                -- Remove the empty keywords
-                                |> List.filter (\keyword -> keyword /= "")
-                                -- Add the keywords to the current video keywords
-                                |> List.foldl
-                                    (\keyword keywords ->
-                                        Dict.insert keyword True keywords
-                                    )
-                                    model.preSelectedKeywords
+                    updatedKeywords =
+                        model.freeformKeywords
+                            -- Split the keywords into a list
+                            |> String.split ","
+                            -- Remove the extraneous spaces
+                            |> List.map String.trim
+                            -- Remove the empty keywords
+                            |> List.filter (\keyword -> keyword /= "")
+                            -- Add the keywords to the current video keywords
+                            |> List.foldl
+                                (\keyword keywords ->
+                                    Dict.insert keyword True keywords
+                                )
+                                model.preSelectedKeywords
 
-                        videoToSubmit =
-                            { timestampedVideo
-                                | keywords = keywordsToList updatedKeywords
-                                , profile = profile
-                            }
+                    videoToSubmit =
+                        { newVideo | keywords = keywordsToList updatedKeywords }
 
-                        submitVideoData : Ports.SubmitVideoData
-                        submitVideoData =
-                            { nodeID = "video"
-                            , videoNodeID = "uploaded-video"
-                            , videoData = Data.Kinto.encodeNewVideoData videoToSubmit
-                            , login = userData.username
-                            , password = userData.password
-                            }
-                    in
-                    ( { model
-                        | newVideoKintoData = Requested
-                        , newVideo = videoToSubmit
-                      }
-                    , Ports.submitVideo submitVideoData
-                    )
+                    submitVideoData : Ports.SubmitVideoData
+                    submitVideoData =
+                        { nodeID = "video"
+                        , videoNodeID = "uploaded-video"
+                        , videoData = Data.PeerTube.encodeNewVideoData videoToSubmit
+                        , channelID = channelID
+                        , access_token = access_token
+                        }
+                in
+                ( { model | newVideoData = Data.PeerTube.Requested }
+                , Ports.submitVideo submitVideoData
+                )
 
-                Nothing ->
-                    -- Not profile information in the session? We should never reach this state.
-                    ( model, Cmd.none )
+            else
+                -- No profile information in the session? We should never reach this state.
+                ( model, Cmd.none )
 
         DiscardNotification ->
-            ( { model | newVideoKintoData = NotRequested }, Cmd.none )
+            ( { model | newVideoData = Data.PeerTube.NotRequested }, Cmd.none )
 
         VideoSelected ->
             ( model, Ports.videoSelected "video" )
@@ -152,40 +141,20 @@ update { userData } msg model =
             in
             ( { model | progress = progress }, Cmd.none )
 
-        AttachmentSent response ->
+        VideoUploaded response ->
             let
-                result =
-                    Decode.decodeString Data.Kinto.attachmentDecoder response
-                        |> Result.mapError
-                            (\_ ->
-                                Decode.decodeString Kinto.errorDecoder response
-                                    |> Result.map
-                                        (\errorDetail ->
-                                            Kinto.KintoError errorDetail.code errorDetail.message errorDetail
-                                        )
-                                    |> Result.withDefault (Kinto.NetworkError Http.NetworkError)
-                            )
-
-                kintoData =
-                    case result of
-                        Ok attachment ->
-                            let
-                                video =
-                                    { emptyVideo
-                                        | title = model.newVideo.title
-                                        , keywords = model.newVideo.keywords
-                                        , description = model.newVideo.description
-                                        , attachment = attachment
-                                    }
-                            in
-                            Received video
+                videoUploadResult =
+                    case Decode.decodeString Data.PeerTube.videoUploadedDecoder response of
+                        Ok videoUploaded ->
+                            Data.PeerTube.Received videoUploaded
 
                         Err error ->
-                            Failed error
+                            Decode.errorToString error
+                                |> Data.PeerTube.Failed
             in
             ( { model
-                | newVideo = emptyNewVideo
-                , newVideoKintoData = kintoData
+                | newVideo = Data.PeerTube.emptyNewVideo
+                , newVideoData = videoUploadResult
                 , freeformKeywords = ""
                 , videoObjectUrl = Nothing
                 , progress = Page.Common.Progress.empty
@@ -203,12 +172,12 @@ update { userData } msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { staticFiles, userData } model =
+view { staticFiles, userInfo } model =
     ( model.title
     , [ H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ displayKintoData model.newVideoKintoData
+                    [ displayRemoteData model.newVideoData
                     , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
                     , H.p []
                         [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
@@ -223,7 +192,7 @@ view { staticFiles, userData } model =
                                 ]
                             ]
                         ]
-                    , if not <| Data.Session.isLoggedIn userData then
+                    , if not <| Data.Session.isPeerTubeLoggedIn userInfo then
                         Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
                       else
@@ -237,21 +206,21 @@ view { staticFiles, userData } model =
 
 displaySubmitVideoForm :
     { a
-        | newVideo : NewVideo
-        , newVideoKintoData : KintoData Video
+        | newVideo : Data.PeerTube.NewVideo
+        , newVideoData : Data.PeerTube.RemoteData Data.PeerTube.VideoUploaded
         , videoObjectUrl : Maybe String
         , progress : Page.Common.Progress.Progress
         , preSelectedKeywords : Keywords
         , freeformKeywords : String
     }
     -> H.Html Msg
-displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, preSelectedKeywords, freeformKeywords } =
+displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSelectedKeywords, freeformKeywords } =
     let
         videoSelected =
             videoObjectUrl
                 /= Nothing
     in
-    H.form [ HE.onSubmit GetTimestamp ]
+    H.form [ HE.onSubmit SubmitNewVideo ]
         [ displayVideo videoObjectUrl
         , H.div
             [ HA.class "upload-video"
@@ -383,7 +352,7 @@ displaySubmitVideoForm { newVideo, newVideoKintoData, videoObjectUrl, progress, 
         , H.div
             [ HA.classList
                 [ ( "modal__backdrop", True )
-                , ( "is-active", newVideoKintoData == Requested )
+                , ( "is-active", newVideoData == Data.PeerTube.Requested )
                 ]
             ]
             [ H.div [ HA.class "modal" ]
@@ -413,20 +382,20 @@ displayVideo maybeVideoObjectUrl =
         ]
 
 
-displayKintoData : KintoData Video -> H.Html Msg
-displayKintoData kintoData =
-    case kintoData of
-        Failed error ->
+displayRemoteData : Data.PeerTube.RemoteData Data.PeerTube.VideoUploaded -> H.Html Msg
+displayRemoteData remoteData =
+    case remoteData of
+        Data.PeerTube.Failed error ->
             H.div [ HA.class "notification error closable" ]
                 [ H.button
                     [ HA.class "close"
                     , HE.onClick DiscardNotification
                     ]
                     [ H.i [ HA.class "fas fa-times" ] [] ]
-                , H.text <| Kinto.errorToString error
+                , H.text error
                 ]
 
-        Received _ ->
+        Data.PeerTube.Received _ ->
             H.div [ HA.class "notification success closable" ]
                 [ H.button
                     [ HA.class "close"

@@ -498,7 +498,7 @@ subscriptions model =
                 Sub.batch
                     ([ Ports.videoObjectUrl Participate.VideoObjectUrlReceived
                      , Ports.progressUpdate Participate.ProgressUpdated
-                     , Ports.videoSubmitted Participate.AttachmentSent
+                     , Ports.videoSubmitted Participate.VideoUploaded
                      ]
                         |> List.map (Platform.Sub.map ParticipateMsg)
                     )

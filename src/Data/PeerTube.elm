@@ -1,19 +1,24 @@
 module Data.PeerTube exposing
     ( Account
     , Comment
+    , NewVideo
     , RemoteData(..)
     , UserInfo
     , UserToken
     , Video
+    , VideoUploaded
     , accountDecoder
     , commentDecoder
     , dataDecoder
+    , emptyNewVideo
     , encodeComment
+    , encodeNewVideoData
     , encodeUserInfo
     , encodeUserToken
     , userInfoDecoder
     , userTokenDecoder
     , videoDecoder
+    , videoUploadedDecoder
     )
 
 import Json.Decode as Decode
@@ -31,6 +36,7 @@ type alias UserToken =
 
 type alias UserInfo =
     { username : String
+    , channelID : Int
     }
 
 
@@ -48,6 +54,28 @@ type alias Video =
     , uuid : String
     , description : String
     , account : Account
+    }
+
+
+type alias NewVideo =
+    { title : String
+    , grade : String
+    , keywords : List String
+    , description : String
+    }
+
+
+type alias VideoUploaded =
+    { id : Int
+    , uuid : String
+    }
+
+
+emptyNewVideo =
+    { description = ""
+    , title = ""
+    , grade = "CP"
+    , keywords = []
     }
 
 
@@ -108,6 +136,15 @@ userTokenDecoder =
         |> Pipeline.required "expires_in" Decode.int
         |> Pipeline.required "refresh_token" Decode.string
         |> Pipeline.required "token_type" Decode.string
+
+
+videoUploadedDecoder : Decode.Decoder VideoUploaded
+videoUploadedDecoder =
+    Decode.field "video"
+        (Decode.succeed VideoUploaded
+            |> Pipeline.required "id" Decode.int
+            |> Pipeline.required "uuid" Decode.string
+        )
 
 
 type alias Channel =
@@ -184,3 +221,19 @@ encodeComment : String -> Encode.Value
 encodeComment text =
     Encode.object
         [ ( "text", Encode.string text ) ]
+
+
+encodeNewVideoData : NewVideo -> Encode.Value
+encodeNewVideoData video =
+    Encode.object
+        [ ( "description", Encode.string video.description )
+        , ( "title", Encode.string video.title )
+        , ( "grade", Encode.string video.grade )
+        , ( "keywords", encodeKeywords video.keywords )
+        ]
+
+
+encodeKeywords : List String -> Encode.Value
+encodeKeywords keywords =
+    keywords
+        |> Encode.list Encode.string

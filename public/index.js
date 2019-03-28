@@ -86,22 +86,21 @@ const collectionToMessage = {
     "comments": "Envoi de la pièce jointe",
 }
 
-function xhrForAttachment(collection, recordID, credentials, errorCallback) {
+function xhrForAttachment(url, progressMessage, credentials, tokenType, errorCallback) {
     // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
     let xhr = new XMLHttpRequest();
-    xhr.open("POST", KINTO_URL + "buckets/classea12/collections/" + collection + "/records/" + recordID + "/attachment");
+    xhr.open("POST", url);
     xhr.upload.addEventListener("progress", function (event) {
         if (event.lengthComputable) {
             const percentage = Math.round(event.loaded * 100 / event.total);
-            const message = collectionToMessage[collection];
-            app.ports.progressUpdate.send({ "percentage": percentage, "message": message });
+            app.ports.progressUpdate.send({ "percentage": percentage, "message": progressMessage });
         }
     }, false);
     xhr.onerror = function (event) {
         console.error("network error", event.target);
         errorCallback(this.response);
     }
-    xhr.setRequestHeader("Authorization", "Basic " + credentials);
+    xhr.setRequestHeader("Authorization", tokenType + " " + credentials);
     return xhr;
 }
 
@@ -110,9 +109,8 @@ app.ports.submitVideo.subscribe(function (data) {
     const nodeID = data.nodeID;
     const videoNodeID = data.videoNodeID;
     const videoData = data.videoData;
-    const login = data.login;
-    const password = data.password;
-    const credentials = btoa(login + ":" + password);
+    const channelID = data.channelID;
+    const access_token = data.access_token;
     const fileInput = document.getElementById(nodeID);
     if (fileInput === null) {
         console.error("Didn't find a file input with id", nodeID);
@@ -125,44 +123,56 @@ app.ports.submitVideo.subscribe(function (data) {
     }
 
     // Get the duration from the video.
-    videoData.duration = parseInt(videoNode.duration, 10);
+    // videoData.duration = parseInt(videoNode.duration, 10);
 
     // Create a thumbnail from the video.
-    const canvas = document.getElementById("thumbnail-preview");
-    const thumbnail = dataURItoBlob(canvas.toDataURL("image/png"));
+    // const canvas = document.getElementById("thumbnail-preview");
+    // const thumbnail = dataURItoBlob(canvas.toDataURL("image/png"));
 
     // Upload the thumbnail as an attachment
-    const recordID = uuidv4();
-    const filename = recordID + ".png";
-    let thumbnailData = new FormData();
-    thumbnailData.append('attachment', thumbnail, filename);
-    thumbnailData.append('data', JSON.stringify({ "for": recordID }));
+    // const recordID = uuidv4();
+    // const filename = recordID + ".png";
+    // let thumbnailData = new FormData();
+    // thumbnailData.append('attachment', thumbnail, filename);
+    // thumbnailData.append('data', JSON.stringify({ "for": recordID }));
 
-    let xhrThumbnail = xhrForAttachment("thumbnails", uuidv4(), credentials, app.ports.videoSubmitted.send);
-    xhrThumbnail.onload = function () {
-        // The thumbnail was uploaded, now upload the video.
-        const response = JSON.parse(this.response);
-        if (!response.location) {
-            console.error("Error while uploading the thumbnail", response);
-            app.ports.videoSubmitted.send(this.response);
-            return;
-        }
-        videoData.thumbnail = response.location;
+    // const url = KINTO_URL + "buckets/classea12/collections/thumbnails/records/" + uuidv4() + "/attachment";
+    // let xhrThumbnail = xhrForAttachment(url, "Envoi de la miniature", access_token, "Bearer", app.ports.videoSubmitted.send);
+    // xhrThumbnail.onload = function () {
+    // The thumbnail was uploaded, now upload the video.
+    // const response = JSON.parse(this.response);
+    // if (!response.location) {
+    //     console.error("Error while uploading the thumbnail", response);
+    //     app.ports.videoSubmitted.send(this.response);
+    //     return;
+    // }
+    // videoData.thumbnail = response.location;
 
-        const file = fileInput.files[0];
-        // Create a multipart form to upload the file.
-        let formData = new FormData();
-        formData.append('attachment', file);
-        formData.append('data', JSON.stringify(videoData));
-
-        let xhrVideo = xhrForAttachment("upcoming", recordID, credentials, app.ports.videoSubmitted.send);
-        xhrVideo.onload = function () {
-            app.ports.videoSubmitted.send(this.response);
-        }
-        xhrVideo.send(formData);
-        videoNode.parentNode.style.display = "none";
+    const file = fileInput.files[0];
+    // Create a multipart form to upload the file.
+    let formData = new FormData();
+    formData.append('videofile', file);
+    formData.append('name', uuidv4());
+    formData.append('channelId', channelID);
+    formData.append('privacy', 1); // Corresponds to "Public"
+    if (videoData.description) {
+        formData.append('description', videoData.description || '');
     }
-    xhrThumbnail.send(thumbnailData);
+    let keywords = videoData.keywords || [];
+    keywords.push(videoData.grade);
+    videoData.keywords.forEach(function (keyword) {
+        formData.append('tags[]', keyword);
+    });
+
+    const url = PEERTUBE_URL + "/videos/upload";
+    let xhrVideo = xhrForAttachment(url, "Envoi de la vidéo", access_token, "Bearer", app.ports.videoSubmitted.send);
+    xhrVideo.onload = function () {
+        app.ports.videoSubmitted.send(this.response);
+    }
+    xhrVideo.send(formData);
+    videoNode.parentNode.style.display = "none";
+    // }
+    // xhrThumbnail.send(thumbnailData);
 
 });
 
@@ -180,7 +190,8 @@ app.ports.submitVideo.subscribe(function (data) {
 //     let formData = new FormData();
 //     formData.append('attachment', file);
 
-//     let xhrAttachment = xhrForAttachment("comments", commentID, credentials, app.ports.attachmentSubmitted.send);
+//     const url = KINTO_URL + "buckets/classea12/collections/comments/records/" + commentID + "/attachment";
+//     let xhrAttachment = xhrForAttachment(url, "Envoi de la pièce jointe", credentials, "Basic", app.ports.attachmentSubmitted.send);
 //     xhrAttachment.onload = function () {
 //         app.ports.attachmentSubmitted.send(this.response);
 //     }
