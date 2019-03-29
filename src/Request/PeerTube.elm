@@ -44,7 +44,7 @@ videoListRequest : String -> Http.Request (List Video)
 videoListRequest serverURL =
     let
         url =
-            serverURL ++ "/api/v1/video-channels/vincent_channel/videos"
+            serverURL ++ "/api/v1/video-channels/classea12_channel/videos"
     in
     Http.get url dataDecoder
 
