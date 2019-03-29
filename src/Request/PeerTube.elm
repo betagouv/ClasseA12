@@ -44,7 +44,7 @@ videoListRequest : String -> Http.Request (List Video)
 videoListRequest serverURL =
     let
         url =
-            serverURL ++ "/video-channels/vincent_channel/videos"
+            serverURL ++ "/api/v1/video-channels/vincent_channel/videos"
     in
     Http.get url dataDecoder
 
@@ -58,7 +58,7 @@ videoRequest : String -> String -> Http.Request Video
 videoRequest videoID serverURL =
     let
         url =
-            serverURL ++ "/videos/" ++ videoID
+            serverURL ++ "/api/v1/videos/" ++ videoID
     in
     Http.get url videoDecoder
 
@@ -86,7 +86,7 @@ loginRequest : String -> String -> String -> Http.Request UserToken
 loginRequest username password serverURL =
     let
         url =
-            serverURL ++ "/users/token"
+            serverURL ++ "/api/v1/users/token"
 
         data =
             [ ( "username", username |> Url.percentEncode )
@@ -116,7 +116,7 @@ getUserInfoRequest : String -> String -> Http.Request UserInfo
 getUserInfoRequest access_token serverURL =
     let
         url =
-            serverURL ++ "/users/me"
+            serverURL ++ "/api/v1/users/me"
 
         request : Request UserInfo
         request =
@@ -143,7 +143,7 @@ updateUserAccountRequest : String -> String -> String -> String -> Http.Request 
 updateUserAccountRequest displayName description access_token serverURL =
     let
         url =
-            serverURL ++ "/users/me"
+            serverURL ++ "/api/v1/users/me"
 
         body =
             Encode.object
@@ -186,7 +186,7 @@ videoCommentListRequest : String -> String -> Http.Request (List Comment)
 videoCommentListRequest videoID serverURL =
     let
         url =
-            serverURL ++ "/videos/" ++ videoID ++ "/comment-threads"
+            serverURL ++ "/api/v1/videos/" ++ videoID ++ "/comment-threads"
     in
     Http.get url (Decode.list commentDecoder)
 
@@ -200,7 +200,7 @@ submitCommentRequest : String -> String -> String -> String -> Http.Request Comm
 submitCommentRequest comment videoID access_token serverURL =
     let
         url =
-            serverURL ++ "/videos/" ++ videoID ++ "/comment-threads"
+            serverURL ++ "/api/v1/videos/" ++ videoID ++ "/comment-threads"
 
         body =
             Encode.object

@@ -49,6 +49,7 @@ type alias Account =
 
 type alias Video =
     { previewPath : String
+    , thumbnailPath : String
     , name : String
     , embedPath : String
     , uuid : String
@@ -122,6 +123,7 @@ videoDecoder : Decode.Decoder Video
 videoDecoder =
     Decode.succeed Video
         |> Pipeline.required "previewPath" Decode.string
+        |> Pipeline.required "thumbnailPath" Decode.string
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "embedPath" Decode.string
         |> Pipeline.required "uuid" Decode.string

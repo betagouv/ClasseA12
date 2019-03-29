@@ -1,7 +1,7 @@
 import { Elm } from "../src/Main.elm";
 
 const KINTO_URL = process.env.KINTO_URL;
-const PEERTUBE_URL = "https://peertube.scopyleft.fr/api/v1"
+const PEERTUBE_URL = "https://peertube.scopyleft.fr"
 const loginForm = window.localStorage.getItem("session");
 const userToken = window.localStorage.getItem("userToken");
 const userInfo = window.localStorage.getItem("userInfo");

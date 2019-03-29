@@ -51,7 +51,7 @@ view session model =
                         H.li []
                             [ H.a [ Route.href <| Route.PeerTubeVideo video.uuid ]
                                 [ H.img
-                                    [ HA.src (session.peerTubeURL ++ video.previewPath)
+                                    [ HA.src (session.peerTubeURL ++ video.thumbnailPath)
                                     , HA.width 400
                                     , HA.height 200
                                     ]
