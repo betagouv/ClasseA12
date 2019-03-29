@@ -48,7 +48,7 @@ view session model =
                 Received video ->
                     [ H.h1 [] [ H.text video.name ]
                     , H.embed
-                        [ HA.src ("https://peertube.scopyleft.fr" ++ video.embedPath)
+                        [ HA.src (session.peerTubeURL ++ video.embedPath)
                         , HA.width 1000
                         , HA.height 800
                         ]
