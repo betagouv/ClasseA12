@@ -23,7 +23,6 @@ import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PeerTube as PeerTube
 import Page.PeerTubeAccount as PeerTubeAccount
-import Page.PeerTubeVideo as PeerTubeVideo
 import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
 import Page.Register as Register
@@ -46,7 +45,6 @@ type alias Flags =
 type Page
     = HomePage Home.Model
     | PeerTubePage PeerTube.Model
-    | PeerTubeVideoPage PeerTubeVideo.Model
     | PeerTubeAccountPage PeerTubeAccount.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
@@ -76,7 +74,6 @@ type alias Model =
 type Msg
     = HomeMsg Home.Msg
     | PeerTubeMsg PeerTube.Msg
-    | PeerTubeVideoMsg PeerTubeVideo.Msg
     | PeerTubeAccountMsg PeerTubeAccount.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
@@ -134,9 +131,6 @@ setRoute url oldModel =
 
         Just Route.PeerTube ->
             toPage PeerTubePage PeerTube.init PeerTubeMsg
-
-        Just (Route.PeerTubeVideo videoID) ->
-            toPage PeerTubeVideoPage (PeerTubeVideo.init videoID) PeerTubeVideoMsg
 
         Just (Route.PeerTubeAccount accountName) ->
             toPage PeerTubeAccountPage (PeerTubeAccount.init accountName) PeerTubeAccountMsg
@@ -285,9 +279,6 @@ update msg ({ page, session } as model) =
 
         ( PeerTubeMsg peerTubeMsg, PeerTubePage peerTubeModel ) ->
             toPage PeerTubePage PeerTubeMsg (PeerTube.update session) peerTubeMsg peerTubeModel
-
-        ( PeerTubeVideoMsg peerTubeVideoMsg, PeerTubeVideoPage peerTubeVideoModel ) ->
-            toPage PeerTubeVideoPage PeerTubeVideoMsg (PeerTubeVideo.update session) peerTubeVideoMsg peerTubeVideoModel
 
         ( PeerTubeAccountMsg peerTubeAccountMsg, PeerTubeAccountPage peerTubeAccountModel ) ->
             toPage PeerTubeAccountPage PeerTubeAccountMsg (PeerTubeAccount.update session) peerTubeAccountMsg peerTubeAccountModel
@@ -485,9 +476,6 @@ subscriptions model =
             PeerTubePage _ ->
                 Sub.none
 
-            PeerTubeVideoPage _ ->
-                Sub.none
-
             PeerTubeAccountPage _ ->
                 Sub.none
 
@@ -570,11 +558,6 @@ view model =
             PeerTube.view model.session peerTubeModel
                 |> mapMsg PeerTubeMsg
                 |> Page.frame (pageConfig Page.PeerTube)
-
-        PeerTubeVideoPage peerTubeVideoModel ->
-            PeerTubeVideo.view model.session peerTubeVideoModel
-                |> mapMsg PeerTubeVideoMsg
-                |> Page.frame (pageConfig Page.PeerTubeVideo)
 
         PeerTubeAccountPage peerTubeAccountModel ->
             PeerTubeAccount.view model.session peerTubeAccountModel

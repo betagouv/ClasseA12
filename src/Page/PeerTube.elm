@@ -36,6 +36,7 @@ update session msg model =
                 videoList : List Video
                 videoList =
                     response
+                        |> Debug.log "video list"
                         |> Result.withDefault []
             in
             ( { model | videoList = videoList }, Cmd.none )
@@ -49,7 +50,7 @@ view session model =
                 |> List.map
                     (\video ->
                         H.li []
-                            [ H.a [ Route.href <| Route.PeerTubeVideo video.uuid ]
+                            [ H.a [ Route.href <| Route.Video video.uuid video.name ]
                                 [ H.img
                                     [ HA.src (session.peerTubeURL ++ video.thumbnailPath)
                                     , HA.width 400

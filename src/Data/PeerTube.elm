@@ -133,7 +133,7 @@ videoDecoder =
         |> Pipeline.optional "description" Decode.string ""
         |> Pipeline.required "account" accountDecoder
         |> Pipeline.required "publishedAt" Decode.string
-        |> Pipeline.required "tags" (Decode.list Decode.string)
+        |> Pipeline.optional "tags" (Decode.list Decode.string) []
 
 
 userTokenDecoder : Decode.Decoder UserToken
