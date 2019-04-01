@@ -1,18 +1,14 @@
 module Page.Home exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
-import Json.Encode as Encode
-import Kinto
-import NaturalOrdering
 import Page.Common.Components
 import Page.Common.Video
-import Request.KintoProfile
-import Request.KintoVideo
+import Request.PeerTube
 import Route
 import Set
 import Task
@@ -22,31 +18,22 @@ import Time
 type alias Model =
     { title : String
     , search : String
-    , videoData : Data.Kinto.VideoListData
-    , authorsData : Data.Kinto.KintoData Data.Kinto.ProfileList
-    , timestamp : Time.Posix
+    , videoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     }
 
 
 type Msg
     = UpdateSearch String
-    | VideoListReceived (Result Kinto.Error Data.Kinto.VideoList)
-    | AuthorsFetched (Result Kinto.Error Data.Kinto.ProfileList)
-    | NewTimestamp Time.Posix
+    | VideoListReceived (Result Http.Error (List Data.PeerTube.Video))
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { title = "Liste des vidéos"
       , search = ""
-      , videoData = Data.Kinto.Requested
-      , authorsData = Data.Kinto.NotRequested
-      , timestamp = Time.millisToPosix 0
+      , videoData = Data.PeerTube.Requested
       }
-    , Cmd.batch
-        [ Request.KintoVideo.getVideoList session.kintoURL VideoListReceived
-        , Task.perform NewTimestamp Time.now
-        ]
+    , Request.PeerTube.getVideoList session.peerTubeURL VideoListReceived
     )
 
 
@@ -57,30 +44,16 @@ update session msg model =
             ( { model | search = newSearch }, Cmd.none )
 
         VideoListReceived (Ok videoList) ->
-            let
-                authorIDs =
-                    videoList.objects
-                        |> List.map (\video -> video.profile)
-            in
-            ( { model | videoData = Data.Kinto.Received videoList }
-            , Request.KintoProfile.getProfileList session.kintoURL authorIDs AuthorsFetched
+            ( { model | videoData = Data.PeerTube.Received videoList }
+            , Cmd.none
             )
 
         VideoListReceived (Err error) ->
-            ( { model | videoData = Data.Kinto.Failed error }, Cmd.none )
-
-        AuthorsFetched (Ok authors) ->
-            ( { model | authorsData = Data.Kinto.Received authors }, Cmd.none )
-
-        AuthorsFetched (Err error) ->
-            ( { model | authorsData = Data.Kinto.Failed error }, Cmd.none )
-
-        NewTimestamp timestamp ->
-            ( { model | timestamp = timestamp }, Cmd.none )
+            ( { model | videoData = Data.PeerTube.Failed "Échec de la récupération des vidéos" }, Cmd.none )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, staticFiles } ({ title, search, videoData, authorsData, timestamp } as model) =
+view { staticFiles, peerTubeURL } ({ title, search, videoData } as model) =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__banner" ] []
@@ -98,23 +71,23 @@ view { timezone, staticFiles } ({ title, search, videoData, authorsData, timesta
             ]
       , H.div [ HA.class "main" ]
             (case videoData of
-                Data.Kinto.NotRequested ->
+                Data.PeerTube.NotRequested ->
                     []
 
-                Data.Kinto.Requested ->
+                Data.PeerTube.Requested ->
                     [ H.section [ HA.class "section section-white" ]
                         [ H.div [ HA.class "container" ]
                             [ H.text "Chargement des vidéos..." ]
                         ]
                     ]
 
-                Data.Kinto.Received videoList ->
-                    viewVideoList timezone timestamp model videoList
+                Data.PeerTube.Received videoList ->
+                    viewVideoList peerTubeURL model videoList
 
-                Data.Kinto.Failed error ->
+                Data.PeerTube.Failed error ->
                     [ H.section [ HA.class "section section-white" ]
                         [ H.div [ HA.class "container" ]
-                            [ H.text <| "Erreur lors du chargement des videos: " ++ Kinto.errorToString error ]
+                            [ H.text error ]
                         ]
                     ]
             )
@@ -123,36 +96,16 @@ view { timezone, staticFiles } ({ title, search, videoData, authorsData, timesta
 
 
 viewVideoList :
-    Time.Zone
-    -> Time.Posix
-    -> { a | search : String, authorsData : Data.Kinto.KintoData Data.Kinto.ProfileList }
-    -> Data.Kinto.VideoList
+    String
+    -> { a | search : String }
+    -> List Data.PeerTube.Video
     -> List (H.Html Msg)
-viewVideoList timezone timestamp { search, authorsData } videoList =
+viewVideoList peerTubeURL { search } videoList =
     let
-        keywordList =
-            videoList.objects
-                |> List.concatMap (\{ keywords } -> keywords)
-                |> Set.fromList
-                -- Don't display videos related to the project itself by default
-                |> Set.remove "Le projet Classe à 12"
-                |> Set.toList
-                |> List.sortWith NaturalOrdering.compare
-
-        filteredVideoList =
-            if search /= "" then
-                videoList.objects
-                    |> List.filter (\video -> List.member search video.keywords)
-
-            else
-                videoList.objects
-                    -- Don't display videos related to the project itself by default
-                    |> List.filter (\video -> not <| List.member "Le projet Classe à 12" video.keywords)
-
         videoCards =
-            if filteredVideoList /= [] then
-                filteredVideoList
-                    |> List.map (\video -> viewPublicVideo timezone timestamp video authorsData)
+            if videoList /= [] then
+                videoList
+                    |> List.map (\video -> viewPublicVideo peerTubeURL video)
 
             else
                 [ H.text "Pas de vidéos trouvée" ]
@@ -162,34 +115,15 @@ viewVideoList timezone timestamp { search, authorsData } videoList =
             [ H.div
                 [ HA.class "form__group light-background" ]
                 [ H.label [ HA.for "search" ]
-                    [ H.text "Filtrer :" ]
+                    [ H.text "Filtrer par mot clé :" ]
                 , H.div [ HA.class "search__group" ]
-                    [ H.select
+                    [ H.input
                         [ HA.id "keywords"
                         , HA.value search
+                        , HA.placeholder "Lecture, Mathématiques, ..."
                         , Page.Common.Components.onChange UpdateSearch
                         ]
-                        [ Page.Common.Components.optgroup "Afficher :"
-                            [ H.option [ HA.value "" ] [ H.text "Toutes les vidéos pédagogiques" ]
-                            , H.option [ HA.value "Le projet Classe à 12" ] [ H.text "Les vidéos à propos du projet Classe à 12" ]
-                            ]
-                        , Page.Common.Components.optgroup "Filtrer les vidéos par mot clé :"
-                            (keywordList
-                                |> List.map
-                                    (\keyword ->
-                                        H.option [ HA.value keyword ] [ H.text keyword ]
-                                    )
-                            )
-                        ]
-                    , if search /= "" then
-                        H.button
-                            [ HA.class "button-link"
-                            , HE.onClick <| UpdateSearch ""
-                            ]
-                            [ H.i [ HA.class "fas fa-times" ] [] ]
-
-                      else
-                        H.div [] []
+                        []
                     ]
                 ]
             ]
@@ -203,61 +137,20 @@ viewVideoList timezone timestamp { search, authorsData } videoList =
     ]
 
 
-viewPublicVideo : Time.Zone -> Time.Posix -> Data.Kinto.Video -> Data.Kinto.KintoData Data.Kinto.ProfileList -> H.Html msg
-viewPublicVideo timezone timestamp video authorsData =
-    let
-        isVideoRecent =
-            let
-                timestampMillis =
-                    Time.posixToMillis timestamp
-
-                publishDateMillis =
-                    Time.posixToMillis video.publish_date
-            in
-            if timestampMillis == 0 then
-                -- The timestamp isn't initialized yet
-                False
-
-            else
-                timestampMillis
-                    - publishDateMillis
-                    -- A video is recent if it's less than 15 days.
-                    |> (>) (15 * 24 * 60 * 60 * 1000)
-
-        profileData =
-            case authorsData of
-                Data.Kinto.Received authors ->
-                    authors.objects
-                        |> List.filter (\author -> author.id == video.profile)
-                        |> List.head
-                        |> Maybe.map Data.Kinto.Received
-                        |> Maybe.withDefault Data.Kinto.NotRequested
-
-                _ ->
-                    Data.Kinto.NotRequested
-    in
+viewPublicVideo : String -> Data.PeerTube.Video -> H.Html msg
+viewPublicVideo peerTubeURL video =
     H.a
         [ HA.class "card"
-        , Route.href <| Route.Video video.id video.title
+        , Route.href <| Route.Video video.uuid video.name
         ]
         [ H.div
             [ HA.class "card__cover" ]
-            [ H.div
-                [ HA.class "new-video"
-                , HA.style "display" <|
-                    if isVideoRecent then
-                        "block"
-
-                    else
-                        "none"
-                ]
-                [ H.text "Nouveauté !" ]
-            , H.img
-                [ HA.alt video.title
-                , HA.src video.thumbnail
+            [ H.img
+                [ HA.alt video.name
+                , HA.src (peerTubeURL ++ video.thumbnailPath)
                 ]
                 []
             ]
-        , Page.Common.Video.kintoDetails timezone video profileData
-        , Page.Common.Video.keywords video.keywords
+        , Page.Common.Video.details video
+        , Page.Common.Video.keywords video.tags
         ]
