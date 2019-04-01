@@ -11,7 +11,6 @@ import Url.Parser as Parser exposing ((</>), Parser)
 
 type Route
     = Home
-    | PeerTube
     | PeerTubeAccount String
     | About
     | Participate
@@ -34,7 +33,6 @@ parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
-        , Parser.map PeerTube (Parser.s "peertube")
         , Parser.map PeerTubeAccount (Parser.s "peertube" </> Parser.s "profil" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
@@ -76,9 +74,6 @@ toString route =
             case route of
                 Home ->
                     []
-
-                PeerTube ->
-                    [ "peertube" ]
 
                 PeerTubeAccount accountName ->
                     [ "peertube", "profil", accountName ]

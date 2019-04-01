@@ -21,7 +21,6 @@ import Page.Home as Home
 import Page.Login as Login
 import Page.Newsletter as Newsletter
 import Page.Participate as Participate
-import Page.PeerTube as PeerTube
 import Page.PeerTubeAccount as PeerTubeAccount
 import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
@@ -44,7 +43,6 @@ type alias Flags =
 
 type Page
     = HomePage Home.Model
-    | PeerTubePage PeerTube.Model
     | PeerTubeAccountPage PeerTubeAccount.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
@@ -73,7 +71,6 @@ type alias Model =
 
 type Msg
     = HomeMsg Home.Msg
-    | PeerTubeMsg PeerTube.Msg
     | PeerTubeAccountMsg PeerTubeAccount.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
@@ -128,9 +125,6 @@ setRoute url oldModel =
 
         Just Route.Home ->
             toPage HomePage Home.init HomeMsg
-
-        Just Route.PeerTube ->
-            toPage PeerTubePage PeerTube.init PeerTubeMsg
 
         Just (Route.PeerTubeAccount accountName) ->
             toPage PeerTubeAccountPage (PeerTubeAccount.init accountName) PeerTubeAccountMsg
@@ -276,9 +270,6 @@ update msg ({ page, session } as model) =
     case ( msg, page ) of
         ( HomeMsg homeMsg, HomePage homeModel ) ->
             toPage HomePage HomeMsg (Home.update session) homeMsg homeModel
-
-        ( PeerTubeMsg peerTubeMsg, PeerTubePage peerTubeModel ) ->
-            toPage PeerTubePage PeerTubeMsg (PeerTube.update session) peerTubeMsg peerTubeModel
 
         ( PeerTubeAccountMsg peerTubeAccountMsg, PeerTubeAccountPage peerTubeAccountModel ) ->
             toPage PeerTubeAccountPage PeerTubeAccountMsg (PeerTubeAccount.update session) peerTubeAccountMsg peerTubeAccountModel
@@ -473,9 +464,6 @@ subscriptions model =
             HomePage _ ->
                 Sub.none
 
-            PeerTubePage _ ->
-                Sub.none
-
             PeerTubeAccountPage _ ->
                 Sub.none
 
@@ -553,11 +541,6 @@ view model =
             Home.view model.session homeModel
                 |> mapMsg HomeMsg
                 |> Page.frame (pageConfig Page.Home)
-
-        PeerTubePage peerTubeModel ->
-            PeerTube.view model.session peerTubeModel
-                |> mapMsg PeerTubeMsg
-                |> Page.frame (pageConfig Page.PeerTube)
 
         PeerTubeAccountPage peerTubeAccountModel ->
             PeerTubeAccount.view model.session peerTubeAccountModel
