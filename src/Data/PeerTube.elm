@@ -9,6 +9,7 @@ module Data.PeerTube exposing
     , VideoUploaded
     , accountDecoder
     , commentDecoder
+    , commentListDecoder
     , dataDecoder
     , emptyNewVideo
     , encodeComment
@@ -55,6 +56,8 @@ type alias Video =
     , uuid : String
     , description : String
     , account : Account
+    , publishedAt : String
+    , tags : List String
     }
 
 
@@ -129,6 +132,8 @@ videoDecoder =
         |> Pipeline.required "uuid" Decode.string
         |> Pipeline.optional "description" Decode.string ""
         |> Pipeline.required "account" accountDecoder
+        |> Pipeline.required "publishedAt" Decode.string
+        |> Pipeline.required "tags" (Decode.list Decode.string)
 
 
 userTokenDecoder : Decode.Decoder UserToken
@@ -195,6 +200,11 @@ commentDecoder =
         |> Pipeline.required "createdAt" Decode.string
         |> Pipeline.required "updatedAt" Decode.string
         |> Pipeline.required "account" accountDecoder
+
+
+commentListDecoder : Decode.Decoder (List Comment)
+commentListDecoder =
+    Decode.field "data" (Decode.list commentDecoder)
 
 
 
