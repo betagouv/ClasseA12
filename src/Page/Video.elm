@@ -30,8 +30,7 @@ import Url exposing (Url)
 type alias Model =
     { title : String
     , videoID : String
-    , video : Data.Kinto.KintoData Data.Kinto.Video
-    , videoAuthor : Data.Kinto.ProfileData
+    , videoData : Data.PeerTube.RemoteData Data.PeerTube.Video
     , videoTitle : String
     , comments : Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
     , comment : String
@@ -41,8 +40,7 @@ type alias Model =
 
 
 type Msg
-    = VideoReceived (Result Kinto.Error Data.Kinto.Video)
-    | VideoAuthorReceived (Result Kinto.Error Data.Kinto.Profile)
+    = VideoReceived (Result Http.Error Data.PeerTube.Video)
     | ShareVideo String
     | CommentsReceived (Result Http.Error (List Data.PeerTube.Comment))
     | UpdateCommentForm String
@@ -50,7 +48,6 @@ type Msg
     | CommentAdded (Result Http.Error Data.PeerTube.Comment)
     | CommentSelected String
     | NoOp
-    | VideoCanPlay
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -65,8 +62,7 @@ init videoID videoTitle session =
     in
     ( { title = title
       , videoID = videoID
-      , video = Data.Kinto.Requested
-      , videoAuthor = Data.Kinto.NotRequested
+      , videoData = Data.PeerTube.Requested
       , videoTitle = videoTitle
       , comments = Data.PeerTube.Requested
       , comment = ""
@@ -74,7 +70,7 @@ init videoID videoTitle session =
       , refreshing = False
       }
     , Cmd.batch
-        [ Request.KintoVideo.getVideo session.kintoURL videoID VideoReceived
+        [ Request.PeerTube.getVideo videoID session.peerTubeURL VideoReceived
         , Request.PeerTube.getVideoCommentList videoID session.peerTubeURL CommentsReceived
         ]
     )
@@ -87,21 +83,12 @@ update session msg model =
             ( model, Cmd.none )
 
         VideoReceived (Ok video) ->
-            ( { model | video = Data.Kinto.Received video }
-            , Cmd.batch
-                [ Request.KintoProfile.getProfile session.kintoURL video.profile VideoAuthorReceived
-                , scrollToComment session.url.fragment model
-                ]
+            ( { model | videoData = Data.PeerTube.Received video }
+            , scrollToComment session.url.fragment model
             )
 
         VideoReceived (Err error) ->
-            ( { model | video = Data.Kinto.Failed error }, Cmd.none )
-
-        VideoAuthorReceived (Ok profile) ->
-            ( { model | videoAuthor = Data.Kinto.Received profile }, Cmd.none )
-
-        VideoAuthorReceived (Err error) ->
-            ( { model | videoAuthor = Data.Kinto.Failed error }, Cmd.none )
+            ( { model | videoData = Data.PeerTube.Failed "Échec de la récupération de la vidéo" }, Cmd.none )
 
         ShareVideo shareText ->
             ( model, Ports.navigatorShare shareText )
@@ -153,15 +140,10 @@ update session msg model =
         CommentSelected commentID ->
             ( model, scrollToComment (Just commentID) model )
 
-        VideoCanPlay ->
-            ( model
-            , scrollToComment session.url.fragment model
-            )
-
 
 scrollToComment : Maybe String -> Model -> Cmd Msg
 scrollToComment maybeCommentID model =
-    if model.comments /= Data.PeerTube.Requested && model.video /= Data.Kinto.Requested then
+    if model.comments /= Data.PeerTube.Requested && model.videoData /= Data.PeerTube.Requested then
         -- Only scroll to the selected comment if we received both the video and the comments.
         case maybeCommentID of
             Just commentID ->
@@ -180,19 +162,19 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, navigatorShare, staticFiles, url, userInfo } { title, video, comments, comment, commentData, refreshing, videoAuthor } =
+view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoData, comments, comment, commentData, refreshing } =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
                 [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []
                 , H.h1 [] [ H.text "Vidéo" ]
-                , viewTitle video
+                , viewTitle videoData
                 ]
             ]
       , H.div [ HA.class "main" ]
             [ H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
-                    [ viewVideo timezone url navigatorShare video videoAuthor
+                    [ viewVideo peerTubeURL url navigatorShare videoData
                     ]
                 , H.div [ HA.class "container" ]
                     [ viewComments comments
@@ -211,34 +193,34 @@ view { timezone, navigatorShare, staticFiles, url, userInfo } { title, video, co
     )
 
 
-viewTitle : Data.Kinto.KintoData Data.Kinto.Video -> H.Html Msg
+viewTitle : Data.PeerTube.RemoteData Data.PeerTube.Video -> H.Html Msg
 viewTitle videoData =
     case videoData of
-        Data.Kinto.Received video ->
-            H.p [] [ H.text video.title ]
+        Data.PeerTube.Received video ->
+            H.p [] [ H.text video.name ]
 
         _ ->
             H.p [] []
 
 
-viewVideo : Time.Zone -> Url -> Bool -> Data.Kinto.KintoData Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html Msg
-viewVideo timezone url navigatorShare videoData profileData =
+viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> H.Html Msg
+viewVideo peerTubeURL url navigatorShare videoData =
     case videoData of
-        Data.Kinto.Received video ->
-            viewVideoDetails timezone url navigatorShare video profileData
+        Data.PeerTube.Received video ->
+            viewVideoDetails peerTubeURL url navigatorShare video
 
-        Data.Kinto.Requested ->
+        Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
 
         _ ->
             H.p [] [ H.text "Vidéo non trouvée" ]
 
 
-viewVideoDetails : Time.Zone -> Url -> Bool -> Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html Msg
-viewVideoDetails timezone url navigatorShare video profileData =
+viewVideoDetails : String -> Url -> Bool -> Data.PeerTube.Video -> H.Html Msg
+viewVideoDetails peerTubeURL url navigatorShare video =
     let
         shareText =
-            "Vidéo sur Classe à 12 : " ++ video.title
+            "Vidéo sur Classe à 12 : " ++ video.name
 
         shareUrl =
             Url.toString url
@@ -302,9 +284,14 @@ viewVideoDetails timezone url navigatorShare video profileData =
     in
     H.div
         []
-        [ Page.Common.Video.player VideoCanPlay video.attachment
-        , Page.Common.Video.details timezone video profileData
-        , Page.Common.Video.keywords video
+        [ H.embed
+            [ HA.src (peerTubeURL ++ video.embedPath)
+            , HA.width 1000
+            , HA.height 800
+            ]
+            []
+        , Page.Common.Video.details video
+        , Page.Common.Video.keywords video.tags
         , shareButtons
         ]
 

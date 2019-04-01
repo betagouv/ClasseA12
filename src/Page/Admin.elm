@@ -330,8 +330,8 @@ viewVideo timezone publishingVideos videoAuthorsData video =
                 ]
                 []
             ]
-        , Page.Common.Video.details timezone video profileData
-        , Page.Common.Video.keywords video
+        , Page.Common.Video.kintoDetails timezone video profileData
+        , Page.Common.Video.keywords video.keywords
         , publishNode
         ]
 

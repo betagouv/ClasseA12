@@ -1,6 +1,7 @@
-module Page.Common.Video exposing (details, keywords, player)
+module Page.Common.Video exposing (details, keywords, kintoDetails, player)
 
 import Data.Kinto
+import Data.PeerTube
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -25,8 +26,8 @@ player canplayMessage attachment =
         [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
 
 
-details : Time.Zone -> Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html msg
-details timezone video profileData =
+kintoDetails : Time.Zone -> Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html msg
+kintoDetails timezone video profileData =
     let
         authorName =
             case profileData of
@@ -48,10 +49,24 @@ details timezone video profileData =
         ]
 
 
-keywords : Data.Kinto.Video -> H.Html msg
-keywords video =
-    if video.keywords /= [] then
-        video.keywords
+details : Data.PeerTube.Video -> H.Html msg
+details video =
+    H.div
+        [ HA.class "video-details" ]
+        [ H.h3 [] [ H.text video.name ]
+        , H.div []
+            [ H.time [] [ H.text video.publishedAt ]
+            , H.text " "
+            , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
+            ]
+        , Markdown.toHtml [] video.description
+        ]
+
+
+keywords : List String -> H.Html msg
+keywords keywordList =
+    if keywordList /= [] then
+        keywordList
             |> List.map
                 (\keyword ->
                     H.div [ HA.class "label" ]

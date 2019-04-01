@@ -18,6 +18,7 @@ import Data.PeerTube
         , Video
         , accountDecoder
         , commentDecoder
+        , commentListDecoder
         , dataDecoder
         , userInfoDecoder
         , userTokenDecoder
@@ -188,7 +189,7 @@ videoCommentListRequest videoID serverURL =
         url =
             serverURL ++ "/api/v1/videos/" ++ videoID ++ "/comment-threads"
     in
-    Http.get url (Decode.list commentDecoder)
+    Http.get url commentListDecoder
 
 
 getVideoCommentList : String -> String -> (Result Http.Error (List Comment) -> msg) -> Cmd msg

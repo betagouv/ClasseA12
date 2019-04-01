@@ -258,6 +258,6 @@ viewPublicVideo timezone timestamp video authorsData =
                 ]
                 []
             ]
-        , Page.Common.Video.details timezone video profileData
-        , Page.Common.Video.keywords video
+        , Page.Common.Video.kintoDetails timezone video profileData
+        , Page.Common.Video.keywords video.keywords
         ]
