@@ -73,7 +73,7 @@ accountRequest : String -> String -> Http.Request Account
 accountRequest accountName serverURL =
     let
         url =
-            serverURL ++ "/accounts/" ++ accountName
+            serverURL ++ "/api/v1/accounts/" ++ accountName
     in
     Http.get url accountDecoder
 
@@ -153,13 +153,20 @@ updateUserAccountRequest displayName description access_token serverURL =
                 ]
                 |> Http.jsonBody
 
+        account : Data.PeerTube.Account
+        account =
+            { name = ""
+            , displayName = displayName
+            , description = description
+            }
+
         request : Request Account
         request =
             { method = "PUT"
             , headers = []
             , url = url
             , body = body
-            , expect = Http.expectJson accountDecoder
+            , expect = Http.expectStringResponse (\_ -> Ok account)
             , timeout = Nothing
             , withCredentials = False
             }
