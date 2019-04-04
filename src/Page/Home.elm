@@ -147,7 +147,7 @@ viewPublicVideo peerTubeURL video =
             [ HA.class "card__cover" ]
             [ H.img
                 [ HA.alt video.name
-                , HA.src (peerTubeURL ++ video.thumbnailPath)
+                , HA.src (peerTubeURL ++ video.previewPath)
                 ]
                 []
             ]

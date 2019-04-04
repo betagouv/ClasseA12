@@ -14,8 +14,8 @@ from progressist import ProgressBar
 
 ROOT = Path(".cache")
 KINTO_URL = "https://kinto.classea12.beta.gouv.fr"
-# PEERTUBE_URL = "http://peertube.local/api/v1"
-PEERTUBE_URL = "https://peertube.scopyleft.fr/api/v1"
+PEERTUBE_BASE_URL = os.environ.get("PEERTUBE_URL", "https://peertube.scopyleft.fr")
+PEERTUBE_URL = f"{PEERTUBE_BASE_URL}/api/v1"
 PEERTUBE_USER = "classea12"
 PEERTUBE_PASSWORD = os.environ.get("PEERTUBE_PASSWORD", "")
 
@@ -95,7 +95,9 @@ class Video:
         if not dest.exists() or force:
             urlretrieve(self.thumbnail, dest)
             # PeerTube only accept jpeg.
-            Image.open(dest).convert("RGB").save(dest, "JPEG")
+            Image.open(dest).convert("RGB").save(
+                dest, "JPEG", quality=95, subsampling=0
+            )
         self.attachment.download(force=force)
 
     def get_thumbnail_file(self):
@@ -187,6 +189,11 @@ def push(limit=1):
                 video.attachment.get_filename(),
                 open(video.attachment.get_file(), "rb"),
                 video.attachment.mimetype,
+            ),
+            "previewfile": (
+                video.get_thumbnail_filename(),
+                open(video.get_thumbnail_file(), "rb"),
+                "image/jpeg",
             ),
             "thumbnailfile": (
                 video.get_thumbnail_filename(),
