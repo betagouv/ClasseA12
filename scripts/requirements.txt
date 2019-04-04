@@ -1,0 +1,4 @@
+minicli
+requests
+pillow
+progressist
