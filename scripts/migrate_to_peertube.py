@@ -183,6 +183,7 @@ def push(limit=1):
             "description": video.description,
             "privacy": 1,
             "tags[]": [k[:30] for k in video.keywords[:5]],
+            "commentsEnabled": True,
         }
         files = {
             "videofile": (
