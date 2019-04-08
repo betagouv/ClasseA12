@@ -1,7 +1,9 @@
 module Page.Home exposing (Model, Msg(..), init, update, view)
 
+import Data.Kinto
 import Data.PeerTube
 import Data.Session exposing (Session)
+import Dict
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -18,22 +20,46 @@ import Time
 type alias Model =
     { title : String
     , search : String
-    , videoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+    , recentVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+    , videoData : Dict.Dict String (Data.PeerTube.RemoteData (List Data.PeerTube.Video))
     }
 
 
 type Msg
     = UpdateSearch String
-    | VideoListReceived (Result Http.Error (List Data.PeerTube.Video))
+    | RecentVideoListReceived (Result Http.Error (List Data.PeerTube.Video))
+    | VideoListReceived String (Result Http.Error (List Data.PeerTube.Video))
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
+    let
+        keywordList =
+            Data.Kinto.keywordList
+                |> List.map (\( keyword, _ ) -> keyword)
+    in
     ( { title = "Liste des vidéos"
       , search = ""
-      , videoData = Data.PeerTube.Requested
+      , recentVideoData = Data.PeerTube.Requested
+      , videoData =
+            keywordList
+                |> List.foldl
+                    (\keyword videoData ->
+                        videoData
+                            |> Dict.insert keyword Data.PeerTube.Requested
+                    )
+                    Dict.empty
       }
-    , Request.PeerTube.getVideoList session.peerTubeURL VideoListReceived
+    , Cmd.batch
+        ([ Request.PeerTube.getRecentVideoList session.peerTubeURL RecentVideoListReceived
+         ]
+            ++ (keywordList
+                    |> List.map
+                        (\keyword ->
+                            Request.PeerTube.getVideoList keyword session.peerTubeURL (VideoListReceived keyword)
+                        )
+               )
+        )
     )
 
 
@@ -43,17 +69,97 @@ update session msg model =
         UpdateSearch newSearch ->
             ( { model | search = newSearch }, Cmd.none )
 
-        VideoListReceived (Ok videoList) ->
-            ( { model | videoData = Data.PeerTube.Received videoList }
+        RecentVideoListReceived (Ok videoList) ->
+            ( { model | recentVideoData = Data.PeerTube.Received videoList }
             , Cmd.none
             )
 
-        VideoListReceived (Err error) ->
-            ( { model | videoData = Data.PeerTube.Failed "Échec de la récupération des vidéos" }, Cmd.none )
+        RecentVideoListReceived (Err error) ->
+            ( { model | recentVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos" }, Cmd.none )
+
+        VideoListReceived keyword (Ok videoList) ->
+            ( { model
+                | videoData =
+                    Dict.insert
+                        keyword
+                        (Data.PeerTube.Received videoList)
+                        model.videoData
+              }
+            , Cmd.none
+            )
+
+        VideoListReceived keyword (Err error) ->
+            ( { model
+                | videoData =
+                    Dict.insert
+                        keyword
+                        (Data.PeerTube.Failed "Échec de la récupération des vidéos")
+                        model.videoData
+              }
+            , Cmd.none
+            )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { staticFiles, peerTubeURL } ({ title, search, videoData } as model) =
+view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
+    let
+        viewRecentVideo =
+            case recentVideoData of
+                Data.PeerTube.NotRequested ->
+                    []
+
+                Data.PeerTube.Requested ->
+                    [ H.section [ HA.class "section section-grey cards" ]
+                        [ H.div [ HA.class "container" ]
+                            [ H.div [ HA.class "row" ]
+                                [ H.h1 [] [ H.text "Nouveautés" ]
+                                , H.text "Chargement des vidéos..."
+                                ]
+                            ]
+                        ]
+                    ]
+
+                Data.PeerTube.Received videoList ->
+                    viewVideoList "Nouveautés" peerTubeURL videoList
+
+                Data.PeerTube.Failed error ->
+                    [ H.section [ HA.class "section section-white" ]
+                        [ H.div [ HA.class "container" ]
+                            [ H.text error ]
+                        ]
+                    ]
+
+        viewVideoCategories =
+            videoData
+                |> Dict.toList
+                |> List.concatMap
+                    (\( keyword, remoteData ) ->
+                        case remoteData of
+                            Data.PeerTube.NotRequested ->
+                                []
+
+                            Data.PeerTube.Requested ->
+                                [ H.section [ HA.class "section section-grey cards" ]
+                                    [ H.div [ HA.class "container" ]
+                                        [ H.div [ HA.class "row" ]
+                                            [ H.h1 [] [ H.text keyword ]
+                                            , H.text "Chargement des vidéos..."
+                                            ]
+                                        ]
+                                    ]
+                                ]
+
+                            Data.PeerTube.Received videoList ->
+                                viewVideoList keyword peerTubeURL videoList
+
+                            Data.PeerTube.Failed error ->
+                                [ H.section [ HA.class "section section-white" ]
+                                    [ H.div [ HA.class "container" ]
+                                        [ H.text error ]
+                                    ]
+                                ]
+                    )
+    in
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__banner" ] []
@@ -70,26 +176,8 @@ view { staticFiles, peerTubeURL } ({ title, search, videoData } as model) =
                 ]
             ]
       , H.div [ HA.class "main" ]
-            (case videoData of
-                Data.PeerTube.NotRequested ->
-                    []
-
-                Data.PeerTube.Requested ->
-                    [ H.section [ HA.class "section section-white" ]
-                        [ H.div [ HA.class "container" ]
-                            [ H.text "Chargement des vidéos..." ]
-                        ]
-                    ]
-
-                Data.PeerTube.Received videoList ->
-                    viewVideoList peerTubeURL model videoList
-
-                Data.PeerTube.Failed error ->
-                    [ H.section [ HA.class "section section-white" ]
-                        [ H.div [ HA.class "container" ]
-                            [ H.text error ]
-                        ]
-                    ]
+            (viewRecentVideo
+                ++ viewVideoCategories
             )
       ]
     )
@@ -97,10 +185,10 @@ view { staticFiles, peerTubeURL } ({ title, search, videoData } as model) =
 
 viewVideoList :
     String
-    -> { a | search : String }
+    -> String
     -> List Data.PeerTube.Video
     -> List (H.Html Msg)
-viewVideoList peerTubeURL { search } videoList =
+viewVideoList title peerTubeURL videoList =
     let
         videoCards =
             if videoList /= [] then
@@ -108,29 +196,15 @@ viewVideoList peerTubeURL { search } videoList =
                     |> List.map (\video -> viewPublicVideo peerTubeURL video)
 
             else
-                [ H.text "Pas de vidéos trouvée" ]
+                [ H.text "Aucune vidéo pour le moment" ]
     in
-    [ H.section [ HA.class "section section-white" ]
-        [ H.div [ HA.class "container" ]
-            [ H.div
-                [ HA.class "form__group light-background" ]
-                [ H.label [ HA.for "search" ]
-                    [ H.text "Filtrer par mot clé :" ]
-                , H.div [ HA.class "search__group" ]
-                    [ H.input
-                        [ HA.id "keywords"
-                        , HA.value search
-                        , HA.placeholder "Lecture, Mathématiques, ..."
-                        , Page.Common.Components.onChange UpdateSearch
-                        ]
-                        []
-                    ]
-                ]
-            ]
-        ]
-    , H.section [ HA.class "section section-grey cards" ]
+    [ H.section [ HA.class "section section-grey cards" ]
         [ H.div [ HA.class "container" ]
             [ H.div [ HA.class "row" ]
+                [ H.h1 [] [ H.text title ]
+                , H.a [ HA.href "#" ] [ H.text "Afficher plus de vidéos" ]
+                ]
+            , H.div [ HA.class "row" ]
                 videoCards
             ]
         ]

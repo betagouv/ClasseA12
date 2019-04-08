@@ -1,5 +1,6 @@
 module Request.PeerTube exposing
     ( getAccount
+    , getRecentVideoList
     , getUserInfo
     , getVideo
     , getVideoCommentList
@@ -41,18 +42,32 @@ type alias Request a =
     }
 
 
-videoListRequest : String -> Http.Request (List Video)
-videoListRequest serverURL =
+recentVideoListRequest : String -> Http.Request (List Video)
+recentVideoListRequest serverURL =
     let
         url =
-            serverURL ++ "/api/v1/video-channels/classea12_channel/videos"
+            serverURL ++ "/api/v1/search/videos?start=0&count=8&categoryOneOf=13&sort=-publishedAt"
     in
     Http.get url dataDecoder
 
 
-getVideoList : String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
-getVideoList serverURL message =
-    Http.send message (videoListRequest serverURL)
+getRecentVideoList : String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getRecentVideoList serverURL message =
+    Http.send message (recentVideoListRequest serverURL)
+
+
+videoListRequest : String -> String -> Http.Request (List Video)
+videoListRequest tag serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/search/videos?start=0&count=8&categoryOneOf=13&tagsOneOf=" ++ tag
+    in
+    Http.get url dataDecoder
+
+
+getVideoList : String -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getVideoList tag serverURL message =
+    Http.send message (videoListRequest tag serverURL)
 
 
 videoRequest : String -> String -> Http.Request Video
