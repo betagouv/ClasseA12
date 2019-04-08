@@ -180,10 +180,12 @@ def push(limit=1):
         data = {
             "name": video.title,
             "channelId": channel_id,
-            "description": video.description,
+            # PeerTube does not allow empty description.
+            "description": video.description or video.title,
             "privacy": 1,
             "tags[]": [k[:30] for k in video.keywords[:5]],
             "commentsEnabled": True,
+            "category": 13
         }
         files = {
             "videofile": (
