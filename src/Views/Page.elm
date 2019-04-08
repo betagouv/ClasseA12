@@ -10,6 +10,7 @@ import Route
 
 type ActivePage
     = Home
+    | Search
     | PeerTube
     | PeerTubeVideo
     | PeerTubeAccount

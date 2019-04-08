@@ -26,6 +26,7 @@ import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
 import Page.Register as Register
 import Page.ResetPassword as ResetPassword
+import Page.Search as Search
 import Page.SetNewPassword as SetNewPassword
 import Page.Video as Video
 import Platform.Sub
@@ -43,6 +44,7 @@ type alias Flags =
 
 type Page
     = HomePage Home.Model
+    | SearchPage Search.Model
     | PeerTubeAccountPage PeerTubeAccount.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
@@ -71,6 +73,7 @@ type alias Model =
 
 type Msg
     = HomeMsg Home.Msg
+    | SearchMsg Search.Msg
     | PeerTubeAccountMsg PeerTubeAccount.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
@@ -125,6 +128,9 @@ setRoute url oldModel =
 
         Just Route.Home ->
             toPage HomePage Home.init HomeMsg
+
+        Just (Route.Search search) ->
+            toPage SearchPage (Search.init search) SearchMsg
 
         Just (Route.PeerTubeAccount accountName) ->
             toPage PeerTubeAccountPage (PeerTubeAccount.init accountName) PeerTubeAccountMsg
@@ -270,6 +276,9 @@ update msg ({ page, session } as model) =
     case ( msg, page ) of
         ( HomeMsg homeMsg, HomePage homeModel ) ->
             toPage HomePage HomeMsg (Home.update session) homeMsg homeModel
+
+        ( SearchMsg searchMsg, SearchPage searchModel ) ->
+            toPage SearchPage SearchMsg (Search.update session) searchMsg searchModel
 
         ( PeerTubeAccountMsg peerTubeAccountMsg, PeerTubeAccountPage peerTubeAccountModel ) ->
             toPage PeerTubeAccountPage PeerTubeAccountMsg (PeerTubeAccount.update session) peerTubeAccountMsg peerTubeAccountModel
@@ -464,6 +473,9 @@ subscriptions model =
             HomePage _ ->
                 Sub.none
 
+            SearchPage _ ->
+                Sub.none
+
             PeerTubeAccountPage _ ->
                 Sub.none
 
@@ -541,6 +553,11 @@ view model =
             Home.view model.session homeModel
                 |> mapMsg HomeMsg
                 |> Page.frame (pageConfig Page.Home)
+
+        SearchPage searchModel ->
+            Search.view model.session searchModel
+                |> mapMsg SearchMsg
+                |> Page.frame (pageConfig Page.Search)
 
         PeerTubeAccountPage peerTubeAccountModel ->
             PeerTubeAccount.view model.session peerTubeAccountModel

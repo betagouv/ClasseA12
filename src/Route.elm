@@ -6,11 +6,13 @@ import Html exposing (Attribute)
 import Html.Attributes as Attr
 import String.Normalize
 import Url exposing (Url)
-import Url.Parser as Parser exposing ((</>), Parser)
+import Url.Parser as Parser exposing ((</>), (<?>), Parser)
+import Url.Parser.Query as Query
 
 
 type Route
     = Home
+    | Search (Maybe String)
     | PeerTubeAccount String
     | About
     | Participate
@@ -33,6 +35,7 @@ parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
+        , Parser.map Search (Parser.s "recherche" <?> Query.string "categorie")
         , Parser.map PeerTubeAccount (Parser.s "peertube" </> Parser.s "profil" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
@@ -74,6 +77,14 @@ toString route =
             case route of
                 Home ->
                     []
+
+                Search search ->
+                    search
+                        |> Maybe.map
+                            (\justSearch ->
+                                [ "recherche?categorie=" ++ justSearch ]
+                            )
+                        |> Maybe.withDefault [ "recherche" ]
 
                 PeerTubeAccount accountName ->
                     [ "peertube", "profil", accountName ]
