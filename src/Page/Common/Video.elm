@@ -81,7 +81,9 @@ keywords keywordList =
             |> List.map
                 (\keyword ->
                     H.div [ HA.class "label" ]
-                        [ H.text keyword ]
+                        [ H.a [ Route.href <| Route.Search (Just keyword) ]
+                            [ H.text keyword ]
+                        ]
                 )
             |> H.div [ HA.class "video-keywords" ]
 

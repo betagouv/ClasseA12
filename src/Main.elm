@@ -93,6 +93,8 @@ type Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | AdjustTimeZone Time.Zone
+    | UpdateSearch String
+    | SubmitSearch
 
 
 setRoute : Url -> Model -> ( Model, Cmd Msg )
@@ -245,6 +247,7 @@ init flags url navKey =
             , prevUrl = url
             , userToken = userToken
             , userInfo = userInfo
+            , search = ""
             }
 
         ( routeModel, routeCmd ) =
@@ -421,6 +424,16 @@ update msg ({ page, session } as model) =
             in
             ( { model | session = { modelSession | timezone = zone } }, Cmd.none )
 
+        ( UpdateSearch search, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | search = search } }, Cmd.none )
+
+        ( SubmitSearch, _ ) ->
+            ( model, Route.pushUrl model.navKey (Route.Search <| Just model.session.search) )
+
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -543,7 +556,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session
+            Page.Config model.session UpdateSearch SubmitSearch
 
         mapMsg msg ( title, content ) =
             ( title, content |> List.map (Html.map msg) )

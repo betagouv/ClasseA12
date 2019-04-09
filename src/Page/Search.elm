@@ -10,6 +10,7 @@ import Page.Common.Components
 import Page.Common.Video
 import Request.PeerTube
 import Route
+import Url
 
 
 type alias Model =
@@ -35,11 +36,17 @@ init search session =
             )
 
         Just keyword ->
-            ( { title = "Liste des vidéos dans la catégorie " ++ keyword
-              , keyword = keyword
+            let
+                decoded =
+                    keyword
+                        |> Url.percentDecode
+                        |> Maybe.withDefault ""
+            in
+            ( { title = "Liste des vidéos dans la catégorie " ++ decoded
+              , keyword = decoded
               , videoListData = Data.PeerTube.Requested
               }
-            , Request.PeerTube.getVideoList keyword session.peerTubeURL (VideoListReceived keyword)
+            , Request.PeerTube.getVideoList keyword session.peerTubeURL (VideoListReceived decoded)
             )
 
 
@@ -143,6 +150,5 @@ viewPublicVideo peerTubeURL video =
                 ]
                 []
             ]
-        , Page.Common.Video.details video
-        , Page.Common.Video.keywords video.tags
+        , Page.Common.Video.shortDetails video
         ]

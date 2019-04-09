@@ -32,6 +32,7 @@ type alias Session =
     , prevUrl : Url
     , userInfo : Maybe Data.PeerTube.UserInfo
     , userToken : Maybe Data.PeerTube.UserToken
+    , search : String
     }
 
 

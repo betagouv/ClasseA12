@@ -3,8 +3,8 @@ module Views.Page exposing (ActivePage(..), Config, frame)
 import Browser exposing (Document)
 import Data.Session exposing (Session, isPeerTubeLoggedIn)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, href, src, title)
-import Html.Events exposing (onClick)
+import Html.Attributes exposing (alt, class, classList, href, placeholder, src, title, type_, value)
+import Html.Events exposing (onInput, onSubmit)
 import Route
 
 
@@ -32,13 +32,15 @@ type ActivePage
     | NotFound
 
 
-type alias Config =
+type alias Config msg =
     { session : Session
+    , updateSearchMsg : String -> msg
+    , submitSearchMsg : msg
     , activePage : ActivePage
     }
 
 
-frame : Config -> ( String, List (Html.Html msg) ) -> Document msg
+frame : Config msg -> ( String, List (Html.Html msg) ) -> Document msg
 frame config ( title, content ) =
     { title = title ++ " | Classe à 12"
     , body =
@@ -48,8 +50,8 @@ frame config ( title, content ) =
     }
 
 
-viewHeader : Config -> Html msg
-viewHeader { activePage, session } =
+viewHeader : Config msg -> Html msg
+viewHeader { activePage, session, updateSearchMsg, submitSearchMsg } =
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
@@ -104,14 +106,21 @@ viewHeader { activePage, session } =
             , nav
                 []
                 [ ul [ class "nav__links" ]
-                    [ linkMaybeActive Home Route.Home "Nos vidéos"
-                    , linkMaybeActive About Route.About "Classe à 12 ?"
-                    , linkMaybeActive Participate Route.Participate "Je participe !"
-                    , li [ class "nav__item" ]
-                        [ a [ href "mailto:classea12@education.gouv.fr?subject=Classes à 12 sur beta.gouv.fr" ]
-                            [ text "Contactez-nous" ]
+                    [ li [ class "nav__item" ]
+                        [ form [ onSubmit submitSearchMsg ]
+                            [ div [ class "search__group" ]
+                                [ input
+                                    [ type_ "search"
+                                    , value session.search
+                                    , onInput updateSearchMsg
+                                    , placeholder "Exemple : Français"
+                                    ]
+                                    []
+                                , button [ class "overlay-button" ]
+                                    [ i [ class "fas fa-search" ] [] ]
+                                ]
+                            ]
                         ]
-                    , linkMaybeActive Newsletter Route.Newsletter "Inscrivez-vous à notre infolettre"
                     , li [ class "nav__item" ] [ loginProfileIcon ]
                     ]
                 ]
