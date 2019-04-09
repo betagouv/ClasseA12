@@ -12,9 +12,8 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import Kinto
 import Markdown
-import Page.Common.Components
-import Page.Common.Dates
-import Page.Common.Progress
+import Page.Common.Components as Components
+import Page.Common.Dates as Dates
 import Page.Common.Video
 import Ports
 import Request.Kinto
@@ -332,7 +331,7 @@ viewCommentDetails comment =
             , HA.class "comment-link"
             , HE.onClick <| CommentSelected commentID
             ]
-            [ H.time [] [ H.text comment.createdAt ]
+            [ H.time [] [ H.text <| Dates.formatStringDatetime comment.createdAt ]
             ]
         , H.a
             [ Route.href <| Route.Profile comment.account.name
@@ -351,7 +350,7 @@ viewCommentForm :
     -> H.Html Msg
 viewCommentForm comment userInfo refreshing commentData =
     if not <| Data.Session.isPeerTubeLoggedIn userInfo then
-        Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+        Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
     else
         let
@@ -362,16 +361,16 @@ viewCommentForm comment userInfo refreshing commentData =
                 if formComplete then
                     case commentData of
                         Data.PeerTube.Requested ->
-                            Page.Common.Components.Loading
+                            Components.Loading
 
                         _ ->
-                            Page.Common.Components.NotLoading
+                            Components.NotLoading
 
                 else
-                    Page.Common.Components.Disabled
+                    Components.Disabled
 
             submitButton =
-                Page.Common.Components.submitButton "Ajouter cette contribution" buttonState
+                Components.submitButton "Ajouter cette contribution" buttonState
         in
         H.div []
             [ H.form

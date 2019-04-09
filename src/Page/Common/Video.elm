@@ -1,4 +1,4 @@
-module Page.Common.Video exposing (details, keywords, kintoDetails, player)
+module Page.Common.Video exposing (details, keywords, kintoDetails, player, shortDetails)
 
 import Data.Kinto
 import Data.PeerTube
@@ -7,7 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as Decode
 import Markdown
-import Page.Common.Dates
+import Page.Common.Dates as Dates
 import Route
 import Time
 
@@ -41,7 +41,7 @@ kintoDetails timezone video profileData =
         [ HA.class "video-details" ]
         [ H.h3 [] [ H.text video.title ]
         , H.div []
-            [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone video.creation_date ]
+            [ H.time [] [ H.text <| Dates.posixToDate timezone video.creation_date ]
             , H.text " "
             , H.a [ Route.href <| Route.Profile video.profile ] [ H.text authorName ]
             ]
@@ -55,11 +55,22 @@ details video =
         [ HA.class "video-details" ]
         [ H.h3 [] [ H.text video.name ]
         , H.div []
-            [ H.time [] [ H.text video.publishedAt ]
+            [ H.time [] [ H.text <| Dates.formatStringDate video.publishedAt ]
             , H.text " "
             , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
             ]
         , Markdown.toHtml [] video.description
+        ]
+
+
+shortDetails : Data.PeerTube.Video -> H.Html msg
+shortDetails video =
+    H.div
+        [ HA.class "video-details" ]
+        [ H.h3 [] [ H.text video.name ]
+        , H.div []
+            [ H.time [] [ H.text <| Dates.formatStringDate video.publishedAt ]
+            ]
         ]
 
 

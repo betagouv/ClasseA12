@@ -110,20 +110,20 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
                             [ H.i [ HA.class "fas fa-angle-right" ] []
                             ]
                         ]
-                    , H.div []
-                        [ case recentVideoData of
-                            Data.PeerTube.NotRequested ->
-                                H.text ""
+                    ]
+                , H.div []
+                    [ case recentVideoData of
+                        Data.PeerTube.NotRequested ->
+                            H.text ""
 
-                            Data.PeerTube.Requested ->
-                                H.text "Chargement des vidéos..."
+                        Data.PeerTube.Requested ->
+                            H.text "Chargement des vidéos..."
 
-                            Data.PeerTube.Received videoList ->
-                                viewVideoList "Nouveautés" peerTubeURL videoList
+                        Data.PeerTube.Received videoList ->
+                            viewVideoList "Nouveautés" peerTubeURL videoList
 
-                            Data.PeerTube.Failed error ->
-                                H.text error
-                        ]
+                        Data.PeerTube.Failed error ->
+                            H.text error
                     ]
                 ]
             ]
@@ -146,20 +146,20 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
                                         [ H.i [ HA.class "fas fa-angle-right" ] []
                                         ]
                                     ]
-                                , H.div []
-                                    [ case remoteData of
-                                        Data.PeerTube.NotRequested ->
-                                            H.text ""
+                                ]
+                            , H.div []
+                                [ case remoteData of
+                                    Data.PeerTube.NotRequested ->
+                                        H.text ""
 
-                                        Data.PeerTube.Requested ->
-                                            H.text "Chargement des vidéos..."
+                                    Data.PeerTube.Requested ->
+                                        H.text "Chargement des vidéos..."
 
-                                        Data.PeerTube.Received videoList ->
-                                            viewVideoList keyword peerTubeURL videoList
+                                    Data.PeerTube.Received videoList ->
+                                        viewVideoList keyword peerTubeURL videoList
 
-                                        Data.PeerTube.Failed error ->
-                                            H.text error
-                                    ]
+                                    Data.PeerTube.Failed error ->
+                                        H.text error
                                 ]
                             ]
                     )
@@ -231,6 +231,5 @@ viewPublicVideo peerTubeURL video =
                 ]
                 []
             ]
-        , Page.Common.Video.details video
-        , Page.Common.Video.keywords video.tags
+        , Page.Common.Video.shortDetails video
         ]
