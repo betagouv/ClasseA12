@@ -101,60 +101,63 @@ view : Session -> Model -> ( String, List (H.Html Msg) )
 view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
     let
         viewRecentVideo =
-            case recentVideoData of
-                Data.PeerTube.NotRequested ->
-                    []
-
-                Data.PeerTube.Requested ->
-                    [ H.section [ HA.class "section section-grey cards" ]
-                        [ H.div [ HA.class "container" ]
-                            [ H.div [ HA.class "row" ]
-                                [ H.h1 [] [ H.text "Nouveautés" ]
-                                , H.text "Chargement des vidéos..."
-                                ]
+            [ H.div [ HA.class "panel" ]
+                [ H.div [ HA.class "panel-header", HA.id "category-Nouveautés" ]
+                    [ H.h3 []
+                        [ H.text "Nouveautés"
+                        , H.text " "
+                        , H.a [ Route.href <| Route.Search Nothing ]
+                            [ H.i [ HA.class "fas fa-angle-right" ] []
                             ]
                         ]
-                    ]
+                    , H.div []
+                        [ case recentVideoData of
+                            Data.PeerTube.NotRequested ->
+                                H.text ""
 
-                Data.PeerTube.Received videoList ->
-                    viewVideoList "Nouveautés" peerTubeURL videoList
+                            Data.PeerTube.Requested ->
+                                H.text "Chargement des vidéos..."
 
-                Data.PeerTube.Failed error ->
-                    [ H.section [ HA.class "section section-white" ]
-                        [ H.div [ HA.class "container" ]
-                            [ H.text error ]
+                            Data.PeerTube.Received videoList ->
+                                viewVideoList "Nouveautés" peerTubeURL videoList
+
+                            Data.PeerTube.Failed error ->
+                                H.text error
                         ]
                     ]
+                ]
+            ]
 
         viewVideoCategories =
             videoData
                 |> Dict.toList
-                |> List.concatMap
+                |> List.map
                     (\( keyword, remoteData ) ->
-                        case remoteData of
-                            Data.PeerTube.NotRequested ->
-                                []
-
-                            Data.PeerTube.Requested ->
-                                [ H.section [ HA.class "section section-grey cards" ]
-                                    [ H.div [ HA.class "container" ]
-                                        [ H.div [ HA.class "row" ]
-                                            [ H.h1 [] [ H.text keyword ]
-                                            , H.text "Chargement des vidéos..."
-                                            ]
+                        H.div [ HA.class "panel" ]
+                            [ H.div [ HA.class "panel-header", HA.id <| "category-" ++ keyword ]
+                                [ H.h3 []
+                                    [ H.text keyword
+                                    , H.text " "
+                                    , H.a [ Route.href <| Route.Search <| Just keyword ]
+                                        [ H.i [ HA.class "fas fa-angle-right" ] []
                                         ]
                                     ]
-                                ]
+                                , H.div []
+                                    [ case remoteData of
+                                        Data.PeerTube.NotRequested ->
+                                            H.text ""
 
-                            Data.PeerTube.Received videoList ->
-                                viewVideoList keyword peerTubeURL videoList
+                                        Data.PeerTube.Requested ->
+                                            H.text "Chargement des vidéos..."
 
-                            Data.PeerTube.Failed error ->
-                                [ H.section [ HA.class "section section-white" ]
-                                    [ H.div [ HA.class "container" ]
-                                        [ H.text error ]
+                                        Data.PeerTube.Received videoList ->
+                                            viewVideoList keyword peerTubeURL videoList
+
+                                        Data.PeerTube.Failed error ->
+                                            H.text error
                                     ]
                                 ]
+                            ]
                     )
     in
     ( title
@@ -172,10 +175,15 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
                     [ H.text "Échangeons nos pratiques en toute simplicité !" ]
                 ]
             ]
-      , H.div [ HA.class "main" ]
-            (viewRecentVideo
-                ++ viewVideoCategories
-            )
+      , H.div [ HA.class "dashboard" ]
+            [ H.aside [ HA.class "side-menu" ]
+                [ H.text "some category list here"
+                ]
+            , H.div [ HA.class "main" ]
+                (viewRecentVideo
+                    ++ viewVideoCategories
+                )
+            ]
       ]
     )
 
@@ -184,7 +192,7 @@ viewVideoList :
     String
     -> String
     -> List Data.PeerTube.Video
-    -> List (H.Html Msg)
+    -> H.Html Msg
 viewVideoList title peerTubeURL videoList =
     let
         videoCards =
@@ -194,25 +202,9 @@ viewVideoList title peerTubeURL videoList =
 
             else
                 [ H.text "Aucune vidéo pour le moment" ]
-
-        keyword =
-            if title /= "Nouveautés" then
-                Just title
-
-            else
-                Nothing
     in
-    [ H.section [ HA.class "section section-grey cards" ]
-        [ H.div [ HA.class "container" ]
-            [ H.div [ HA.class "row" ]
-                [ H.h1 [] [ H.text title ]
-                , H.a [ Route.href (Route.Search keyword) ] [ H.text "Afficher plus de vidéos" ]
-                ]
-            , H.div [ HA.class "row" ]
-                videoCards
-            ]
-        ]
-    ]
+    H.div [ HA.class "row" ]
+        videoCards
 
 
 viewPublicVideo : String -> Data.PeerTube.Video -> H.Html msg
