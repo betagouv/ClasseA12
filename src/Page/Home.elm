@@ -101,8 +101,8 @@ view : Session -> Model -> ( String, List (H.Html Msg) )
 view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
     let
         viewRecentVideo =
-            [ H.div [ HA.class "panel" ]
-                [ H.div [ HA.class "panel-header", HA.id "category-Nouveautés" ]
+            [ H.div [ HA.class "panel", HA.id "Nouveautés" ]
+                [ H.div [ HA.class "panel__header" ]
                     [ H.h3 []
                         [ H.text "Nouveautés"
                         , H.text " "
@@ -129,12 +129,16 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
             ]
 
         viewVideoCategories =
-            videoData
-                |> Dict.toList
+            Data.Kinto.keywordList
                 |> List.map
-                    (\( keyword, remoteData ) ->
-                        H.div [ HA.class "panel" ]
-                            [ H.div [ HA.class "panel-header", HA.id <| "category-" ++ keyword ]
+                    (\( keyword, _ ) ->
+                        let
+                            remoteData =
+                                Dict.get keyword videoData
+                                    |> Maybe.withDefault Data.PeerTube.NotRequested
+                        in
+                        H.div [ HA.class "panel", HA.id keyword ]
+                            [ H.div [ HA.class "panel__header" ]
                                 [ H.h3 []
                                     [ H.text keyword
                                     , H.text " "
@@ -177,7 +181,13 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
             ]
       , H.div [ HA.class "dashboard" ]
             [ H.aside [ HA.class "side-menu" ]
-                [ H.text "some category list here"
+                [ H.ul []
+                    (Data.Kinto.keywordList
+                        |> List.map
+                            (\( keyword, _ ) ->
+                                H.li [] [ H.a [ Route.href <| Route.Search (Just keyword) ] [ H.text keyword ] ]
+                            )
+                    )
                 ]
             , H.div [ HA.class "main" ]
                 (viewRecentVideo
