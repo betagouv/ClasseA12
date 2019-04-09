@@ -194,12 +194,19 @@ viewVideoList title peerTubeURL videoList =
 
             else
                 [ H.text "Aucune vidéo pour le moment" ]
+
+        keyword =
+            if title /= "Nouveautés" then
+                Just title
+
+            else
+                Nothing
     in
     [ H.section [ HA.class "section section-grey cards" ]
         [ H.div [ HA.class "container" ]
             [ H.div [ HA.class "row" ]
                 [ H.h1 [] [ H.text title ]
-                , H.a [ HA.href "#" ] [ H.text "Afficher plus de vidéos" ]
+                , H.a [ Route.href (Route.Search keyword) ] [ H.text "Afficher plus de vidéos" ]
                 ]
             , H.div [ HA.class "row" ]
                 videoCards

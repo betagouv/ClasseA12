@@ -35,7 +35,7 @@ parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
-        , Parser.map Search (Parser.s "recherche" <?> Query.string "categorie")
+        , Parser.map Search (Parser.s "videos" <?> Query.string "categorie")
         , Parser.map PeerTubeAccount (Parser.s "peertube" </> Parser.s "profil" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
@@ -82,9 +82,9 @@ toString route =
                     search
                         |> Maybe.map
                             (\justSearch ->
-                                [ "recherche?categorie=" ++ justSearch ]
+                                [ "videos?categorie=" ++ justSearch ]
                             )
-                        |> Maybe.withDefault [ "recherche" ]
+                        |> Maybe.withDefault [ "videos" ]
 
                 PeerTubeAccount accountName ->
                     [ "peertube", "profil", accountName ]

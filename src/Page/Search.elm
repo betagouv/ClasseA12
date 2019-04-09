@@ -121,7 +121,6 @@ viewVideoList title peerTubeURL videoList =
         [ H.div [ HA.class "container" ]
             [ H.div [ HA.class "row" ]
                 [ H.h1 [] [ H.text title ]
-                , H.a [ HA.href "#" ] [ H.text "Afficher plus de vidéos" ]
                 ]
             , H.div [ HA.class "row" ]
                 videoCards
