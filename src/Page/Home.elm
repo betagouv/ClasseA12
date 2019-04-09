@@ -181,13 +181,21 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
             ]
       , H.div [ HA.class "dashboard" ]
             [ H.aside [ HA.class "side-menu" ]
-                [ H.ul []
+                [ H.h5 [] [ H.text "Catégories" ]
+                , H.ul []
                     (Data.Kinto.keywordList
                         |> List.map
                             (\( keyword, _ ) ->
                                 H.li [] [ H.a [ Route.href <| Route.Search (Just keyword) ] [ H.text keyword ] ]
                             )
                     )
+                , H.h5 [] [ H.text "Le projet" ]
+                , H.ul []
+                    [ H.li [] [H.a [Route.href Route.About] [H.text "Classe à 12 ?"]]
+                    , H.li [] [H.a [Route.href Route.Participate] [H.text "Je participe"]]
+                    , H.li [][H.a [HA.href "mailto:classea12@education.gouv.fr"][H.text "Contactez-nous"]]
+                    , H.li [][H.a [Route.href Route.Newsletter ][H.text "Inscrivez-vous à notre infolettre"]]
+                    ]
                 ]
             , H.div [ HA.class "main" ]
                 (viewRecentVideo
