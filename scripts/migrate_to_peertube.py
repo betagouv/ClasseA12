@@ -8,6 +8,7 @@ import os
 import urllib.request
 from base64 import b64encode
 from dataclasses import dataclass, asdict
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -295,7 +296,7 @@ def push_videos(skip_error=False, limit=1):
                 user = profile.username
             else:
                 print(f"Owner not found for {email}")
-        print(f'Using user {user}')
+        print(f"Using user {user}")
         token = get_peertube_token(user, PEERTUBE_PASSWORD)
         headers = {"Authorization": f"Bearer {token}"}
         channel_id = get_channel_id(headers)
@@ -308,6 +309,9 @@ def push_videos(skip_error=False, limit=1):
             "tags[]": [k[:30] for k in video.keywords[:5]],
             "commentsEnabled": True,
             "category": 13,
+            "originallyPublishedAt": datetime.fromtimestamp(
+                video.publish_date / 1000
+            ).isoformat(),
         }
         files = {
             "videofile": (
