@@ -19,7 +19,6 @@ import Page.Comments as Comments
 import Page.Convention as Convention
 import Page.Home as Home
 import Page.Login as Login
-import Page.Newsletter as Newsletter
 import Page.Participate as Participate
 import Page.PeerTubeAccount as PeerTubeAccount
 import Page.PrivacyPolicy as PrivacyPolicy
@@ -48,7 +47,6 @@ type Page
     | PeerTubeAccountPage PeerTubeAccount.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
-    | NewsletterPage Newsletter.Model
     | CGUPage CGU.Model
     | ConventionPage Convention.Model
     | PrivacyPolicyPage PrivacyPolicy.Model
@@ -77,7 +75,6 @@ type Msg
     | PeerTubeAccountMsg PeerTubeAccount.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
-    | NewsletterMsg Newsletter.Msg
     | CGUMsg CGU.Msg
     | ConventionMsg Convention.Msg
     | PrivacyPolicyMsg PrivacyPolicy.Msg
@@ -142,9 +139,6 @@ setRoute url oldModel =
 
         Just Route.Participate ->
             toPage ParticipatePage Participate.init ParticipateMsg
-
-        Just Route.Newsletter ->
-            toPage NewsletterPage Newsletter.init NewsletterMsg
 
         Just Route.CGU ->
             toPage CGUPage CGU.init CGUMsg
@@ -291,9 +285,6 @@ update msg ({ page, session } as model) =
 
         ( ParticipateMsg participateMsg, ParticipatePage participateModel ) ->
             toPage ParticipatePage ParticipateMsg (Participate.update session) participateMsg participateModel
-
-        ( NewsletterMsg newsletterMsg, NewsletterPage newsletterModel ) ->
-            toPage NewsletterPage NewsletterMsg (Newsletter.update session) newsletterMsg newsletterModel
 
         ( ConventionMsg conventionMsg, ConventionPage conventionModel ) ->
             toPage ConventionPage ConventionMsg (Convention.update session) conventionMsg conventionModel
@@ -504,9 +495,6 @@ subscriptions model =
                         |> List.map (Platform.Sub.map ParticipateMsg)
                     )
 
-            NewsletterPage _ ->
-                Sub.none
-
             CGUPage _ ->
                 Sub.none
 
@@ -586,11 +574,6 @@ view model =
             Participate.view model.session participateModel
                 |> mapMsg ParticipateMsg
                 |> Page.frame (pageConfig Page.Participate)
-
-        NewsletterPage newsletterModel ->
-            Newsletter.view model.session newsletterModel
-                |> mapMsg NewsletterMsg
-                |> Page.frame (pageConfig Page.Newsletter)
 
         CGUPage cguModel ->
             CGU.view model.session cguModel

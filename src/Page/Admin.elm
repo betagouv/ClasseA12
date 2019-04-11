@@ -1,6 +1,6 @@
 module Page.Admin exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto exposing (ContactList, ContactListData, DeletedRecord, Video, VideoList, VideoListData)
+import Data.Kinto exposing (DeletedRecord, Video, VideoList, VideoListData)
 import Data.Session exposing (Session, UserData, decodeUserData, emptyUserData, encodeUserData)
 import Html as H
 import Html.Attributes as HA
@@ -11,7 +11,6 @@ import Page.Common.Notifications as Notifications
 import Page.Common.Video
 import Ports
 import Request.Kinto exposing (authClient)
-import Request.KintoContact
 import Request.KintoProfile
 import Request.KintoUpcoming
 import Request.KintoVideo
@@ -24,7 +23,6 @@ type alias Model =
     { title : String
     , videoListData : VideoListData
     , videoAuthorsData : Data.Kinto.KintoData Data.Kinto.ProfileList
-    , contactListData : ContactListData
     , notifications : Notifications.Model
     , publishingVideos : PublishingVideos
     , activeVideo : Maybe Data.Kinto.Video
@@ -39,7 +37,6 @@ type Msg
     = NoOp
     | VideoListFetched (Result Kinto.Error VideoList)
     | VideoAuthorsFetched (Result Kinto.Error Data.Kinto.ProfileList)
-    | ContactListFetched (Result Kinto.Error ContactList)
     | NotificationMsg Notifications.Msg
     | GetTimestamp Video
     | PublishVideo Video Time.Posix
@@ -55,7 +52,6 @@ init session =
             { title = "Administration"
             , videoListData = Data.Kinto.NotRequested
             , videoAuthorsData = Data.Kinto.NotRequested
-            , contactListData = Data.Kinto.NotRequested
             , notifications = Notifications.init
             , publishingVideos = []
             , activeVideo = Nothing
@@ -69,12 +65,8 @@ init session =
                 in
                 ( { initialModel
                     | videoListData = Data.Kinto.Requested
-                    , contactListData = Data.Kinto.Requested
                   }
-                , Cmd.batch
-                    [ Request.KintoUpcoming.getVideoList client VideoListFetched
-                    , Request.KintoContact.getContactList client ContactListFetched
-                    ]
+                , Request.KintoUpcoming.getVideoList client VideoListFetched
                 )
 
             else
@@ -115,19 +107,6 @@ update session msg model =
         VideoAuthorsFetched (Err err) ->
             ( { model
                 | videoAuthorsData = Data.Kinto.Failed err
-                , notifications =
-                    Kinto.errorToString err
-                        |> Notifications.addError model.notifications
-              }
-            , Cmd.none
-            )
-
-        ContactListFetched (Ok contactList) ->
-            ( { model | contactListData = Data.Kinto.Received contactList }, Cmd.none )
-
-        ContactListFetched (Err err) ->
-            ( { model
-                | contactListData = Data.Kinto.Failed err
                 , notifications =
                     Kinto.errorToString err
                         |> Notifications.addError model.notifications
@@ -223,7 +202,7 @@ update session msg model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { timezone, userData, staticFiles } { title, notifications, videoListData, videoAuthorsData, contactListData, publishingVideos, activeVideo } =
+view { timezone, userData, staticFiles } { title, notifications, videoListData, videoAuthorsData, publishingVideos, activeVideo } =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -240,10 +219,12 @@ view { timezone, userData, staticFiles } { title, notifications, videoListData, 
                         Data.Kinto.Received videoList ->
                             H.section [ HA.class "section section-grey cards" ]
                                 [ H.div [ HA.class "container" ]
-                                    ([ H.div [ HA.class "form__group logout-button" ]
-                                        [ downloadContacts contactListData ]
-                                     ]
-                                        ++ viewVideoList timezone publishingVideos activeVideo videoList videoAuthorsData
+                                    (viewVideoList
+                                        timezone
+                                        publishingVideos
+                                        activeVideo
+                                        videoList
+                                        videoAuthorsData
                                     )
                                 ]
 
@@ -334,37 +315,3 @@ viewVideo timezone publishingVideos videoAuthorsData video =
         , Page.Common.Video.keywords video.keywords
         , publishNode
         ]
-
-
-downloadContacts : Data.Kinto.ContactListData -> H.Html Msg
-downloadContacts contactListData =
-    case contactListData of
-        Data.Kinto.Received contactList ->
-            H.a
-                [ contactListHref contactList
-                , HA.download "contacts_infolettre.csv"
-                ]
-                [ H.text "Télécharger la liste des contacts infolettre" ]
-
-        _ ->
-            H.span [] []
-
-
-contactListHref : ContactList -> H.Attribute msg
-contactListHref contactList =
-    let
-        contactListAsCsvEntries =
-            contactList.objects
-                |> List.map
-                    (\contact ->
-                        contact.name ++ "," ++ contact.email
-                    )
-
-        csvLines =
-            [ "Nom,Email" ] ++ contactListAsCsvEntries
-    in
-    csvLines
-        |> String.join "\n"
-        |> Url.percentEncode
-        |> (++) "data:text/csv;charset=utf-8,"
-        |> HA.href

@@ -194,7 +194,8 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
                     [ H.li [] [ H.a [ Route.href Route.About ] [ H.text "Classe à 12 ?" ] ]
                     , H.li [] [ H.a [ Route.href Route.Participate ] [ H.text "Je participe" ] ]
                     , H.li [] [ H.a [ HA.href "mailto:classea12@education.gouv.fr" ] [ H.text "Contactez-nous" ] ]
-                    , H.li [] [ H.a [ Route.href Route.Newsletter ] [ H.text "Inscrivez-vous à notre infolettre" ] ]
+                    -- Link to the Mailchimp signup form.
+                    , H.li [] [ H.a [ HA.href "http://eepurl.com/gnJbYz" ] [ H.text "Inscrivez-vous à notre infolettre" ] ]
                     ]
                 ]
             , H.div [ HA.class "main" ]
