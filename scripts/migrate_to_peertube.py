@@ -1,8 +1,12 @@
 """Kinto to Peertube migration script."""
 
+import csv
 import json
+import re
+import sys
 import os
 import urllib.request
+from base64 import b64encode
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List
@@ -14,6 +18,8 @@ from progressist import ProgressBar
 
 ROOT = Path(".cache")
 KINTO_URL = "https://kinto.classea12.beta.gouv.fr"
+KINTO_USER = "classea12admin"
+KINTO_PASSWORD = os.environ.get("KINTO_PASSWORD", "")
 PEERTUBE_BASE_URL = os.environ.get("PEERTUBE_URL", "https://peertube.scopyleft.fr")
 PEERTUBE_URL = f"{PEERTUBE_BASE_URL}/api/v1"
 PEERTUBE_USER = "classea12"
@@ -24,6 +30,34 @@ def urlretrieve(url, dest):
     print("Downloading", url)
     bar = ProgressBar(template="Download |{animation}| {done:B}/{total:B}")
     urllib.request.urlretrieve(url, dest, reporthook=bar.on_urlretrieve)
+
+
+class Mapping:
+    """Store remove id of a resource for a given host."""
+
+    storage = ROOT / "mapping.json"
+
+    def __init__(self):
+        if not self.storage.exists():
+            self.storage.write_text(json.dumps({}))
+        self.data = json.loads(self.storage.read_text())
+        self.data.setdefault(PEERTUBE_URL, {})
+
+    def __contains__(self, key):
+        return key in self.data[PEERTUBE_URL]
+
+    def __getitem__(self, key):
+        return self.data[PEERTUBE_URL][key]
+
+    def __setitem__(self, key, value):
+        self.data[PEERTUBE_URL][key] = value
+        self.write()
+
+    def write(self):
+        self.storage.write_text(json.dumps(self.data))
+
+
+MAPPING = Mapping()
 
 
 @dataclass
@@ -52,7 +86,24 @@ class Attachment:
 
 
 @dataclass
-class Video:
+class Resource:
+    @classmethod
+    def all(cls):
+        for path in cls.get_root().glob("*-meta"):
+            yield cls(**json.loads(path.read_text()))
+
+    def persist(self, force=False):
+        dest = self.get_root() / f"{self.id}-meta"
+        if not dest.exists() or force:
+            dest.write_text(json.dumps(asdict(self)))
+
+    def download(self, force=False):
+        self.get_root().mkdir(exist_ok=True, parents=True)
+        self.persist(force=force)
+
+
+@dataclass
+class Video(Resource):
     attachment: Attachment
     creation_date: int
     description: str
@@ -75,22 +126,11 @@ class Video:
         return self.title
 
     @classmethod
-    def all(cls):
-        for path in cls.get_root().glob("*-meta"):
-            yield Video(**json.loads(path.read_text()))
-
-    @classmethod
     def get_root(self):
         return ROOT / "video"
 
-    def persist(self, force=False):
-        dest = self.get_root() / f"{self.id}-meta"
-        if not dest.exists() or force:
-            dest.write_text(json.dumps(asdict(self)))
-
     def download(self, force=False):
-        self.get_root().mkdir(exist_ok=True, parents=True)
-        self.persist(force=force)
+        super().download(force=force)
         dest = self.get_root() / f"{self.id}-thumbnail"
         if not dest.exists() or force:
             urlretrieve(self.thumbnail, dest)
@@ -108,38 +148,57 @@ class Video:
 
 
 @dataclass
-class Profile:
+class Profile(Resource):
     bio: str
+    email: str
     name: str
     schema: int
     id: str
     last_modified: int
 
-    def download(self, force=False):
-        root = ROOT / "profile"
-        root.mkdir(exist_ok=True, parents=True)
-        dest = root / self.id
-        if not dest.exists() or force:
-            dest.write_text(json.dumps(asdict(self)))
+    @classmethod
+    def get_root(self):
+        return ROOT / "profile"
+
+    @property
+    def username(self):
+        return self.email.split("@")[0].lower().replace("-", ".")
 
 
 @minicli.cli
 def pull(force=False):
-    resp = requests.get(f"{KINTO_URL}/v1/buckets/classea12/collections/videos/records")
+    token = b64encode(f"{KINTO_USER}:{KINTO_PASSWORD}".encode()).decode()
+    headers = {"Authorization": f"Basic {token}"}
+    resp = requests.get(
+        f"{KINTO_URL}/v1/buckets/classea12/collections/videos/records", headers=headers
+    )
     videos = resp.json()["data"]
     for raw in videos:
         video = Video(**raw)
         video.download(force=force)
-    resp = requests.get(
-        f"{KINTO_URL}/v1/buckets/classea12/collections/profiles/records"
-    )
+    resp = requests.get(f"{KINTO_URL}/v1/accounts", headers=headers)
+    if not resp.ok:
+        print(resp.text)
+        return
     data = resp.json()["data"]
     for raw in data:
-        profile = Profile(**raw)
+        if not raw.get("validated") or not raw.get("profile"):
+            continue
+        id_ = raw.get("profile")
+        resp = requests.get(
+            f"{KINTO_URL}/v1/buckets/classea12/collections/profiles/records/{id_}",
+            headers=headers,
+        )
+        if not resp.ok:
+            print(resp.text)
+            break
+        profile_data = resp.json()["data"]
+        profile_data["email"] = raw["id"]
+        profile = Profile(**profile_data)
         profile.download(force=force)
 
 
-def get_token():
+def get_peertube_token(user, password):
     resp = requests.get(f"{PEERTUBE_URL}/oauth-clients/local")
     client_id = resp.json()["client_id"]
     client_secret = resp.json()["client_secret"]
@@ -151,10 +210,13 @@ def get_token():
             "client_secret": client_secret,
             "grant_type": "password",
             "response_type": "code",
-            "username": PEERTUBE_USER,
-            "password": PEERTUBE_PASSWORD,
+            "username": user,
+            "password": password,
         },
     )
+    if not resp.ok:
+        print(resp.content)
+        sys.exit("Unable to get token")
     return resp.json()["access_token"]
 
 
@@ -164,19 +226,79 @@ def get_channel_id(headers):
 
 
 @minicli.cli
-def push(limit=1):
-    token = get_token()
+def push(limit=1, skip_error=False):
+    push_profiles(skip_error, limit)
+    push_videos(skip_error, limit)
+
+
+@minicli.cli
+def push_profiles(skip_error=False, limit=1):
+    token = get_peertube_token(PEERTUBE_USER, PEERTUBE_PASSWORD)
     headers = {"Authorization": f"Bearer {token}"}
-    channel_id = get_channel_id(headers)
+    count = 0
+    for profile in Profile.all():
+        print(f"Syncing {profile.username}")
+        resp = requests.get(f"{PEERTUBE_URL}/accounts/{profile.username}")
+        if resp.ok:
+            print(f"Profile already in remote server: {profile.username}")
+            continue
+        data = {
+            "email": profile.email.lower(),
+            "username": profile.username,
+            "password": PEERTUBE_PASSWORD,
+            "role": 2,  # User
+            "videoQuota": -1,
+            "videoQuotaDaily": -1,
+        }
+        resp = requests.post(f"{PEERTUBE_URL}/users", headers=headers, data=data)
+        if not resp.ok:
+            print(resp.content)
+            if skip_error:
+                continue
+            breakpoint()
+            break
+        url = f"{PEERTUBE_URL}/users/me"
+        data = {"displayName": profile.name.replace(".", " "), "bio": profile.bio}
+        user_token = get_peertube_token(profile.username, PEERTUBE_PASSWORD)
+        user_headers = {"Authorization": f"Bearer {user_token}"}
+        resp = requests.put(url, headers=user_headers, data=data)
+        if not resp.ok:
+            print(resp.content)
+            if skip_error:
+                continue
+            breakpoint()
+            break
+        count += 1
+        if limit and count >= limit:
+            break
+
+
+@minicli.cli
+def push_videos(skip_error=False, limit=1):
+    profiles = {p.email: p for p in Profile.all()}
+    ownership = json.loads((ROOT / "mapping_video_user.json").read_text())
     url = f"{PEERTUBE_URL}/videos/upload"
     count = 0
     for video in Video.all():
         print(video.title, video.id)
-        if video.peertube_uuid:
-            resp = requests.get(f"{PEERTUBE_URL}/videos/{video.peertube_uuid}")
+        if video.id in MAPPING:
+            peertube_uuid = MAPPING[video.id]
+            resp = requests.get(f"{PEERTUBE_URL}/videos/{peertube_uuid}")
             if resp.ok:
-                print("Video already in the remote server", video.peertube_uuid)
+                print("Video already in the remote server", peertube_uuid)
                 continue
+        user = PEERTUBE_USER
+        if video.id in ownership:
+            email = ownership[video.id]
+            profile = profiles.get(email)
+            if profile:
+                user = profile.username
+            else:
+                print(f"Owner not found for {email}")
+        print(f'Using user {user}')
+        token = get_peertube_token(user, PEERTUBE_PASSWORD)
+        headers = {"Authorization": f"Bearer {token}"}
+        channel_id = get_channel_id(headers)
         data = {
             "name": video.title,
             "channelId": channel_id,
@@ -185,7 +307,7 @@ def push(limit=1):
             "privacy": 1,
             "tags[]": [k[:30] for k in video.keywords[:5]],
             "commentsEnabled": True,
-            "category": 13
+            "category": 13,
         }
         files = {
             "videofile": (
@@ -204,20 +326,45 @@ def push(limit=1):
                 "image/jpeg",
             ),
         }
-        # req = requests.Request('POST', url, headers=headers, files=files, data=data)
-        # prepared = req.prepare()
-        # breakpoint()
-        # # resp = req.send()
         resp = requests.post(url, headers=headers, files=files, data=data)
         if not resp.ok:
+            if skip_error:
+                continue
             print(resp.content)
             breakpoint()
             break
-        video.peertube_uuid = resp.json()["video"]["uuid"]
-        video.persist(force=True)
+        MAPPING[video.id] = resp.json()["video"]["uuid"]
         count += 1
         if limit and count >= limit:
             break
+
+
+@minicli.cli
+def process_video_mapping():
+    videos = list(Video.all())
+    profiles = {p.email: p for p in Profile.all()}
+    out = {}
+    with Path("video_mapping.csv").open() as f:
+        reader = csv.DictReader(f, delimiter=";")
+        for row in reader:
+            print(f"Processing {row['name']}")
+            if not row["email"]:
+                continue
+            email = row["email"]
+            if email not in profiles:
+                print(f"Unkown user {email}")
+            for video in videos:
+                if clean_string(video.title) == clean_string(row["name"]):
+                    out[video.id] = email
+                    break
+            else:
+                print(f"No match found for {row}")
+                break
+    (ROOT / "mapping_video_user.json").write_text(json.dumps(out))
+
+
+def clean_string(s):
+    return re.sub(r"[^\w]", "", s).lower()
 
 
 if __name__ == "__main__":
