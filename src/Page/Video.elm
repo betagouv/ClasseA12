@@ -182,7 +182,10 @@ update session msg model =
                     , refreshing = True
                   }
                   -- Refresh the list of comments
-                , Request.PeerTube.getVideoCommentList session.peerTubeURL model.videoID CommentsReceived
+                , Cmd.batch
+                    [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
+                    , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
+                    ]
                 )
 
         CommentAdded _ (Err error) ->
@@ -215,7 +218,10 @@ update session msg model =
                 , progress = Page.Common.Progress.empty
               }
               -- Refresh the list of comments (and then contributors)
-            , Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
+            , Cmd.batch
+                [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
+                , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
+                ]
             )
 
         CommentSelected commentID ->
@@ -258,7 +264,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications } =
+view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { videoID, title, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList } =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -274,7 +280,7 @@ view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoD
                     [ viewVideo peerTubeURL url navigatorShare videoData
                     ]
                 , H.div [ HA.class "container" ]
-                    [ viewComments comments
+                    [ viewComments videoID comments attachmentList filesURL
                     , case commentData of
                         Data.PeerTube.Failed error ->
                             H.div []
@@ -393,8 +399,8 @@ viewVideoDetails peerTubeURL url navigatorShare video =
         ]
 
 
-viewComments : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> H.Html Msg
-viewComments commentsData =
+viewComments : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> List String -> String -> H.Html Msg
+viewComments videoID commentsData attachmentList filesURL =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.PeerTube.Received comments ->
@@ -402,7 +408,7 @@ viewComments commentsData =
                     [ H.h3 [] [ H.text "Contributions" ]
                     , H.ul [ HA.class "comment-list" ]
                         (comments
-                            |> List.map viewCommentDetails
+                            |> List.map (viewCommentDetails videoID attachmentList filesURL)
                         )
                     ]
 
@@ -414,11 +420,34 @@ viewComments commentsData =
         ]
 
 
-viewCommentDetails : Data.PeerTube.Comment -> H.Html Msg
-viewCommentDetails comment =
+viewCommentDetails : String -> List String -> String -> Data.PeerTube.Comment -> H.Html Msg
+viewCommentDetails videoID attachmentList filesURL comment =
     let
         commentID =
             String.fromInt comment.id
+
+        filePath =
+            "/"
+                ++ videoID
+                ++ "/"
+                ++ commentID
+                ++ "/"
+
+        attachmentNodes =
+            attachmentList
+                |> List.filter (String.startsWith filePath)
+                |> List.map
+                    (\attachment ->
+                        let
+                            filename =
+                                attachment
+                                    |> String.replace filePath ""
+                        in
+                        H.div []
+                            [ H.text "Pièce jointe : "
+                            , H.a [ HA.href <| filesURL ++ attachment ] [ H.text filename ]
+                            ]
+                    )
     in
     H.li
         [ HA.class "comment panel"
@@ -437,6 +466,7 @@ viewCommentDetails comment =
             ]
             [ H.text comment.account.displayName ]
         , Markdown.toHtml [] comment.text
+        , H.div [] attachmentNodes
         ]
 
 

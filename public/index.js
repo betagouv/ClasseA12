@@ -164,18 +164,13 @@ app.ports.submitAttachment.subscribe(function ({ nodeID, videoID, commentID, acc
     }
 
     const file = fileInput.files[0];
-    // Create a multipart form to upload the file.
-    let formData = new FormData();
-    formData.append('attachment', file);
-
     const filePath = "/" + videoID + "/" + commentID + "/" + file.name;
-
     const url = FILES_URL + filePath;
     let xhrAttachment = xhrForAttachment(url, "PUT", "Envoi de la pièce jointe", access_token, "Bearer", app.ports.attachmentSubmitted.send);
     xhrAttachment.onload = function () {
         app.ports.attachmentSubmitted.send(filePath);
     }
-    xhrAttachment.send(formData);
+    xhrAttachment.send(file);
 });
 
 // Event polyfill for IE.
