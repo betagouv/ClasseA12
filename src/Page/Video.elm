@@ -14,6 +14,7 @@ import Kinto
 import Markdown
 import Page.Common.Components as Components
 import Page.Common.Dates as Dates
+import Page.Common.Progress
 import Page.Common.Video
 import Ports
 import Request.Kinto
@@ -35,6 +36,9 @@ type alias Model =
     , comment : String
     , commentData : Data.PeerTube.RemoteData Data.PeerTube.Comment
     , refreshing : Bool
+    , attachmentData : Data.PeerTube.RemoteData String
+    , attachmentSelected : Bool
+    , progress : Page.Common.Progress.Progress
     }
 
 
@@ -44,8 +48,11 @@ type Msg
     | CommentsReceived (Result Http.Error (List Data.PeerTube.Comment))
     | UpdateCommentForm String
     | AddComment
-    | CommentAdded (Result Http.Error Data.PeerTube.Comment)
+    | CommentAdded String (Result Http.Error Data.PeerTube.Comment)
     | CommentSelected String
+    | AttachmentSelected
+    | AttachmentSent String
+    | ProgressUpdated Decode.Value
     | NoOp
 
 
@@ -67,6 +74,9 @@ init videoID videoTitle session =
       , comment = ""
       , commentData = Data.PeerTube.NotRequested
       , refreshing = False
+      , attachmentData = Data.PeerTube.NotRequested
+      , attachmentSelected = False
+      , progress = Page.Common.Progress.empty
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.peerTubeURL VideoReceived
@@ -117,24 +127,70 @@ update session msg model =
                         model.videoID
                         access_token
                         session.peerTubeURL
-                        CommentAdded
+                        (CommentAdded access_token)
                     )
 
                 Nothing ->
                     -- Profile not created yet: we shouldn't be there.
                     ( model, Cmd.none )
 
-        CommentAdded (Ok comment) ->
-            ( { model
-                | commentData = Data.PeerTube.Received comment
-                , refreshing = True
-              }
-              -- Refresh the list of comments
-            , Request.PeerTube.getVideoCommentList session.peerTubeURL model.videoID CommentsReceived
-            )
+        CommentAdded access_token (Ok comment) ->
+            if model.attachmentSelected then
+                let
+                    submitAttachmentData : Ports.SubmitAttachmentData
+                    submitAttachmentData =
+                        { nodeID = "attachment"
+                        , videoID = model.videoID
+                        , commentID = comment.id
+                        , access_token = access_token
+                        }
+                in
+                ( { model
+                    | commentData = Data.PeerTube.Received comment
+                    , attachmentData = Data.PeerTube.Requested
+                  }
+                  -- Upload the attachment
+                , Ports.submitAttachment submitAttachmentData
+                )
 
-        CommentAdded (Err error) ->
+            else
+                ( { model
+                    | commentData = Data.PeerTube.Received comment
+                    , refreshing = True
+                  }
+                  -- Refresh the list of comments
+                , Request.PeerTube.getVideoCommentList session.peerTubeURL model.videoID CommentsReceived
+                )
+
+        CommentAdded _ (Err error) ->
+            let
+                _ =
+                    Debug.log "error" error
+            in
             ( { model | commentData = Data.PeerTube.Failed "Échec de l'ajout du commentaire" }, Cmd.none )
+
+        ProgressUpdated value ->
+            let
+                progress =
+                    Decode.decodeValue Page.Common.Progress.decoder value
+                        |> Result.withDefault Page.Common.Progress.empty
+            in
+            ( { model | progress = progress }, Cmd.none )
+
+        AttachmentSelected ->
+            ( { model | attachmentSelected = True }, Cmd.none )
+
+        AttachmentSent filePath ->
+            ( { model
+                | refreshing = True
+                , comment = ""
+                , attachmentData = Data.PeerTube.Received filePath
+                , attachmentSelected = False
+                , progress = Page.Common.Progress.empty
+              }
+              -- Refresh the list of comments (and then contributors)
+            , Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
+            )
 
         CommentSelected commentID ->
             ( model, scrollToComment (Just commentID) model )
@@ -161,7 +217,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoData, comments, comment, commentData, refreshing } =
+view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoData, comments, comment, commentData, refreshing, attachmentData, progress } =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -184,7 +240,7 @@ view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoD
                                 ]
 
                         _ ->
-                            viewCommentForm comment userInfo refreshing commentData
+                            viewCommentForm comment userInfo refreshing commentData attachmentData progress
                     ]
                 ]
             ]
@@ -347,8 +403,10 @@ viewCommentForm :
     -> Maybe Data.PeerTube.UserInfo
     -> Bool
     -> Data.PeerTube.RemoteData Data.PeerTube.Comment
+    -> Data.PeerTube.RemoteData String
+    -> Page.Common.Progress.Progress
     -> H.Html Msg
-viewCommentForm comment userInfo refreshing commentData =
+viewCommentForm comment userInfo refreshing commentData attachmentData progress =
     if not <| Data.Session.isPeerTubeLoggedIn userInfo then
         Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
@@ -386,6 +444,34 @@ viewCommentForm comment userInfo refreshing commentData =
                         ]
                         []
                     ]
+                , H.div [ HA.class "form__group" ]
+                    [ H.label [ HA.for "attachment" ]
+                        [ H.text "Envoyer un fichier image, doc..." ]
+                    , H.input
+                        [ HA.class "file-input"
+                        , HA.type_ "file"
+                        , HA.id "attachment"
+                        , Components.onFileSelected AttachmentSelected
+                        ]
+                        []
+                    ]
                 , submitButton
+                ]
+            , H.div
+                [ HA.classList
+                    [ ( "modal__backdrop", True )
+                    , ( "is-active", attachmentData == Data.PeerTube.Requested )
+                    ]
+                ]
+                [ H.div [ HA.class "modal" ]
+                    [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
+                    , H.p [] [ H.text progress.message ]
+                    , H.progress
+                        [ HA.class "is-large"
+                        , HA.value <| String.fromInt progress.percentage
+                        , HA.max "100"
+                        ]
+                        [ H.text <| String.fromInt progress.percentage ++ "%" ]
+                    ]
                 ]
             ]

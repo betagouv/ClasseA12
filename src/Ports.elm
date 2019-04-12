@@ -64,9 +64,9 @@ port navigatorShare : String -> Cmd msg
 
 type alias SubmitAttachmentData =
     { nodeID : String
-    , commentID : String
-    , login : String
-    , password : String
+    , videoID : String
+    , commentID : Int
+    , access_token : String
     }
 
 

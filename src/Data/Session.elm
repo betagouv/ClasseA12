@@ -26,6 +26,7 @@ type alias Session =
     , version : String
     , kintoURL : String
     , peerTubeURL : String
+    , filesURL : String
     , navigatorShare : Bool
     , staticFiles : StaticFiles
     , url : Url

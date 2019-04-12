@@ -231,13 +231,16 @@ submitCommentRequest comment videoID access_token serverURL =
                 ]
                 |> Http.jsonBody
 
+        decoder =
+            Decode.field "comment" commentDecoder
+
         request : Request Comment
         request =
             { method = "POST"
             , headers = []
             , url = url
             , body = body
-            , expect = Http.expectJson commentDecoder
+            , expect = Http.expectJson decoder
             , timeout = Nothing
             , withCredentials = False
             }

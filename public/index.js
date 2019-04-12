@@ -2,6 +2,7 @@ import { Elm } from "../src/Main.elm";
 
 const KINTO_URL = process.env.KINTO_URL;
 const PEERTUBE_URL = process.env.PEERTUBE_URL;
+const FILES_URL = process.env.FILES_URL;
 const loginForm = window.localStorage.getItem("session");
 const userToken = window.localStorage.getItem("userToken");
 const userInfo = window.localStorage.getItem("userInfo");
@@ -13,6 +14,7 @@ const app = Elm.Main.init({
         version: process.env.VERSION,
         kintoURL: KINTO_URL,
         peerTubeURL: PEERTUBE_URL,
+        filesURL: FILES_URL,
         navigatorShare: navigator.share !== undefined,
         staticFiles: {
             "logo": require("./logo.png"),
@@ -86,10 +88,10 @@ const collectionToMessage = {
     "comments": "Envoi de la pièce jointe",
 }
 
-function xhrForAttachment(url, progressMessage, credentials, tokenType, errorCallback) {
+function xhrForAttachment(url, method, progressMessage, credentials, tokenType, errorCallback) {
     // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
     let xhr = new XMLHttpRequest();
-    xhr.open("POST", url);
+    xhr.open(method, url);
     xhr.upload.addEventListener("progress", function (event) {
         if (event.lengthComputable) {
             const percentage = Math.round(event.loaded * 100 / event.total);
@@ -145,38 +147,36 @@ app.ports.submitVideo.subscribe(function (data) {
     formData.append('thumbnailfile', thumbnail, thumbnailFilename);
 
     const url = PEERTUBE_URL + "/videos/upload";
-    let xhrVideo = xhrForAttachment(url, "Envoi de la vidéo", access_token, "Bearer", app.ports.videoSubmitted.send);
+    let xhrVideo = xhrForAttachment(url, "POST", "Envoi de la vidéo", access_token, "Bearer", app.ports.videoSubmitted.send);
     xhrVideo.onload = function () {
         app.ports.videoSubmitted.send(this.response);
     }
     xhrVideo.send(formData);
     videoNode.parentNode.style.display = "none";
-    // }
-    // xhrThumbnail.send(thumbnailData);
-
 });
 
 // A new comment record has been created, upload the selected file as an attachment
-// app.ports.submitAttachment.subscribe(function ({ nodeID, commentID, login, password }) {
-//     const credentials = btoa(`${login}:${password}`);
-//     const fileInput = document.getElementById(nodeID);
-//     if (fileInput === null) {
-//         console.error("Didn't find a file input with id", nodeID);
-//         return;
-//     }
+app.ports.submitAttachment.subscribe(function ({ nodeID, videoID, commentID, access_token }) {
+    const fileInput = document.getElementById(nodeID);
+    if (fileInput === null) {
+        console.error("Didn't find a file input with id", nodeID);
+        return;
+    }
 
-//     const file = fileInput.files[0];
-//     // Create a multipart form to upload the file.
-//     let formData = new FormData();
-//     formData.append('attachment', file);
+    const file = fileInput.files[0];
+    // Create a multipart form to upload the file.
+    let formData = new FormData();
+    formData.append('attachment', file);
 
-//     const url = KINTO_URL + "buckets/classea12/collections/comments/records/" + commentID + "/attachment";
-//     let xhrAttachment = xhrForAttachment(url, "Envoi de la pièce jointe", credentials, "Basic", app.ports.attachmentSubmitted.send);
-//     xhrAttachment.onload = function () {
-//         app.ports.attachmentSubmitted.send(this.response);
-//     }
-//     xhrAttachment.send(formData);
-// });
+    const filePath = "/" + videoID + "/" + commentID + "/" + file.name;
+
+    const url = FILES_URL + filePath;
+    let xhrAttachment = xhrForAttachment(url, "PUT", "Envoi de la pièce jointe", access_token, "Bearer", app.ports.attachmentSubmitted.send);
+    xhrAttachment.onload = function () {
+        app.ports.attachmentSubmitted.send(filePath);
+    }
+    xhrAttachment.send(formData);
+});
 
 // Event polyfill for IE.
 (function () {

@@ -218,6 +218,11 @@ init flags url navKey =
             Decode.decodeValue (Decode.field "peerTubeURL" Decode.string) flags
                 |> Result.withDefault "No PeerTube URL"
 
+        filesURL =
+            -- Decode a string from the "filesURL" field in the value
+            Decode.decodeValue (Decode.field "filesURL" Decode.string) flags
+                |> Result.withDefault "No Files URL"
+
         navigatorShare =
             -- Decode a boolean from the "navigatorShare" field in the value
             Decode.decodeValue (Decode.field "navigatorShare" Decode.bool) flags
@@ -235,6 +240,7 @@ init flags url navKey =
             , version = version
             , kintoURL = kintoURL
             , peerTubeURL = peerTubeURL
+            , filesURL = filesURL
             , navigatorShare = navigatorShare
             , staticFiles = staticFiles
             , url = url
@@ -508,7 +514,12 @@ subscriptions model =
                 Sub.none
 
             VideoPage _ ->
-                Sub.none
+                Sub.batch
+                    ([ Ports.progressUpdate Video.ProgressUpdated
+                     , Ports.attachmentSubmitted Video.AttachmentSent
+                     ]
+                        |> List.map (Platform.Sub.map VideoMsg)
+                    )
 
             LoginPage _ ->
                 Sub.none
