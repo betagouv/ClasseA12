@@ -14,9 +14,11 @@ import Kinto
 import Markdown
 import Page.Common.Components as Components
 import Page.Common.Dates as Dates
+import Page.Common.Notifications as Notifications
 import Page.Common.Progress
 import Page.Common.Video
 import Ports
+import Request.ClasseAFiles
 import Request.Kinto
 import Request.KintoProfile
 import Request.KintoVideo
@@ -39,6 +41,8 @@ type alias Model =
     , attachmentData : Data.PeerTube.RemoteData String
     , attachmentSelected : Bool
     , progress : Page.Common.Progress.Progress
+    , attachmentList : List String
+    , notifications : Notifications.Model
     }
 
 
@@ -53,6 +57,8 @@ type Msg
     | AttachmentSelected
     | AttachmentSent String
     | ProgressUpdated Decode.Value
+    | AttachmentListReceived (Result Http.Error (List String))
+    | NotificationMsg Notifications.Msg
     | NoOp
 
 
@@ -77,10 +83,13 @@ init videoID videoTitle session =
       , attachmentData = Data.PeerTube.NotRequested
       , attachmentSelected = False
       , progress = Page.Common.Progress.empty
+      , attachmentList = []
+      , notifications = Notifications.init
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.peerTubeURL VideoReceived
         , Request.PeerTube.getVideoCommentList videoID session.peerTubeURL CommentsReceived
+        , Request.ClasseAFiles.getVideoAttachmentList videoID session.filesURL AttachmentListReceived
         ]
     )
 
@@ -97,7 +106,14 @@ update session msg model =
             )
 
         VideoReceived (Err error) ->
-            ( { model | videoData = Data.PeerTube.Failed "Échec de la récupération de la vidéo" }, Cmd.none )
+            ( { model
+                | videoData = Data.PeerTube.Failed "Échec de la récupération de la vidéo"
+                , notifications =
+                    "Échec de la récupération de la vidéo"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            )
 
         ShareVideo shareText ->
             ( model, Ports.navigatorShare shareText )
@@ -113,7 +129,14 @@ update session msg model =
             )
 
         CommentsReceived (Err error) ->
-            ( { model | comments = Data.PeerTube.Failed "Échec de la récupération des commentaires" }, Cmd.none )
+            ( { model
+                | comments = Data.PeerTube.Failed "Échec de la récupération des commentaires"
+                , notifications =
+                    "Échec de la récupération des commentaires"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            )
 
         UpdateCommentForm comment ->
             ( { model | comment = comment }, Cmd.none )
@@ -163,11 +186,14 @@ update session msg model =
                 )
 
         CommentAdded _ (Err error) ->
-            let
-                _ =
-                    Debug.log "error" error
-            in
-            ( { model | commentData = Data.PeerTube.Failed "Échec de l'ajout du commentaire" }, Cmd.none )
+            ( { model
+                | commentData = Data.PeerTube.Failed "Échec de l'ajout du commentaire"
+                , notifications =
+                    "Échec de l'ajout du commentaire"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            )
 
         ProgressUpdated value ->
             let
@@ -195,6 +221,21 @@ update session msg model =
         CommentSelected commentID ->
             ( model, scrollToComment (Just commentID) model )
 
+        AttachmentListReceived (Ok attachmentList) ->
+            ( { model | attachmentList = attachmentList }, Cmd.none )
+
+        AttachmentListReceived (Err error) ->
+            ( { model
+                | notifications =
+                    "Échec de la récupération des pièces jointes"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            )
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+
 
 scrollToComment : Maybe String -> Model -> Cmd Msg
 scrollToComment maybeCommentID model =
@@ -217,7 +258,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
-view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoData, comments, comment, commentData, refreshing, attachmentData, progress } =
+view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications } =
     ( title
     , [ H.div [ HA.class "hero" ]
             [ H.div [ HA.class "hero__container" ]
@@ -227,7 +268,8 @@ view { peerTubeURL, navigatorShare, staticFiles, url, userInfo } { title, videoD
                 ]
             ]
       , H.div [ HA.class "main" ]
-            [ H.div [ HA.class "section section-white" ]
+            [ H.map NotificationMsg (Notifications.view notifications)
+            , H.div [ HA.class "section section-white" ]
                 [ H.div [ HA.class "container" ]
                     [ viewVideo peerTubeURL url navigatorShare videoData
                     ]
