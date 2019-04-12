@@ -11,6 +11,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import List
+from urllib.error import HTTPError
 
 import requests
 import minicli
@@ -118,7 +119,7 @@ class Video(Resource):
     schema: int
     thumbnail: str
     title: str
-    peertube_uuid: str = ""
+    quarantine: bool = False
 
     def __post_init__(self):
         self.attachment = Attachment(**self.attachment)
@@ -133,12 +134,16 @@ class Video(Resource):
     def download(self, force=False):
         super().download(force=force)
         dest = self.get_root() / f"{self.id}-thumbnail"
-        if not dest.exists() or force:
-            urlretrieve(self.thumbnail, dest)
-            # PeerTube only accept jpeg.
-            Image.open(dest).convert("RGB").save(
-                dest, "JPEG", quality=95, subsampling=0
-            )
+        if self.thumbnail and (not dest.exists() or force):
+            try:
+                urlretrieve(self.thumbnail, dest)
+            except HTTPError:
+                pass
+            else:
+                # PeerTube only accepts jpeg.
+                Image.open(dest).convert("RGB").save(
+                    dest, "JPEG", quality=95, subsampling=0
+                )
         self.attachment.download(force=force)
 
     def get_thumbnail_file(self):
@@ -176,6 +181,13 @@ def pull(force=False):
     videos = resp.json()["data"]
     for raw in videos:
         video = Video(**raw)
+        video.download(force=force)
+    resp = requests.get(
+        f"{KINTO_URL}/v1/buckets/classea12/collections/upcoming/records", headers=headers
+    )
+    videos = resp.json()["data"]
+    for raw in videos:
+        video = Video(quarantine=True, **raw)
         video.download(force=force)
     resp = requests.get(f"{KINTO_URL}/v1/accounts", headers=headers)
     if not resp.ok:
@@ -319,17 +331,21 @@ def push_videos(skip_error=False, limit=1):
                 open(video.attachment.get_file(), "rb"),
                 video.attachment.mimetype,
             ),
-            "previewfile": (
-                video.get_thumbnail_filename(),
-                open(video.get_thumbnail_file(), "rb"),
-                "image/jpeg",
-            ),
-            "thumbnailfile": (
-                video.get_thumbnail_filename(),
-                open(video.get_thumbnail_file(), "rb"),
-                "image/jpeg",
-            ),
         }
+        thumbnail = video.get_thumbnail_file()
+        if thumbnail.exists():
+            files.update({
+                "previewfile": (
+                    video.get_thumbnail_filename(),
+                    open(thumbnail, "rb"),
+                    "image/jpeg",
+                ),
+                "thumbnailfile": (
+                    video.get_thumbnail_filename(),
+                    open(thumbnail, "rb"),
+                    "image/jpeg",
+                ),
+            })
         resp = requests.post(url, headers=headers, files=files, data=data)
         if not resp.ok:
             if skip_error:
@@ -338,6 +354,9 @@ def push_videos(skip_error=False, limit=1):
             breakpoint()
             break
         MAPPING[video.id] = resp.json()["video"]["uuid"]
+        if not video.quarantine:
+            print('Removing from quarantine')
+            requests.delete(f"{PEERTUBE_URL}/videos/{video.id}/blacklist")
         count += 1
         if limit and count >= limit:
             break
