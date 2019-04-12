@@ -9,6 +9,7 @@ import urllib.request
 from base64 import b64encode
 from dataclasses import dataclass, asdict
 from datetime import datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import List
 from urllib.error import HTTPError
@@ -183,7 +184,8 @@ def pull(force=False):
         video = Video(**raw)
         video.download(force=force)
     resp = requests.get(
-        f"{KINTO_URL}/v1/buckets/classea12/collections/upcoming/records", headers=headers
+        f"{KINTO_URL}/v1/buckets/classea12/collections/upcoming/records",
+        headers=headers,
     )
     videos = resp.json()["data"]
     for raw in videos:
@@ -211,6 +213,7 @@ def pull(force=False):
         profile.download(force=force)
 
 
+@lru_cache()
 def get_peertube_token(user, password):
     resp = requests.get(f"{PEERTUBE_URL}/oauth-clients/local")
     client_id = resp.json()["client_id"]
@@ -292,11 +295,15 @@ def push_videos(skip_error=False, limit=1):
     ownership = json.loads((ROOT / "mapping_video_user.json").read_text())
     url = f"{PEERTUBE_URL}/videos/upload"
     count = 0
-    for video in Video.all():
+    admin_token = get_peertube_token(PEERTUBE_USER, PEERTUBE_PASSWORD)
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+    for video in sorted(Video.all(), key=lambda v: v.publish_date):
         print(video.title, video.id)
         if video.id in MAPPING:
             peertube_uuid = MAPPING[video.id]
-            resp = requests.get(f"{PEERTUBE_URL}/videos/{peertube_uuid}")
+            resp = requests.get(
+                f"{PEERTUBE_URL}/videos/{peertube_uuid}", headers=admin_headers
+            )
             if resp.ok:
                 print("Video already in the remote server", peertube_uuid)
                 continue
@@ -330,22 +337,24 @@ def push_videos(skip_error=False, limit=1):
                 video.attachment.get_filename(),
                 open(video.attachment.get_file(), "rb"),
                 video.attachment.mimetype,
-            ),
+            )
         }
         thumbnail = video.get_thumbnail_file()
         if thumbnail.exists():
-            files.update({
-                "previewfile": (
-                    video.get_thumbnail_filename(),
-                    open(thumbnail, "rb"),
-                    "image/jpeg",
-                ),
-                "thumbnailfile": (
-                    video.get_thumbnail_filename(),
-                    open(thumbnail, "rb"),
-                    "image/jpeg",
-                ),
-            })
+            files.update(
+                {
+                    "previewfile": (
+                        video.get_thumbnail_filename(),
+                        open(thumbnail, "rb"),
+                        "image/jpeg",
+                    ),
+                    "thumbnailfile": (
+                        video.get_thumbnail_filename(),
+                        open(thumbnail, "rb"),
+                        "image/jpeg",
+                    ),
+                }
+            )
         resp = requests.post(url, headers=headers, files=files, data=data)
         if not resp.ok:
             if skip_error:
@@ -355,7 +364,7 @@ def push_videos(skip_error=False, limit=1):
             break
         MAPPING[video.id] = resp.json()["video"]["uuid"]
         if not video.quarantine:
-            print('Removing from quarantine')
+            print("Removing from quarantine")
             requests.delete(f"{PEERTUBE_URL}/videos/{video.id}/blacklist")
         count += 1
         if limit and count >= limit:
