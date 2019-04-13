@@ -101,7 +101,7 @@ viewHeader { activePage, session, updateSearchMsg, submitSearchMsg } =
                     , class "navbar__logo"
                     ]
                     []
-                , text "classea12.beta.gouv.fr"
+                , text "classe-a-12.beta.gouv.fr"
                 ]
             , nav
                 []
@@ -158,7 +158,7 @@ viewFooter session =
                 ]
             , ul [ class "footer__links" ]
                 [ li []
-                    [ h2 [] [ text "classea12.beta.gouv.fr" ] ]
+                    [ h2 [] [ text "classe-a-12.beta.gouv.fr" ] ]
                 , li []
                     [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ] ]
                 , li []

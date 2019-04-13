@@ -20,7 +20,7 @@ from PIL import Image
 from progressist import ProgressBar
 
 ROOT = Path(".cache")
-KINTO_URL = "https://kinto.classea12.beta.gouv.fr"
+KINTO_URL = "https://kinto.classe-a-12.beta.gouv.fr"
 KINTO_USER = "classea12admin"
 KINTO_PASSWORD = os.environ.get("KINTO_PASSWORD", "")
 PEERTUBE_BASE_URL = os.environ.get("PEERTUBE_URL", "https://peertube.scopyleft.fr")
