@@ -20,7 +20,7 @@ from PIL import Image
 from progressist import ProgressBar
 
 ROOT = Path(".cache")
-KINTO_URL = "https://kinto.classe-a-12.beta.gouv.fr"
+KINTO_URL = "https://kinto.classea12.beta.gouv.fr"
 KINTO_USER = "classea12admin"
 KINTO_PASSWORD = os.environ.get("KINTO_PASSWORD", "")
 PEERTUBE_BASE_URL = os.environ.get("PEERTUBE_URL", "https://peertube.scopyleft.fr")
@@ -298,7 +298,7 @@ def push_videos(skip_error=False, limit=1):
     admin_token = get_peertube_token(PEERTUBE_USER, PEERTUBE_PASSWORD)
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
     for video in sorted(Video.all(), key=lambda v: v.publish_date):
-        print(video.title, video.id)
+        print(count, video.title, video.id)
         if video.id in MAPPING:
             peertube_uuid = MAPPING[video.id]
             resp = requests.get(
