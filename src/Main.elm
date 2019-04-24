@@ -66,6 +66,9 @@ type alias Model =
     { navKey : Nav.Key
     , page : Page
     , session : Session
+
+    -- Partially applied Route.pushUrl with the navKey
+    , pushUrl : Route -> Cmd Msg
     }
 
 
@@ -255,6 +258,7 @@ init flags url navKey =
                 { navKey = navKey
                 , page = HomePage (Home.init session |> (\( model, _ ) -> model))
                 , session = session
+                , pushUrl = Route.pushUrl navKey
                 }
     in
     ( routeModel, Cmd.batch [ routeCmd, Task.perform AdjustTimeZone Time.here ] )
@@ -275,6 +279,17 @@ update msg ({ page, session } as model) =
             ( { model | page = toModel newModel }
             , Cmd.map toMsg newCmd
             )
+
+        toPageWithSessionMsg toModel toMsg subUpdate subMsg subModel =
+            let
+                ( newModel, newCmd, sessionCmd ) =
+                    subUpdate subMsg subModel
+            in
+            ( { model | page = toModel newModel }
+            , Cmd.map toMsg newCmd
+            , sessionCmd
+            )
+                |> Data.Session.interpretMsg
     in
     case ( msg, page ) of
         ( HomeMsg homeMsg, HomePage homeModel ) ->
@@ -302,7 +317,7 @@ update msg ({ page, session } as model) =
             toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
 
         ( VideoMsg videoMsg, VideoPage videoModel ) ->
-            toPage VideoPage VideoMsg (Video.update session) videoMsg videoModel
+            toPageWithSessionMsg VideoPage VideoMsg (Video.update session) videoMsg videoModel
 
         ( LoginMsg loginMsg, LoginPage loginModel ) ->
             let

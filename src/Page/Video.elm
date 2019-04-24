@@ -94,15 +94,16 @@ init videoID videoTitle session =
     )
 
 
-update : Session -> Msg -> Model -> ( Model, Cmd Msg )
+update : Session -> Msg -> Model -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 update session msg model =
     case msg of
         NoOp ->
-            ( model, Cmd.none )
+            ( model, Cmd.none, Nothing )
 
         VideoReceived (Ok video) ->
             ( { model | videoData = Data.PeerTube.Received video }
             , scrollToComment session.url.fragment model
+            , Nothing
             )
 
         VideoReceived (Err error) ->
@@ -113,10 +114,11 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
+            , Nothing
             )
 
         ShareVideo shareText ->
-            ( model, Ports.navigatorShare shareText )
+            ( model, Ports.navigatorShare shareText, Nothing )
 
         CommentsReceived (Ok comments) ->
             let
@@ -126,6 +128,7 @@ update session msg model =
             in
             ( { model | comments = Data.PeerTube.Received comments }
             , scrollToComment session.url.fragment model
+            , Nothing
             )
 
         CommentsReceived (Err error) ->
@@ -136,10 +139,11 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
+            , Nothing
             )
 
         UpdateCommentForm comment ->
-            ( { model | comment = comment }, Cmd.none )
+            ( { model | comment = comment }, Cmd.none, Nothing )
 
         AddComment ->
             case session.userToken of
@@ -151,11 +155,12 @@ update session msg model =
                         access_token
                         session.peerTubeURL
                         (CommentAdded access_token)
+                    , Nothing
                     )
 
                 Nothing ->
                     -- Profile not created yet: we shouldn't be there.
-                    ( model, Cmd.none )
+                    ( model, Cmd.none, Nothing )
 
         CommentAdded access_token (Ok comment) ->
             if model.attachmentSelected then
@@ -174,6 +179,7 @@ update session msg model =
                   }
                   -- Upload the attachment
                 , Ports.submitAttachment submitAttachmentData
+                , Nothing
                 )
 
             else
@@ -186,6 +192,7 @@ update session msg model =
                     [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
                     , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
                     ]
+                , Nothing
                 )
 
         CommentAdded _ (Err error) ->
@@ -196,6 +203,7 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
+            , Just Data.Session.Logout
             )
 
         ProgressUpdated value ->
@@ -204,10 +212,16 @@ update session msg model =
                     Decode.decodeValue Page.Common.Progress.decoder value
                         |> Result.withDefault Page.Common.Progress.empty
             in
-            ( { model | progress = progress }, Cmd.none )
+            ( { model | progress = progress }
+            , Cmd.none
+            , Nothing
+            )
 
         AttachmentSelected ->
-            ( { model | attachmentSelected = True }, Cmd.none )
+            ( { model | attachmentSelected = True }
+            , Cmd.none
+            , Nothing
+            )
 
         AttachmentSent filePath ->
             ( { model
@@ -222,13 +236,20 @@ update session msg model =
                 [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
                 , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
                 ]
+            , Nothing
             )
 
         CommentSelected commentID ->
-            ( model, scrollToComment (Just commentID) model )
+            ( model
+            , scrollToComment (Just commentID) model
+            , Nothing
+            )
 
         AttachmentListReceived (Ok attachmentList) ->
-            ( { model | attachmentList = attachmentList }, Cmd.none )
+            ( { model | attachmentList = attachmentList }
+            , Cmd.none
+            , Nothing
+            )
 
         AttachmentListReceived (Err error) ->
             ( { model
@@ -237,10 +258,14 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
+            , Nothing
             )
 
         NotificationMsg notificationMsg ->
-            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }
+            , Cmd.none
+            , Nothing
+            )
 
 
 scrollToComment : Maybe String -> Model -> Cmd Msg
