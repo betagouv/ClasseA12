@@ -166,6 +166,7 @@ interpretMsg ( { session, navKey } as model, cmd, maybeMessage ) =
                             ( { session
                                 | userInfo = Nothing
                                 , userToken = Nothing
+                                , userData = emptyUserData
                               }
                             , Cmd.batch
                                 [ Ports.logoutSession ()

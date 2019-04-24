@@ -335,31 +335,7 @@ update msg ({ page, session } as model) =
             toPage ActivatePage ActivateMsg (Activate.update session) activateMsg activateModel
 
         ( ProfileMsg profileMsg, ProfilePage profileModel ) ->
-            let
-                ( newModel, newCmd ) =
-                    toPage ProfilePage ProfileMsg (Profile.update session) profileMsg profileModel
-            in
-            case profileMsg of
-                Profile.Logout ->
-                    -- Special case: if the user logged out, we can remove the stored session.
-                    let
-                        updatedSession =
-                            { session
-                                | userData = emptyUserData
-                                , userInfo = Nothing
-                                , userToken = Nothing
-                            }
-                    in
-                    ( { newModel | session = updatedSession }
-                    , Cmd.batch
-                        [ Ports.logoutSession ()
-                        , Route.pushUrl model.navKey Route.Home
-                        , newCmd
-                        ]
-                    )
-
-                _ ->
-                    ( newModel, newCmd )
+            toPageWithSessionMsg ProfilePage ProfileMsg (Profile.update session) profileMsg profileModel
 
         ( CommentsMsg commentsMsg, CommentsPage commentsModel ) ->
             toPage CommentsPage CommentsMsg (Comments.update session) commentsMsg commentsModel
