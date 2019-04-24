@@ -373,9 +373,12 @@ def push_videos(skip_error=False, limit=1, video_id=None):
         MAPPING[video.id] = remote_id
         if not video.quarantine:
             print("Removing from quarantine")
-            requests.delete(
-                f"{PEERTUBE_URL}/videos/{video.id}/blacklist", headers=admin_headers
+            resp = requests.delete(
+                f"{PEERTUBE_URL}/videos/{remote_id}/blacklist", headers=admin_headers
             )
+            if not resp.ok:
+                print(resp.status_code)
+                print(resp.content)
         count += 1
         if limit and count >= limit:
             break
