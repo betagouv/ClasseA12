@@ -19,7 +19,6 @@ type alias Model =
     , loginForm : LoginForm
     , notifications : Notifications.Model
     , userInfoData : PeerTube.RemoteData PeerTube.UserInfo
-    , userTokenData : PeerTube.RemoteData PeerTube.UserToken
     }
 
 
@@ -38,7 +37,7 @@ type Msg
     | Login
     | NotificationMsg Notifications.Msg
     | UserTokenReceived (Result Http.Error PeerTube.UserToken)
-    | UserInfoReceived (Result Http.Error PeerTube.UserInfo)
+    | UserInfoReceived PeerTube.UserToken (Result Http.Error PeerTube.UserInfo)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -48,28 +47,34 @@ init session =
             { title = "Connexion"
             , loginForm = emptyLoginForm
             , userInfoData = PeerTube.NotRequested
-            , userTokenData = PeerTube.NotRequested
             , notifications = Notifications.init
             }
     in
     ( initialModel, Cmd.none )
 
 
-update : Session -> Msg -> Model -> ( Model, Cmd Msg )
+update : Session -> Msg -> Model -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 update session msg model =
     case msg of
         UpdateLoginForm loginForm ->
-            ( { model | loginForm = loginForm }, Cmd.none )
+            ( { model | loginForm = loginForm }
+            , Cmd.none
+            , Nothing
+            )
 
         Login ->
             useLogin session.peerTubeURL model
 
         NotificationMsg notificationMsg ->
-            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }
+            , Cmd.none
+            , Nothing
+            )
 
         UserTokenReceived (Ok userToken) ->
-            ( { model | userTokenData = PeerTube.Received userToken }
-            , Request.PeerTube.getUserInfo userToken.access_token session.peerTubeURL UserInfoReceived
+            ( model
+            , Request.PeerTube.getUserInfo userToken.access_token session.peerTubeURL (UserInfoReceived userToken)
+            , Nothing
             )
 
         UserTokenReceived (Err error) ->
@@ -78,17 +83,18 @@ update session msg model =
                     "Connection échouée"
                         |> Notifications.addError model.notifications
                 , userInfoData = PeerTube.NotRequested
-                , userTokenData = PeerTube.Failed "Connexion échouée"
               }
             , Cmd.none
+            , Nothing
             )
 
-        UserInfoReceived (Ok userInfo) ->
+        UserInfoReceived userToken (Ok userInfo) ->
             ( { model | userInfoData = PeerTube.Received userInfo }
             , Cmd.none
+            , Just <| Data.Session.Login userToken userInfo
             )
 
-        UserInfoReceived (Err error) ->
+        UserInfoReceived _ (Err error) ->
             ( { model
                 | notifications =
                     "Connection échouée"
@@ -96,6 +102,7 @@ update session msg model =
                 , userInfoData = PeerTube.NotRequested
               }
             , Cmd.none
+            , Nothing
             )
 
 
@@ -104,15 +111,16 @@ isLoginFormComplete loginForm =
     loginForm.username /= "" && loginForm.password /= ""
 
 
-useLogin : String -> Model -> ( Model, Cmd Msg )
+useLogin : String -> Model -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 useLogin serverURL model =
     if isLoginFormComplete model.loginForm then
         ( { model | userInfoData = PeerTube.Requested }
         , Request.PeerTube.login model.loginForm.username model.loginForm.password serverURL UserTokenReceived
+        , Nothing
         )
 
     else
-        ( model, Cmd.none )
+        ( model, Cmd.none, Nothing )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )

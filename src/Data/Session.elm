@@ -13,6 +13,7 @@ module Data.Session exposing
     , userInfoDecoder
     )
 
+import Browser.Navigation as Nav
 import Data.PeerTube
 import Dict
 import Json.Decode as Decode
@@ -25,7 +26,7 @@ import Url exposing (Url)
 
 
 type Msg
-    = Login
+    = Login Data.PeerTube.UserToken Data.PeerTube.UserInfo
     | Logout
 
 
@@ -138,21 +139,9 @@ userInfoDecoder =
 
 
 interpretMsg :
-    ( { a
-        | session : Session
-        , pushUrl : Route.Route -> Cmd msg
-      }
-    , Cmd msg
-    , Maybe Msg
-    )
-    ->
-        ( { a
-            | session : Session
-            , pushUrl : Route.Route -> Cmd msg
-          }
-        , Cmd msg
-        )
-interpretMsg ( { session, pushUrl } as model, cmd, maybeMessage ) =
+    ( { a | session : Session, navKey : Nav.Key }, Cmd msg, Maybe Msg )
+    -> ( { a | session : Session, navKey : Nav.Key }, Cmd msg )
+interpretMsg ( { session, navKey } as model, cmd, maybeMessage ) =
     case maybeMessage of
         Nothing ->
             ( model, cmd )
@@ -161,8 +150,17 @@ interpretMsg ( { session, pushUrl } as model, cmd, maybeMessage ) =
             let
                 ( updatedSession, sessionCmd ) =
                     case message of
-                        Login ->
-                            ( session, Cmd.none )
+                        Login userToken userInfo ->
+                            ( { session
+                                | userInfo = Just userInfo
+                                , userToken = Just userToken
+                              }
+                            , Cmd.batch
+                                [ Ports.saveUserInfo <| Data.PeerTube.encodeUserInfo userInfo
+                                , Ports.saveUserToken <| Data.PeerTube.encodeUserToken userToken
+                                , redirectToPrevUrl session navKey
+                                ]
+                            )
 
                         Logout ->
                             ( { session
@@ -171,8 +169,38 @@ interpretMsg ( { session, pushUrl } as model, cmd, maybeMessage ) =
                               }
                             , Cmd.batch
                                 [ Ports.logoutSession ()
-                                , pushUrl Route.Login
+                                , Route.pushUrl navKey Route.Login
                                 ]
                             )
             in
             ( { model | session = updatedSession }, Cmd.batch [ cmd, sessionCmd ] )
+
+
+redirectToPrevUrl : Session -> Nav.Key -> Cmd msg
+redirectToPrevUrl session navKey =
+    let
+        shouldRedirectToPrevPage =
+            case Route.fromUrl session.prevUrl of
+                Nothing ->
+                    False
+
+                Just Route.Login ->
+                    False
+
+                Just (Route.Activate _ _) ->
+                    False
+
+                Just Route.ResetPassword ->
+                    False
+
+                Just (Route.SetNewPassword _ _) ->
+                    False
+
+                _ ->
+                    True
+    in
+    if session.prevUrl /= session.url && shouldRedirectToPrevPage then
+        Nav.pushUrl navKey <| Url.toString session.prevUrl
+
+    else
+        Route.pushUrl navKey Route.Home
