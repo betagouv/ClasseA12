@@ -214,10 +214,14 @@ def pull(force=False):
 
 
 @lru_cache()
-def get_peertube_token(user, password):
+def get_client():
     resp = requests.get(f"{PEERTUBE_URL}/oauth-clients/local")
-    client_id = resp.json()["client_id"]
-    client_secret = resp.json()["client_secret"]
+    return resp.json()["client_id"], resp.json()["client_secret"]
+
+
+@lru_cache()
+def get_peertube_token(user, password):
+    client_id, client_secret = get_client()
     url = f"{PEERTUBE_URL}/users/token"
     resp = requests.post(
         url,
