@@ -5,6 +5,7 @@ module Request.PeerTube exposing
     , getVideo
     , getVideoCommentList
     , getVideoList
+    , is401
     , login
     , submitComment
     , updateUserAccount
@@ -253,3 +254,13 @@ submitCommentRequest comment videoID access_token serverURL =
 submitComment : String -> String -> String -> String -> (Result Http.Error Comment -> msg) -> Cmd msg
 submitComment comment videoID access_token serverURL message =
     Http.send message (submitCommentRequest comment videoID access_token serverURL)
+
+
+is401 : Http.Error -> Bool
+is401 error =
+    case error of
+        Http.BadStatus response ->
+            response.status.code == 401
+
+        _ ->
+            False

@@ -10,16 +10,19 @@ module Data.Session exposing
     , interpretMsg
     , isLoggedIn
     , isPeerTubeLoggedIn
+    , logoutIf401
     , userInfoDecoder
     )
 
 import Browser.Navigation as Nav
 import Data.PeerTube
 import Dict
+import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 import Ports
+import Request.PeerTube
 import Route
 import Time
 import Url exposing (Url)
@@ -205,3 +208,12 @@ redirectToPrevUrl session navKey =
 
     else
         Route.pushUrl navKey Route.Home
+
+
+logoutIf401 : Http.Error -> Maybe Msg
+logoutIf401 error =
+    if Request.PeerTube.is401 error then
+        Just Logout
+
+    else
+        Nothing

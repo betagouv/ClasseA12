@@ -116,7 +116,7 @@ update session msg model =
                 , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
-            , Nothing
+            , Data.Session.logoutIf401 error
             )
 
         ProfileFetchedForView (Ok profile) ->
@@ -158,7 +158,7 @@ update session msg model =
                 , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
-            , Nothing
+            , Data.Session.logoutIf401 error
             )
 
         NotificationMsg notificationMsg ->
