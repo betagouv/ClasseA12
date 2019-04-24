@@ -66,6 +66,9 @@ type alias Model =
     { navKey : Nav.Key
     , page : Page
     , session : Session
+
+    -- Partially applied Route.pushUrl with the navKey
+    , pushUrl : Route -> Cmd Msg
     }
 
 
@@ -255,6 +258,7 @@ init flags url navKey =
                 { navKey = navKey
                 , page = HomePage (Home.init session |> (\( model, _ ) -> model))
                 , session = session
+                , pushUrl = Route.pushUrl navKey
                 }
     in
     ( routeModel, Cmd.batch [ routeCmd, Task.perform AdjustTimeZone Time.here ] )
@@ -275,6 +279,17 @@ update msg ({ page, session } as model) =
             ( { model | page = toModel newModel }
             , Cmd.map toMsg newCmd
             )
+
+        toPageWithSessionMsg toModel toMsg subUpdate subMsg subModel =
+            let
+                ( newModel, newCmd, sessionCmd ) =
+                    subUpdate subMsg subModel
+            in
+            ( { model | page = toModel newModel }
+            , Cmd.map toMsg newCmd
+            , sessionCmd
+            )
+                |> Data.Session.interpretMsg
     in
     case ( msg, page ) of
         ( HomeMsg homeMsg, HomePage homeModel ) ->
@@ -302,43 +317,10 @@ update msg ({ page, session } as model) =
             toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
 
         ( VideoMsg videoMsg, VideoPage videoModel ) ->
-            toPage VideoPage VideoMsg (Video.update session) videoMsg videoModel
+            toPageWithSessionMsg VideoPage VideoMsg (Video.update session) videoMsg videoModel
 
         ( LoginMsg loginMsg, LoginPage loginModel ) ->
-            let
-                ( newModel, newCmd ) =
-                    toPage LoginPage LoginMsg (Login.update session) loginMsg loginModel
-            in
-            case loginMsg of
-                -- Special case: if we retrieved the user info or token store them in the session for future use
-                Login.UserTokenReceived (Ok userToken) ->
-                    let
-                        updatedSession =
-                            { session | userToken = Just userToken }
-                    in
-                    ( { newModel | session = updatedSession }
-                    , Cmd.batch
-                        [ Ports.saveUserToken <| Data.PeerTube.encodeUserToken userToken
-                        , newCmd
-                        ]
-                    )
-
-                Login.UserInfoReceived (Ok userInfo) ->
-                    let
-                        updatedSession =
-                            { session | userInfo = Just userInfo }
-                    in
-                    ( { newModel | session = updatedSession }
-                    , Cmd.batch
-                        ([ Ports.saveUserInfo <| Data.PeerTube.encodeUserInfo userInfo
-                         , newCmd
-                         ]
-                            ++ [ redirectToPrevUrl session model ]
-                        )
-                    )
-
-                _ ->
-                    ( newModel, newCmd )
+            toPageWithSessionMsg LoginPage LoginMsg (Login.update session) loginMsg loginModel
 
         ( RegisterMsg registerMsg, RegisterPage registerModel ) ->
             toPage RegisterPage RegisterMsg (Register.update session) registerMsg registerModel
@@ -440,36 +422,6 @@ update msg ({ page, session } as model) =
             ( model
             , Cmd.none
             )
-
-
-redirectToPrevUrl : Session -> Model -> Cmd Msg
-redirectToPrevUrl session model =
-    let
-        shouldRedirectToPrevPage =
-            case Route.fromUrl session.prevUrl of
-                Nothing ->
-                    False
-
-                Just Route.Login ->
-                    False
-
-                Just (Route.Activate _ _) ->
-                    False
-
-                Just Route.ResetPassword ->
-                    False
-
-                Just (Route.SetNewPassword _ _) ->
-                    False
-
-                _ ->
-                    True
-    in
-    if session.prevUrl /= session.url && shouldRedirectToPrevPage then
-        Nav.pushUrl model.navKey <| Url.toString session.prevUrl
-
-    else
-        Route.pushUrl model.navKey Route.Home
 
 
 
