@@ -76,11 +76,14 @@ init profile session =
     )
 
 
-update : Session -> Msg -> Model -> ( Model, Cmd Msg )
+update : Session -> Msg -> Model -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 update session msg model =
     case msg of
         UpdateProfileForm profileForm ->
-            ( { model | profileForm = profileForm }, Cmd.none )
+            ( { model | profileForm = profileForm }
+            , Cmd.none
+            , Nothing
+            )
 
         UpdateProfile ->
             updateProfile session model
@@ -102,6 +105,7 @@ update session msg model =
                 , pageState = EditProfile profile
               }
             , Cmd.none
+            , Nothing
             )
 
         ProfileFetchedForEdit (Err error) ->
@@ -112,6 +116,7 @@ update session msg model =
                 , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
+            , Nothing
             )
 
         ProfileFetchedForView (Ok profile) ->
@@ -120,6 +125,7 @@ update session msg model =
                 , pageState = ViewProfile profile
               }
             , Cmd.none
+            , Nothing
             )
 
         ProfileFetchedForView (Err error) ->
@@ -130,6 +136,7 @@ update session msg model =
                 , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
+            , Nothing
             )
 
         ProfileUpdated (Ok profile) ->
@@ -140,6 +147,7 @@ update session msg model =
                 , profileData = Data.PeerTube.Received profile
               }
             , Cmd.none
+            , Nothing
             )
 
         ProfileUpdated (Err error) ->
@@ -150,14 +158,17 @@ update session msg model =
                 , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
+            , Nothing
             )
 
         NotificationMsg notificationMsg ->
-            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }
+            , Cmd.none
+            , Nothing
+            )
 
         Logout ->
-            -- This message is dealt with in the `Main` module.
-            ( model, Cmd.none )
+            ( model, Cmd.none, Just Data.Session.Logout )
 
 
 isProfileFormComplete : ProfileForm -> Bool
@@ -168,7 +179,7 @@ isProfileFormComplete profileForm =
 updateProfile :
     { a | peerTubeURL : String, userInfo : Maybe Data.PeerTube.UserInfo, userToken : Maybe Data.PeerTube.UserToken }
     -> Model
-    -> ( Model, Cmd Msg )
+    -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 updateProfile { peerTubeURL, userInfo, userToken } model =
     if isProfileFormComplete model.profileForm && Data.Session.isPeerTubeLoggedIn userInfo then
         case userToken of
@@ -180,13 +191,14 @@ updateProfile { peerTubeURL, userInfo, userToken } model =
                     access_token
                     peerTubeURL
                     ProfileUpdated
+                , Nothing
                 )
 
             Nothing ->
-                ( model, Cmd.none )
+                ( model, Cmd.none, Nothing )
 
     else
-        ( model, Cmd.none )
+        ( model, Cmd.none, Nothing )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )
