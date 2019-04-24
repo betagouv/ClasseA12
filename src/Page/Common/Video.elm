@@ -12,6 +12,15 @@ import Route
 import Time
 
 
+publishedAtFromVideo : Data.PeerTube.Video -> String
+publishedAtFromVideo video =
+    if video.originallyPublishedAt /= "" then
+        video.originallyPublishedAt
+
+    else
+        video.publishedAt
+
+
 player : msg -> Data.Kinto.Attachment -> H.Html msg
 player canplayMessage attachment =
     H.video
@@ -55,7 +64,7 @@ details video =
         [ HA.class "video-details" ]
         [ H.h3 [] [ H.text video.name ]
         , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate video.publishedAt ]
+            [ H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
             , H.text " "
             , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
             ]
@@ -69,7 +78,7 @@ shortDetails video =
         [ HA.class "video-details" ]
         [ H.h3 [] [ H.text video.name ]
         , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate video.publishedAt ]
+            [ H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
             ]
         ]
 
