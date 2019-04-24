@@ -371,7 +371,8 @@ def push_videos(skip_error=False, limit=1, video_id=None):
         remote_id = resp.json()["video"]["uuid"]
         print(f"Uploaded video as {remote_id}")
         MAPPING[video.id] = remote_id
-        if not video.quarantine:
+        # PEERTUBE_USER is admin so its video are never in quarantine.
+        if not video.quarantine and user != PEERTUBE_USER:
             print("Removing from quarantine")
             resp = requests.delete(
                 f"{PEERTUBE_URL}/videos/{remote_id}/blacklist", headers=admin_headers
