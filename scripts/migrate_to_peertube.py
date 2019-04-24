@@ -294,7 +294,7 @@ def push_profiles(skip_error=False, limit=1):
 
 
 @minicli.cli
-def push_videos(skip_error=False, limit=1):
+def push_videos(skip_error=False, limit=1, video_id=None):
     profiles = {p.email: p for p in Profile.all()}
     ownership = json.loads((ROOT / "mapping_video_user.json").read_text())
     url = f"{PEERTUBE_URL}/videos/upload"
@@ -302,6 +302,8 @@ def push_videos(skip_error=False, limit=1):
     admin_token = get_peertube_token(PEERTUBE_USER, PEERTUBE_PASSWORD)
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
     for video in sorted(Video.all(), key=lambda v: v.publish_date):
+        if video_id and not video.id == video_id:
+            continue
         print(count, video.title, video.id)
         if video.id in MAPPING:
             peertube_uuid = MAPPING[video.id]
@@ -366,7 +368,9 @@ def push_videos(skip_error=False, limit=1):
             print(resp.content)
             breakpoint()
             break
-        MAPPING[video.id] = resp.json()["video"]["uuid"]
+        remote_id = resp.json()["video"]["uuid"]
+        print(f"Uploaded video as {remote_id}")
+        MAPPING[video.id] = remote_id
         if not video.quarantine:
             print("Removing from quarantine")
             requests.delete(
