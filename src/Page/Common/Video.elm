@@ -51,11 +51,19 @@ kintoDetails timezone video profileData =
 
 details : Data.PeerTube.Video -> H.Html msg
 details video =
+    let
+        publishedAt =
+            if video.originallyPublishedAt /= "" then
+                video.originallyPublishedAt
+
+            else
+                video.publishedAt
+    in
     H.div
         [ HA.class "video-details" ]
         [ H.h3 [] [ H.text video.name ]
         , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate video.publishedAt ]
+            [ H.time [] [ H.text <| Dates.formatStringDate publishedAt ]
             , H.text " "
             , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
             ]
@@ -65,11 +73,19 @@ details video =
 
 shortDetails : Data.PeerTube.Video -> H.Html msg
 shortDetails video =
+    let
+        publishedAt =
+            if video.originallyPublishedAt /= "" then
+                video.originallyPublishedAt
+
+            else
+                video.publishedAt
+    in
     H.div
         [ HA.class "video-details" ]
         [ H.h3 [] [ H.text video.name ]
         , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate video.publishedAt ]
+            [ H.time [] [ H.text <| Dates.formatStringDate publishedAt ]
             ]
         ]
 

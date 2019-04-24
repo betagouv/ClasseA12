@@ -57,6 +57,7 @@ type alias Video =
     , description : String
     , account : Account
     , publishedAt : String
+    , originallyPublishedAt : String
     , tags : List String
     }
 
@@ -133,6 +134,7 @@ videoDecoder =
         |> Pipeline.optional "description" Decode.string ""
         |> Pipeline.required "account" accountDecoder
         |> Pipeline.required "publishedAt" Decode.string
+        |> Pipeline.optional "originallyPublishedAt" Decode.string ""
         |> Pipeline.optional "tags" (Decode.list Decode.string) []
 
 
