@@ -88,7 +88,7 @@ const collectionToMessage = {
     "comments": "Envoi de la pièce jointe",
 }
 
-function xhrForAttachment(url, method, progressMessage, credentials, tokenType, errorCallback) {
+function xhrForAttachment(url, method, progressMessage, credentials, tokenType, callback) {
     // Yes, it would be way nicer to be able to use the GlobalFetch API. But we wouldn't have any report on the progress. :sadface:
     let xhr = new XMLHttpRequest();
     xhr.open(method, url);
@@ -99,8 +99,11 @@ function xhrForAttachment(url, method, progressMessage, credentials, tokenType, 
         }
     }, false);
     xhr.onerror = function (event) {
-        console.error("network error", event.target);
-        errorCallback(this.response);
+        console.error("network error", this);
+        callback(this);
+    }
+    xhr.onload = function (event) {
+        callback(this);
     }
     xhr.setRequestHeader("Authorization", tokenType + " " + credentials);
     return xhr;
@@ -148,15 +151,12 @@ app.ports.submitVideo.subscribe(function (data) {
 
     const url = PEERTUBE_URL + "/videos/upload";
     let xhrVideo = xhrForAttachment(url, "POST", "Envoi de la vidéo", access_token, "Bearer", app.ports.videoSubmitted.send);
-    xhrVideo.onload = function () {
-        app.ports.videoSubmitted.send(this.response);
-    }
     xhrVideo.send(formData);
     videoNode.parentNode.style.display = "none";
 });
 
 // A new comment record has been created, upload the selected file as an attachment
-app.ports.submitAttachment.subscribe(function ({ nodeID, videoID, commentID, access_token }) {
+app.ports.submitAttachment.subscribe(function ({ nodeID, filePath, access_token }) {
     const fileInput = document.getElementById(nodeID);
     if (fileInput === null) {
         console.error("Didn't find a file input with id", nodeID);
@@ -164,12 +164,9 @@ app.ports.submitAttachment.subscribe(function ({ nodeID, videoID, commentID, acc
     }
 
     const file = fileInput.files[0];
-    const filePath = "/" + videoID + "/" + commentID + "/" + file.name;
-    const url = FILES_URL + filePath;
+    const url = FILES_URL + filePath + file.name;
+    console.log("url", url, file.name);
     let xhrAttachment = xhrForAttachment(url, "PUT", "Envoi de la pièce jointe", access_token, "Bearer", app.ports.attachmentSubmitted.send);
-    xhrAttachment.onload = function () {
-        app.ports.attachmentSubmitted.send(filePath);
-    }
     xhrAttachment.send(file);
 });
 

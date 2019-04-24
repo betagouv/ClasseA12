@@ -9,6 +9,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Json.Decode as Decode
+import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 import Kinto
 import Markdown
@@ -17,6 +18,7 @@ import Page.Common.Dates as Dates
 import Page.Common.Notifications as Notifications
 import Page.Common.Progress
 import Page.Common.Video
+import Page.Common.XHR
 import Ports
 import Request.ClasseAFiles
 import Request.Kinto
@@ -55,7 +57,7 @@ type Msg
     | CommentAdded String (Result Http.Error Data.PeerTube.Comment)
     | CommentSelected String
     | AttachmentSelected
-    | AttachmentSent String
+    | AttachmentSent Decode.Value
     | ProgressUpdated Decode.Value
     | AttachmentListReceived (Result Http.Error (List String))
     | NotificationMsg Notifications.Msg
@@ -165,11 +167,13 @@ update session msg model =
         CommentAdded access_token (Ok comment) ->
             if model.attachmentSelected then
                 let
+                    filePath =
+                        "/" ++ model.videoID ++ "/" ++ String.fromInt comment.id ++ "/"
+
                     submitAttachmentData : Ports.SubmitAttachmentData
                     submitAttachmentData =
                         { nodeID = "attachment"
-                        , videoID = model.videoID
-                        , commentID = comment.id
+                        , filePath = filePath
                         , access_token = access_token
                         }
                 in
@@ -203,7 +207,7 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
-            , Just Data.Session.Logout
+            , Data.Session.logoutIf401 error
             )
 
         ProgressUpdated value ->
@@ -223,21 +227,59 @@ update session msg model =
             , Nothing
             )
 
-        AttachmentSent filePath ->
-            ( { model
-                | refreshing = True
-                , comment = ""
-                , attachmentData = Data.PeerTube.Received filePath
-                , attachmentSelected = False
-                , progress = Page.Common.Progress.empty
-              }
-              -- Refresh the list of comments (and then contributors)
-            , Cmd.batch
-                [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
-                , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
-                ]
-            , Nothing
-            )
+        AttachmentSent response ->
+            let
+                decodedResponse =
+                    response
+                        |> Decode.decodeValue Page.Common.XHR.decoder
+                        |> Debug.log "decoded"
+
+                updatedModel =
+                    { model
+                        | comment = ""
+                        , attachmentSelected = False
+                        , progress = Page.Common.Progress.empty
+                    }
+            in
+            case Decode.decodeValue Page.Common.XHR.decoder response of
+                Ok (Page.Common.XHR.Success filePath) ->
+                    ( { updatedModel
+                        | refreshing = True
+                        , attachmentData = Data.PeerTube.Received filePath
+                      }
+                      -- Refresh the list of comments (and then contributors)
+                    , Cmd.batch
+                        [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
+                        , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
+                        ]
+                    , Nothing
+                    )
+
+                Ok (Page.Common.XHR.BadStatus status statusText) ->
+                    ( { updatedModel
+                        | notifications =
+                            "Échec de l'envoi du fichier"
+                                |> Notifications.addError model.notifications
+                        , attachmentData = Data.PeerTube.Failed "Échec de l'envoi du fichier"
+                      }
+                    , Cmd.none
+                    , if status == 401 then
+                        Just Data.Session.Logout
+
+                      else
+                        Nothing
+                    )
+
+                Err error ->
+                    ( { updatedModel
+                        | notifications =
+                            "Échec de l'envoi du fichier"
+                                |> Notifications.addError model.notifications
+                        , attachmentData = Data.PeerTube.Failed "Échec de l'envoi du fichier"
+                      }
+                    , Cmd.none
+                    , Nothing
+                    )
 
         CommentSelected commentID ->
             ( model

@@ -64,8 +64,7 @@ port navigatorShare : String -> Cmd msg
 
 type alias SubmitAttachmentData =
     { nodeID : String
-    , videoID : String
-    , commentID : Int
+    , filePath : String
     , access_token : String
     }
 
@@ -73,4 +72,4 @@ type alias SubmitAttachmentData =
 port submitAttachment : SubmitAttachmentData -> Cmd msg
 
 
-port attachmentSubmitted : (String -> msg) -> Sub msg
+port attachmentSubmitted : (Decode.Value -> msg) -> Sub msg
