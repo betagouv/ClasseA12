@@ -9,7 +9,9 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Json.Decode as Decode
 import Page.Common.Components
+import Page.Common.Notifications as Notifications
 import Page.Common.Progress
+import Page.Common.XHR
 import Ports
 import Route
 
@@ -22,6 +24,7 @@ type alias Model =
     , progress : Page.Common.Progress.Progress
     , preSelectedKeywords : Keywords
     , freeformKeywords : String
+    , notifications : Notifications.Model
     }
 
 
@@ -43,9 +46,10 @@ type Msg
     | VideoSelected
     | VideoObjectUrlReceived Decode.Value
     | ProgressUpdated Decode.Value
-    | VideoUploaded String
+    | VideoUploaded Decode.Value
     | UpdatePreSelectedKeywords String
     | UpdateFreeformKeywords String
+    | NotificationMsg Notifications.Msg
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -57,16 +61,17 @@ init session =
       , progress = Page.Common.Progress.empty
       , preSelectedKeywords = noKeywords
       , freeformKeywords = ""
+      , notifications = Notifications.init
       }
     , Cmd.none
     )
 
 
-update : Session -> Msg -> Model -> ( Model, Cmd Msg )
+update : Session -> Msg -> Model -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 update { userInfo, userToken } msg model =
     case msg of
         UpdateVideoForm video ->
-            ( { model | newVideo = video }, Cmd.none )
+            ( { model | newVideo = video }, Cmd.none, Nothing )
 
         SubmitNewVideo ->
             if Data.Session.isPeerTubeLoggedIn userInfo then
@@ -114,24 +119,25 @@ update { userInfo, userToken } msg model =
                 in
                 ( { model | newVideoData = Data.PeerTube.Requested }
                 , Ports.submitVideo submitVideoData
+                , Nothing
                 )
 
             else
                 -- No profile information in the session? We should never reach this state.
-                ( model, Cmd.none )
+                ( model, Cmd.none, Nothing )
 
         DiscardNotification ->
-            ( { model | newVideoData = Data.PeerTube.NotRequested }, Cmd.none )
+            ( { model | newVideoData = Data.PeerTube.NotRequested }, Cmd.none, Nothing )
 
         VideoSelected ->
-            ( model, Ports.videoSelected "video" )
+            ( model, Ports.videoSelected "video", Nothing )
 
         VideoObjectUrlReceived value ->
             let
                 objectUrl =
                     Decode.decodeValue Decode.string value
             in
-            ( { model | videoObjectUrl = Result.toMaybe objectUrl }, Cmd.none )
+            ( { model | videoObjectUrl = Result.toMaybe objectUrl }, Cmd.none, Nothing )
 
         ProgressUpdated value ->
             let
@@ -139,36 +145,74 @@ update { userInfo, userToken } msg model =
                     Decode.decodeValue Page.Common.Progress.decoder value
                         |> Result.withDefault Page.Common.Progress.empty
             in
-            ( { model | progress = progress }, Cmd.none )
+            ( { model | progress = progress }, Cmd.none, Nothing )
 
         VideoUploaded response ->
             let
-                videoUploadResult =
-                    case Decode.decodeString Data.PeerTube.videoUploadedDecoder response of
-                        Ok videoUploaded ->
-                            Data.PeerTube.Received videoUploaded
-
-                        Err error ->
-                            Decode.errorToString error
-                                |> Data.PeerTube.Failed
+                updatedModel =
+                    { model
+                        | newVideo = Data.PeerTube.emptyNewVideo
+                        , freeformKeywords = ""
+                        , videoObjectUrl = Nothing
+                        , progress = Page.Common.Progress.empty
+                    }
             in
-            ( { model
-                | newVideo = Data.PeerTube.emptyNewVideo
-                , newVideoData = videoUploadResult
-                , freeformKeywords = ""
-                , videoObjectUrl = Nothing
-                , progress = Page.Common.Progress.empty
-              }
-            , Cmd.none
-            )
+            case Decode.decodeValue Page.Common.XHR.decoder response of
+                Ok (Page.Common.XHR.Success stringBody) ->
+                    let
+                        videoUploadResult =
+                            case Decode.decodeString Data.PeerTube.videoUploadedDecoder stringBody of
+                                Ok videoUploaded ->
+                                    Data.PeerTube.Received videoUploaded
+
+                                Err error ->
+                                    Data.PeerTube.Failed "Échec de l'envoi de la vidéo"
+                    in
+                    ( { updatedModel | newVideoData = videoUploadResult }
+                    , Cmd.none
+                    , Nothing
+                    )
+
+                Ok (Page.Common.XHR.BadStatus status statusText) ->
+                    ( { updatedModel
+                        | notifications =
+                            "Échec de l'envoi de la vidéo"
+                                |> Notifications.addError model.notifications
+                        , newVideoData = Data.PeerTube.Failed "Échec de l'envoi de la vidéo"
+                      }
+                    , Cmd.none
+                    , if status == 401 then
+                        Just Data.Session.Logout
+
+                      else
+                        Nothing
+                    )
+
+                Err error ->
+                    ( { updatedModel
+                        | notifications =
+                            "Échec de l'envoi de la vidéo"
+                                |> Notifications.addError model.notifications
+                        , newVideoData = Data.PeerTube.Failed "Échec de l'envoi de la vidéo"
+                      }
+                    , Cmd.none
+                    , Nothing
+                    )
 
         UpdatePreSelectedKeywords keyword ->
             ( { model | preSelectedKeywords = toggleKeyword keyword model.preSelectedKeywords }
             , Cmd.none
+            , Nothing
             )
 
         UpdateFreeformKeywords keywords ->
-            ( { model | freeformKeywords = keywords }, Cmd.none )
+            ( { model | freeformKeywords = keywords }, Cmd.none, Nothing )
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }
+            , Cmd.none
+            , Nothing
+            )
 
 
 view : Session -> Model -> ( String, List (H.Html Msg) )

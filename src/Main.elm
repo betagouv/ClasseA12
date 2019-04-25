@@ -305,7 +305,7 @@ update msg ({ page, session } as model) =
             toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
 
         ( ParticipateMsg participateMsg, ParticipatePage participateModel ) ->
-            toPage ParticipatePage ParticipateMsg (Participate.update session) participateMsg participateModel
+            toPageWithSessionMsg ParticipatePage ParticipateMsg (Participate.update session) participateMsg participateModel
 
         ( ConventionMsg conventionMsg, ConventionPage conventionModel ) ->
             toPage ConventionPage ConventionMsg (Convention.update session) conventionMsg conventionModel

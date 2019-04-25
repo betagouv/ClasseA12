@@ -149,7 +149,7 @@ app.ports.submitVideo.subscribe(function (data) {
     const thumbnailFilename = uuidv4() + ".jpg";
     formData.append('thumbnailfile', thumbnail, thumbnailFilename);
 
-    const url = PEERTUBE_URL + "/videos/upload";
+    const url = PEERTUBE_URL + "/api/v1/videos/upload";
     let xhrVideo = xhrForAttachment(url, "POST", "Envoi de la vidéo", access_token, "Bearer", app.ports.videoSubmitted.send);
     xhrVideo.send(formData);
     videoNode.parentNode.style.display = "none";

@@ -39,7 +39,7 @@ type alias SubmitVideoData =
 port submitVideo : SubmitVideoData -> Cmd msg
 
 
-port videoSubmitted : (String -> msg) -> Sub msg
+port videoSubmitted : (Decode.Value -> msg) -> Sub msg
 
 
 port progressUpdate : (Decode.Value -> msg) -> Sub msg

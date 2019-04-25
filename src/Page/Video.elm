@@ -229,11 +229,6 @@ update session msg model =
 
         AttachmentSent response ->
             let
-                decodedResponse =
-                    response
-                        |> Decode.decodeValue Page.Common.XHR.decoder
-                        |> Debug.log "decoded"
-
                 updatedModel =
                     { model
                         | comment = ""
