@@ -20,7 +20,6 @@ import Page.Convention as Convention
 import Page.Home as Home
 import Page.Login as Login
 import Page.Participate as Participate
-import Page.PeerTubeAccount as PeerTubeAccount
 import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
 import Page.Register as Register
@@ -44,7 +43,6 @@ type alias Flags =
 type Page
     = HomePage Home.Model
     | SearchPage Search.Model
-    | PeerTubeAccountPage PeerTubeAccount.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
     | CGUPage CGU.Model
@@ -75,7 +73,6 @@ type alias Model =
 type Msg
     = HomeMsg Home.Msg
     | SearchMsg Search.Msg
-    | PeerTubeAccountMsg PeerTubeAccount.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
     | CGUMsg CGU.Msg
@@ -133,9 +130,6 @@ setRoute url oldModel =
 
         Just (Route.Search search) ->
             toPage SearchPage (Search.init search) SearchMsg
-
-        Just (Route.PeerTubeAccount accountName) ->
-            toPage PeerTubeAccountPage (PeerTubeAccount.init accountName) PeerTubeAccountMsg
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -298,9 +292,6 @@ update msg ({ page, session } as model) =
         ( SearchMsg searchMsg, SearchPage searchModel ) ->
             toPage SearchPage SearchMsg (Search.update session) searchMsg searchModel
 
-        ( PeerTubeAccountMsg peerTubeAccountMsg, PeerTubeAccountPage peerTubeAccountModel ) ->
-            toPage PeerTubeAccountPage PeerTubeAccountMsg (PeerTubeAccount.update session) peerTubeAccountMsg peerTubeAccountModel
-
         ( AboutMsg aboutMsg, AboutPage aboutModel ) ->
             toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
 
@@ -414,9 +405,6 @@ subscriptions model =
             SearchPage _ ->
                 Sub.none
 
-            PeerTubeAccountPage _ ->
-                Sub.none
-
             AboutPage _ ->
                 Sub.none
 
@@ -498,11 +486,6 @@ view model =
             Search.view model.session searchModel
                 |> mapMsg SearchMsg
                 |> Page.frame (pageConfig Page.Search)
-
-        PeerTubeAccountPage peerTubeAccountModel ->
-            PeerTubeAccount.view model.session peerTubeAccountModel
-                |> mapMsg PeerTubeAccountMsg
-                |> Page.frame (pageConfig Page.PeerTubeAccount)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel

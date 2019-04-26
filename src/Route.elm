@@ -13,7 +13,6 @@ import Url.Parser.Query as Query
 type Route
     = Home
     | Search (Maybe String)
-    | PeerTubeAccount String
     | About
     | Participate
     | CGU
@@ -36,7 +35,6 @@ parser =
         [ Parser.map Home Parser.top
         , Parser.map (Search Nothing) (Parser.s "videos")
         , Parser.map (\search -> Search <| Just search) (Parser.s "videos" </> Parser.string)
-        , Parser.map PeerTubeAccount (Parser.s "peertube" </> Parser.s "profil" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map CGU (Parser.s "CGU")
@@ -84,9 +82,6 @@ toString route =
                                 [ "videos", Url.percentEncode justSearch ]
                             )
                         |> Maybe.withDefault [ "videos" ]
-
-                PeerTubeAccount accountName ->
-                    [ "peertube", "profil", accountName ]
 
                 About ->
                     [ "apropos" ]
