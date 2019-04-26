@@ -289,11 +289,28 @@ update session msg model =
             )
 
         AttachmentListReceived (Err error) ->
-            ( { model
-                | notifications =
-                    "Échec de la récupération des pièces jointes"
-                        |> Notifications.addError model.notifications
-              }
+            let
+                updatedModel =
+                    case error of
+                        Http.BadStatus response ->
+                            if response.status.code == 404 then
+                                { model | attachmentList = [] }
+
+                            else
+                                { model
+                                    | notifications =
+                                        "Échec de la récupération des pièces jointes"
+                                            |> Notifications.addError model.notifications
+                                }
+
+                        _ ->
+                            { model
+                                | notifications =
+                                    "Échec de la récupération des pièces jointes"
+                                        |> Notifications.addError model.notifications
+                            }
+            in
+            ( updatedModel
             , Cmd.none
             , Nothing
             )
