@@ -20,7 +20,7 @@ import Page.Common.Progress
 import Page.Common.Video
 import Page.Common.XHR
 import Ports
-import Request.ClasseAFiles
+import Request.Files
 import Request.Kinto
 import Request.KintoProfile
 import Request.KintoVideo
@@ -91,7 +91,7 @@ init videoID videoTitle session =
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.peerTubeURL VideoReceived
         , Request.PeerTube.getVideoCommentList videoID session.peerTubeURL CommentsReceived
-        , Request.ClasseAFiles.getVideoAttachmentList videoID session.filesURL AttachmentListReceived
+        , Request.Files.getVideoAttachmentList videoID session.filesURL AttachmentListReceived
         ]
     )
 
@@ -194,7 +194,7 @@ update session msg model =
                   -- Refresh the list of comments
                 , Cmd.batch
                     [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
-                    , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
+                    , Request.Files.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
                     ]
                 , Nothing
                 )
@@ -245,7 +245,7 @@ update session msg model =
                       -- Refresh the list of comments (and then contributors)
                     , Cmd.batch
                         [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
-                        , Request.ClasseAFiles.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
+                        , Request.Files.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
                         ]
                     , Nothing
                     )

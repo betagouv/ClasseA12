@@ -1,4 +1,4 @@
-module Request.ClasseAFiles exposing (getVideoAttachmentList)
+module Request.Files exposing (getVideoAttachmentList)
 
 import Http
 import Json.Decode as Decode
