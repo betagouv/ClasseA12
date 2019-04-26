@@ -97,7 +97,7 @@ update session msg model =
             )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
     let
         viewRecentVideo =
@@ -164,47 +164,13 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
                             ]
                     )
     in
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__banner" ] []
-            , H.div [ HA.class "hero__container" ]
-                [ H.img
-                    [ HA.src staticFiles.logo_ca12
-                    , HA.class "hero__logo"
-                    ]
-                    []
-                , H.h1 []
-                    [ H.text "Classe à 12 en vidéo" ]
-                , H.p []
-                    [ H.text "Échangeons nos pratiques en toute simplicité !" ]
-                ]
-            ]
-      , H.div [ HA.class "dashboard" ]
-            [ H.aside [ HA.class "side-menu" ]
-                [ H.h5 [] [ H.text "Catégories" ]
-                , H.ul []
-                    (Data.Kinto.keywordList
-                        |> List.map
-                            (\( keyword, _ ) ->
-                                H.li [] [ H.a [ Route.href <| Route.Search (Just keyword) ] [ H.text keyword ] ]
-                            )
-                    )
-                , H.h5 [] [ H.text "Le projet" ]
-                , H.ul []
-                    [ H.li [] [ H.a [ Route.href Route.About ] [ H.text "Classe à 12 ?" ] ]
-                    , H.li [] [ H.a [ Route.href Route.Participate ] [ H.text "Je participe" ] ]
-                    , H.li [] [ H.a [ HA.href "mailto:classea12@education.gouv.fr" ] [ H.text "Contactez-nous" ] ]
-                    -- Link to the Mailchimp signup form.
-                    , H.li [] [ H.a [ HA.href "http://eepurl.com/gnJbYz" ] [ H.text "Inscrivez-vous à notre infolettre" ] ]
-                    ]
-                ]
-            , H.div [ HA.class "main" ]
-                (viewRecentVideo
-                    ++ viewVideoCategories
-                )
-            ]
-      ]
-    )
+    { title = title
+    , pageTitle = "Classe à 12 en vidéo"
+    , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
+    , body =
+        viewRecentVideo
+            ++ viewVideoCategories
+    }
 
 
 viewVideoList :

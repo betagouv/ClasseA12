@@ -215,37 +215,38 @@ update { userInfo, userToken } msg model =
             )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view { staticFiles, userInfo } model =
-    ( model.title
-    , [ H.div [ HA.class "main" ]
-            [ H.div [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ displayRemoteData model.newVideoData
-                    , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
-                    , H.p []
-                        [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
-                        , H.ul []
-                            [ H.li []
-                                [ H.a [ HA.href staticFiles.autorisationCaptationImageMineur ]
-                                    [ H.text "Autorisation captation image mineur" ]
-                                ]
-                            , H.li []
-                                [ H.a [ HA.href staticFiles.autorisationCaptationImageMajeur ]
-                                    [ H.text "Autorisation captation image majeur" ]
-                                ]
+    { title = model.title
+    , pageTitle = model.title
+    , pageSubTitle = "Partagez une vidéo"
+    , body =
+        [ H.div [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ displayRemoteData model.newVideoData
+                , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
+                , H.p []
+                    [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
+                    , H.ul []
+                        [ H.li []
+                            [ H.a [ HA.href staticFiles.autorisationCaptationImageMineur ]
+                                [ H.text "Autorisation captation image mineur" ]
+                            ]
+                        , H.li []
+                            [ H.a [ HA.href staticFiles.autorisationCaptationImageMajeur ]
+                                [ H.text "Autorisation captation image majeur" ]
                             ]
                         ]
-                    , if not <| Data.Session.isPeerTubeLoggedIn userInfo then
-                        Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
-
-                      else
-                        displaySubmitVideoForm model
                     ]
+                , if not <| Data.Session.isPeerTubeLoggedIn userInfo then
+                    Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+
+                  else
+                    displaySubmitVideoForm model
                 ]
             ]
-      ]
-    )
+        ]
+    }
 
 
 displaySubmitVideoForm :

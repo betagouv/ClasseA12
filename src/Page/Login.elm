@@ -123,30 +123,25 @@ useLogin serverURL model =
         ( model, Cmd.none, Nothing )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view session { title, notifications, loginForm, userInfoData } =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "Connexion" ]
-                ]
-            ]
-      , H.div [ HA.class "main" ]
-            [ H.map NotificationMsg (Notifications.view notifications)
-            , case userInfoData of
-                PeerTube.Received userInfo ->
-                    H.div [] [ H.text "Vous êtes maintenant connecté" ]
+    { title = title
+    , pageTitle = title
+    , pageSubTitle = ""
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , case userInfoData of
+            PeerTube.Received userInfo ->
+                H.div [] [ H.text "Vous êtes maintenant connecté" ]
 
-                _ ->
-                    H.div [ HA.class "section section-white" ]
-                        [ H.div [ HA.class "container" ]
-                            [ viewLoginForm loginForm userInfoData
-                            ]
+            _ ->
+                H.div [ HA.class "section section-white" ]
+                    [ H.div [ HA.class "container" ]
+                        [ viewLoginForm loginForm userInfoData
                         ]
-            ]
-      ]
-    )
+                    ]
+        ]
+    }
 
 
 viewLoginForm : LoginForm -> PeerTube.RemoteData PeerTube.UserInfo -> H.Html Msg

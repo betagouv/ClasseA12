@@ -1,16 +1,18 @@
 module Views.Page exposing (ActivePage(..), Config, frame)
 
 import Browser exposing (Document)
+import Data.Kinto
 import Data.Session exposing (Session, isPeerTubeLoggedIn)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, title, type_, value)
 import Html.Events exposing (onInput, onSubmit)
+import Page.Common.Components
 import Route
 
 
 type ActivePage
     = Home
-    | Search
+    | Search String
     | PeerTube
     | PeerTubeVideo
     | PeerTubeAccount
@@ -40,18 +42,18 @@ type alias Config msg =
     }
 
 
-frame : Config msg -> ( String, List (Html.Html msg) ) -> Document msg
-frame config ( title, content ) =
+frame : Config msg -> Page.Common.Components.Document msg -> Document msg
+frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        [ viewHeader config ]
-            ++ content
+        viewHeader config pageTitle pageSubTitle
+            ++ viewContent config body
             ++ [ viewFooter config.session ]
     }
 
 
-viewHeader : Config msg -> Html msg
-viewHeader { activePage, session, updateSearchMsg, submitSearchMsg } =
+viewHeader : Config msg -> String -> String -> List (Html msg)
+viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle =
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
@@ -76,19 +78,8 @@ viewHeader { activePage, session, updateSearchMsg, submitSearchMsg } =
 
             else
                 loginIcon
-
-        linkMaybeActive page route caption =
-            li [ class "nav__item" ]
-                [ a
-                    [ Route.href route
-                    , classList
-                        [ ( "active", page == activePage )
-                        ]
-                    ]
-                    [ text caption ]
-                ]
     in
-    header [ class "navbar" ]
+    [ header [ class "navbar" ]
         [ div
             [ class "navbar__container" ]
             [ a
@@ -126,6 +117,65 @@ viewHeader { activePage, session, updateSearchMsg, submitSearchMsg } =
                 ]
             ]
         ]
+    , div [ class "hero" ]
+        [ div [ class "hero__banner" ] []
+        , div [ class "hero__container" ]
+            [ img
+                [ src session.staticFiles.logo_ca12
+                , class "hero__logo"
+                ]
+                []
+            , h1 []
+                [ text pageTitle ]
+            , p []
+                [ text pageSubTitle ]
+            ]
+        ]
+    ]
+
+
+viewContent : Config msg -> List (Html msg) -> List (Html msg)
+viewContent { activePage } body =
+    let
+        linkMaybeActive page route caption =
+            li []
+                [ a
+                    [ Route.href route
+                    , classList
+                        [ ( "active", page == activePage )
+                        ]
+                    ]
+                    [ text caption ]
+                ]
+    in
+    [ div [ class "dashboard" ]
+        [ aside [ class "side-menu" ]
+            [ h5 [] [ text "Catégories" ]
+            , ul []
+                (Data.Kinto.keywordList
+                    |> List.map
+                        (\( keyword, _ ) ->
+                            let
+                                route =
+                                    Route.Search <| Just keyword
+                            in
+                            linkMaybeActive (Search keyword) route keyword
+                        )
+                )
+            , h5 [] [ text "Le projet" ]
+            , ul []
+                [ linkMaybeActive About Route.About "Classe à 12 ?"
+                , linkMaybeActive Participate Route.Participate "Je participe"
+                , li [] [ a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ] ]
+
+                -- Link to the Mailchimp signup form.
+                , li [] [ a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ] ]
+                ]
+            ]
+        , div [ class "main" ]
+            body
+        ]
+    ]
 
 
 viewFooter : Session -> Html msg

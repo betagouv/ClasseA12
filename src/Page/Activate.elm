@@ -72,33 +72,28 @@ update session msg model =
             ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view session { title, notifications, userInfoData, username } =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "Activation" ]
-                ]
-            ]
-      , H.div [ HA.class "main" ]
-            [ H.map NotificationMsg (Notifications.view notifications)
-            , H.div [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ case userInfoData of
-                        Data.Kinto.Received userInfo ->
-                            H.div []
-                                [ H.text "Votre compte a été activé ! Vous pouvez maintenant "
-                                , H.a [ Route.href Route.Login ] [ H.text "vous connecter pour créer votre profil." ]
-                                ]
+    { title = title
+    , pageTitle = title
+    , pageSubTitle = ""
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , H.div [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ case userInfoData of
+                    Data.Kinto.Received userInfo ->
+                        H.div []
+                            [ H.text "Votre compte a été activé ! Vous pouvez maintenant "
+                            , H.a [ Route.href Route.Login ] [ H.text "vous connecter pour créer votre profil." ]
+                            ]
 
-                        _ ->
-                            viewActivationForm username userInfoData
-                    ]
+                    _ ->
+                        viewActivationForm username userInfoData
                 ]
             ]
-      ]
-    )
+        ]
+    }
 
 
 viewActivationForm : String -> Request.KintoAccount.UserInfoData -> H.Html Msg

@@ -106,32 +106,27 @@ registerAccount kintoURL model =
         ( model, Cmd.none )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view session { title, notifications, registerForm, userInfoData, approved } =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "Inscription" ]
-                ]
-            ]
-      , H.div [ HA.class "main" ]
-            [ H.map NotificationMsg (Notifications.view notifications)
-            , H.div [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ case userInfoData of
-                        Data.Kinto.Received userInfo ->
-                            H.div []
-                                [ H.text "Votre compte a été créé ! Il vous reste à l'activer : un mail vient de vous être envoyé avec un code d'activation. "
-                                ]
+    { title = title
+    , pageTitle = title
+    , pageSubTitle = ""
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , H.div [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ case userInfoData of
+                    Data.Kinto.Received userInfo ->
+                        H.div []
+                            [ H.text "Votre compte a été créé ! Il vous reste à l'activer : un mail vient de vous être envoyé avec un code d'activation. "
+                            ]
 
-                        _ ->
-                            viewRegisterForm registerForm userInfoData approved
-                    ]
+                    _ ->
+                        viewRegisterForm registerForm userInfoData approved
                 ]
             ]
-      ]
-    )
+        ]
+    }
 
 
 viewRegisterForm : RegisterForm -> Request.KintoAccount.UserInfoData -> Bool -> H.Html Msg

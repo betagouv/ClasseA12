@@ -64,49 +64,47 @@ update session msg model =
             )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view { staticFiles, peerTubeURL } ({ title, videoListData, keyword } as model) =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__banner" ] []
-            , H.div [ HA.class "hero__container" ]
-                [ H.img
-                    [ HA.src staticFiles.logo_ca12
-                    , HA.class "hero__logo"
-                    ]
-                    []
-                , H.h1 []
-                    [ H.text title ]
-                ]
-            ]
-      , H.div [ HA.class "main" ]
-            (case videoListData of
-                Data.PeerTube.NotRequested ->
-                    []
+    { title = title
+    , pageTitle =
+        if keyword == "Nouveautés" then
+            title
 
-                Data.PeerTube.Requested ->
-                    [ H.section [ HA.class "section section-grey cards" ]
-                        [ H.div [ HA.class "container" ]
-                            [ H.div [ HA.class "row" ]
-                                [ H.h1 [] [ H.text keyword ]
-                                , H.text "Chargement des vidéos..."
-                                ]
+        else
+            "Liste des vidéos"
+    , pageSubTitle =
+        if keyword == "Nouveautés" then
+            ""
+
+        else
+            "dans la catégorie " ++ keyword
+    , body =
+        case videoListData of
+            Data.PeerTube.NotRequested ->
+                []
+
+            Data.PeerTube.Requested ->
+                [ H.section [ HA.class "section section-grey cards" ]
+                    [ H.div [ HA.class "container" ]
+                        [ H.div [ HA.class "row" ]
+                            [ H.h1 [] [ H.text keyword ]
+                            , H.text "Chargement des vidéos..."
                             ]
                         ]
                     ]
+                ]
 
-                Data.PeerTube.Received videoList ->
-                    viewVideoList keyword peerTubeURL videoList
+            Data.PeerTube.Received videoList ->
+                viewVideoList keyword peerTubeURL videoList
 
-                Data.PeerTube.Failed error ->
-                    [ H.section [ HA.class "section section-white" ]
-                        [ H.div [ HA.class "container" ]
-                            [ H.text error ]
-                        ]
+            Data.PeerTube.Failed error ->
+                [ H.section [ HA.class "section section-white" ]
+                    [ H.div [ HA.class "container" ]
+                        [ H.text error ]
                     ]
-            )
-      ]
-    )
+                ]
+    }
 
 
 viewVideoList :

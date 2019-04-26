@@ -16,6 +16,7 @@ import Page.Activate as Activate
 import Page.Admin as Admin
 import Page.CGU as CGU
 import Page.Comments as Comments
+import Page.Common.Components
 import Page.Convention as Convention
 import Page.Home as Home
 import Page.Login as Login
@@ -473,8 +474,13 @@ view model =
         pageConfig =
             Page.Config model.session UpdateSearch SubmitSearch
 
-        mapMsg msg ( title, content ) =
-            ( title, content |> List.map (Html.map msg) )
+        mapMsg : (msg -> Msg) -> Page.Common.Components.Document msg -> Page.Common.Components.Document Msg
+        mapMsg msg { title, pageTitle, pageSubTitle, body } =
+            { title = title
+            , pageTitle = pageTitle
+            , pageSubTitle = pageSubTitle
+            , body = body |> List.map (Html.map msg)
+            }
     in
     case model.page of
         HomePage homeModel ->
@@ -485,7 +491,7 @@ view model =
         SearchPage searchModel ->
             Search.view model.session searchModel
                 |> mapMsg SearchMsg
-                |> Page.frame (pageConfig Page.Search)
+                |> Page.frame (pageConfig <| Page.Search searchModel.keyword)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel
@@ -558,7 +564,15 @@ view model =
                 |> Page.frame (pageConfig Page.Comments)
 
         NotFound ->
-            ( "Not Found", [ Html.text "Not found" ] )
+            let
+                title =
+                    "Page introuvable"
+            in
+            { title = title
+            , pageTitle = title
+            , pageSubTitle = title
+            , body = [ Html.text title ]
+            }
                 |> Page.frame (pageConfig Page.NotFound)
 
 

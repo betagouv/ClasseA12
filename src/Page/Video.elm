@@ -67,17 +67,18 @@ type Msg
 init : String -> String -> Session -> ( Model, Cmd Msg )
 init videoID videoTitle session =
     let
+        decodedVideoTitle =
+            videoTitle
+                |> Url.percentDecode
+                |> Maybe.withDefault videoTitle
+
         title =
-            "Vidéo : "
-                ++ (videoTitle
-                        |> Url.percentDecode
-                        |> Maybe.withDefault videoTitle
-                   )
+            "Vidéo : " ++ decodedVideoTitle
     in
     ( { title = title
       , videoID = videoID
       , videoData = Data.PeerTube.Requested
-      , videoTitle = videoTitle
+      , videoTitle = decodedVideoTitle
       , comments = Data.PeerTube.Requested
       , comment = ""
       , commentData = Data.PeerTube.NotRequested
@@ -342,37 +343,31 @@ scrollToComment maybeCommentID model =
         Cmd.none
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
-view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { videoID, title, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList } =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "Vidéo" ]
-                , viewTitle videoData
+view : Session -> Model -> Components.Document Msg
+view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList } =
+    { title = title
+    , pageTitle = "Vidéo"
+    , pageSubTitle = videoTitle
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , H.div [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ viewVideo peerTubeURL url navigatorShare videoData
                 ]
-            ]
-      , H.div [ HA.class "main" ]
-            [ H.map NotificationMsg (Notifications.view notifications)
-            , H.div [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ viewVideo peerTubeURL url navigatorShare videoData
-                    ]
-                , H.div [ HA.class "container" ]
-                    [ viewComments videoID comments attachmentList filesURL
-                    , case commentData of
-                        Data.PeerTube.Failed error ->
-                            H.div []
-                                [ H.text "Erreur lors de l'ajout de la contribution"
-                                ]
+            , H.div [ HA.class "container" ]
+                [ viewComments videoID comments attachmentList filesURL
+                , case commentData of
+                    Data.PeerTube.Failed error ->
+                        H.div []
+                            [ H.text "Erreur lors de l'ajout de la contribution"
+                            ]
 
-                        _ ->
-                            viewCommentForm comment userInfo refreshing commentData attachmentData progress
-                    ]
+                    _ ->
+                        viewCommentForm comment userInfo refreshing commentData attachmentData progress
                 ]
             ]
-      ]
-    )
+        ]
+    }
 
 
 viewTitle : Data.PeerTube.RemoteData Data.PeerTube.Video -> H.Html Msg

@@ -97,32 +97,27 @@ resetPassword kintoURL model =
         ( model, Cmd.none )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view session { title, notifications, resetForm, passwordReset } =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "Oubli du mot de passe" ]
-                ]
-            ]
-      , H.div [ HA.class "main" ]
-            [ H.map NotificationMsg (Notifications.view notifications)
-            , H.div [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ case passwordReset of
-                        Data.Kinto.Received message ->
-                            H.div []
-                                [ H.text "Un lien de réinitialisation du mot de passe vous a été envoyé par email"
-                                ]
+    { title = title
+    , pageTitle = title
+    , pageSubTitle = ""
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , H.div [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ case passwordReset of
+                    Data.Kinto.Received message ->
+                        H.div []
+                            [ H.text "Un lien de réinitialisation du mot de passe vous a été envoyé par email"
+                            ]
 
-                        _ ->
-                            viewResetForm resetForm passwordReset
-                    ]
+                    _ ->
+                        viewResetForm resetForm passwordReset
                 ]
             ]
-      ]
-    )
+        ]
+    }
 
 
 viewResetForm : ResetForm -> Data.Kinto.KintoData Request.KintoAccount.PasswordReset -> H.Html Msg

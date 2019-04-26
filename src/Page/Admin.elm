@@ -201,50 +201,44 @@ update session msg model =
             ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view { timezone, userData, staticFiles } { title, notifications, videoListData, videoAuthorsData, publishingVideos, activeVideo } =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "Administration" ]
-                , H.p [] [ H.text "Modération des vidéos et des commentaires" ]
-                ]
-            ]
-      , H.div [ HA.class "main" ]
-            [ H.map NotificationMsg (Notifications.view notifications)
-            , if Data.Session.isLoggedIn userData then
-                if userData.username == "classea12admin" then
-                    case videoListData of
-                        Data.Kinto.Received videoList ->
-                            H.section [ HA.class "section section-grey cards" ]
-                                [ H.div [ HA.class "container" ]
-                                    (viewVideoList
-                                        timezone
-                                        publishingVideos
-                                        activeVideo
-                                        videoList
-                                        videoAuthorsData
-                                    )
-                                ]
+    { title = title
+    , pageTitle = title
+    , pageSubTitle = "Modération des vidéos et des commentaires"
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , if Data.Session.isLoggedIn userData then
+            if userData.username == "classea12admin" then
+                case videoListData of
+                    Data.Kinto.Received videoList ->
+                        H.section [ HA.class "section section-grey cards" ]
+                            [ H.div [ HA.class "container" ]
+                                (viewVideoList
+                                    timezone
+                                    publishingVideos
+                                    activeVideo
+                                    videoList
+                                    videoAuthorsData
+                                )
+                            ]
 
-                        _ ->
-                            H.div [ HA.class "section section-white" ]
-                                [ H.div [ HA.class "container" ]
-                                    [ H.text "Chargement des vidéos et des contacts en cours..." ]
-                                ]
+                    _ ->
+                        H.div [ HA.class "section section-white" ]
+                            [ H.div [ HA.class "container" ]
+                                [ H.text "Chargement des vidéos et des contacts en cours..." ]
+                            ]
 
-                else
-                    H.div [ HA.class "section section-white" ]
-                        [ H.div [ HA.class "container" ]
-                            [ H.text "Cette page est réservée aux administrateurs" ]
-                        ]
+            else
+                H.div [ HA.class "section section-white" ]
+                    [ H.div [ HA.class "container" ]
+                        [ H.text "Cette page est réservée aux administrateurs" ]
+                    ]
 
-              else
-                Page.Common.Components.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
-            ]
-      ]
-    )
+          else
+            Page.Common.Components.viewConnectNow "Pour accéder à cette page veuillez vous " "connecter"
+        ]
+    }
 
 
 viewVideoList : Time.Zone -> PublishingVideos -> Maybe Data.Kinto.Video -> VideoList -> Data.Kinto.KintoData Data.Kinto.ProfileList -> List (H.Html Msg)

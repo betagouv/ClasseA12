@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Kinto
 import Markdown
+import Page.Common.Components
 import Page.Common.Dates
 import Page.Common.Notifications as Notifications
 import Request.KintoBatch
@@ -61,30 +62,25 @@ update session msg model =
             ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
 
 
-view : Session -> Model -> ( String, List (H.Html Msg) )
+view : Session -> Model -> Page.Common.Components.Document Msg
 view session { title, notifications, commentDataList } =
-    ( title
-    , [ H.div [ HA.class "hero" ]
-            [ H.div [ HA.class "hero__container" ]
-                [ H.img [ HA.src session.staticFiles.logo_ca12, HA.class "hero__logo" ] []
-                , H.h1 [] [ H.text "Liste des commentaires" ]
-                ]
-            ]
-      , H.div [ HA.class "main" ]
-            [ H.map NotificationMsg (Notifications.view notifications)
-            , H.div [ HA.class "section section-white" ]
-                [ H.div [ HA.class "container" ]
-                    [ case commentDataList of
-                        Data.Kinto.Received commentsData ->
-                            viewComments session.timezone commentsData
+    { title = title
+    , pageTitle = title
+    , pageSubTitle = ""
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , H.div [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ case commentDataList of
+                    Data.Kinto.Received commentsData ->
+                        viewComments session.timezone commentsData
 
-                        _ ->
-                            H.text "Récupération des commentaires..."
-                    ]
+                    _ ->
+                        H.text "Récupération des commentaires..."
                 ]
             ]
-      ]
-    )
+        ]
+    }
 
 
 viewComments : Time.Zone -> List Request.KintoBatch.CommentData -> H.Html Msg

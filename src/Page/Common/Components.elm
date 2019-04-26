@@ -1,5 +1,6 @@
 module Page.Common.Components exposing
     ( ButtonState(..)
+    , Document
     , button
     , onChange
     , onFileSelected
@@ -7,7 +8,6 @@ module Page.Common.Components exposing
     , submitButton
     , viewConnectNow
     )
-
 
 import Html as H
 import Html.Attributes as HA
@@ -21,6 +21,14 @@ type ButtonState
     = Disabled
     | Loading
     | NotLoading
+
+
+type alias Document msg =
+    { title : String
+    , pageTitle : String
+    , pageSubTitle : String
+    , body : List (H.Html msg)
+    }
 
 
 submitButton : String -> ButtonState -> H.Html msg
