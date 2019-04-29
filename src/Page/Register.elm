@@ -1,15 +1,14 @@
 module Page.Register exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
-import Kinto
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Request.KintoAccount
+import Request.PeerTube
 import Route
 
 
@@ -17,28 +16,28 @@ type alias Model =
     { title : String
     , registerForm : RegisterForm
     , notifications : Notifications.Model
-    , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
+    , registration : Data.PeerTube.RemoteData String
     , approved : Bool
     }
 
 
 type alias RegisterForm =
-    { email : String
+    { username : String
+    , email : String
     , password : String
-    , password2 : String
     }
 
 
 emptyRegisterForm : RegisterForm
 emptyRegisterForm =
-    { email = "", password = "", password2 = "" }
+    { username = "", email = "", password = "" }
 
 
 type Msg
     = UpdateRegisterForm RegisterForm
     | Register
     | NotificationMsg Notifications.Msg
-    | UserInfoReceived (Result Http.Error Request.KintoAccount.UserInfo)
+    | AccountRegistered (Result Http.Error String)
     | OnApproved Bool
 
 
@@ -47,7 +46,7 @@ init session =
     ( { title = "Inscription"
       , registerForm = emptyRegisterForm
       , notifications = Notifications.init
-      , userInfoData = Data.Kinto.NotRequested
+      , registration = Data.PeerTube.NotRequested
       , approved = False
       }
     , Cmd.none
@@ -61,24 +60,36 @@ update session msg model =
             ( { model | registerForm = registerForm }, Cmd.none )
 
         Register ->
-            registerAccount session.kintoURL model
+            registerAccount session.peerTubeURL model
 
-        UserInfoReceived (Ok userInfo) ->
-            ( { model | userInfoData = Data.Kinto.Received userInfo }
+        AccountRegistered (Ok _) ->
+            ( { model | registration = Data.PeerTube.Received "Votre compte a été créé ! Il vous reste à l'activer : un mail vient de vous être envoyé avec un code d'activation. " }
             , Cmd.none
             )
 
-        UserInfoReceived (Err error) ->
+        AccountRegistered (Err error) ->
             let
-                kintoError =
-                    Kinto.extractError error
+                errorMessage =
+                    case error of
+                        Http.BadStatus response ->
+                            case response.status.code of
+                                400 ->
+                                    "Inscription échouée : le nom d'utilisateur ou l'email ne sont pas valides"
+
+                                409 ->
+                                    "Inscription échouée : un utilisateur avec le même nom ou email existe déjà"
+
+                                _ ->
+                                    "Inscription échouée"
+
+                        _ ->
+                            "Inscription échouée"
             in
             ( { model
                 | notifications =
-                    "Inscription échouée : "
-                        ++ Kinto.errorToString kintoError
+                    errorMessage
                         |> Notifications.addError model.notifications
-                , userInfoData = Data.Kinto.NotRequested
+                , registration = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
@@ -92,14 +103,14 @@ update session msg model =
 
 isRegisterFormComplete : RegisterForm -> Bool -> Bool
 isRegisterFormComplete registerForm approved =
-    approved && registerForm.email /= "" && registerForm.password /= "" && registerForm.password == registerForm.password2
+    approved && registerForm.username /= "" && registerForm.email /= "" && registerForm.password /= "" && String.length registerForm.password >= 6
 
 
 registerAccount : String -> Model -> ( Model, Cmd Msg )
-registerAccount kintoURL model =
+registerAccount peerTubeURL model =
     if isRegisterFormComplete model.registerForm model.approved then
-        ( { model | userInfoData = Data.Kinto.Requested }
-        , Request.KintoAccount.register kintoURL model.registerForm.email model.registerForm.password UserInfoReceived
+        ( { model | registration = Data.PeerTube.Requested }
+        , Request.PeerTube.register model.registerForm.username model.registerForm.email model.registerForm.password peerTubeURL AccountRegistered
         )
 
     else
@@ -107,7 +118,7 @@ registerAccount kintoURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, registerForm, userInfoData, approved } =
+view session { title, notifications, registerForm, registration, approved } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
@@ -115,30 +126,30 @@ view session { title, notifications, registerForm, userInfoData, approved } =
         [ H.map NotificationMsg (Notifications.view notifications)
         , H.div [ HA.class "section section-white" ]
             [ H.div [ HA.class "container" ]
-                [ case userInfoData of
-                    Data.Kinto.Received userInfo ->
+                [ case registration of
+                    Data.PeerTube.Received message ->
                         H.div []
-                            [ H.text "Votre compte a été créé ! Il vous reste à l'activer : un mail vient de vous être envoyé avec un code d'activation. "
+                            [ H.text message
                             ]
 
                     _ ->
-                        viewRegisterForm registerForm userInfoData approved
+                        viewRegisterForm registerForm registration approved
                 ]
             ]
         ]
     }
 
 
-viewRegisterForm : RegisterForm -> Request.KintoAccount.UserInfoData -> Bool -> H.Html Msg
-viewRegisterForm registerForm userInfoData approved =
+viewRegisterForm : RegisterForm -> Data.PeerTube.RemoteData String -> Bool -> H.Html Msg
+viewRegisterForm registerForm registration approved =
     let
         formComplete =
             isRegisterFormComplete registerForm approved
 
         buttonState =
             if formComplete then
-                case userInfoData of
-                    Data.Kinto.Requested ->
+                case registration of
+                    Data.PeerTube.Requested ->
                         Page.Common.Components.Loading
 
                     _ ->
@@ -149,9 +160,6 @@ viewRegisterForm registerForm userInfoData approved =
 
         submitButton =
             Page.Common.Components.submitButton "Créer ce compte" buttonState
-
-        passwordsDontMatch =
-            registerForm.password2 /= "" && registerForm.password /= registerForm.password2
     in
     H.form
         [ HE.onSubmit Register ]
@@ -168,6 +176,16 @@ viewRegisterForm registerForm userInfoData approved =
             , H.text "."
             ]
         , H.div [ HA.class "form__group" ]
+            [ H.label [ HA.for "username" ] [ H.text "Nom d'utilisateur (uniquement des caractères alphanumériques sans espace)" ]
+            , H.input
+                [ HA.type_ "text"
+                , HA.id "username"
+                , HA.value registerForm.username
+                , HE.onInput <| \username -> UpdateRegisterForm { registerForm | username = username }
+                ]
+                []
+            ]
+        , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "email" ] [ H.text "Email (adresse académique uniquement)" ]
             , H.input
                 [ HA.type_ "email"
@@ -178,26 +196,11 @@ viewRegisterForm registerForm userInfoData approved =
                 []
             ]
         , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "password" ] [ H.text "Mot de passe" ]
+            [ H.label [ HA.for "password" ] [ H.text "Mot de passe (minimum 6 caractères)" ]
             , H.input
                 [ HA.type_ "password"
                 , HA.value registerForm.password
                 , HE.onInput <| \password -> UpdateRegisterForm { registerForm | password = password }
-                ]
-                []
-            ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "password2" ] [ H.text "Confirmer le mot de passe" ]
-            , H.input
-                [ HA.type_ "password"
-                , HA.value registerForm.password2
-                , HA.class <|
-                    if passwordsDontMatch then
-                        "invalid"
-
-                    else
-                        ""
-                , HE.onInput <| \password2 -> UpdateRegisterForm { registerForm | password2 = password2 }
                 ]
                 []
             ]

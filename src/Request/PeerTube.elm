@@ -7,6 +7,7 @@ module Request.PeerTube exposing
     , getVideoList
     , is401
     , login
+    , register
     , submitComment
     , updateUserAccount
     )
@@ -41,6 +42,10 @@ type alias Request a =
     , timeout : Maybe Float
     , withCredentials : Bool
     }
+
+
+
+---- VIDEOS ----
 
 
 recentVideoListRequest : String -> Http.Request (List Video)
@@ -85,125 +90,8 @@ getVideo videoID serverURL message =
     Http.send message (videoRequest videoID serverURL)
 
 
-accountRequest : String -> String -> Http.Request Account
-accountRequest accountName serverURL =
-    let
-        url =
-            serverURL ++ "/api/v1/accounts/" ++ accountName
-    in
-    Http.get url accountDecoder
 
-
-getAccount : String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
-getAccount accountName serverURL message =
-    Http.send message (accountRequest accountName serverURL)
-
-
-loginRequest : String -> String -> String -> Http.Request UserToken
-loginRequest username password serverURL =
-    let
-        url =
-            serverURL ++ "/api/v1/users/token"
-
-        data =
-            [ ( "username", username |> Url.percentEncode )
-            , ( "password", password |> Url.percentEncode )
-            , ( "client_id", "d2g8qdmcmc4gxiloss44murer3egmteo" )
-            , ( "client_secret", "1IZJ6knBPJb7NJXhcH6jBDS15m6EXi4u" )
-            , ( "grant_type", "password" )
-            , ( "response_type", "code" )
-            , ( "scope", "upload" )
-            ]
-
-        body =
-            data
-                |> List.map (\( key, val ) -> key ++ "=" ++ val)
-                |> String.join "&"
-                |> Http.stringBody "application/x-www-form-urlencoded"
-    in
-    Http.post url body userTokenDecoder
-
-
-login : String -> String -> String -> (Result Http.Error UserToken -> msg) -> Cmd msg
-login username password serverURL message =
-    Http.send message (loginRequest username password serverURL)
-
-
-getUserInfoRequest : String -> String -> Http.Request UserInfo
-getUserInfoRequest access_token serverURL =
-    let
-        url =
-            serverURL ++ "/api/v1/users/me"
-
-        request : Request UserInfo
-        request =
-            { method = "GET"
-            , headers = []
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson userInfoDecoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
-    in
-    request
-        |> withHeader "Authorization" ("Bearer " ++ access_token)
-        |> Http.request
-
-
-getUserInfo : String -> String -> (Result Http.Error UserInfo -> msg) -> Cmd msg
-getUserInfo access_token serverURL message =
-    Http.send message (getUserInfoRequest access_token serverURL)
-
-
-updateUserAccountRequest : String -> String -> String -> String -> Http.Request Account
-updateUserAccountRequest displayName description access_token serverURL =
-    let
-        url =
-            serverURL ++ "/api/v1/users/me"
-
-        body =
-            Encode.object
-                [ ( "displayName", Encode.string displayName )
-                , ( "description", Encode.string description )
-                ]
-                |> Http.jsonBody
-
-        account : Data.PeerTube.Account
-        account =
-            { name = ""
-            , displayName = displayName
-            , description = description
-            }
-
-        request : Request Account
-        request =
-            { method = "PUT"
-            , headers = []
-            , url = url
-            , body = body
-            , expect = Http.expectStringResponse (\_ -> Ok account)
-            , timeout = Nothing
-            , withCredentials = False
-            }
-    in
-    request
-        |> withHeader "Authorization" ("Bearer " ++ access_token)
-        |> Http.request
-
-
-updateUserAccount : String -> String -> String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
-updateUserAccount displayName description access_token serverURL message =
-    Http.send message (updateUserAccountRequest displayName description access_token serverURL)
-
-
-withHeader : String -> String -> Request a -> Request a
-withHeader headerName headerValue request =
-    let
-        header =
-            Http.header headerName headerValue
-    in
-    { request | headers = header :: request.headers }
+---- COMMENTS ----
 
 
 videoCommentListRequest : String -> String -> Http.Request (List Comment)
@@ -235,7 +123,7 @@ submitCommentRequest comment videoID access_token serverURL =
         decoder =
             Decode.field "comment" commentDecoder
 
-        request : Request Comment
+        request : Http.Request Comment
         request =
             { method = "POST"
             , headers = []
@@ -245,15 +133,178 @@ submitCommentRequest comment videoID access_token serverURL =
             , timeout = Nothing
             , withCredentials = False
             }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
     in
     request
-        |> withHeader "Authorization" ("Bearer " ++ access_token)
-        |> Http.request
 
 
 submitComment : String -> String -> String -> String -> (Result Http.Error Comment -> msg) -> Cmd msg
 submitComment comment videoID access_token serverURL message =
     Http.send message (submitCommentRequest comment videoID access_token serverURL)
+
+
+
+---- USER AND ACCOUNT ----
+
+
+registerRequest : String -> String -> String -> String -> Http.Request String
+registerRequest username email password serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/register"
+
+        body =
+            [ ( "username", username |> Encode.string )
+            , ( "email", email |> Encode.string )
+            , ( "password", password |> Encode.string )
+            ]
+                |> Encode.object
+                |> Http.jsonBody
+
+        request : Http.Request String
+        request =
+            { method = "POST"
+            , headers = []
+            , url = url
+            , body = body
+            , expect = Http.expectString
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> Http.request
+    in
+    request
+
+
+register : String -> String -> String -> String -> (Result Http.Error String -> msg) -> Cmd msg
+register username email password serverURL message =
+    Http.send message (registerRequest username email password serverURL)
+
+
+accountRequest : String -> String -> Http.Request Account
+accountRequest accountName serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/accounts/" ++ accountName
+    in
+    Http.get url accountDecoder
+
+
+getAccount : String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
+getAccount accountName serverURL message =
+    Http.send message (accountRequest accountName serverURL)
+
+
+loginRequest : String -> String -> String -> Http.Request UserToken
+loginRequest username password serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/token"
+
+        data =
+            [ ( "username", username |> Url.percentEncode )
+            , ( "password", password |> Url.percentEncode )
+            , ( "client_id", "i81pd4hxi635mvrbtayp2vikpvkvay9p" )
+            , ( "client_secret", "8Ajuy56iRCW95ZFEwF1yAYzpFbQ2JnRS" )
+            , ( "grant_type", "password" )
+            , ( "response_type", "code" )
+            , ( "scope", "upload" )
+            ]
+
+        body =
+            data
+                |> List.map (\( key, val ) -> key ++ "=" ++ val)
+                |> String.join "&"
+                |> Http.stringBody "application/x-www-form-urlencoded"
+    in
+    Http.post url body userTokenDecoder
+
+
+login : String -> String -> String -> (Result Http.Error UserToken -> msg) -> Cmd msg
+login username password serverURL message =
+    Http.send message (loginRequest username password serverURL)
+
+
+getUserInfoRequest : String -> String -> Http.Request UserInfo
+getUserInfoRequest access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/me"
+
+        request : Http.Request UserInfo
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson userInfoDecoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+getUserInfo : String -> String -> (Result Http.Error UserInfo -> msg) -> Cmd msg
+getUserInfo access_token serverURL message =
+    Http.send message (getUserInfoRequest access_token serverURL)
+
+
+updateUserAccountRequest : String -> String -> String -> String -> Http.Request Account
+updateUserAccountRequest displayName description access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/me"
+
+        body =
+            Encode.object
+                [ ( "displayName", Encode.string displayName )
+                , ( "description", Encode.string description )
+                ]
+                |> Http.jsonBody
+
+        account : Data.PeerTube.Account
+        account =
+            { name = ""
+            , displayName = displayName
+            , description = description
+            }
+
+        request : Http.Request Account
+        request =
+            { method = "PUT"
+            , headers = []
+            , url = url
+            , body = body
+            , expect = Http.expectStringResponse (\_ -> Ok account)
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+updateUserAccount : String -> String -> String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
+updateUserAccount displayName description access_token serverURL message =
+    Http.send message (updateUserAccountRequest displayName description access_token serverURL)
+
+
+
+---- UTILS ----
+
+
+withHeader : String -> String -> Request a -> Request a
+withHeader headerName headerValue request =
+    let
+        header =
+            Http.header headerName headerValue
+    in
+    { request | headers = header :: request.headers }
 
 
 is401 : Http.Error -> Bool
