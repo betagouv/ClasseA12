@@ -49,6 +49,29 @@ parser =
         , Parser.map Activate (Parser.s "activation" </> Parser.string </> Parser.string)
         , Parser.map Profile (Parser.s "profil" </> Parser.string)
         , Parser.map Comments (Parser.s "commentaires")
+
+        -- PeerTube URL translations
+        , Parser.map
+            (\maybeUserID maybeVerificationString ->
+                Activate
+                    (Maybe.withDefault "badUserID" maybeUserID)
+                    (Maybe.withDefault "badVerificationString" maybeVerificationString)
+            )
+            (Parser.s "verify-account"
+                </> Parser.s "email"
+                <?> Query.string "userId"
+                <?> Query.string "verificationString"
+            )
+        , Parser.map
+            (\maybeUserID maybeVerificationString ->
+                SetNewPassword
+                    (Maybe.withDefault "badUserID" maybeUserID)
+                    (Maybe.withDefault "badVerificationString" maybeVerificationString)
+            )
+            (Parser.s "reset-password"
+                <?> Query.string "userId"
+                <?> Query.string "verificationString"
+            )
         ]
 
 
