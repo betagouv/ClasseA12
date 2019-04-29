@@ -1,5 +1,6 @@
 module Request.PeerTube exposing
-    ( askPasswordReset
+    ( activate
+    , askPasswordReset
     , changePassword
     , getAccount
     , getRecentVideoList
@@ -182,6 +183,37 @@ registerRequest username email password serverURL =
 register : String -> String -> String -> String -> (Result Http.Error String -> msg) -> Cmd msg
 register username email password serverURL message =
     Http.send message (registerRequest username email password serverURL)
+
+
+activateRequest : String -> String -> String -> Http.Request String
+activateRequest userID verificationString serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/" ++ userID ++ "/verify-email"
+
+        body =
+            [ ( "verificationString", verificationString |> Encode.string ) ]
+                |> Encode.object
+                |> Http.jsonBody
+
+        request : Http.Request String
+        request =
+            { method = "POST"
+            , headers = []
+            , url = url
+            , body = body
+            , expect = Http.expectString
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> Http.request
+    in
+    request
+
+
+activate : String -> String -> String -> (Result Http.Error String -> msg) -> Cmd msg
+activate userID verificationString serverURL message =
+    Http.send message (activateRequest userID verificationString serverURL)
 
 
 askPasswordResetRequest : String -> String -> Http.Request String

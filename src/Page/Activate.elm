@@ -1,40 +1,39 @@
 module Page.Activate exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
-import Kinto
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Request.KintoAccount
+import Request.PeerTube
 import Route
 
 
 type alias Model =
     { title : String
-    , username : String
-    , activationKey : String
+    , userID : String
+    , verificationString : String
     , notifications : Notifications.Model
-    , userInfoData : Data.Kinto.KintoData Request.KintoAccount.UserInfo
+    , activationRequest : Data.PeerTube.RemoteData String
     }
 
 
 type Msg
     = Activate
     | NotificationMsg Notifications.Msg
-    | AccountActivated (Result Http.Error Request.KintoAccount.UserInfo)
+    | AccountActivated (Result Http.Error String)
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
-init username activationKey session =
+init userID verificationString session =
     ( { title = "Activation"
-      , username = username
-      , activationKey = activationKey
+      , userID = userID
+      , verificationString = verificationString
       , notifications = Notifications.init
-      , userInfoData = Data.Kinto.NotRequested
+      , activationRequest = Data.PeerTube.NotRequested
       }
     , Cmd.none
     )
@@ -44,26 +43,21 @@ update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
         Activate ->
-            ( { model | userInfoData = Data.Kinto.Requested }
-            , Request.KintoAccount.activate session.kintoURL model.username model.activationKey AccountActivated
+            ( { model | activationRequest = Data.PeerTube.Requested }
+            , Request.PeerTube.activate model.userID model.verificationString session.peerTubeURL AccountActivated
             )
 
         AccountActivated (Ok userInfo) ->
-            ( { model | userInfoData = Data.Kinto.Received userInfo }
+            ( { model | activationRequest = Data.PeerTube.Received "Votre compte a été activé !" }
             , Cmd.none
             )
 
         AccountActivated (Err error) ->
-            let
-                kintoError =
-                    Kinto.extractError error
-            in
             ( { model
                 | notifications =
-                    "Activation échouée : "
-                        ++ Kinto.errorToString kintoError
+                    "Activation échouée"
                         |> Notifications.addError model.notifications
-                , userInfoData = Data.Kinto.NotRequested
+                , activationRequest = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
@@ -73,7 +67,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, userInfoData, username } =
+view session { title, notifications, activationRequest, userID } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
@@ -81,27 +75,28 @@ view session { title, notifications, userInfoData, username } =
         [ H.map NotificationMsg (Notifications.view notifications)
         , H.div [ HA.class "section section-white" ]
             [ H.div [ HA.class "container" ]
-                [ case userInfoData of
-                    Data.Kinto.Received userInfo ->
+                [ case activationRequest of
+                    Data.PeerTube.Received message ->
                         H.div []
-                            [ H.text "Votre compte a été activé ! Vous pouvez maintenant "
+                            [ H.text message
+                            , H.text " Vous pouvez maintenant "
                             , H.a [ Route.href Route.Login ] [ H.text "vous connecter pour créer votre profil." ]
                             ]
 
                     _ ->
-                        viewActivationForm username userInfoData
+                        viewActivationForm userID activationRequest
                 ]
             ]
         ]
     }
 
 
-viewActivationForm : String -> Request.KintoAccount.UserInfoData -> H.Html Msg
-viewActivationForm username userInfoData =
+viewActivationForm : String -> Data.PeerTube.RemoteData String -> H.Html Msg
+viewActivationForm userID activationRequest =
     let
         buttonState =
-            case userInfoData of
-                Data.Kinto.Requested ->
+            case activationRequest of
+                Data.PeerTube.Requested ->
                     Page.Common.Components.Loading
 
                 _ ->
@@ -112,6 +107,6 @@ viewActivationForm username userInfoData =
     in
     H.form
         [ HE.onSubmit Activate ]
-        [ H.h1 [] [ H.text <| "Activation du compte " ++ username ]
+        [ H.h1 [] [ H.text <| "Activation du compte" ]
         , submitButton
         ]

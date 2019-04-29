@@ -123,10 +123,10 @@ toString route =
                     , verificationString
                     ]
 
-                Activate username activationKey ->
+                Activate userID verificationString ->
                     [ "activation"
-                    , username
-                    , activationKey
+                    , userID
+                    , verificationString
                     ]
 
                 Profile profile ->
