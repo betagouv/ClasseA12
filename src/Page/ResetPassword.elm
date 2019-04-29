@@ -1,22 +1,21 @@
 module Page.ResetPassword exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
-import Kinto
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Request.KintoAccount
+import Request.PeerTube
 
 
 type alias Model =
     { title : String
     , resetForm : ResetForm
     , notifications : Notifications.Model
-    , passwordReset : Data.Kinto.KintoData Request.KintoAccount.PasswordReset
+    , passwordReset : Data.PeerTube.RemoteData String
     }
 
 
@@ -34,7 +33,7 @@ type Msg
     = UpdateResetForm ResetForm
     | ResetPassword
     | NotificationMsg Notifications.Msg
-    | PasswordReset (Result Http.Error Request.KintoAccount.PasswordReset)
+    | PasswordReset (Result Http.Error String)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -42,7 +41,7 @@ init session =
     ( { title = "Oubli du mot de passe"
       , resetForm = emptyResetForm
       , notifications = Notifications.init
-      , passwordReset = Data.Kinto.NotRequested
+      , passwordReset = Data.PeerTube.NotRequested
       }
     , Cmd.none
     )
@@ -55,24 +54,19 @@ update session msg model =
             ( { model | resetForm = resetForm }, Cmd.none )
 
         ResetPassword ->
-            resetPassword session.kintoURL model
+            resetPassword session.peerTubeURL model
 
         PasswordReset (Ok passwordReset) ->
-            ( { model | passwordReset = Data.Kinto.Received passwordReset }
+            ( { model | passwordReset = Data.PeerTube.Received "Un lien de réinitialisation du mot de passe vous a été envoyé par email" }
             , Cmd.none
             )
 
         PasswordReset (Err error) ->
-            let
-                kintoError =
-                    Kinto.extractError error
-            in
             ( { model
                 | notifications =
-                    "Réinitialisation du mot de passe échouée : "
-                        ++ Kinto.errorToString kintoError
+                    "Demande de réinitialisation du mot de passe échouée"
                         |> Notifications.addError model.notifications
-                , passwordReset = Data.Kinto.NotRequested
+                , passwordReset = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
@@ -87,10 +81,10 @@ isResetFormComplete resetForm =
 
 
 resetPassword : String -> Model -> ( Model, Cmd Msg )
-resetPassword kintoURL model =
+resetPassword peerTubeURL model =
     if isResetFormComplete model.resetForm then
-        ( { model | passwordReset = Data.Kinto.Requested }
-        , Request.KintoAccount.resetPassword kintoURL model.resetForm.email PasswordReset
+        ( { model | passwordReset = Data.PeerTube.Requested }
+        , Request.PeerTube.askPasswordReset model.resetForm.email peerTubeURL PasswordReset
         )
 
     else
@@ -107,9 +101,9 @@ view session { title, notifications, resetForm, passwordReset } =
         , H.div [ HA.class "section section-white" ]
             [ H.div [ HA.class "container" ]
                 [ case passwordReset of
-                    Data.Kinto.Received message ->
+                    Data.PeerTube.Received message ->
                         H.div []
-                            [ H.text "Un lien de réinitialisation du mot de passe vous a été envoyé par email"
+                            [ H.text message
                             ]
 
                     _ ->
@@ -120,7 +114,7 @@ view session { title, notifications, resetForm, passwordReset } =
     }
 
 
-viewResetForm : ResetForm -> Data.Kinto.KintoData Request.KintoAccount.PasswordReset -> H.Html Msg
+viewResetForm : ResetForm -> Data.PeerTube.RemoteData String -> H.Html Msg
 viewResetForm resetForm passwordReset =
     let
         formComplete =
@@ -129,7 +123,7 @@ viewResetForm resetForm passwordReset =
         buttonState =
             if formComplete then
                 case passwordReset of
-                    Data.Kinto.Requested ->
+                    Data.PeerTube.Requested ->
                         Page.Common.Components.Loading
 
                     _ ->
