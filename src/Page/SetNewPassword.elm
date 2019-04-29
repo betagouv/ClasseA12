@@ -1,54 +1,52 @@
 module Page.SetNewPassword exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
-import Kinto
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
-import Request.KintoAccount
+import Request.PeerTube
 import Route
 
 
 type alias Model =
     { title : String
-    , email : String
-    , temporaryPassword : String
+    , userID : String
+    , verificationString : String
     , setNewPasswordForm : SetNewPasswordForm
     , notifications : Notifications.Model
-    , userInfoData : Data.Kinto.UserInfoData
+    , newPasswordRequest : Data.PeerTube.RemoteData String
     }
 
 
 type alias SetNewPasswordForm =
     { password : String
-    , password2 : String
     }
 
 
 emptySetNewPasswordForm : SetNewPasswordForm
 emptySetNewPasswordForm =
-    { password = "", password2 = "" }
+    { password = "" }
 
 
 type Msg
     = UpdateSetNewPasswordForm SetNewPasswordForm
     | SetNewPassword
     | NotificationMsg Notifications.Msg
-    | NewPasswordSet (Result Http.Error Data.Kinto.UserInfo)
+    | NewPasswordSet (Result Http.Error String)
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
-init email temporaryPassword session =
+init userID verificationString session =
     ( { title = "Nouveau mot de passe"
-      , email = email
-      , temporaryPassword = temporaryPassword
+      , userID = userID
+      , verificationString = verificationString
       , setNewPasswordForm = emptySetNewPasswordForm
       , notifications = Notifications.init
-      , userInfoData = Data.Kinto.NotRequested
+      , newPasswordRequest = Data.PeerTube.NotRequested
       }
     , Cmd.none
     )
@@ -61,24 +59,19 @@ update session msg model =
             ( { model | setNewPasswordForm = setNewPasswordForm }, Cmd.none )
 
         SetNewPassword ->
-            setNewPassword session.kintoURL model
+            setNewPassword session.peerTubeURL model
 
         NewPasswordSet (Ok userInfo) ->
-            ( { model | userInfoData = Data.Kinto.Received userInfo }
+            ( { model | newPasswordRequest = Data.PeerTube.Received "Votre nouveau mot de passe a été enregistré" }
             , Cmd.none
             )
 
         NewPasswordSet (Err error) ->
-            let
-                kintoError =
-                    Kinto.extractError error
-            in
             ( { model
                 | notifications =
-                    "Changement du mot de passe échouée : "
-                        ++ Kinto.errorToString kintoError
+                    "Changement du mot de passe échoué"
                         |> Notifications.addError model.notifications
-                , userInfoData = Data.Kinto.NotRequested
+                , newPasswordRequest = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
@@ -89,14 +82,14 @@ update session msg model =
 
 isSetNewPasswordFormComplete : SetNewPasswordForm -> Bool
 isSetNewPasswordFormComplete setNewPasswordForm =
-    setNewPasswordForm.password /= "" && setNewPasswordForm.password == setNewPasswordForm.password2
+    setNewPasswordForm.password /= ""
 
 
 setNewPassword : String -> Model -> ( Model, Cmd Msg )
-setNewPassword kintoURL model =
+setNewPassword peerTubeURL model =
     if isSetNewPasswordFormComplete model.setNewPasswordForm then
-        ( { model | userInfoData = Data.Kinto.Requested }
-        , Request.KintoAccount.setNewPassword kintoURL model.email model.temporaryPassword model.setNewPasswordForm.password NewPasswordSet
+        ( { model | newPasswordRequest = Data.PeerTube.Requested }
+        , Request.PeerTube.changePassword model.userID model.verificationString model.setNewPasswordForm.password peerTubeURL NewPasswordSet
         )
 
     else
@@ -104,7 +97,7 @@ setNewPassword kintoURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, email, notifications, setNewPasswordForm, userInfoData } =
+view session { title, notifications, setNewPasswordForm, newPasswordRequest } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
@@ -112,31 +105,32 @@ view session { title, email, notifications, setNewPasswordForm, userInfoData } =
         [ H.map NotificationMsg (Notifications.view notifications)
         , H.div [ HA.class "section section-white" ]
             [ H.div [ HA.class "container" ]
-                [ case userInfoData of
-                    Data.Kinto.Received userInfo ->
+                [ case newPasswordRequest of
+                    Data.PeerTube.Received message ->
                         H.div []
-                            [ H.text "Votre nouveau mot de passe a été enregistré, vous pouvez maintenant "
+                            [ H.text message
+                            , H.text ", vous pouvez maintenant "
                             , H.a [ Route.href Route.Login ] [ H.text "vous connecter en utilisant ce mot de passe." ]
                             ]
 
                     _ ->
-                        viewSetNewPasswordForm email setNewPasswordForm userInfoData
+                        viewSetNewPasswordForm setNewPasswordForm newPasswordRequest
                 ]
             ]
         ]
     }
 
 
-viewSetNewPasswordForm : String -> SetNewPasswordForm -> Data.Kinto.UserInfoData -> H.Html Msg
-viewSetNewPasswordForm email setNewPasswordForm userInfoData =
+viewSetNewPasswordForm : SetNewPasswordForm -> Data.PeerTube.RemoteData String -> H.Html Msg
+viewSetNewPasswordForm setNewPasswordForm newPasswordRequest =
     let
         formComplete =
             isSetNewPasswordFormComplete setNewPasswordForm
 
         buttonState =
             if formComplete then
-                case userInfoData of
-                    Data.Kinto.Requested ->
+                case newPasswordRequest of
+                    Data.PeerTube.Requested ->
                         Page.Common.Components.Loading
 
                     _ ->
@@ -150,7 +144,7 @@ viewSetNewPasswordForm email setNewPasswordForm userInfoData =
     in
     H.form
         [ HE.onSubmit SetNewPassword ]
-        [ H.h1 [] [ H.text <| "Enregistrer un nouveau mot de passe pour " ++ email ]
+        [ H.h1 [] [ H.text <| "Enregistrer un nouveau mot de passe" ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "password" ] [ H.text "Nouveau mot de passe" ]
             , H.input
@@ -158,16 +152,6 @@ viewSetNewPasswordForm email setNewPasswordForm userInfoData =
                 , HA.id "password"
                 , HA.value setNewPasswordForm.password
                 , HE.onInput <| \password -> UpdateSetNewPasswordForm { setNewPasswordForm | password = password }
-                ]
-                []
-            ]
-        , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "password2" ] [ H.text "Confirmer le mot de passe" ]
-            , H.input
-                [ HA.type_ "password"
-                , HA.id "password2"
-                , HA.value setNewPasswordForm.password2
-                , HE.onInput <| \password2 -> UpdateSetNewPasswordForm { setNewPasswordForm | password2 = password2 }
                 ]
                 []
             ]

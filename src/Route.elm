@@ -117,10 +117,10 @@ toString route =
                 ResetPassword ->
                     [ "oubli-mot-de-passe" ]
 
-                SetNewPassword username temporaryPassword ->
+                SetNewPassword userID verificationString ->
                     [ "nouveau-mot-de-passe"
-                    , username
-                    , temporaryPassword
+                    , userID
+                    , verificationString
                     ]
 
                 Activate username activationKey ->
