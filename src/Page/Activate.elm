@@ -80,7 +80,7 @@ view session { title, notifications, activationRequest, userID } =
                         H.div []
                             [ H.text message
                             , H.text " Vous pouvez maintenant "
-                            , H.a [ Route.href Route.Login ] [ H.text "vous connecter pour créer votre profil." ]
+                            , H.a [ Route.href Route.Login ] [ H.text "vous connecter." ]
                             ]
 
                     _ ->
