@@ -72,6 +72,9 @@ parser =
                 <?> Query.string "userId"
                 <?> Query.string "verificationString"
             )
+        , Parser.map
+            (\videoID -> Video videoID "lien vidéo d'un email")
+            (Parser.s "videos" </> Parser.s "watch" </> Parser.string)
         ]
 
 
