@@ -15,22 +15,27 @@ import Route
 
 type alias Model =
     { title : String
-    , blacklistedVideoListData : Data.PeerTube.RemoteData (List Data.PeerTube.BlacklistedVideo)
+    , blacklistedVideoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+
+    -- TODO: better "link" the videoList and the blacklistedVideoListData
+    -- The blacklistedVideoListData doesn't contain the full video data, that's why we send an extra
+    -- request per video, and store them in the videoList.
+    , videoList : List Data.PeerTube.Video
     , notifications : Notifications.Model
     , publishingVideos : PublishingVideos
     }
 
 
 type alias PublishingVideos =
-    List Data.PeerTube.BlacklistedVideo
+    List Data.PeerTube.Video
 
 
 type Msg
-    = NoOp
-    | VideoListFetched (Result Http.Error (List Data.PeerTube.BlacklistedVideo))
+    = BlacklistedVideoListFetched (Result Http.Error (List Data.PeerTube.Video))
+    | VideoFetched (Result Http.Error Data.PeerTube.Video)
     | NotificationMsg Notifications.Msg
-    | PublishVideo Data.PeerTube.BlacklistedVideo
-    | VideoPublished Data.PeerTube.BlacklistedVideo (Result Http.Error String)
+    | PublishVideo Data.PeerTube.Video
+    | VideoPublished Data.PeerTube.Video (Result Http.Error String)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -39,6 +44,7 @@ init session =
         initialModel =
             { title = "Administration"
             , blacklistedVideoListData = Data.PeerTube.NotRequested
+            , videoList = []
             , notifications = Notifications.init
             , publishingVideos = []
             }
@@ -56,7 +62,7 @@ init session =
                         ( { initialModel
                             | blacklistedVideoListData = Data.PeerTube.Requested
                           }
-                        , Request.PeerTube.getBlacklistedVideoList userToken.access_token session.peerTubeURL VideoListFetched
+                        , Request.PeerTube.getBlacklistedVideoList userToken.access_token session.peerTubeURL BlacklistedVideoListFetched
                         )
 
                     else
@@ -71,15 +77,22 @@ init session =
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
-
-        VideoListFetched (Ok videoList) ->
+        BlacklistedVideoListFetched (Ok videoList) ->
+            let
+                maybeAccessToken =
+                    session.userToken
+                        |> Maybe.map .access_token
+            in
             ( { model | blacklistedVideoListData = Data.PeerTube.Received videoList }
-            , Cmd.none
+            , videoList
+                |> List.map
+                    (\blacklistedVideo ->
+                        Request.PeerTube.getVideo blacklistedVideo.uuid maybeAccessToken session.peerTubeURL VideoFetched
+                    )
+                |> Cmd.batch
             )
 
-        VideoListFetched (Err error) ->
+        BlacklistedVideoListFetched (Err error) ->
             ( { model
                 | blacklistedVideoListData = Data.PeerTube.Failed "Erreur lors de la récupération des vidéos à modérer"
                 , notifications =
@@ -88,35 +101,49 @@ update session msg model =
             , Cmd.none
             )
 
-        PublishVideo blacklistedVideo ->
+        VideoFetched (Ok video) ->
+            ( { model
+                | videoList =
+                    (video
+                        :: model.videoList
+                    )
+                        |> List.sortBy .publishedAt
+                        |> List.reverse
+              }
+            , Cmd.none
+            )
+
+        VideoFetched (Err error) ->
+            ( { model
+                | notifications =
+                    Notifications.addError model.notifications "Erreur lors de la récupération d'une vidéo "
+              }
+            , Cmd.none
+            )
+
+        PublishVideo video ->
             case session.userToken of
                 Just userToken ->
-                    ( { model | publishingVideos = blacklistedVideo :: model.publishingVideos }
-                    , Request.PeerTube.publishVideo blacklistedVideo userToken.access_token session.peerTubeURL (VideoPublished blacklistedVideo)
+                    ( { model | publishingVideos = video :: model.publishingVideos }
+                    , Request.PeerTube.publishVideo video userToken.access_token session.peerTubeURL (VideoPublished video)
                     )
 
                 Nothing ->
                     ( model, Cmd.none )
 
-        VideoPublished blacklistedVideo (Ok _) ->
+        VideoPublished video (Ok _) ->
             let
-                blacklistedVideoListData =
-                    case model.blacklistedVideoListData of
-                        Data.PeerTube.Received videoList ->
-                            videoList
-                                |> List.filter ((/=) blacklistedVideo)
-                                |> Data.PeerTube.Received
-
-                        data ->
-                            data
-
                 publishingVideos =
                     model.publishingVideos
-                        |> List.filter ((/=) blacklistedVideo)
+                        |> List.filter ((/=) video)
+
+                videoList =
+                    model.videoList
+                        |> List.filter ((/=) video)
             in
             ( { model
-                | blacklistedVideoListData = blacklistedVideoListData
-                , publishingVideos = publishingVideos
+                | publishingVideos = publishingVideos
+                , videoList = videoList
               }
             , Cmd.none
             )
@@ -134,7 +161,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData, publishingVideos } =
+view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData, publishingVideos, videoList } =
     let
         username =
             userInfo
@@ -149,7 +176,7 @@ view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData,
         , if Data.Session.isPeerTubeLoggedIn userInfo then
             if username == "classea12" then
                 case blacklistedVideoListData of
-                    Data.PeerTube.Received videoList ->
+                    Data.PeerTube.Received blacklistedVideoList ->
                         H.section [ HA.class "section section-grey cards" ]
                             [ H.div [ HA.class "container" ]
                                 (viewVideoList
@@ -177,38 +204,34 @@ view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData,
     }
 
 
-viewVideoList : PublishingVideos -> List Data.PeerTube.BlacklistedVideo -> String -> List (H.Html Msg)
-viewVideoList publishingVideos blacklistedVideoList peerTubeURL =
-    [ H.div [ HA.class "row" ]
-        (blacklistedVideoList
-            |> List.map (viewVideo publishingVideos peerTubeURL)
-        )
-    ]
+viewVideoList : PublishingVideos -> List Data.PeerTube.Video -> String -> List (H.Html Msg)
+viewVideoList publishingVideos videoList peerTubeURL =
+    videoList
+        |> List.map (viewVideo publishingVideos peerTubeURL)
 
 
-viewVideo : PublishingVideos -> String -> Data.PeerTube.BlacklistedVideo -> H.Html Msg
-viewVideo publishingVideos peerTubeURL blacklistedVideo =
+viewVideo : PublishingVideos -> String -> Data.PeerTube.Video -> H.Html Msg
+viewVideo publishingVideos peerTubeURL video =
     let
         buttonState =
-            if List.member blacklistedVideo publishingVideos then
+            if List.member video publishingVideos then
                 Page.Common.Components.Loading
 
             else
                 Page.Common.Components.NotLoading
 
         publishNode =
-            Page.Common.Components.button "Publier cette vidéo" buttonState (Just <| PublishVideo blacklistedVideo)
-
-        video =
-            blacklistedVideo.video
+            Page.Common.Components.button "Publier cette vidéo" buttonState (Just <| PublishVideo video)
     in
-    H.div
-        [ HA.class "card" ]
+    H.div []
         [ H.div
-            [ HA.class "card__cover" ]
-            [ H.a [ Route.href <| Route.Video video.uuid video.name ] [ H.text video.name ]
+            [ HA.class "section section-white" ]
+            [ H.div [ HA.class "container" ]
+                [ Page.Common.Video.playerForVideo video peerTubeURL
+                , Page.Common.Video.details video
+                , Page.Common.Video.keywords video.tags
+                , publishNode
+                ]
             ]
-        , Page.Common.Video.details video
-        , Page.Common.Video.keywords video.tags
-        , publishNode
+        , H.br [] []
         ]

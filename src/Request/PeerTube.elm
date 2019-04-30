@@ -20,13 +20,11 @@ module Request.PeerTube exposing
 import Data.PeerTube
     exposing
         ( Account
-        , BlacklistedVideo
         , Comment
         , UserInfo
         , UserToken
         , Video
         , accountDecoder
-        , blacklistedVideoDecoder
         , commentDecoder
         , commentListDecoder
         , dataDecoder
@@ -117,19 +115,19 @@ getVideo videoID maybeAccessToken serverURL message =
     Http.send message (videoRequest videoID maybeAccessToken serverURL)
 
 
-blacklistedVideoListRequest : String -> String -> Http.Request (List BlacklistedVideo)
+blacklistedVideoListRequest : String -> String -> Http.Request (List Video)
 blacklistedVideoListRequest accessToken serverURL =
     let
         url =
             serverURL ++ "/api/v1/videos/blacklist"
 
-        request : Http.Request (List BlacklistedVideo)
+        request : Http.Request (List Video)
         request =
             { method = "GET"
             , headers = []
             , url = url
             , body = Http.emptyBody
-            , expect = Http.expectJson (Decode.field "data" <| Decode.list blacklistedVideoDecoder)
+            , expect = Http.expectJson (Decode.field "data" <| Decode.list (Decode.field "video" videoDecoder))
             , timeout = Nothing
             , withCredentials = False
             }
@@ -139,16 +137,16 @@ blacklistedVideoListRequest accessToken serverURL =
     request
 
 
-getBlacklistedVideoList : String -> String -> (Result Http.Error (List BlacklistedVideo) -> msg) -> Cmd msg
+getBlacklistedVideoList : String -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
 getBlacklistedVideoList accessToken serverURL message =
     Http.send message (blacklistedVideoListRequest accessToken serverURL)
 
 
-publishVideoRequest : BlacklistedVideo -> String -> String -> Http.Request String
-publishVideoRequest blacklistedVideo accessToken serverURL =
+publishVideoRequest : Video -> String -> String -> Http.Request String
+publishVideoRequest video accessToken serverURL =
     let
         url =
-            serverURL ++ "/api/v1/videos/" ++ String.fromInt blacklistedVideo.video.id ++ "/blacklist"
+            serverURL ++ "/api/v1/videos/" ++ String.fromInt video.id ++ "/blacklist"
 
         request : Http.Request String
         request =
@@ -166,9 +164,9 @@ publishVideoRequest blacklistedVideo accessToken serverURL =
     request
 
 
-publishVideo : BlacklistedVideo -> String -> String -> (Result Http.Error String -> msg) -> Cmd msg
-publishVideo blacklistedVideo accessToken serverURL message =
-    Http.send message (publishVideoRequest blacklistedVideo accessToken serverURL)
+publishVideo : Video -> String -> String -> (Result Http.Error String -> msg) -> Cmd msg
+publishVideo video accessToken serverURL message =
+    Http.send message (publishVideoRequest video accessToken serverURL)
 
 
 
