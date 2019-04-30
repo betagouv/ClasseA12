@@ -59,6 +59,8 @@ type alias Video =
     , publishedAt : String
     , originallyPublishedAt : String
     , tags : List String
+    , blacklisted : Bool
+    , files : List String
     }
 
 
@@ -136,6 +138,8 @@ videoDecoder =
         |> Pipeline.required "publishedAt" Decode.string
         |> Pipeline.optional "originallyPublishedAt" Decode.string ""
         |> Pipeline.optional "tags" (Decode.list Decode.string) []
+        |> Pipeline.optional "blacklisted" Decode.bool False
+        |> Pipeline.optional "files" (Decode.list (Decode.field "fileUrl" Decode.string)) []
 
 
 userTokenDecoder : Decode.Decoder UserToken

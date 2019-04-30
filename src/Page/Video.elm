@@ -74,6 +74,10 @@ init videoID videoTitle session =
 
         title =
             "Vidéo : " ++ decodedVideoTitle
+
+        maybeAccessToken =
+            session.userToken
+                |> Maybe.map .access_token
     in
     ( { title = title
       , videoID = videoID
@@ -90,7 +94,7 @@ init videoID videoTitle session =
       , notifications = Notifications.init
       }
     , Cmd.batch
-        [ Request.PeerTube.getVideo videoID session.peerTubeURL VideoReceived
+        [ Request.PeerTube.getVideo videoID maybeAccessToken session.peerTubeURL VideoReceived
         , Request.PeerTube.getVideoCommentList videoID session.peerTubeURL CommentsReceived
         , Request.Files.getVideoAttachmentList videoID session.filesURL AttachmentListReceived
         ]
@@ -458,15 +462,35 @@ viewVideoDetails peerTubeURL url navigatorShare video =
                  ]
                     ++ navigatorShareButton
                 )
+
+        videoTag =
+            if video.blacklisted then
+                -- Visible only by admins, the <embed> tag doesn't work as we can't pass it an access_token
+                let
+                    videoURL =
+                        video.files
+                            |> List.head
+                            -- If the video is blacklisted and there's no file url there's no way to view the video anyway
+                            |> Maybe.withDefault ""
+                in
+                H.video
+                    [ HA.src videoURL
+                    , HA.controls True
+                    , HA.preload "metadata"
+                    ]
+                    []
+
+            else
+                H.embed
+                    [ HA.src <| peerTubeURL ++ video.embedPath
+                    , HA.width 1000
+                    , HA.height 800
+                    ]
+                    []
     in
     H.div
         []
-        [ H.embed
-            [ HA.src (peerTubeURL ++ video.embedPath)
-            , HA.width 1000
-            , HA.height 800
-            ]
-            []
+        [ videoTag
         , Page.Common.Video.details video
         , Page.Common.Video.keywords video.tags
         , shareButtons

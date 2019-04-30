@@ -79,18 +79,38 @@ getVideoList tag serverURL message =
     Http.send message (videoListRequest tag serverURL)
 
 
-videoRequest : String -> String -> Http.Request Video
-videoRequest videoID serverURL =
+videoRequest : String -> Maybe String -> String -> Http.Request Video
+videoRequest videoID maybeAccessToken serverURL =
     let
         url =
             serverURL ++ "/api/v1/videos/" ++ videoID
+
+        request : Request Video
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson videoDecoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+
+        maybeAuthedRequest =
+            case maybeAccessToken of
+                Just accessToken ->
+                    request
+                        |> withHeader "Authorization" ("Bearer " ++ accessToken)
+
+                Nothing ->
+                    request
     in
-    Http.get url videoDecoder
+    Http.request maybeAuthedRequest
 
 
-getVideo : String -> String -> (Result Http.Error Video -> msg) -> Cmd msg
-getVideo videoID serverURL message =
-    Http.send message (videoRequest videoID serverURL)
+getVideo : String -> Maybe String -> String -> (Result Http.Error Video -> msg) -> Cmd msg
+getVideo videoID maybeAccessToken serverURL message =
+    Http.send message (videoRequest videoID maybeAccessToken serverURL)
 
 
 
