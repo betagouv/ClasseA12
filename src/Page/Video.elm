@@ -463,34 +463,10 @@ viewVideoDetails peerTubeURL url navigatorShare video =
                     ++ navigatorShareButton
                 )
 
-        videoTag =
-            if video.blacklisted then
-                -- Visible only by admins, the <embed> tag doesn't work as we can't pass it an access_token
-                let
-                    videoURL =
-                        video.files
-                            |> List.head
-                            -- If the video is blacklisted and there's no file url there's no way to view the video anyway
-                            |> Maybe.withDefault ""
-                in
-                H.video
-                    [ HA.src videoURL
-                    , HA.controls True
-                    , HA.preload "metadata"
-                    ]
-                    []
-
-            else
-                H.embed
-                    [ HA.src <| peerTubeURL ++ video.embedPath
-                    , HA.width 1000
-                    , HA.height 800
-                    ]
-                    []
     in
     H.div
         []
-        [ videoTag
+        [ Page.Common.Video.playerForVideo video peerTubeURL
         , Page.Common.Video.details video
         , Page.Common.Video.keywords video.tags
         , shareButtons

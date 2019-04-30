@@ -1,5 +1,6 @@
 module Data.PeerTube exposing
     ( Account
+    , BlacklistedVideo
     , Comment
     , NewVideo
     , RemoteData(..)
@@ -8,6 +9,7 @@ module Data.PeerTube exposing
     , Video
     , VideoUploaded
     , accountDecoder
+    , blacklistedVideoDecoder
     , commentDecoder
     , commentListDecoder
     , dataDecoder
@@ -61,6 +63,12 @@ type alias Video =
     , tags : List String
     , blacklisted : Bool
     , files : List String
+    }
+
+
+type alias BlacklistedVideo =
+    { id : Int
+    , video : Video
     }
 
 
@@ -128,8 +136,8 @@ accountDecoder =
 videoDecoder : Decode.Decoder Video
 videoDecoder =
     Decode.succeed Video
-        |> Pipeline.required "previewPath" Decode.string
-        |> Pipeline.required "thumbnailPath" Decode.string
+        |> Pipeline.optional "previewPath" Decode.string ""
+        |> Pipeline.optional "thumbnailPath" Decode.string ""
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "embedPath" Decode.string
         |> Pipeline.required "uuid" Decode.string
@@ -140,6 +148,13 @@ videoDecoder =
         |> Pipeline.optional "tags" (Decode.list Decode.string) []
         |> Pipeline.optional "blacklisted" Decode.bool False
         |> Pipeline.optional "files" (Decode.list (Decode.field "fileUrl" Decode.string)) []
+
+
+blacklistedVideoDecoder : Decode.Decoder BlacklistedVideo
+blacklistedVideoDecoder =
+    Decode.succeed BlacklistedVideo
+        |> Pipeline.required "id" Decode.int
+        |> Pipeline.required "video" videoDecoder
 
 
 userTokenDecoder : Decode.Decoder UserToken

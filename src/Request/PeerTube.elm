@@ -3,6 +3,7 @@ module Request.PeerTube exposing
     , askPasswordReset
     , changePassword
     , getAccount
+    , getBlacklistedVideoList
     , getRecentVideoList
     , getUserInfo
     , getVideo
@@ -10,6 +11,7 @@ module Request.PeerTube exposing
     , getVideoList
     , is401
     , login
+    , publishVideo
     , register
     , submitComment
     , updateUserAccount
@@ -18,11 +20,13 @@ module Request.PeerTube exposing
 import Data.PeerTube
     exposing
         ( Account
+        , BlacklistedVideo
         , Comment
         , UserInfo
         , UserToken
         , Video
         , accountDecoder
+        , blacklistedVideoDecoder
         , commentDecoder
         , commentListDecoder
         , dataDecoder
@@ -111,6 +115,60 @@ videoRequest videoID maybeAccessToken serverURL =
 getVideo : String -> Maybe String -> String -> (Result Http.Error Video -> msg) -> Cmd msg
 getVideo videoID maybeAccessToken serverURL message =
     Http.send message (videoRequest videoID maybeAccessToken serverURL)
+
+
+blacklistedVideoListRequest : String -> String -> Http.Request (List BlacklistedVideo)
+blacklistedVideoListRequest accessToken serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/blacklist"
+
+        request : Http.Request (List BlacklistedVideo)
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson (Decode.field "data" <| Decode.list blacklistedVideoDecoder)
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ accessToken)
+                |> Http.request
+    in
+    request
+
+
+getBlacklistedVideoList : String -> String -> (Result Http.Error (List BlacklistedVideo) -> msg) -> Cmd msg
+getBlacklistedVideoList accessToken serverURL message =
+    Http.send message (blacklistedVideoListRequest accessToken serverURL)
+
+
+publishVideoRequest : BlacklistedVideo -> String -> String -> Http.Request String
+publishVideoRequest blacklistedVideo accessToken serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/" ++ String.fromInt blacklistedVideo.id ++ "/blacklist"
+
+        request : Http.Request String
+        request =
+            { method = "DELETE"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectString
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ accessToken)
+                |> Http.request
+    in
+    request
+
+
+publishVideo : BlacklistedVideo -> String -> String -> (Result Http.Error String -> msg) -> Cmd msg
+publishVideo blacklistedVideo accessToken serverURL message =
+    Http.send message (publishVideoRequest blacklistedVideo accessToken serverURL)
 
 
 
