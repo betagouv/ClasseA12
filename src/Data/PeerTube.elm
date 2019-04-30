@@ -51,7 +51,8 @@ type alias Account =
 
 
 type alias Video =
-    { previewPath : String
+    { id : Int
+    , previewPath : String
     , thumbnailPath : String
     , name : String
     , embedPath : String
@@ -136,6 +137,7 @@ accountDecoder =
 videoDecoder : Decode.Decoder Video
 videoDecoder =
     Decode.succeed Video
+        |> Pipeline.required "id" Decode.int
         |> Pipeline.optional "previewPath" Decode.string ""
         |> Pipeline.optional "thumbnailPath" Decode.string ""
         |> Pipeline.required "name" Decode.string

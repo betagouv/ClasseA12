@@ -148,7 +148,7 @@ publishVideoRequest : BlacklistedVideo -> String -> String -> Http.Request Strin
 publishVideoRequest blacklistedVideo accessToken serverURL =
     let
         url =
-            serverURL ++ "/api/v1/videos/" ++ String.fromInt blacklistedVideo.id ++ "/blacklist"
+            serverURL ++ "/api/v1/videos/" ++ String.fromInt blacklistedVideo.video.id ++ "/blacklist"
 
         request : Http.Request String
         request =
