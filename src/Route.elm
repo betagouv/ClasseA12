@@ -75,6 +75,8 @@ parser =
         , Parser.map
             (\videoID -> Video videoID "lien vidéo d'un email")
             (Parser.s "videos" </> Parser.s "watch" </> Parser.string)
+        , Parser.map Admin
+            (Parser.s "admin" </> Parser.s "moderation" </> Parser.s "video-auto-blacklist" </> Parser.s "list")
         ]
 
 
