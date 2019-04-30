@@ -131,7 +131,7 @@ app.ports.submitVideo.subscribe(function (data) {
     // Create a multipart form to upload the file.
     let formData = new FormData();
     formData.append('videofile', file);
-    formData.append('name', uuidv4());
+    formData.append('name', videoData.title);
     formData.append('channelId', channelID);
     formData.append('privacy', 1); // Corresponds to "Public"
     if (videoData.description) {
