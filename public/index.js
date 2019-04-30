@@ -134,6 +134,7 @@ app.ports.submitVideo.subscribe(function (data) {
     formData.append('name', videoData.title);
     formData.append('channelId', channelID);
     formData.append('privacy', 1); // Corresponds to "Public"
+    formData.append('category', 13); // Corresponds to "Education"
     if (videoData.description) {
         formData.append('description', videoData.description || '');
     }
