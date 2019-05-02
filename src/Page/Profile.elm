@@ -18,6 +18,7 @@ type alias Model =
     , pageState : PageState
     , profileForm : ProfileForm
     , profileData : Data.PeerTube.RemoteData Data.PeerTube.Account
+    , ownProfile : Bool
     , notifications : Notifications.Model
     }
 
@@ -53,23 +54,24 @@ type Msg
 init : String -> Session -> ( Model, Cmd Msg )
 init profile session =
     let
+        ownProfile =
+            session.userInfo
+                |> Maybe.map (\userInfo -> userInfo.username == profile)
+                |> Maybe.withDefault False
+
         ( msg, title ) =
-            case session.userInfo of
-                Just userInfo ->
-                    if profile == userInfo.username then
-                        -- Profile edition
-                        ( ProfileFetchedForEdit, "Édition du profil" )
+            if ownProfile then
+                -- Profile edition
+                ( ProfileFetchedForEdit, "Édition du profil" )
 
-                    else
-                        ( ProfileFetchedForView, "Profil" )
-
-                Nothing ->
-                    ( ProfileFetchedForView, "Profil" )
+            else
+                ( ProfileFetchedForView, "Profil" )
     in
     ( { title = title
       , pageState = GetProfile
       , profileForm = emptyProfileForm
       , profileData = Data.PeerTube.NotRequested
+      , ownProfile = ownProfile
       , notifications = Notifications.init
       }
     , Request.PeerTube.getAccount profile session.peerTubeURL msg
@@ -202,7 +204,15 @@ updateProfile { peerTubeURL, userInfo, userToken } model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles } { title, pageState, profileForm, profileData, notifications } =
+view { staticFiles } { title, pageState, profileForm, profileData, ownProfile, notifications } =
+    let
+        logoutButton =
+            if ownProfile then
+                [ H.button [ HA.class "button warning", HE.onClick Logout ] [ H.text "Me déconnecter" ] ]
+
+            else
+                []
+    in
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
@@ -222,6 +232,7 @@ view { staticFiles } { title, pageState, profileForm, profileData, notifications
                 ]
             ]
         ]
+            ++ logoutButton
     }
 
 
@@ -253,9 +264,7 @@ viewEditProfileForm pageState profileForm profileData =
 
         submitButton =
             H.div []
-                [ Page.Common.Components.submitButton "Mettre à jour mon profil" buttonState
-                , H.button [ HA.class "button warning", HE.onClick Logout ] [ H.text "Me déconnecter" ]
-                ]
+                [ Page.Common.Components.submitButton "Mettre à jour mon profil" buttonState ]
     in
     H.form
         [ HE.onSubmit UpdateProfile ]
