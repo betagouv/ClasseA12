@@ -95,8 +95,8 @@ urlFromVideoListParams { keywords, count, offset } serverURL =
     in
     if keywords /= [] then
         keywords
-            |> String.join ","
-            |> (++) "&tagsOneOf="
+            |> String.join "&tagsAllOf="
+            |> (++) "&tagsAllOf="
             |> (++) url
 
     else
