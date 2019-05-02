@@ -26,13 +26,21 @@ type Msg
 
 init : Maybe String -> Session -> ( Model, Cmd Msg )
 init search session =
+    let
+        emptyVideoListParams =
+            Request.PeerTube.emptyVideoListParams
+
+        videoListParams : Request.PeerTube.VideoListParams
+        videoListParams =
+            { emptyVideoListParams | count = 20 }
+    in
     case search of
         Nothing ->
             ( { title = "Liste des vidéos récentes"
               , keyword = "Nouveautés"
               , videoListData = Data.PeerTube.Requested
               }
-            , Request.PeerTube.getRecentVideoList session.peerTubeURL (VideoListReceived "Nouveautés")
+            , Request.PeerTube.getVideoList videoListParams session.peerTubeURL (VideoListReceived "Nouveautés")
             )
 
         Just keyword ->
@@ -46,7 +54,10 @@ init search session =
               , keyword = decoded
               , videoListData = Data.PeerTube.Requested
               }
-            , Request.PeerTube.getVideoList keyword session.peerTubeURL (VideoListReceived decoded)
+            , Request.PeerTube.getVideoList
+                (videoListParams |> Request.PeerTube.withKeyword keyword)
+                session.peerTubeURL
+                (VideoListReceived decoded)
             )
 
 

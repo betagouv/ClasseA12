@@ -48,12 +48,20 @@ init session =
                     Dict.empty
       }
     , Cmd.batch
-        ([ Request.PeerTube.getRecentVideoList session.peerTubeURL RecentVideoListReceived
+        ([ Request.PeerTube.getVideoList
+            Request.PeerTube.emptyVideoListParams
+            session.peerTubeURL
+            RecentVideoListReceived
          ]
             ++ (keywordList
                     |> List.map
                         (\keyword ->
-                            Request.PeerTube.getVideoList keyword session.peerTubeURL (VideoListReceived keyword)
+                            let
+                                videoListParams =
+                                    Request.PeerTube.emptyVideoListParams
+                                        |> Request.PeerTube.withKeyword keyword
+                            in
+                            Request.PeerTube.getVideoList videoListParams session.peerTubeURL (VideoListReceived keyword)
                         )
                )
         )

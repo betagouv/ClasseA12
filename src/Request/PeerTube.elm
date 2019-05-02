@@ -1,20 +1,24 @@
 module Request.PeerTube exposing
-    ( activate
+    ( VideoListParams
+    , activate
     , askPasswordReset
     , changePassword
+    , emptyVideoListParams
     , getAccount
     , getBlacklistedVideoList
-    , getRecentVideoList
     , getUserInfo
     , getVideo
     , getVideoCommentList
     , getVideoList
     , is401
+    , loadMoreVideos
     , login
     , publishVideo
     , register
     , submitComment
     , updateUserAccount
+    , urlFromVideoListParams
+    , withKeyword
     )
 
 import Data.PeerTube
@@ -53,32 +57,60 @@ type alias Request a =
 ---- VIDEOS ----
 
 
-recentVideoListRequest : String -> Http.Request (List Video)
-recentVideoListRequest serverURL =
+type alias VideoListParams =
+    { keywords : List String
+    , count : Int
+    , offset : Int
+    }
+
+
+emptyVideoListParams : VideoListParams
+emptyVideoListParams =
+    { keywords = []
+    , count = 8
+    , offset = 0
+    }
+
+
+withKeyword : String -> VideoListParams -> VideoListParams
+withKeyword keyword ({ keywords } as videoListParams) =
+    { videoListParams | keywords = keyword :: keywords }
+
+
+loadMoreVideos : VideoListParams -> VideoListParams
+loadMoreVideos ({ offset, count } as videoListParams) =
+    { videoListParams | offset = offset + count }
+
+
+urlFromVideoListParams : VideoListParams -> String -> String
+urlFromVideoListParams { keywords, count, offset } serverURL =
     let
         url =
-            serverURL ++ "/api/v1/search/videos?start=0&count=8&categoryOneOf=13&sort=-publishedAt"
+            serverURL
+                ++ "/api/v1/search/videos?start="
+                ++ String.fromInt offset
+                ++ "&count="
+                ++ String.fromInt count
+                ++ "&categoryOneOf=13&sort=-publishedAt"
     in
-    Http.get url dataDecoder
+    if keywords /= [] then
+        keywords
+            |> String.join ","
+            |> (++) "&tagsOneOf="
+            |> (++) url
+
+    else
+        url
 
 
-getRecentVideoList : String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
-getRecentVideoList serverURL message =
-    Http.send message (recentVideoListRequest serverURL)
+videoListRequest : VideoListParams -> String -> Http.Request (List Video)
+videoListRequest videoListParams serverURL =
+    Http.get (urlFromVideoListParams videoListParams serverURL) dataDecoder
 
 
-videoListRequest : String -> String -> Http.Request (List Video)
-videoListRequest tag serverURL =
-    let
-        url =
-            serverURL ++ "/api/v1/search/videos?start=0&count=8&categoryOneOf=13&tagsOneOf=" ++ tag
-    in
-    Http.get url dataDecoder
-
-
-getVideoList : String -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
-getVideoList tag serverURL message =
-    Http.send message (videoListRequest tag serverURL)
+getVideoList : VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getVideoList videoListParams serverURL message =
+    Http.send message (videoListRequest videoListParams serverURL)
 
 
 videoRequest : String -> Maybe String -> String -> Http.Request Video
