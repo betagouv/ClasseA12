@@ -383,10 +383,12 @@ update session msg model =
                                 -- More than one keyword? It must be results from the request with all the keywords
                                 -- so display those results first (they have more keywords in common)
                                 (newVideos ++ previousVideoList)
+                                    |> dedupVideos
                                     |> Data.PeerTube.Received
 
                             else
                                 (previousVideoList ++ newVideos)
+                                    |> dedupVideos
                                     |> Data.PeerTube.Received
 
                         _ ->
@@ -413,6 +415,21 @@ update session msg model =
             , Cmd.none
             , Nothing
             )
+
+
+dedupVideos : List Data.PeerTube.Video -> List Data.PeerTube.Video
+dedupVideos videos =
+    videos
+        |> List.foldl
+            (\video videoList ->
+                if List.member video videoList then
+                    videoList
+
+                else
+                    video :: videoList
+            )
+            []
+        |> List.reverse
 
 
 attachmentFromString : String -> String -> Maybe Attachment
