@@ -109,67 +109,18 @@ view : Session -> Model -> Page.Common.Components.Document Msg
 view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
     let
         viewRecentVideo =
-            [ H.div [ HA.class "panel", HA.id "Nouveautés" ]
-                [ H.div [ HA.class "panel__header" ]
-                    [ H.h3 []
-                        [ H.text "Nouveautés"
-                        , H.text " "
-                        , H.a [ Route.href <| Route.Search Nothing ]
-                            [ H.i [ HA.class "fas fa-angle-right" ] []
-                            ]
-                        ]
-                    ]
-                , H.div []
-                    [ case recentVideoData of
-                        Data.PeerTube.NotRequested ->
-                            H.text ""
-
-                        Data.PeerTube.Requested ->
-                            H.text "Chargement des vidéos..."
-
-                        Data.PeerTube.Received videoList ->
-                            viewVideoList "Nouveautés" peerTubeURL videoList
-
-                        Data.PeerTube.Failed error ->
-                            H.text error
-                    ]
-                ]
-            ]
+            [ Page.Common.Video.viewCategory recentVideoData peerTubeURL "Nouveautés" ]
 
         viewVideoCategories =
             Data.Kinto.keywordList
                 |> List.map
                     (\( keyword, _ ) ->
                         let
-                            remoteData =
+                            videoListData =
                                 Dict.get keyword videoData
                                     |> Maybe.withDefault Data.PeerTube.NotRequested
                         in
-                        H.div [ HA.class "panel", HA.id keyword ]
-                            [ H.div [ HA.class "panel__header" ]
-                                [ H.h3 []
-                                    [ H.text keyword
-                                    , H.text " "
-                                    , H.a [ Route.href <| Route.Search <| Just keyword ]
-                                        [ H.i [ HA.class "fas fa-angle-right" ] []
-                                        ]
-                                    ]
-                                ]
-                            , H.div []
-                                [ case remoteData of
-                                    Data.PeerTube.NotRequested ->
-                                        H.text ""
-
-                                    Data.PeerTube.Requested ->
-                                        H.text "Chargement des vidéos..."
-
-                                    Data.PeerTube.Received videoList ->
-                                        viewVideoList keyword peerTubeURL videoList
-
-                                    Data.PeerTube.Failed error ->
-                                        H.text error
-                                ]
-                            ]
+                        Page.Common.Video.viewCategory videoListData peerTubeURL keyword
                     )
     in
     { title = title
@@ -179,40 +130,3 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
         viewRecentVideo
             ++ viewVideoCategories
     }
-
-
-viewVideoList :
-    String
-    -> String
-    -> List Data.PeerTube.Video
-    -> H.Html Msg
-viewVideoList title peerTubeURL videoList =
-    let
-        videoCards =
-            if videoList /= [] then
-                videoList
-                    |> List.map (\video -> viewPublicVideo peerTubeURL video)
-
-            else
-                [ H.text "Aucune vidéo pour le moment" ]
-    in
-    H.div [ HA.class "row" ]
-        videoCards
-
-
-viewPublicVideo : String -> Data.PeerTube.Video -> H.Html msg
-viewPublicVideo peerTubeURL video =
-    H.a
-        [ HA.class "card"
-        , Route.href <| Route.Video video.uuid video.name
-        ]
-        [ H.div
-            [ HA.class "card__cover" ]
-            [ H.img
-                [ HA.alt video.name
-                , HA.src (peerTubeURL ++ video.previewPath)
-                ]
-                []
-            ]
-        , Page.Common.Video.shortDetails video
-        ]
