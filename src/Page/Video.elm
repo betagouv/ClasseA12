@@ -1,5 +1,6 @@
 module Page.Video exposing (Model, Msg(..), init, update, view)
 
+import Array
 import Browser.Dom as Dom
 import Data.Kinto
 import Data.PeerTube
@@ -43,8 +44,16 @@ type alias Model =
     , attachmentData : Data.PeerTube.RemoteData String
     , attachmentSelected : Bool
     , progress : Page.Common.Progress.Progress
-    , attachmentList : List String
+    , attachmentList : List Attachment
     , notifications : Notifications.Model
+    }
+
+
+type alias Attachment =
+    { commentID : String
+    , videoID : String
+    , filename : String
+    , url : String
     }
 
 
@@ -288,7 +297,14 @@ update session msg model =
             )
 
         AttachmentListReceived (Ok attachmentList) ->
-            ( { model | attachmentList = attachmentList }
+            let
+                attachments =
+                    attachmentList
+                        |> List.map (attachmentFromString session.filesURL)
+                        -- Remove the `Nothing`s and keep the `Just`s
+                        |> List.filterMap identity
+            in
+            ( { model | attachmentList = attachments }
             , Cmd.none
             , Nothing
             )
@@ -327,6 +343,32 @@ update session msg model =
             )
 
 
+attachmentFromString : String -> String -> Maybe Attachment
+attachmentFromString baseURL str =
+    let
+        splitted =
+            String.split "/" str
+                |> Array.fromList
+
+        -- Get the element at the given index, and return an empty string otherwise.
+        get : Int -> Array.Array String -> String
+        get index array =
+            Array.get index array
+                |> Maybe.withDefault ""
+    in
+    if Array.length splitted == 4 then
+        -- The file url starts with a "/", so the first element in `splitted` is an empty string
+        Just
+            { videoID = get 1 splitted
+            , commentID = get 2 splitted
+            , filename = get 3 splitted
+            , url = baseURL ++ str
+            }
+
+    else
+        Nothing
+
+
 scrollToComment : Maybe String -> Model -> Cmd Msg
 scrollToComment maybeCommentID model =
     if model.comments /= Data.PeerTube.Requested && model.videoData /= Data.PeerTube.Requested then
@@ -356,10 +398,10 @@ view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { vid
         [ H.map NotificationMsg (Notifications.view notifications)
         , H.div [ HA.class "section section-white" ]
             [ H.div [ HA.class "container" ]
-                [ viewVideo peerTubeURL url navigatorShare videoData
+                [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
                 ]
             , H.div [ HA.class "container" ]
-                [ viewComments videoID comments attachmentList filesURL
+                [ viewComments videoID comments attachmentList
                 , case commentData of
                     Data.PeerTube.Failed error ->
                         H.div []
@@ -384,11 +426,11 @@ viewTitle videoData =
             H.p [] []
 
 
-viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> H.Html Msg
-viewVideo peerTubeURL url navigatorShare videoData =
+viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> List Attachment -> H.Html Msg
+viewVideo peerTubeURL url navigatorShare videoData attachmentList =
     case videoData of
         Data.PeerTube.Received video ->
-            viewVideoDetails peerTubeURL url navigatorShare video
+            viewVideoDetails peerTubeURL url navigatorShare video attachmentList
 
         Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -397,8 +439,8 @@ viewVideo peerTubeURL url navigatorShare videoData =
             H.p [] [ H.text "Vidéo non trouvée" ]
 
 
-viewVideoDetails : String -> Url -> Bool -> Data.PeerTube.Video -> H.Html Msg
-viewVideoDetails peerTubeURL url navigatorShare video =
+viewVideoDetails : String -> Url -> Bool -> Data.PeerTube.Video -> List Attachment -> H.Html Msg
+viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
     let
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
@@ -462,18 +504,38 @@ viewVideoDetails peerTubeURL url navigatorShare video =
                  ]
                     ++ navigatorShareButton
                 )
+
+        viewAttachments =
+            H.div []
+                [ H.h5 [] [ H.text "Ressources" ]
+                , H.ul []
+                    (attachmentList
+                        |> List.map
+                            (\attachment ->
+                                H.li []
+                                    [ H.a
+                                        [ HA.href <| "#" ++ attachment.commentID
+                                        , HA.class "comment-link"
+                                        , HE.onClick <| CommentSelected attachment.commentID
+                                        ]
+                                        [ H.text attachment.filename ]
+                                    ]
+                            )
+                    )
+                ]
     in
     H.div
         []
         [ Page.Common.Video.playerForVideo video peerTubeURL
         , Page.Common.Video.details video
         , Page.Common.Video.keywords video.tags
+        , viewAttachments
         , shareButtons
         ]
 
 
-viewComments : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> List String -> String -> H.Html Msg
-viewComments videoID commentsData attachmentList filesURL =
+viewComments : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> List Attachment -> H.Html Msg
+viewComments videoID commentsData attachmentList =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.PeerTube.Received comments ->
@@ -481,7 +543,7 @@ viewComments videoID commentsData attachmentList filesURL =
                     [ H.h3 [] [ H.text "Contributions" ]
                     , H.ul [ HA.class "comment-list" ]
                         (comments
-                            |> List.map (viewCommentDetails videoID attachmentList filesURL)
+                            |> List.map (viewCommentDetails videoID attachmentList)
                         )
                     ]
 
@@ -493,32 +555,20 @@ viewComments videoID commentsData attachmentList filesURL =
         ]
 
 
-viewCommentDetails : String -> List String -> String -> Data.PeerTube.Comment -> H.Html Msg
-viewCommentDetails videoID attachmentList filesURL comment =
+viewCommentDetails : String -> List Attachment -> Data.PeerTube.Comment -> H.Html Msg
+viewCommentDetails videoID attachmentList comment =
     let
         commentID =
             String.fromInt comment.id
 
-        filePath =
-            "/"
-                ++ videoID
-                ++ "/"
-                ++ commentID
-                ++ "/"
-
         attachmentNodes =
             attachmentList
-                |> List.filter (String.startsWith filePath)
+                |> List.filter (\attachment -> attachment.videoID == videoID && attachment.commentID == commentID)
                 |> List.map
                     (\attachment ->
-                        let
-                            filename =
-                                attachment
-                                    |> String.replace filePath ""
-                        in
                         H.div []
                             [ H.text "Pièce jointe : "
-                            , H.a [ HA.href <| filesURL ++ attachment ] [ H.text filename ]
+                            , H.a [ HA.href <| attachment.url ] [ H.text attachment.filename ]
                             ]
                     )
     in
