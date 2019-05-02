@@ -39,7 +39,9 @@ import Data.PeerTube
         )
 import Http
 import Json.Decode as Decode
+import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
+import Task
 import Url
 
 
@@ -409,8 +411,30 @@ getAccount accountName serverURL message =
     Http.send message (accountRequest accountName serverURL)
 
 
-loginRequest : String -> String -> String -> Http.Request UserToken
-loginRequest username password serverURL =
+type alias Client =
+    { client_id : String
+    , client_secret : String
+    }
+
+
+clientDecoder : Decode.Decoder Client
+clientDecoder =
+    Decode.succeed Client
+        |> Pipeline.required "client_id" Decode.string
+        |> Pipeline.required "client_secret" Decode.string
+
+
+clientRequest : String -> Http.Request Client
+clientRequest serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/oauth-clients/local"
+    in
+    Http.get url clientDecoder
+
+
+loginRequest : String -> String -> String -> String -> String -> Http.Request UserToken
+loginRequest client_id client_secret username password serverURL =
     let
         url =
             serverURL ++ "/api/v1/users/token"
@@ -418,8 +442,8 @@ loginRequest username password serverURL =
         data =
             [ ( "username", username |> Url.percentEncode )
             , ( "password", password |> Url.percentEncode )
-            , ( "client_id", "i81pd4hxi635mvrbtayp2vikpvkvay9p" )
-            , ( "client_secret", "8Ajuy56iRCW95ZFEwF1yAYzpFbQ2JnRS" )
+            , ( "client_id", client_id )
+            , ( "client_secret", client_secret )
             , ( "grant_type", "password" )
             , ( "response_type", "code" )
             , ( "scope", "upload" )
@@ -436,7 +460,12 @@ loginRequest username password serverURL =
 
 login : String -> String -> String -> (Result Http.Error UserToken -> msg) -> Cmd msg
 login username password serverURL message =
-    Http.send message (loginRequest username password serverURL)
+    Http.toTask (clientRequest serverURL)
+        |> Task.andThen
+            (\{ client_id, client_secret } ->
+                Http.toTask (loginRequest client_id client_secret username password serverURL)
+            )
+        |> Task.attempt message
 
 
 getUserInfoRequest : String -> String -> Http.Request UserInfo
