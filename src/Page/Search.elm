@@ -7,6 +7,7 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Page.Common.Components
+import Page.Common.Notifications as Notifications
 import Page.Common.Video
 import Request.PeerTube
 import Route
@@ -17,11 +18,16 @@ type alias Model =
     { title : String
     , keyword : String
     , videoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+    , videoListParams : Request.PeerTube.VideoListParams
+    , loadMoreState : Page.Common.Components.ButtonState
+    , notifications : Notifications.Model
     }
 
 
 type Msg
-    = VideoListReceived String (Result Http.Error (List Data.PeerTube.Video))
+    = VideoListReceived (Result Http.Error (List Data.PeerTube.Video))
+    | LoadMore
+    | NotificationMsg Notifications.Msg
 
 
 init : Maybe String -> Session -> ( Model, Cmd Msg )
@@ -39,8 +45,11 @@ init search session =
             ( { title = "Liste des vidéos récentes"
               , keyword = "Nouveautés"
               , videoListData = Data.PeerTube.Requested
+              , videoListParams = videoListParams
+              , loadMoreState = Page.Common.Components.Loading
+              , notifications = Notifications.init
               }
-            , Request.PeerTube.getVideoList videoListParams session.peerTubeURL (VideoListReceived "Nouveautés")
+            , Request.PeerTube.getVideoList videoListParams session.peerTubeURL VideoListReceived
             )
 
         Just keyword ->
@@ -49,34 +58,89 @@ init search session =
                     keyword
                         |> Url.percentDecode
                         |> Maybe.withDefault ""
+
+                paramsForKeyword =
+                    videoListParams |> Request.PeerTube.withKeyword keyword
             in
             ( { title = "Liste des vidéos dans la catégorie " ++ decoded
               , keyword = decoded
               , videoListData = Data.PeerTube.Requested
+              , videoListParams = paramsForKeyword
+              , loadMoreState = Page.Common.Components.Loading
+              , notifications = Notifications.init
               }
             , Request.PeerTube.getVideoList
-                (videoListParams |> Request.PeerTube.withKeyword keyword)
+                paramsForKeyword
                 session.peerTubeURL
-                (VideoListReceived decoded)
+                VideoListReceived
             )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
-        VideoListReceived keyword (Ok videoList) ->
-            ( { model | videoListData = Data.PeerTube.Received videoList }
+        VideoListReceived (Ok videoList) ->
+            let
+                ( videoListData, loadMoreState ) =
+                    case model.videoListData of
+                        Data.PeerTube.Received previousList ->
+                            ( Data.PeerTube.Received (previousList ++ videoList)
+                            , Page.Common.Components.NotLoading
+                            )
+
+                        _ ->
+                            ( Data.PeerTube.Received videoList, Page.Common.Components.NotLoading )
+
+                maybeDisabled =
+                    if videoList == [] then
+                        -- We didn't receive anything back from the API, there's no more videos to load
+                        Page.Common.Components.Disabled
+
+                    else
+                        Page.Common.Components.NotLoading
+            in
+            ( { model
+                | videoListData = videoListData
+                , loadMoreState = maybeDisabled
+              }
             , Cmd.none
             )
 
-        VideoListReceived keyword (Err error) ->
-            ( { model | videoListData = Data.PeerTube.Failed "Échec de la récupération des vidéos" }
+        VideoListReceived (Err error) ->
+            ( { model
+                | videoListData = Data.PeerTube.Failed "Échec de la récupération des vidéos"
+                , notifications =
+                    "Échec de la récupération de la vidéo"
+                        |> Notifications.addError model.notifications
+                , loadMoreState = Page.Common.Components.NotLoading
+              }
+            , Cmd.none
+            )
+
+        LoadMore ->
+            let
+                params =
+                    model.videoListParams
+                        |> Request.PeerTube.loadMoreVideos
+            in
+            ( { model
+                | videoListParams = params
+                , loadMoreState = Page.Common.Components.Loading
+              }
+            , Request.PeerTube.getVideoList
+                params
+                session.peerTubeURL
+                VideoListReceived
+            )
+
+        NotificationMsg notificationMsg ->
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }
             , Cmd.none
             )
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles, peerTubeURL } ({ title, videoListData, keyword } as model) =
+view { staticFiles, peerTubeURL } ({ title, videoListData, keyword, notifications, loadMoreState } as model) =
     { title = title
     , pageTitle =
         if keyword == "Nouveautés" then
@@ -91,5 +155,13 @@ view { staticFiles, peerTubeURL } ({ title, videoListData, keyword } as model) =
         else
             "dans la catégorie " ++ keyword
     , body =
-        [ Page.Common.Video.viewCategory videoListData peerTubeURL keyword ]
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , Page.Common.Video.viewCategory videoListData peerTubeURL keyword
+        , case loadMoreState of
+            Page.Common.Components.Disabled ->
+                Page.Common.Components.button "Plus d'autres vidéos à afficher" loadMoreState Nothing
+
+            _ ->
+                Page.Common.Components.button "Afficher plus de vidéos" loadMoreState (Just LoadMore)
+        ]
     }
