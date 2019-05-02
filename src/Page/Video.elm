@@ -598,23 +598,27 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                 )
 
         viewAttachments =
-            H.div []
-                [ H.h5 [] [ H.text "Ressources" ]
-                , H.ul []
-                    (attachmentList
-                        |> List.map
-                            (\attachment ->
-                                H.li []
-                                    [ H.a
-                                        [ HA.href <| "#" ++ attachment.commentID
-                                        , HA.class "comment-link"
-                                        , HE.onClick <| CommentSelected attachment.commentID
+            if attachmentList /= [] then
+                H.div []
+                    [ H.h5 [] [ H.text "Ressources" ]
+                    , H.ul []
+                        (attachmentList
+                            |> List.map
+                                (\attachment ->
+                                    H.li []
+                                        [ H.a
+                                            [ HA.href <| "#" ++ attachment.commentID
+                                            , HA.class "comment-link"
+                                            , HE.onClick <| CommentSelected attachment.commentID
+                                            ]
+                                            [ H.text attachment.filename ]
                                         ]
-                                        [ H.text attachment.filename ]
-                                    ]
-                            )
-                    )
-                ]
+                                )
+                        )
+                    ]
+
+            else
+                H.div [] []
     in
     H.div
         []
