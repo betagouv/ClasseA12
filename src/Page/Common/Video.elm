@@ -8,6 +8,7 @@ module Page.Common.Video exposing
     , rawPlayer
     , shortDetails
     , viewCategory
+    , viewVideo
     )
 
 import Data.Kinto

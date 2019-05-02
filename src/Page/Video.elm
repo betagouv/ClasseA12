@@ -27,6 +27,7 @@ import Request.KintoProfile
 import Request.KintoVideo
 import Request.PeerTube
 import Route
+import Set
 import Task
 import Time
 import Url exposing (Url)
@@ -45,6 +46,7 @@ type alias Model =
     , attachmentSelected : Bool
     , progress : Page.Common.Progress.Progress
     , attachmentList : List Attachment
+    , relatedVideos : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , notifications : Notifications.Model
     }
 
@@ -69,6 +71,7 @@ type Msg
     | AttachmentSent Decode.Value
     | ProgressUpdated Decode.Value
     | AttachmentListReceived (Result Http.Error (List String))
+    | RelatedVideosReceived (List String) (Result Http.Error (List Data.PeerTube.Video))
     | NotificationMsg Notifications.Msg
     | NoOp
 
@@ -100,6 +103,7 @@ init videoID videoTitle session =
       , attachmentSelected = False
       , progress = Page.Common.Progress.empty
       , attachmentList = []
+      , relatedVideos = Data.PeerTube.NotRequested
       , notifications = Notifications.init
       }
     , Cmd.batch
@@ -117,8 +121,38 @@ update session msg model =
             ( model, Cmd.none, Nothing )
 
         VideoReceived (Ok video) ->
-            ( { model | videoData = Data.PeerTube.Received video }
-            , scrollToComment session.url.fragment model
+            let
+                -- Request related videos: query the videos that have all the
+                -- keywords, and then the ones which have one keyword in common.
+                -- This will be something like [[foo, bar], [foo], [bar]]
+                relatedVideosKeywordsToRequest =
+                    (video.tags
+                        :: (video.tags |> List.map List.singleton)
+                    )
+                        -- Make sure we don't have duplicated, eg for a video that has only one keyword.
+                        |> Set.fromList
+                        |> Set.toList
+
+                relatedVideosCommands =
+                    relatedVideosKeywordsToRequest
+                        |> List.map
+                            (\keywords ->
+                                let
+                                    params =
+                                        Request.PeerTube.withKeywords keywords Request.PeerTube.emptyVideoListParams
+                                in
+                                Request.PeerTube.getVideoList params session.peerTubeURL (RelatedVideosReceived keywords)
+                            )
+            in
+            ( { model
+                | videoData = Data.PeerTube.Received video
+                , relatedVideos = Data.PeerTube.Requested
+              }
+            , Cmd.batch
+                ([ scrollToComment session.url.fragment model
+                 ]
+                    ++ relatedVideosCommands
+                )
             , Nothing
             )
 
@@ -336,6 +370,44 @@ update session msg model =
             , Nothing
             )
 
+        RelatedVideosReceived keywords (Ok videos) ->
+            let
+                newVideos =
+                    videos
+                        |> List.filter (\video -> video.uuid /= model.videoID)
+
+                relatedVideos =
+                    case model.relatedVideos of
+                        Data.PeerTube.Received previousVideoList ->
+                            if List.length keywords > 1 then
+                                -- More than one keyword? It must be results from the request with all the keywords
+                                -- so display those results first (they have more keywords in common)
+                                (newVideos ++ previousVideoList)
+                                    |> Data.PeerTube.Received
+
+                            else
+                                (previousVideoList ++ newVideos)
+                                    |> Data.PeerTube.Received
+
+                        _ ->
+                            Data.PeerTube.Received newVideos
+            in
+            ( { model | relatedVideos = relatedVideos }
+            , Cmd.none
+            , Nothing
+            )
+
+        RelatedVideosReceived keywords (Err error) ->
+            ( { model
+                | relatedVideos = Data.PeerTube.Failed "Échec de la récupération des vidéos"
+                , notifications =
+                    "Échec de la récupération des vidéos"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            , Nothing
+            )
+
         NotificationMsg notificationMsg ->
             ( { model | notifications = Notifications.update notificationMsg model.notifications }
             , Cmd.none
@@ -390,7 +462,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList } =
+view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
     { title = title
     , pageTitle = "Vidéo"
     , pageSubTitle = videoTitle
@@ -410,6 +482,9 @@ view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { vid
 
                     _ ->
                         viewCommentForm comment userInfo refreshing commentData attachmentData progress
+                ]
+            , H.div [ HA.class "container" ]
+                [ viewRelatedVideos peerTubeURL relatedVideos
                 ]
             ]
         ]
@@ -670,3 +745,23 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
                     ]
                 ]
             ]
+
+
+viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> H.Html Msg
+viewRelatedVideos peerTubeURL relatedVideos =
+    case relatedVideos of
+        Data.PeerTube.Received videos ->
+            if videos /= [] then
+                H.div []
+                    [ H.h5 [] [ H.text "Ces vidéos pourraient vous intéresser" ]
+                    , H.div [ HA.class "row" ]
+                        (videos
+                            |> List.map (Page.Common.Video.viewVideo peerTubeURL)
+                        )
+                    ]
+
+            else
+                H.div [] []
+
+        _ ->
+            H.div [] []

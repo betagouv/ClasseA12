@@ -19,6 +19,7 @@ module Request.PeerTube exposing
     , updateUserAccount
     , urlFromVideoListParams
     , withKeyword
+    , withKeywords
     )
 
 import Data.PeerTube
@@ -75,6 +76,12 @@ emptyVideoListParams =
 withKeyword : String -> VideoListParams -> VideoListParams
 withKeyword keyword ({ keywords } as videoListParams) =
     { videoListParams | keywords = keyword :: keywords }
+
+
+withKeywords : List String -> VideoListParams -> VideoListParams
+withKeywords keywords videoListParams =
+    keywords
+        |> List.foldl withKeyword videoListParams
 
 
 loadMoreVideos : VideoListParams -> VideoListParams
