@@ -121,7 +121,7 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
-            , Nothing
+            , Data.Session.logoutIf401 error
             )
 
         ShareVideo shareText ->
@@ -462,7 +462,6 @@ viewVideoDetails peerTubeURL url navigatorShare video =
                  ]
                     ++ navigatorShareButton
                 )
-
     in
     H.div
         []
