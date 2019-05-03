@@ -139,7 +139,12 @@ app.ports.submitVideo.subscribe(function (data) {
         formData.append('description', videoData.description || '');
     }
     let keywords = videoData.keywords || [];
-    keywords.push(videoData.grade);
+    if (videoData.grade == "CP et CE1") {
+        keywords.push("CP");
+        keywords.push("CE1");
+    } else {
+        keywords.push(videoData.grade);
+    }
     videoData.keywords.forEach(function (keyword) {
         formData.append('tags[]', keyword);
     });
