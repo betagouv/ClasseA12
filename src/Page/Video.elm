@@ -86,10 +86,6 @@ init videoID videoTitle session =
 
         title =
             "Vidéo : " ++ decodedVideoTitle
-
-        maybeAccessToken =
-            session.userToken
-                |> Maybe.map .access_token
     in
     ( { title = title
       , videoID = videoID
@@ -107,7 +103,7 @@ init videoID videoTitle session =
       , notifications = Notifications.init
       }
     , Cmd.batch
-        [ Request.PeerTube.getVideo videoID maybeAccessToken session.peerTubeURL VideoReceived
+        [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
         , Request.PeerTube.getVideoCommentList videoID session.peerTubeURL CommentsReceived
         , Request.Files.getVideoAttachmentList videoID session.filesURL AttachmentListReceived
         ]
@@ -197,14 +193,14 @@ update session msg model =
 
         AddComment ->
             case session.userToken of
-                Just { access_token } ->
+                Just userToken ->
                     ( { model | commentData = Data.PeerTube.Requested }
                     , Request.PeerTube.submitComment
                         model.comment
                         model.videoID
-                        access_token
+                        userToken
                         session.peerTubeURL
-                        (CommentAdded access_token)
+                        (CommentAdded userToken.access_token)
                     , Nothing
                     )
 

@@ -62,7 +62,7 @@ init session =
                         ( { initialModel
                             | blacklistedVideoListData = Data.PeerTube.Requested
                           }
-                        , Request.PeerTube.getBlacklistedVideoList userToken.access_token session.peerTubeURL BlacklistedVideoListFetched
+                        , Request.PeerTube.getBlacklistedVideoList userToken session.peerTubeURL BlacklistedVideoListFetched
                         )
 
                     else
@@ -78,16 +78,11 @@ update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
         BlacklistedVideoListFetched (Ok videoList) ->
-            let
-                maybeAccessToken =
-                    session.userToken
-                        |> Maybe.map .access_token
-            in
             ( { model | blacklistedVideoListData = Data.PeerTube.Received videoList }
             , videoList
                 |> List.map
                     (\blacklistedVideo ->
-                        Request.PeerTube.getVideo blacklistedVideo.uuid maybeAccessToken session.peerTubeURL VideoFetched
+                        Request.PeerTube.getVideo blacklistedVideo.uuid session.userToken session.peerTubeURL VideoFetched
                     )
                 |> Cmd.batch
             )
@@ -125,7 +120,7 @@ update session msg model =
             case session.userToken of
                 Just userToken ->
                     ( { model | publishingVideos = video :: model.publishingVideos }
-                    , Request.PeerTube.publishVideo video userToken.access_token session.peerTubeURL (VideoPublished video)
+                    , Request.PeerTube.publishVideo video userToken session.peerTubeURL (VideoPublished video)
                     )
 
                 Nothing ->

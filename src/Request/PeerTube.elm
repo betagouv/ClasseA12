@@ -122,8 +122,8 @@ getVideoList videoListParams serverURL message =
     Http.send message (videoListRequest videoListParams serverURL)
 
 
-videoRequest : String -> Maybe String -> String -> Http.Request Video
-videoRequest videoID maybeAccessToken serverURL =
+videoRequest : String -> String -> Request Video
+videoRequest videoID serverURL =
     let
         url =
             serverURL ++ "/api/v1/videos/" ++ videoID
@@ -138,26 +138,37 @@ videoRequest videoID maybeAccessToken serverURL =
             , timeout = Nothing
             , withCredentials = False
             }
-
-        maybeAuthedRequest =
-            case maybeAccessToken of
-                Just accessToken ->
-                    request
-                        |> withHeader "Authorization" ("Bearer " ++ accessToken)
-
-                Nothing ->
-                    request
     in
-    Http.request maybeAuthedRequest
+    request
 
 
-getVideo : String -> Maybe String -> String -> (Result Http.Error Video -> msg) -> Cmd msg
-getVideo videoID maybeAccessToken serverURL message =
-    Http.send message (videoRequest videoID maybeAccessToken serverURL)
+anonymousVideoRequest : String -> String -> Http.Request Video
+anonymousVideoRequest videoID serverURL =
+    videoRequest videoID serverURL
+        |> Http.request
+
+
+authVideoRequest : String -> String -> String -> Http.Request Video
+authVideoRequest videoID access_token serverURL =
+    videoRequest videoID serverURL
+        |> withHeader "Authorization" ("Bearer " ++ access_token)
+        |> Http.request
+
+
+getVideo : String -> Maybe UserToken -> String -> (Result Http.Error Video -> msg) -> Cmd msg
+getVideo videoID maybeUserToken serverURL message =
+    case maybeUserToken of
+        Just userToken ->
+            authVideoRequest videoID
+                |> authRequestWrapper userToken serverURL
+                |> Task.attempt message
+
+        Nothing ->
+            Http.send message (anonymousVideoRequest videoID serverURL)
 
 
 blacklistedVideoListRequest : String -> String -> Http.Request (List Video)
-blacklistedVideoListRequest accessToken serverURL =
+blacklistedVideoListRequest access_token serverURL =
     let
         url =
             serverURL ++ "/api/v1/videos/blacklist"
@@ -172,19 +183,21 @@ blacklistedVideoListRequest accessToken serverURL =
             , timeout = Nothing
             , withCredentials = False
             }
-                |> withHeader "Authorization" ("Bearer " ++ accessToken)
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
                 |> Http.request
     in
     request
 
 
-getBlacklistedVideoList : String -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
-getBlacklistedVideoList accessToken serverURL message =
-    Http.send message (blacklistedVideoListRequest accessToken serverURL)
+getBlacklistedVideoList : UserToken -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getBlacklistedVideoList userToken serverURL message =
+    blacklistedVideoListRequest
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
 
 
 publishVideoRequest : Video -> String -> String -> Http.Request String
-publishVideoRequest video accessToken serverURL =
+publishVideoRequest video access_token serverURL =
     let
         url =
             serverURL ++ "/api/v1/videos/" ++ String.fromInt video.id ++ "/blacklist"
@@ -199,15 +212,17 @@ publishVideoRequest video accessToken serverURL =
             , timeout = Nothing
             , withCredentials = False
             }
-                |> withHeader "Authorization" ("Bearer " ++ accessToken)
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
                 |> Http.request
     in
     request
 
 
-publishVideo : Video -> String -> String -> (Result Http.Error String -> msg) -> Cmd msg
-publishVideo video accessToken serverURL message =
-    Http.send message (publishVideoRequest video accessToken serverURL)
+publishVideo : Video -> UserToken -> String -> (Result Http.Error String -> msg) -> Cmd msg
+publishVideo video userToken serverURL message =
+    publishVideoRequest video
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
 
 
 
@@ -259,9 +274,11 @@ submitCommentRequest comment videoID access_token serverURL =
     request
 
 
-submitComment : String -> String -> String -> String -> (Result Http.Error Comment -> msg) -> Cmd msg
-submitComment comment videoID access_token serverURL message =
-    Http.send message (submitCommentRequest comment videoID access_token serverURL)
+submitComment : String -> String -> UserToken -> String -> (Result Http.Error Comment -> msg) -> Cmd msg
+submitComment comment videoID userToken serverURL message =
+    submitCommentRequest comment videoID
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
 
 
 
@@ -468,6 +485,29 @@ login username password serverURL message =
         |> Task.attempt message
 
 
+refreshTokenRequest : String -> String -> String -> String -> Http.Request UserToken
+refreshTokenRequest client_id client_secret refresh_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/token"
+
+        data =
+            [ ( "refresh_token", refresh_token )
+            , ( "client_id", client_id )
+            , ( "client_secret", client_secret )
+            , ( "grant_type", "refresh_token" )
+            , ( "response_type", "code" )
+            ]
+
+        body =
+            data
+                |> List.map (\( key, val ) -> key ++ "=" ++ val)
+                |> String.join "&"
+                |> Http.stringBody "application/x-www-form-urlencoded"
+    in
+    Http.post url body userTokenDecoder
+
+
 getUserInfoRequest : String -> String -> Http.Request UserInfo
 getUserInfoRequest access_token serverURL =
     let
@@ -531,9 +571,11 @@ updateUserAccountRequest displayName description access_token serverURL =
     request
 
 
-updateUserAccount : String -> String -> String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
-updateUserAccount displayName description access_token serverURL message =
-    Http.send message (updateUserAccountRequest displayName description access_token serverURL)
+updateUserAccount : String -> String -> UserToken -> String -> (Result Http.Error Account -> msg) -> Cmd msg
+updateUserAccount displayName description userToken serverURL message =
+    updateUserAccountRequest displayName description
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
 
 
 
@@ -557,3 +599,26 @@ is401 error =
 
         _ ->
             False
+
+
+authRequestWrapper : UserToken -> String -> (String -> String -> Http.Request result) -> Task.Task Http.Error result
+authRequestWrapper { access_token, refresh_token } serverURL request =
+    Http.toTask (request access_token serverURL)
+        |> Task.onError
+            -- If we fail because of a 401, try refreshing the access_token using the refresh_token
+            (\error ->
+                if is401 error then
+                    Http.toTask (clientRequest serverURL)
+                        |> Task.andThen
+                            (\{ client_id, client_secret } ->
+                                Http.toTask (refreshTokenRequest client_id client_secret refresh_token serverURL)
+                            )
+                        |> Task.andThen
+                            (\userToken ->
+                                -- Resend the request with the refreshed access_token
+                                Http.toTask (request userToken.access_token serverURL)
+                            )
+
+                else
+                    Task.fail error
+            )
