@@ -60,12 +60,12 @@ type alias Attachment =
 
 
 type Msg
-    = VideoReceived (Result Http.Error Data.PeerTube.Video)
+    = VideoReceived (Request.PeerTube.PeerTubeResult Data.PeerTube.Video)
     | ShareVideo String
     | CommentsReceived (Result Http.Error (List Data.PeerTube.Comment))
     | UpdateCommentForm String
     | AddComment
-    | CommentAdded String (Result Http.Error Data.PeerTube.Comment)
+    | CommentAdded String (Request.PeerTube.PeerTubeResult Data.PeerTube.Comment)
     | CommentSelected String
     | AttachmentSelected
     | AttachmentSent Decode.Value
@@ -116,8 +116,11 @@ update session msg model =
         NoOp ->
             ( model, Cmd.none, Nothing )
 
-        VideoReceived (Ok video) ->
+        VideoReceived (Ok authResult) ->
             let
+                video =
+                    Request.PeerTube.extractResult authResult
+
                 -- Request related videos: query the videos that have all the
                 -- keywords, and then the ones which have one keyword in common.
                 -- This will be something like [[foo, bar], [foo], [bar]]
@@ -149,10 +152,10 @@ update session msg model =
                  ]
                     ++ relatedVideosCommands
                 )
-            , Nothing
+            , Request.PeerTube.extractSessionMsg authResult
             )
 
-        VideoReceived (Err error) ->
+        VideoReceived (Err authError) ->
             ( { model
                 | videoData = Data.PeerTube.Failed "Échec de la récupération de la vidéo"
                 , notifications =
@@ -160,7 +163,7 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
-            , Data.Session.logoutIf401 error
+            , Request.PeerTube.extractSessionMsgFromError authError
             )
 
         ShareVideo shareText ->
@@ -208,7 +211,11 @@ update session msg model =
                     -- Profile not created yet: we shouldn't be there.
                     ( model, Cmd.none, Nothing )
 
-        CommentAdded access_token (Ok comment) ->
+        CommentAdded access_token (Ok authResult) ->
+            let
+                comment =
+                    Request.PeerTube.extractResult authResult
+            in
             if model.attachmentSelected then
                 let
                     filePath =
@@ -227,7 +234,7 @@ update session msg model =
                   }
                   -- Upload the attachment
                 , Ports.submitAttachment submitAttachmentData
-                , Nothing
+                , Request.PeerTube.extractSessionMsg authResult
                 )
 
             else
@@ -240,10 +247,10 @@ update session msg model =
                     [ Request.PeerTube.getVideoCommentList model.videoID session.peerTubeURL CommentsReceived
                     , Request.Files.getVideoAttachmentList model.videoID session.filesURL AttachmentListReceived
                     ]
-                , Nothing
+                , Request.PeerTube.extractSessionMsg authResult
                 )
 
-        CommentAdded _ (Err error) ->
+        CommentAdded _ (Err authError) ->
             ( { model
                 | commentData = Data.PeerTube.Failed "Échec de l'ajout du commentaire"
                 , notifications =
@@ -251,7 +258,7 @@ update session msg model =
                         |> Notifications.addError model.notifications
               }
             , Cmd.none
-            , Data.Session.logoutIf401 error
+            , Request.PeerTube.extractSessionMsgFromError authError
             )
 
         ProgressUpdated value ->

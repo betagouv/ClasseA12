@@ -1,16 +1,23 @@
 module Request.PeerTube exposing
-    ( VideoListParams
+    ( AuthError(..)
+    , AuthResult(..)
+    , PeerTubeResult
+    , VideoListParams
     , activate
     , askPasswordReset
     , changePassword
     , emptyVideoListParams
+    , extractError
+    , extractResult
+    , extractSessionMsg
+    , extractSessionMsgFromError
     , getAccount
+    , getAccountForEdit
     , getBlacklistedVideoList
     , getUserInfo
     , getVideo
     , getVideoCommentList
     , getVideoList
-    , is401
     , loadMoreVideos
     , login
     , publishVideo
@@ -37,6 +44,7 @@ import Data.PeerTube
         , userTokenDecoder
         , videoDecoder
         )
+import Data.Session
 import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
@@ -155,7 +163,7 @@ authVideoRequest videoID access_token serverURL =
         |> Http.request
 
 
-getVideo : String -> Maybe UserToken -> String -> (Result Http.Error Video -> msg) -> Cmd msg
+getVideo : String -> Maybe UserToken -> String -> (Result AuthError (AuthResult Video) -> msg) -> Cmd msg
 getVideo videoID maybeUserToken serverURL message =
     case maybeUserToken of
         Just userToken ->
@@ -164,7 +172,11 @@ getVideo videoID maybeUserToken serverURL message =
                 |> Task.attempt message
 
         Nothing ->
-            Http.send message (anonymousVideoRequest videoID serverURL)
+            anonymousVideoRequest videoID serverURL
+                |> Http.toTask
+                |> Task.map Succeed
+                |> Task.mapError Error
+                |> Task.attempt message
 
 
 blacklistedVideoListRequest : String -> String -> Http.Request (List Video)
@@ -189,7 +201,7 @@ blacklistedVideoListRequest access_token serverURL =
     request
 
 
-getBlacklistedVideoList : UserToken -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getBlacklistedVideoList : UserToken -> String -> (Result AuthError (AuthResult (List Video)) -> msg) -> Cmd msg
 getBlacklistedVideoList userToken serverURL message =
     blacklistedVideoListRequest
         |> authRequestWrapper userToken serverURL
@@ -218,7 +230,7 @@ publishVideoRequest video access_token serverURL =
     request
 
 
-publishVideo : Video -> UserToken -> String -> (Result Http.Error String -> msg) -> Cmd msg
+publishVideo : Video -> UserToken -> String -> (Result AuthError (AuthResult String) -> msg) -> Cmd msg
 publishVideo video userToken serverURL message =
     publishVideoRequest video
         |> authRequestWrapper userToken serverURL
@@ -274,7 +286,7 @@ submitCommentRequest comment videoID access_token serverURL =
     request
 
 
-submitComment : String -> String -> UserToken -> String -> (Result Http.Error Comment -> msg) -> Cmd msg
+submitComment : String -> String -> UserToken -> String -> (Result AuthError (AuthResult Comment) -> msg) -> Cmd msg
 submitComment comment videoID userToken serverURL message =
     submitCommentRequest comment videoID
         |> authRequestWrapper userToken serverURL
@@ -414,18 +426,45 @@ changePassword userID verificationString password serverURL message =
     Http.send message (changePasswordRequest userID verificationString password serverURL)
 
 
-accountRequest : String -> String -> Http.Request Account
+accountRequest : String -> String -> Request Account
 accountRequest accountName serverURL =
     let
         url =
             serverURL ++ "/api/v1/accounts/" ++ accountName
+
+        request : Request Account
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson accountDecoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
     in
-    Http.get url accountDecoder
+    request
 
 
 getAccount : String -> String -> (Result Http.Error Account -> msg) -> Cmd msg
 getAccount accountName serverURL message =
-    Http.send message (accountRequest accountName serverURL)
+    accountRequest accountName serverURL
+        |> Http.request
+        |> Http.send message
+
+
+accountRequestForEdit : String -> String -> String -> Http.Request Account
+accountRequestForEdit accountName access_token serverURL =
+    accountRequest accountName serverURL
+        |> withHeader "Authorization" ("Bearer " ++ access_token)
+        |> Http.request
+
+
+getAccountForEdit : String -> UserToken -> String -> (Result AuthError (AuthResult Account) -> msg) -> Cmd msg
+getAccountForEdit accountName userToken serverURL message =
+    accountRequestForEdit accountName
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
 
 
 type alias Client =
@@ -571,7 +610,7 @@ updateUserAccountRequest displayName description access_token serverURL =
     request
 
 
-updateUserAccount : String -> String -> UserToken -> String -> (Result Http.Error Account -> msg) -> Cmd msg
+updateUserAccount : String -> String -> UserToken -> String -> (Result AuthError (AuthResult Account) -> msg) -> Cmd msg
 updateUserAccount displayName description userToken serverURL message =
     updateUserAccountRequest displayName description
         |> authRequestWrapper userToken serverURL
@@ -591,6 +630,16 @@ withHeader headerName headerValue request =
     { request | headers = header :: request.headers }
 
 
+is400 : Http.Error -> Bool
+is400 error =
+    case error of
+        Http.BadStatus response ->
+            response.status.code == 400
+
+        _ ->
+            False
+
+
 is401 : Http.Error -> Bool
 is401 error =
     case error of
@@ -601,24 +650,102 @@ is401 error =
             False
 
 
-authRequestWrapper : UserToken -> String -> (String -> String -> Http.Request result) -> Task.Task Http.Error result
+type alias PeerTubeResult result =
+    Result AuthError (AuthResult result)
+
+
+type AuthResult result
+    = Succeed result
+    | Refreshed UserToken result
+
+
+type AuthError
+    = Unauthorized Http.Error
+    | Error Http.Error
+
+
+authRequestWrapper :
+    UserToken
+    -> String
+    -> (String -> String -> Http.Request result)
+    -> Task.Task AuthError (AuthResult result)
 authRequestWrapper { access_token, refresh_token } serverURL request =
     Http.toTask (request access_token serverURL)
+        |> Task.andThen
+            (\result ->
+                -- Everything went well, didn't even need a token refresh
+                Task.succeed <| Succeed result
+            )
         |> Task.onError
-            -- If we fail because of a 401, try refreshing the access_token using the refresh_token
             (\error ->
                 if is401 error then
+                    -- If we fail because of a 401, try refreshing the access_token using the refresh_token
                     Http.toTask (clientRequest serverURL)
                         |> Task.andThen
                             (\{ client_id, client_secret } ->
                                 Http.toTask (refreshTokenRequest client_id client_secret refresh_token serverURL)
+                                    |> Task.andThen
+                                        (\userToken ->
+                                            -- Resend the request with the refreshed access_token
+                                            Http.toTask (request userToken.access_token serverURL)
+                                                |> Task.andThen
+                                                    (\result ->
+                                                        Task.succeed <| Refreshed userToken result
+                                                    )
+                                        )
                             )
-                        |> Task.andThen
-                            (\userToken ->
-                                -- Resend the request with the refreshed access_token
-                                Http.toTask (request userToken.access_token serverURL)
+                        |> Task.mapError
+                            (\refreshTokenError ->
+                                -- An error occured during the token refresh: 401 (unauthorized) or 400 (bad token)
+                                if is400 error || is401 error then
+                                    Unauthorized refreshTokenError
+
+                                else
+                                    Error refreshTokenError
                             )
 
                 else
-                    Task.fail error
+                    Task.fail <| Error error
             )
+
+
+extractResult : AuthResult result -> result
+extractResult authResult =
+    case authResult of
+        Succeed result ->
+            result
+
+        Refreshed _ result ->
+            result
+
+
+extractSessionMsg : AuthResult result -> Maybe Data.Session.Msg
+extractSessionMsg authResult =
+    case authResult of
+        Succeed result ->
+            Nothing
+
+        Refreshed userToken _ ->
+            Just <| Data.Session.RefreshToken userToken
+
+
+extractError : AuthError -> Http.Error
+extractError authError =
+    case authError of
+        Error error ->
+            error
+
+        Unauthorized error ->
+            -- If we got an unauthorized, then the access_token and refresh token are expired/wrong
+            error
+
+
+extractSessionMsgFromError : AuthError -> Maybe Data.Session.Msg
+extractSessionMsgFromError authError =
+    case authError of
+        Error _ ->
+            Nothing
+
+        Unauthorized _ ->
+            -- If we got an unauthorized, then the access_token and refresh token are expired/wrong
+            Just Data.Session.Logout

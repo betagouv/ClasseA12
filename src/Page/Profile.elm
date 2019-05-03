@@ -45,9 +45,9 @@ type Msg
     = UpdateProfileForm ProfileForm
     | UpdateProfile
     | NotificationMsg Notifications.Msg
-    | ProfileFetchedForEdit (Result Http.Error Data.PeerTube.Account)
+    | ProfileFetchedForEdit (Request.PeerTube.PeerTubeResult Data.PeerTube.Account)
     | ProfileFetchedForView (Result Http.Error Data.PeerTube.Account)
-    | ProfileUpdated (Result Http.Error Data.PeerTube.Account)
+    | ProfileUpdated (Request.PeerTube.PeerTubeResult Data.PeerTube.Account)
     | Logout
 
 
@@ -59,13 +59,25 @@ init profile session =
                 |> Maybe.map (\userInfo -> userInfo.username == profile)
                 |> Maybe.withDefault False
 
-        ( msg, title ) =
-            if ownProfile then
-                -- Profile edition
-                ( ProfileFetchedForEdit, "Édition du profil" )
+        ( cmd, title ) =
+            case ( ownProfile, session.userToken ) of
+                ( True, Just userToken ) ->
+                    -- Profile edition
+                    ( Request.PeerTube.getAccountForEdit
+                        profile
+                        userToken
+                        session.peerTubeURL
+                        ProfileFetchedForEdit
+                    , "Édition du profil"
+                    )
 
-            else
-                ( ProfileFetchedForView, "Profil" )
+                ( _, _ ) ->
+                    ( Request.PeerTube.getAccount
+                        profile
+                        session.peerTubeURL
+                        ProfileFetchedForView
+                    , "Profil"
+                    )
     in
     ( { title = title
       , pageState = GetProfile
@@ -74,7 +86,7 @@ init profile session =
       , ownProfile = ownProfile
       , notifications = Notifications.init
       }
-    , Request.PeerTube.getAccount profile session.peerTubeURL msg
+    , cmd
     )
 
 
@@ -90,8 +102,11 @@ update session msg model =
         UpdateProfile ->
             updateProfile session model
 
-        ProfileFetchedForEdit (Ok profile) ->
+        ProfileFetchedForEdit (Ok authResult) ->
             let
+                profile =
+                    Request.PeerTube.extractResult authResult
+
                 profileForm =
                     model.profileForm
 
@@ -107,10 +122,10 @@ update session msg model =
                 , pageState = EditProfile profile
               }
             , Cmd.none
-            , Nothing
+            , Request.PeerTube.extractSessionMsg authResult
             )
 
-        ProfileFetchedForEdit (Err error) ->
+        ProfileFetchedForEdit (Err authError) ->
             ( { model
                 | notifications =
                     "Récupération du profil échouée"
@@ -118,7 +133,7 @@ update session msg model =
                 , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
-            , Data.Session.logoutIf401 error
+            , Request.PeerTube.extractSessionMsgFromError authError
             )
 
         ProfileFetchedForView (Ok profile) ->
@@ -141,18 +156,18 @@ update session msg model =
             , Nothing
             )
 
-        ProfileUpdated (Ok profile) ->
+        ProfileUpdated (Ok authResult) ->
             ( { model
                 | notifications =
                     "Profil mis à jour !"
                         |> Notifications.addSuccess model.notifications
-                , profileData = Data.PeerTube.Received profile
+                , profileData = Data.PeerTube.Received <| Request.PeerTube.extractResult authResult
               }
             , Cmd.none
-            , Nothing
+            , Request.PeerTube.extractSessionMsg authResult
             )
 
-        ProfileUpdated (Err error) ->
+        ProfileUpdated (Err authError) ->
             ( { model
                 | notifications =
                     "Mise à jour du profil échouée"
@@ -160,7 +175,7 @@ update session msg model =
                 , profileData = Data.PeerTube.NotRequested
               }
             , Cmd.none
-            , Data.Session.logoutIf401 error
+            , Request.PeerTube.extractSessionMsgFromError authError
             )
 
         NotificationMsg notificationMsg ->

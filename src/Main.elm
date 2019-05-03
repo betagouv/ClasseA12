@@ -306,7 +306,7 @@ update msg ({ page, session } as model) =
             toPage PrivacyPolicyPage PrivacyPolicyMsg (PrivacyPolicy.update session) privacyPolicyMsg privacyPolicyModel
 
         ( AdminMsg adminMsg, AdminPage adminModel ) ->
-            toPage AdminPage AdminMsg (Admin.update session) adminMsg adminModel
+            toPageWithSessionMsg AdminPage AdminMsg (Admin.update session) adminMsg adminModel
 
         ( VideoMsg videoMsg, VideoPage videoModel ) ->
             toPageWithSessionMsg VideoPage VideoMsg (Video.update session) videoMsg videoModel

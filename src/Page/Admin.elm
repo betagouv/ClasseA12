@@ -31,11 +31,11 @@ type alias PublishingVideos =
 
 
 type Msg
-    = BlacklistedVideoListFetched (Result Http.Error (List Data.PeerTube.Video))
-    | VideoFetched (Result Http.Error Data.PeerTube.Video)
+    = BlacklistedVideoListFetched (Request.PeerTube.PeerTubeResult (List Data.PeerTube.Video))
+    | VideoFetched (Request.PeerTube.PeerTubeResult Data.PeerTube.Video)
     | NotificationMsg Notifications.Msg
     | PublishVideo Data.PeerTube.Video
-    | VideoPublished Data.PeerTube.Video (Result Http.Error String)
+    | VideoPublished Data.PeerTube.Video (Request.PeerTube.PeerTubeResult String)
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -74,10 +74,14 @@ init session =
     modelAndCommands
 
 
-update : Session -> Msg -> Model -> ( Model, Cmd Msg )
+update : Session -> Msg -> Model -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 update session msg model =
     case msg of
-        BlacklistedVideoListFetched (Ok videoList) ->
+        BlacklistedVideoListFetched (Ok authResult) ->
+            let
+                videoList =
+                    Request.PeerTube.extractResult authResult
+            in
             ( { model | blacklistedVideoListData = Data.PeerTube.Received videoList }
             , videoList
                 |> List.map
@@ -85,18 +89,24 @@ update session msg model =
                         Request.PeerTube.getVideo blacklistedVideo.uuid session.userToken session.peerTubeURL VideoFetched
                     )
                 |> Cmd.batch
+            , Request.PeerTube.extractSessionMsg authResult
             )
 
-        BlacklistedVideoListFetched (Err error) ->
+        BlacklistedVideoListFetched (Err authError) ->
             ( { model
                 | blacklistedVideoListData = Data.PeerTube.Failed "Erreur lors de la récupération des vidéos à modérer"
                 , notifications =
                     Notifications.addError model.notifications "Erreur lors de la récupération des vidéos à modérer"
               }
             , Cmd.none
+            , Request.PeerTube.extractSessionMsgFromError authError
             )
 
-        VideoFetched (Ok video) ->
+        VideoFetched (Ok authResult) ->
+            let
+                video =
+                    Request.PeerTube.extractResult authResult
+            in
             ( { model
                 | videoList =
                     (video
@@ -106,14 +116,16 @@ update session msg model =
                         |> List.reverse
               }
             , Cmd.none
+            , Request.PeerTube.extractSessionMsg authResult
             )
 
-        VideoFetched (Err error) ->
+        VideoFetched (Err authError) ->
             ( { model
                 | notifications =
                     Notifications.addError model.notifications "Erreur lors de la récupération d'une vidéo "
               }
             , Cmd.none
+            , Request.PeerTube.extractSessionMsgFromError authError
             )
 
         PublishVideo video ->
@@ -121,12 +133,16 @@ update session msg model =
                 Just userToken ->
                     ( { model | publishingVideos = video :: model.publishingVideos }
                     , Request.PeerTube.publishVideo video userToken session.peerTubeURL (VideoPublished video)
+                    , Nothing
                     )
 
                 Nothing ->
-                    ( model, Cmd.none )
+                    ( model
+                    , Cmd.none
+                    , Nothing
+                    )
 
-        VideoPublished video (Ok _) ->
+        VideoPublished video (Ok authResult) ->
             let
                 publishingVideos =
                     model.publishingVideos
@@ -141,18 +157,23 @@ update session msg model =
                 , videoList = videoList
               }
             , Cmd.none
+            , Request.PeerTube.extractSessionMsg authResult
             )
 
-        VideoPublished _ (Err error) ->
+        VideoPublished _ (Err authError) ->
             ( { model
                 | notifications =
                     Notifications.addError model.notifications "Erreur lors de la publication de la vidéo"
               }
             , Cmd.none
+            , Request.PeerTube.extractSessionMsgFromError authError
             )
 
         NotificationMsg notificationMsg ->
-            ( { model | notifications = Notifications.update notificationMsg model.notifications }, Cmd.none )
+            ( { model | notifications = Notifications.update notificationMsg model.notifications }
+            , Cmd.none
+            , Nothing
+            )
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg

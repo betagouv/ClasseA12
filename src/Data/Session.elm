@@ -10,7 +10,6 @@ module Data.Session exposing
     , interpretMsg
     , isLoggedIn
     , isPeerTubeLoggedIn
-    , logoutIf401
     , userInfoDecoder
     )
 
@@ -22,7 +21,6 @@ import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 import Ports
-import Request.PeerTube
 import Route
 import Time
 import Url exposing (Url)
@@ -31,6 +29,7 @@ import Url exposing (Url)
 type Msg
     = Login Data.PeerTube.UserToken Data.PeerTube.UserInfo
     | Logout
+    | RefreshToken Data.PeerTube.UserToken
 
 
 type alias Session =
@@ -176,6 +175,13 @@ interpretMsg ( { session, navKey } as model, cmd, maybeMessage ) =
                                 , Route.pushUrl navKey Route.Login
                                 ]
                             )
+
+                        RefreshToken userToken ->
+                            ( { session
+                                | userToken = Just userToken
+                              }
+                            , Ports.saveUserToken <| Data.PeerTube.encodeUserToken userToken
+                            )
             in
             ( { model | session = updatedSession }, Cmd.batch [ cmd, sessionCmd ] )
 
@@ -208,12 +214,3 @@ redirectToPrevUrl session navKey =
 
     else
         Route.pushUrl navKey Route.Home
-
-
-logoutIf401 : Http.Error -> Maybe Msg
-logoutIf401 error =
-    if Request.PeerTube.is401 error then
-        Just Logout
-
-    else
-        Nothing
