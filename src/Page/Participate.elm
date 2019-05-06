@@ -317,6 +317,16 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                 [ H.legend []
                     [ H.text "Niveau" ]
                 , H.input
+                    [ HA.id "grade-maternelle"
+                    , HA.type_ "radio"
+                    , HA.name "grade"
+                    , HA.checked <| newVideo.grade == "Maternelle"
+                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "Maternelle" })
+                    ]
+                    []
+                , H.label [ HA.for "grade-maternelle", HA.class "label-inline" ]
+                    [ H.text "Maternelle" ]
+                , H.input
                     [ HA.id "grade-cp"
                     , HA.type_ "radio"
                     , HA.name "grade"
@@ -337,15 +347,15 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                 , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
                     [ H.text "CE1" ]
                 , H.input
-                    [ HA.id "grade-cp-ce1"
+                    [ HA.id "grade-all"
                     , HA.type_ "radio"
                     , HA.name "grade"
-                    , HA.checked <| newVideo.grade == "CP et CE1"
-                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "CP et CE1" })
+                    , HA.checked <| newVideo.grade == "Tous les niveaux"
+                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "Tous les niveaux" })
                     ]
                     []
-                , H.label [ HA.for "grade-cp-ce1", HA.class "label-inline" ]
-                    [ H.text "CP et CE1" ]
+                , H.label [ HA.for "grade-all", HA.class "label-inline" ]
+                    [ H.text "Tous les niveaux" ]
                 ]
             ]
         , formInput
