@@ -350,8 +350,8 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     [ HA.id "grade-all"
                     , HA.type_ "radio"
                     , HA.name "grade"
-                    , HA.checked <| newVideo.grade == "Tous les niveaux"
-                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "Tous les niveaux" })
+                    , HA.checked <| newVideo.grade == ""
+                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "" })
                     ]
                     []
                 , H.label [ HA.for "grade-all", HA.class "label-inline" ]

@@ -245,12 +245,28 @@ encodeComment text =
 
 encodeNewVideoData : NewVideo -> Encode.Value
 encodeNewVideoData video =
+    let
+        keywords =
+            if video.grade /= "" then
+                video.grade :: video.keywords
+
+            else
+                video.keywords
+
+        encodedKeywords =
+            if keywords /= [] then
+                [ ( "keywords", encodeKeywords keywords ) ]
+
+            else
+                []
+    in
     Encode.object
-        [ ( "description", Encode.string video.description )
-        , ( "title", Encode.string video.title )
-        , ( "grade", Encode.string video.grade )
-        , ( "keywords", encodeKeywords video.keywords )
-        ]
+        ([ ( "description", Encode.string video.description )
+         , ( "title", Encode.string video.title )
+         , ( "grade", Encode.string video.grade )
+         ]
+            ++ encodedKeywords
+        )
 
 
 encodeKeywords : List String -> Encode.Value

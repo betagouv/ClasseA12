@@ -139,12 +139,8 @@ app.ports.submitVideo.subscribe(function (data) {
     if (videoData.description) {
         formData.append('description', videoData.description || '');
     }
-    let keywords = videoData.keywords || [];
-    if (videoData.grade !== "Tous les niveaux") {
-        // If it's for all grades, don't add a "grade filter".
-        keywords.push(videoData.grade);
-    }
-    videoData.keywords.forEach(function (keyword) {
+    const keywords = videoData.keywords || [];
+    keywords.forEach(function (keyword) {
         formData.append('tags[]', keyword);
     });
 
