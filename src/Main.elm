@@ -2,7 +2,6 @@ port module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Data.Kinto
 import Data.PeerTube
 import Data.Session exposing (Session, decodeStaticFiles, decodeUserData, emptyStaticFiles, emptyUserData, encodeUserData)
 import Dict
@@ -10,7 +9,6 @@ import Html exposing (..)
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Kinto
 import Page.About as About
 import Page.Activate as Activate
 import Page.Admin as Admin

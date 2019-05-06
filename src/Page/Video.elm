@@ -2,7 +2,6 @@ module Page.Video exposing (Model, Msg(..), init, update, view)
 
 import Array
 import Browser.Dom as Dom
-import Data.Kinto
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
@@ -12,7 +11,6 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
-import Kinto
 import Markdown
 import Page.Common.Components as Components
 import Page.Common.Dates as Dates
@@ -22,9 +20,6 @@ import Page.Common.Video
 import Page.Common.XHR
 import Ports
 import Request.Files
-import Request.Kinto
-import Request.KintoProfile
-import Request.KintoVideo
 import Request.PeerTube
 import Route
 import Set
