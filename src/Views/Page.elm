@@ -150,7 +150,11 @@ viewContent { activePage } body =
     in
     [ div [ class "dashboard" ]
         [ aside [ class "side-menu" ]
-            [ h5 [] [ text "Catégories" ]
+            [ ul []
+                [ linkMaybeActive Home Route.Home "Accueil"
+                , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
+                ]
+            , h5 [] [ text "Catégories" ]
             , ul []
                 (Data.Kinto.keywordList
                     |> List.map
