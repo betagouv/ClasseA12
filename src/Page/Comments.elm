@@ -1,41 +1,38 @@
 module Page.Comments exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
-import Kinto
+import Http
 import Markdown
 import Page.Common.Components
-import Page.Common.Dates
+import Page.Common.Dates as Dates
 import Page.Common.Notifications as Notifications
-import Request.KintoBatch
-import Request.KintoProfile
+import Request.PeerTube
 import Route
-import Task
-import Time
 
 
 type alias Model =
     { title : String
-    , commentDataList : Data.Kinto.KintoData (List Request.KintoBatch.CommentData)
+    , commentDataList : Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
     , notifications : Notifications.Model
     }
 
 
 type Msg
     = NotificationMsg Notifications.Msg
-    | CommentDataListReceived (Result Kinto.Error (List Request.KintoBatch.CommentData))
+    | CommentDataListReceived (Result Http.Error (List Data.PeerTube.Comment))
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { title = "Liste des commentaires"
-      , commentDataList = Data.Kinto.Requested
+      , commentDataList = Data.PeerTube.Requested
       , notifications = Notifications.init
       }
-    , Task.attempt CommentDataListReceived <| Request.KintoBatch.getCommentDataListTask session.kintoURL
+    , Request.PeerTube.getCommentList session.peerTubeURL CommentDataListReceived
     )
 
 
@@ -43,17 +40,16 @@ update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
     case msg of
         CommentDataListReceived (Ok commentDataList) ->
-            ( { model | commentDataList = Data.Kinto.Received commentDataList }
+            ( { model | commentDataList = Data.PeerTube.Received commentDataList }
             , Cmd.none
             )
 
         CommentDataListReceived (Err error) ->
             ( { model
                 | notifications =
-                    "Erreur lors de la récupération des commentaires : "
-                        ++ Kinto.errorToString error
+                    "Erreur lors de la récupération des commentaires"
                         |> Notifications.addError model.notifications
-                , commentDataList = Data.Kinto.NotRequested
+                , commentDataList = Data.PeerTube.NotRequested
               }
             , Cmd.none
             )
@@ -72,8 +68,8 @@ view session { title, notifications, commentDataList } =
         , H.div [ HA.class "section section-white" ]
             [ H.div [ HA.class "container" ]
                 [ case commentDataList of
-                    Data.Kinto.Received commentsData ->
-                        viewComments session.timezone commentsData
+                    Data.PeerTube.Received commentsData ->
+                        viewComments commentsData
 
                     _ ->
                         H.text "Récupération des commentaires..."
@@ -83,67 +79,42 @@ view session { title, notifications, commentDataList } =
     }
 
 
-viewComments : Time.Zone -> List Request.KintoBatch.CommentData -> H.Html Msg
-viewComments timezone comments =
+viewComments : List Data.PeerTube.Comment -> H.Html Msg
+viewComments comments =
     H.div [ HA.class "comment-list-wrapper" ]
         [ H.div [ HA.class "comment-wrapper" ]
             [ H.h3 [] [ H.text "Contributions" ]
             , H.ul [ HA.class "comment-list" ]
                 (comments
-                    |> List.map (viewCommentDetails timezone)
+                    |> List.map viewCommentDetails
                 )
             ]
         ]
 
 
-viewCommentDetails : Time.Zone -> Request.KintoBatch.CommentData -> H.Html Msg
-viewCommentDetails timezone { comment, contributor, video } =
+viewCommentDetails : Data.PeerTube.Comment -> H.Html Msg
+viewCommentDetails comment =
     let
-        contributorName =
-            if contributor /= Data.Kinto.emptyProfile then
-                contributor.name
-
-            else
-                comment.profile
-
-        ( videoID, videoTitle ) =
-            if video /= Data.Kinto.emptyVideo then
-                ( video.id, video.title )
-
-            else
-                ( comment.video, "video-title" )
-
-        attachment =
-            if comment.attachment /= Data.Kinto.emptyAttachment then
-                H.div []
-                    [ H.text "Pièce jointe : "
-                    , H.a [ HA.href comment.attachment.location ] [ H.text comment.attachment.filename ]
-                    ]
-
-            else
-                H.div [] []
-
         commentURL =
-            Route.Video videoID videoTitle
+            Route.Video (String.fromInt comment.videoId) "vidéo"
                 |> Route.toString
-                |> (\url -> url ++ ("#" ++ comment.id))
+                |> (\url -> url ++ ("#" ++ String.fromInt comment.id))
                 |> HA.href
     in
     H.li
         [ HA.class "comment panel"
-        , HA.id comment.id
+        , HA.id (String.fromInt comment.id)
         ]
         [ H.a
             [ commentURL
             , HA.class "comment-link"
             ]
-            [ H.time [] [ H.text <| Page.Common.Dates.posixToDate timezone comment.last_modified ]
+            [ H.time [] [ H.text <| Dates.formatStringDatetime comment.createdAt ]
             ]
         , H.a
-            [ Route.href <| Route.Profile comment.profile
+            [ Route.href <| Route.Profile comment.account.name
             , HA.class "comment-author"
             ]
-            [ H.text contributorName ]
-        , Markdown.toHtml [] comment.comment
-        , attachment
+            [ H.text comment.account.displayName ]
+        , Markdown.toHtml [] comment.text
         ]

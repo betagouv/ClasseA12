@@ -14,6 +14,7 @@ module Request.PeerTube exposing
     , getAccount
     , getAccountForEdit
     , getBlacklistedVideoList
+    , getCommentList
     , getUserInfo
     , getVideo
     , getVideoCommentList
@@ -37,6 +38,7 @@ import Data.PeerTube
         , UserToken
         , Video
         , accountDecoder
+        , alternateCommentListDecoder
         , commentDecoder
         , commentListDecoder
         , dataDecoder
@@ -253,6 +255,20 @@ videoCommentListRequest videoID serverURL =
 getVideoCommentList : String -> String -> (Result Http.Error (List Comment) -> msg) -> Cmd msg
 getVideoCommentList videoID serverURL message =
     Http.send message (videoCommentListRequest videoID serverURL)
+
+
+commentListRequest : String -> Http.Request (List Comment)
+commentListRequest serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/comments-feed"
+    in
+    Http.get url alternateCommentListDecoder
+
+
+getCommentList : String -> (Result Http.Error (List Comment) -> msg) -> Cmd msg
+getCommentList serverURL message =
+    Http.send message (commentListRequest serverURL)
 
 
 submitCommentRequest : String -> String -> String -> String -> Http.Request Comment

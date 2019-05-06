@@ -8,6 +8,7 @@ module Data.PeerTube exposing
     , Video
     , VideoUploaded
     , accountDecoder
+    , alternateCommentListDecoder
     , commentDecoder
     , commentListDecoder
     , dataDecoder
@@ -126,6 +127,16 @@ accountDecoder =
         |> Pipeline.optional "description" Decode.string ""
 
 
+alternateAccountDecoder : Decode.Decoder Account
+alternateAccountDecoder =
+    -- When getting the full list of comments (not by thread/video), the linked
+    -- account is formed differently than the one above
+    Decode.succeed Account
+        |> Pipeline.requiredAt [ "Actor", "preferredUsername" ] Decode.string
+        |> Pipeline.required "name" Decode.string
+        |> Pipeline.optional "description" Decode.string ""
+
+
 videoDecoder : Decode.Decoder Video
 videoDecoder =
     Decode.succeed Video
@@ -213,6 +224,22 @@ commentDecoder =
 commentListDecoder : Decode.Decoder (List Comment)
 commentListDecoder =
     Decode.field "data" (Decode.list commentDecoder)
+
+
+alternateCommentDecoder : Decode.Decoder Comment
+alternateCommentDecoder =
+    Decode.succeed Comment
+        |> Pipeline.required "id" Decode.int
+        |> Pipeline.required "text" Decode.string
+        |> Pipeline.required "videoId" Decode.int
+        |> Pipeline.required "createdAt" Decode.string
+        |> Pipeline.required "updatedAt" Decode.string
+        |> Pipeline.required "Account" alternateAccountDecoder
+
+
+alternateCommentListDecoder : Decode.Decoder (List Comment)
+alternateCommentListDecoder =
+    Decode.field "data" (Decode.list alternateCommentDecoder)
 
 
 
