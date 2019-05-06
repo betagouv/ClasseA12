@@ -1,6 +1,5 @@
 import { Elm } from "../src/Main.elm";
 
-const KINTO_URL = process.env.KINTO_URL;
 const PEERTUBE_URL = process.env.PEERTUBE_URL;
 const FILES_URL = process.env.FILES_URL;
 const loginForm = window.localStorage.getItem("session");
@@ -12,7 +11,6 @@ const app = Elm.Main.init({
         userToken: userToken,
         userInfo: userInfo,
         version: process.env.VERSION,
-        kintoURL: KINTO_URL,
         peerTubeURL: PEERTUBE_URL,
         filesURL: FILES_URL,
         navigatorShare: navigator.share !== undefined,
