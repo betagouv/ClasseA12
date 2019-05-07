@@ -291,6 +291,10 @@
     height: 17.6rem;
     background-color: red;
   }
+  .card_img img {
+    width: 100%;
+    height: auto;
+  } 
   .card_tag {
     color: #fff;
   }

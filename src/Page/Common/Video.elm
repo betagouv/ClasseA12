@@ -84,11 +84,9 @@ details video =
 shortDetails : Data.PeerTube.Video -> H.Html msg
 shortDetails video =
     H.div
-        [ HA.class "video-details" ]
+        [ HA.class "card_content" ]
         [ H.h3 [] [ H.text video.name ]
-        , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
-            ]
+        , H.time [ HA.class "card_date" ] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
         ]
 
 
@@ -165,7 +163,7 @@ viewVideo peerTubeURL video =
         , Route.href <| Route.Video video.uuid video.name
         ]
         [ H.div
-            [ HA.class "card__cover" ]
+            [ HA.class "card_img" ]
             [ H.img
                 [ HA.alt video.name
                 , HA.src (peerTubeURL ++ video.previewPath)
