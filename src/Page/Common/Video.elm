@@ -111,14 +111,15 @@ keywords keywordList =
 
 viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> String -> H.Html msg
 viewCategory data peerTubeURL keyword =
-    H.div [ HA.class "panel", HA.id keyword ]
-        [ H.div [ HA.class "panel__header" ]
-            [ H.h3 []
-                [ H.text keyword
-                , H.text " "
-                , H.a [ Route.href <| Route.Search <| Just keyword ]
-                    [ H.i [ HA.class "fas fa-angle-right" ] []
-                    ]
+    H.section [ HA.id keyword ]
+        [ H.div [ HA.class "home-title_wrapper" ]
+            [ H.h3 [ HA.class "home-title" ]
+                [ H.text "Le coin "
+                , H.text keyword
+                ]
+            , H.a [ Route.href <| Route.Search <| Just keyword ]
+                [ H.text "Toutes les vidéos "
+                , H.text keyword
                 ]
             ]
         , H.div []
@@ -153,7 +154,7 @@ viewList title peerTubeURL videoList =
             else
                 [ H.text "Aucune vidéo pour le moment" ]
     in
-    H.div [ HA.class "row" ]
+    H.div [ HA.class "grid" ]
         videoCards
 
 
