@@ -134,7 +134,7 @@ viewAside { activePage } =
                 ]
     in
     aside [ class "side-menu" ]
-        [ img [ src "images/logos/classea12.svg" ] []
+        [ img [ src "images/logos/classea12.svg", class "logo" ] []
         , nav []
             [ linkMaybeActive Home Route.Home "Accueil"
             , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
