@@ -1,13 +1,11 @@
 module Page.Login exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
 import Data.PeerTube as PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
-import Kinto
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Request.PeerTube

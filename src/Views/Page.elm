@@ -1,7 +1,7 @@
 module Views.Page exposing (ActivePage(..), Config, frame)
 
 import Browser exposing (Document)
-import Data.Kinto
+import Data.PeerTube
 import Data.Session exposing (Session, isPeerTubeLoggedIn)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, title, type_, value)
@@ -142,7 +142,7 @@ viewAside { activePage } =
         , div []
             [ h3 [] [ text "Catégories" ]
             , nav []
-                (Data.Kinto.keywordList
+                (Data.PeerTube.keywordList
                     |> List.map
                         (\( keyword, _ ) ->
                             let

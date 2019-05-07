@@ -2,7 +2,6 @@ port module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
-import Data.Kinto
 import Data.PeerTube
 import Data.Session exposing (Session, decodeStaticFiles, decodeUserData, emptyStaticFiles, emptyUserData, encodeUserData)
 import Dict
@@ -10,7 +9,6 @@ import Html exposing (..)
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
-import Kinto
 import Page.About as About
 import Page.Activate as Activate
 import Page.Admin as Admin
@@ -206,11 +204,6 @@ init flags url navKey =
             Decode.decodeValue (Decode.field "version" Decode.string) flags
                 |> Result.withDefault "dev"
 
-        kintoURL =
-            -- Decode a string from the "kintoURL" field in the value
-            Decode.decodeValue (Decode.field "kintoURL" Decode.string) flags
-                |> Result.withDefault "No Kinto URL"
-
         peerTubeURL =
             -- Decode a string from the "peerTubeURL" field in the value
             Decode.decodeValue (Decode.field "peerTubeURL" Decode.string) flags
@@ -236,7 +229,6 @@ init flags url navKey =
             { userData = userData
             , timezone = Time.utc
             , version = version
-            , kintoURL = kintoURL
             , peerTubeURL = peerTubeURL
             , filesURL = filesURL
             , navigatorShare = navigatorShare

@@ -36,7 +36,6 @@ type alias Session =
     { userData : UserData
     , timezone : Time.Zone
     , version : String
-    , kintoURL : String
     , peerTubeURL : String
     , filesURL : String
     , navigatorShare : Bool

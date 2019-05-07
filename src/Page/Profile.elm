@@ -6,7 +6,6 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
-import Kinto
 import Markdown
 import Page.Common.Components
 import Page.Common.Notifications as Notifications

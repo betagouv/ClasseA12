@@ -2,8 +2,6 @@ module Page.Common.Video exposing
     ( details
     , embedPlayer
     , keywords
-    , kintoDetails
-    , player
     , playerForVideo
     , rawPlayer
     , shortDetails
@@ -11,7 +9,6 @@ module Page.Common.Video exposing
     , viewVideo
     )
 
-import Data.Kinto
 import Data.PeerTube
 import Dict
 import Html as H
@@ -31,20 +28,6 @@ publishedAtFromVideo video =
 
     else
         video.publishedAt
-
-
-player : msg -> Data.Kinto.Attachment -> H.Html msg
-player canplayMessage attachment =
-    H.video
-        [ HA.src <| attachment.location
-
-        -- For some reason, using HA.type_ doesn't properly add the mimetype
-        , HA.attribute "type" attachment.mimetype
-        , HA.controls True
-        , HA.preload "metadata"
-        , HE.on "canplay" (Decode.succeed canplayMessage)
-        ]
-        [ H.text "Désolé, votre navigateur ne supporte pas le format de cette video" ]
 
 
 embedPlayer : Data.PeerTube.Video -> String -> H.Html msg
@@ -82,29 +65,6 @@ playerForVideo video peerTubeURL =
 
     else
         embedPlayer video peerTubeURL
-
-
-kintoDetails : Time.Zone -> Data.Kinto.Video -> Data.Kinto.ProfileData -> H.Html msg
-kintoDetails timezone video profileData =
-    let
-        authorName =
-            case profileData of
-                Data.Kinto.Received profile ->
-                    profile.name
-
-                _ ->
-                    video.profile
-    in
-    H.div
-        [ HA.class "video-details" ]
-        [ H.h3 [] [ H.text video.title ]
-        , H.div []
-            [ H.time [] [ H.text <| Dates.posixToDate timezone video.creation_date ]
-            , H.text " "
-            , H.a [ Route.href <| Route.Profile video.profile ] [ H.text authorName ]
-            ]
-        , Markdown.toHtml [] video.description
-        ]
 
 
 details : Data.PeerTube.Video -> H.Html msg

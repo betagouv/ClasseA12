@@ -8,6 +8,7 @@ module Data.PeerTube exposing
     , Video
     , VideoUploaded
     , accountDecoder
+    , alternateCommentListDecoder
     , commentDecoder
     , commentListDecoder
     , dataDecoder
@@ -16,6 +17,7 @@ module Data.PeerTube exposing
     , encodeNewVideoData
     , encodeUserInfo
     , encodeUserToken
+    , keywordList
     , userInfoDecoder
     , userTokenDecoder
     , videoDecoder
@@ -104,6 +106,19 @@ type RemoteData a
     | Failed String
 
 
+keywordList : List ( String, String )
+keywordList =
+    [ ( "Français", "Lecture / écriture / oral / compréhension / production d’écrit / grammaire / conjugaison / vocabulaire / orthographe / album" )
+    , ( "Mathématiques", "numération / calcul / résolution de problème / mesure / géométrie / jeux" )
+    , ( "Questionner le monde", "temps / espace" )
+    , ( "Arts", "Education musicale / éducation artistique" )
+    , ( "Éducation physique et sportive", "" )
+    , ( "Enseignement moral et civique", "" )
+    , ( "Gestion de classe", "différenciation / autonomie / concentration / coopération / aménagement de classe / affichage / gestion des élèves / plan de travail / atelier / sortie / cahier" )
+    , ( "Le projet Classe à 12", "tutoriel / témoignage" )
+    ]
+
+
 
 ---- DECODERS ----
 
@@ -123,6 +138,16 @@ accountDecoder =
     Decode.succeed Account
         |> Pipeline.required "name" Decode.string
         |> Pipeline.required "displayName" Decode.string
+        |> Pipeline.optional "description" Decode.string ""
+
+
+alternateAccountDecoder : Decode.Decoder Account
+alternateAccountDecoder =
+    -- When getting the full list of comments (not by thread/video), the linked
+    -- account is formed differently than the one above
+    Decode.succeed Account
+        |> Pipeline.requiredAt [ "Actor", "preferredUsername" ] Decode.string
+        |> Pipeline.required "name" Decode.string
         |> Pipeline.optional "description" Decode.string ""
 
 
@@ -213,6 +238,22 @@ commentDecoder =
 commentListDecoder : Decode.Decoder (List Comment)
 commentListDecoder =
     Decode.field "data" (Decode.list commentDecoder)
+
+
+alternateCommentDecoder : Decode.Decoder Comment
+alternateCommentDecoder =
+    Decode.succeed Comment
+        |> Pipeline.required "id" Decode.int
+        |> Pipeline.required "text" Decode.string
+        |> Pipeline.required "videoId" Decode.int
+        |> Pipeline.required "createdAt" Decode.string
+        |> Pipeline.required "updatedAt" Decode.string
+        |> Pipeline.required "Account" alternateAccountDecoder
+
+
+alternateCommentListDecoder : Decode.Decoder (List Comment)
+alternateCommentListDecoder =
+    Decode.field "data" (Decode.list alternateCommentDecoder)
 
 
 

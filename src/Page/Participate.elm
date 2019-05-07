@@ -1,6 +1,5 @@
 module Page.Participate exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Dict
@@ -34,7 +33,7 @@ type alias Keywords =
 
 noKeywords : Dict.Dict String Bool
 noKeywords =
-    Data.Kinto.keywordList
+    Data.PeerTube.keywordList
         |> List.map (\( keyword, _ ) -> ( keyword, False ))
         |> Dict.fromList
 
@@ -506,7 +505,7 @@ checkbox msg ( key, value ) =
 
         includedKeywords =
             -- Some keywords "include" other sub-keywords, display those to the user to help them choose
-            Data.Kinto.keywordList
+            Data.PeerTube.keywordList
                 |> List.filter (\( keyword, included ) -> keyword == key && included /= "")
                 |> List.head
                 |> Maybe.map

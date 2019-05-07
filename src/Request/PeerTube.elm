@@ -14,6 +14,7 @@ module Request.PeerTube exposing
     , getAccount
     , getAccountForEdit
     , getBlacklistedVideoList
+    , getCommentList
     , getUserInfo
     , getVideo
     , getVideoCommentList
@@ -37,6 +38,7 @@ import Data.PeerTube
         , UserToken
         , Video
         , accountDecoder
+        , alternateCommentListDecoder
         , commentDecoder
         , commentListDecoder
         , dataDecoder
@@ -163,20 +165,83 @@ authVideoRequest videoID access_token serverURL =
         |> Http.request
 
 
+videoDescriptionRequest : String -> String -> Request String
+videoDescriptionRequest videoID serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/" ++ videoID ++ "/description"
+
+        request : Request String
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson (Decode.field "description" Decode.string)
+            , timeout = Nothing
+            , withCredentials = False
+            }
+    in
+    request
+
+
+anonymousVideoDescriptionRequest : String -> String -> Http.Request String
+anonymousVideoDescriptionRequest videoID serverURL =
+    videoDescriptionRequest videoID serverURL
+        |> Http.request
+
+
+authVideoDescriptionRequest : String -> String -> String -> Http.Request String
+authVideoDescriptionRequest videoID access_token serverURL =
+    videoDescriptionRequest videoID serverURL
+        |> withHeader "Authorization" ("Bearer " ++ access_token)
+        |> Http.request
+
+
 getVideo : String -> Maybe UserToken -> String -> (Result AuthError (AuthResult Video) -> msg) -> Cmd msg
 getVideo videoID maybeUserToken serverURL message =
-    case maybeUserToken of
-        Just userToken ->
-            authVideoRequest videoID
-                |> authRequestWrapper userToken serverURL
-                |> Task.attempt message
+    -- When requesting a video, it will come back with a truncated description, so
+    -- it needs another request to grab the full description.
+    let
+        ( videoTask, descriptionTask ) =
+            case maybeUserToken of
+                Just userToken ->
+                    ( authVideoRequest videoID
+                        |> authRequestWrapper userToken serverURL
+                    , authVideoDescriptionRequest videoID
+                        |> authRequestWrapper userToken serverURL
+                    )
 
-        Nothing ->
-            anonymousVideoRequest videoID serverURL
-                |> Http.toTask
-                |> Task.map Succeed
-                |> Task.mapError Error
-                |> Task.attempt message
+                Nothing ->
+                    ( anonymousVideoRequest videoID serverURL
+                        |> Http.toTask
+                        |> Task.map Succeed
+                        |> Task.mapError Error
+                    , anonymousVideoDescriptionRequest videoID serverURL
+                        |> Http.toTask
+                        |> Task.map Succeed
+                        |> Task.mapError Error
+                    )
+    in
+    videoTask
+        |> Task.andThen
+            (\videoAuthResult ->
+                descriptionTask
+                    |> Task.map
+                        (\descriptionAuthResult ->
+                            let
+                                description =
+                                    extractResult descriptionAuthResult
+                            in
+                            updateResult
+                                (\video ->
+                                    -- Update the video with its full description
+                                    { video | description = description }
+                                )
+                                videoAuthResult
+                        )
+            )
+        |> Task.attempt message
 
 
 blacklistedVideoListRequest : String -> String -> Http.Request (List Video)
@@ -253,6 +318,20 @@ videoCommentListRequest videoID serverURL =
 getVideoCommentList : String -> String -> (Result Http.Error (List Comment) -> msg) -> Cmd msg
 getVideoCommentList videoID serverURL message =
     Http.send message (videoCommentListRequest videoID serverURL)
+
+
+commentListRequest : String -> Http.Request (List Comment)
+commentListRequest serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/comments-feed"
+    in
+    Http.get url alternateCommentListDecoder
+
+
+getCommentList : String -> (Result Http.Error (List Comment) -> msg) -> Cmd msg
+getCommentList serverURL message =
+    Http.send message (commentListRequest serverURL)
 
 
 submitCommentRequest : String -> String -> String -> String -> Http.Request Comment
@@ -707,6 +786,18 @@ authRequestWrapper { access_token, refresh_token } serverURL request =
                 else
                     Task.fail <| Error error
             )
+
+
+updateResult : (result -> result) -> AuthResult result -> AuthResult result
+updateResult updateFunction authResult =
+    case authResult of
+        Succeed result ->
+            updateFunction result
+                |> Succeed
+
+        Refreshed userToken result ->
+            updateFunction result
+                |> Refreshed userToken
 
 
 extractResult : AuthResult result -> result

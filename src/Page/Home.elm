@@ -1,6 +1,5 @@
 module Page.Home exposing (Model, Msg(..), init, update, view)
 
-import Data.Kinto
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Dict
@@ -32,7 +31,7 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     let
         keywordList =
-            Data.Kinto.keywordList
+            Data.PeerTube.keywordList
                 |> List.map (\( keyword, _ ) -> keyword)
     in
     ( { title = "Liste des vidéos"
@@ -112,7 +111,7 @@ view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData }
             [ Page.Common.Video.viewCategory recentVideoData peerTubeURL "Nouveautés" ]
 
         viewVideoCategories =
-            Data.Kinto.keywordList
+            Data.PeerTube.keywordList
                 |> List.map
                     (\( keyword, _ ) ->
                         let
