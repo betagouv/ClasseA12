@@ -477,7 +477,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
+view { peerTubeURL, navigatorShare, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
     { title = title
     , pageTitle = "Vidéo"
     , pageSubTitle = videoTitle

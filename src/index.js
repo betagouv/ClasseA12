@@ -1,25 +1,20 @@
-import { Elm } from "../src/Main.elm";
+import { Elm } from "./Main.elm";
 
-const PEERTUBE_URL = process.env.PEERTUBE_URL;
-const FILES_URL = process.env.FILES_URL;
+const PEERTUBE_URL = process.env.ELM_APP_PEERTUBE_URL;
+const FILES_URL = process.env.ELM_APP_FILES_URL;
 const loginForm = window.localStorage.getItem("session");
 const userToken = window.localStorage.getItem("userToken");
 const userInfo = window.localStorage.getItem("userInfo");
 const app = Elm.Main.init({
+    node: document.getElementById("root"),
     flags: {
         loginForm: loginForm,
         userToken: userToken,
         userInfo: userInfo,
-        version: process.env.VERSION,
+        version: process.env.ELM_APP_VERSION,
         peerTubeURL: PEERTUBE_URL,
         filesURL: FILES_URL,
-        navigatorShare: navigator.share !== undefined,
-        staticFiles: {
-            "logo": require("./logo.png"),
-            "logo_ca12": require("./logo_ca12.png"),
-            "autorisationCaptationImageMineur": require("./documents/Autorisation-captation-image-mineur_2017.pdf"),
-            "autorisationCaptationImageMajeur": require("./documents/Autorisation-captation-image-majeur_2017.pdf")
-        }
+        navigatorShare: navigator.share !== undefined
     }
 });
 

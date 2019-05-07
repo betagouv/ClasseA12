@@ -4,11 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prebuild": "rm -rf dist/*",
-    "build": "VERSION=`git rev-parse --short HEAD` parcel build public/index.html",
-    "debug": "parcel -d build public/index.html",
-    "deploy": "NODE_ENV=development npm run build && gh-pages -d dist/ -o deploy",
-    "deploy-prod": "npm run build && gh-pages -d dist/ -o deploy-prod",
+    "build": "ELM_APP_VERSION=`git rev-parse --short HEAD` elm-app build",
+    "debug": "ELM_APP_VERSION='foobar' elm-app start",
+    "deploy": "NODE_ENV=development npm run build && gh-pages -d build/ -o deploy",
+    "deploy-prod": "npm run build && gh-pages -d build/ -o deploy-prod",
     "install": "elm make src/Main.elm",
     "start": "npm run debug",
     "test": "elm-test"
@@ -21,7 +20,7 @@
     "elm-hot": "^1.0.1",
     "gh-pages": "^1.1.0",
     "npm-run-all": "^4.1.2",
-    "parcel-bundler": "^1.11.0",
+    "create-elm-app": "^3.0.6",
     "rimraf": "^2.6.1"
   }
 }
