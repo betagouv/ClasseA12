@@ -105,7 +105,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles, peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
+view { peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
     let
         viewRecentVideo =
             [ Page.Common.Video.viewCategory recentVideoData peerTubeURL "Nouveautés" ]

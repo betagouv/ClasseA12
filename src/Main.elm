@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.PeerTube
-import Data.Session exposing (Session, decodeStaticFiles, emptyStaticFiles)
+import Data.Session exposing (Session)
 import Dict
 import Html exposing (..)
 import Http
@@ -212,11 +212,6 @@ init flags url navKey =
             Decode.decodeValue (Decode.field "navigatorShare" Decode.bool) flags
                 |> Result.withDefault False
 
-        staticFiles =
-            -- Decode a StaticFiles record from the "staticFiles" field in the value
-            Decode.decodeValue (Decode.field "staticFiles" decodeStaticFiles) flags
-                |> Result.withDefault emptyStaticFiles
-
         session : Session
         session =
             { timezone = Time.utc
@@ -224,7 +219,6 @@ init flags url navKey =
             , peerTubeURL = peerTubeURL
             , filesURL = filesURL
             , navigatorShare = navigatorShare
-            , staticFiles = staticFiles
             , url = url
             , prevUrl = url
             , userToken = userToken

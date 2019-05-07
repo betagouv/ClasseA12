@@ -87,7 +87,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
                 , Route.href Route.Home
                 ]
                 [ img
-                    [ src session.staticFiles.logo
+                    [ src "%PUBLIC_URL%/logo.png"
                     , alt "logo"
                     , class "navbar__logo"
                     ]
@@ -121,7 +121,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
         [ div [ class "hero__banner" ] []
         , div [ class "hero__container" ]
             [ img
-                [ src session.staticFiles.logo_ca12
+                [ src "%PUBLIC_URL%/logo_ca12.png"
                 , class "hero__logo"
                 ]
                 []

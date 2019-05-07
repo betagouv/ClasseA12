@@ -215,7 +215,7 @@ update { userInfo, userToken } msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles, userInfo } model =
+view { userInfo } model =
     { title = model.title
     , pageTitle = model.title
     , pageSubTitle = "Partagez une vidéo"
@@ -228,11 +228,11 @@ view { staticFiles, userInfo } model =
                     [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
                     , H.ul []
                         [ H.li []
-                            [ H.a [ HA.href staticFiles.autorisationCaptationImageMineur ]
+                            [ H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-mineur_2017.pdf" ]
                                 [ H.text "Autorisation captation image mineur" ]
                             ]
                         , H.li []
-                            [ H.a [ HA.href staticFiles.autorisationCaptationImageMajeur ]
+                            [ H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-majeur_2017.pdf" ]
                                 [ H.text "Autorisation captation image majeur" ]
                             ]
                         ]
