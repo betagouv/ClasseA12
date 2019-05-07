@@ -121,6 +121,8 @@
   }
   header nav {
     display: flex;
+    margin-right: 4rem;
+    margin-left: 4rem;
     font-family: "montserrat_regular", Arial, sans-serif;
     font-size: 1.7rem;
   }
