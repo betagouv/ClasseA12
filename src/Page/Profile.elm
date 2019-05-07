@@ -28,6 +28,7 @@ type alias ProfileForm =
     }
 
 
+emptyProfileForm : ProfileForm
 emptyProfileForm =
     { displayName = ""
     , description = ""
@@ -144,7 +145,7 @@ update session msg model =
             , Nothing
             )
 
-        ProfileFetchedForView (Err error) ->
+        ProfileFetchedForView (Err _) ->
             ( { model
                 | notifications =
                     "Récupération du profil échouée"
@@ -241,8 +242,8 @@ view _ { title, pageState, profileForm, profileData, ownProfile, notifications }
                     ViewProfile profile ->
                         viewProfile profile
 
-                    EditProfile profile ->
-                        viewEditProfileForm pageState profileForm profileData
+                    EditProfile _ ->
+                        viewEditProfileForm profileForm profileData
                 ]
             ]
         ]
@@ -258,8 +259,8 @@ viewProfile profileData =
         ]
 
 
-viewEditProfileForm : PageState -> ProfileForm -> Data.PeerTube.RemoteData Data.PeerTube.Account -> H.Html Msg
-viewEditProfileForm pageState profileForm profileData =
+viewEditProfileForm : ProfileForm -> Data.PeerTube.RemoteData Data.PeerTube.Account -> H.Html Msg
+viewEditProfileForm profileForm profileData =
     let
         formComplete =
             isProfileFormComplete profileForm

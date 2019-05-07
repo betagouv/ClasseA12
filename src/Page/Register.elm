@@ -42,7 +42,7 @@ type Msg
 
 
 init : Session -> ( Model, Cmd Msg )
-init session =
+init _ =
     ( { title = "Inscription"
       , registerForm = emptyRegisterForm
       , notifications = Notifications.init
@@ -118,7 +118,7 @@ registerAccount peerTubeURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, registerForm, registration, approved } =
+view _ { title, notifications, registerForm, registration, approved } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""

@@ -52,7 +52,7 @@ type Msg
 
 
 init : Session -> ( Model, Cmd Msg )
-init session =
+init _ =
     ( { title = "Je participe !"
       , newVideo = Data.PeerTube.emptyNewVideo
       , newVideoData = Data.PeerTube.NotRequested
@@ -164,7 +164,7 @@ update { userInfo, userToken } msg model =
                                 Ok videoUploaded ->
                                     Data.PeerTube.Received videoUploaded
 
-                                Err error ->
+                                Err _ ->
                                     Data.PeerTube.Failed "Échec de l'envoi de la vidéo"
                     in
                     ( { updatedModel | newVideoData = videoUploadResult }
@@ -172,7 +172,7 @@ update { userInfo, userToken } msg model =
                     , Nothing
                     )
 
-                Ok (Page.Common.XHR.BadStatus status statusText) ->
+                Ok (Page.Common.XHR.BadStatus status _) ->
                     ( { updatedModel
                         | notifications =
                             "Échec de l'envoi de la vidéo"
@@ -187,7 +187,7 @@ update { userInfo, userToken } msg model =
                         Nothing
                     )
 
-                Err error ->
+                Err _ ->
                     ( { updatedModel
                         | notifications =
                             "Échec de l'envoi de la vidéo"
@@ -265,7 +265,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                 /= Nothing
     in
     H.form [ HE.onSubmit SubmitNewVideo ]
-        [ displayVideo videoObjectUrl
+        [ displayVideo
         , H.div
             [ HA.class "upload-video"
             ]
@@ -320,7 +320,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     , HA.type_ "radio"
                     , HA.name "grade"
                     , HA.checked <| newVideo.grade == "Maternelle"
-                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "Maternelle" })
+                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "Maternelle" })
                     ]
                     []
                 , H.label [ HA.for "grade-maternelle", HA.class "label-inline" ]
@@ -330,7 +330,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     , HA.type_ "radio"
                     , HA.name "grade"
                     , HA.checked <| newVideo.grade == "CP"
-                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "CP" })
+                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CP" })
                     ]
                     []
                 , H.label [ HA.for "grade-cp", HA.class "label-inline" ]
@@ -340,7 +340,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     , HA.type_ "radio"
                     , HA.name "grade"
                     , HA.checked <| newVideo.grade == "CE1"
-                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "CE1" })
+                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CE1" })
                     ]
                     []
                 , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
@@ -350,7 +350,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     , HA.type_ "radio"
                     , HA.name "grade"
                     , HA.checked <| newVideo.grade == ""
-                    , HE.onInput (\grade -> UpdateVideoForm { newVideo | grade = "" })
+                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "" })
                     ]
                     []
                 , H.label [ HA.for "grade-all", HA.class "label-inline" ]
@@ -423,8 +423,8 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
         ]
 
 
-displayVideo : Maybe String -> H.Html Msg
-displayVideo maybeVideoObjectUrl =
+displayVideo : H.Html Msg
+displayVideo =
     H.div [ HA.style "display" "none", HA.style "text-align" "center" ]
         [ H.video
             [ HA.controls True
@@ -492,11 +492,6 @@ formInput input id label placeholder value onInput isVisible =
         ]
 
 
-onSelectMultiple : (List String -> Msg) -> H.Attribute Msg
-onSelectMultiple tagger =
-    HE.on "change" (Decode.map tagger targetSelectedOptions)
-
-
 checkbox : (String -> Msg) -> ( String, Bool ) -> H.Html Msg
 checkbox msg ( key, value ) =
     let
@@ -509,7 +504,7 @@ checkbox msg ( key, value ) =
                 |> List.filter (\( keyword, included ) -> keyword == key && included /= "")
                 |> List.head
                 |> Maybe.map
-                    (\( keyword, included ) ->
+                    (\( _, included ) ->
                         [ H.span [ HA.class "included-keywords" ] [ H.text <| " (" ++ included ++ ")" ] ]
                     )
                 |> Maybe.withDefault []
@@ -534,47 +529,13 @@ viewKeywords keywords msg =
         |> List.map (checkbox msg)
 
 
-targetSelectedOptions : Decode.Decoder (List String)
-targetSelectedOptions =
-    Decode.at [ "target", "selectedOptions" ] <|
-        collection <|
-            Decode.field "value" Decode.string
-
-
-collection : Decode.Decoder a -> Decode.Decoder (List a)
-collection decoder =
-    -- Taken from elm-community/json-extra
-    Decode.field "length" Decode.int
-        |> Decode.andThen
-            (\length ->
-                List.range 0 (length - 1)
-                    |> List.map (\index -> Decode.field (String.fromInt index) decoder)
-                    |> combine
-            )
-
-
-combine : List (Decode.Decoder a) -> Decode.Decoder (List a)
-combine =
-    -- Taken from elm-community/json-extra
-    List.foldr (Decode.map2 (::)) (Decode.succeed [])
-
-
 keywordsToList : Keywords -> List String
 keywordsToList keywords =
     keywords
-        |> Dict.filter (\key value -> value)
+        |> Dict.filter (\_ value -> value)
         |> Dict.keys
 
 
 toggleKeyword : String -> Keywords -> Keywords
 toggleKeyword keyword keywords =
-    Dict.update keyword
-        (\oldValue ->
-            case oldValue of
-                Just value ->
-                    Just <| not value
-
-                Nothing ->
-                    Nothing
-        )
-        keywords
+    Dict.update keyword (Maybe.map not) keywords

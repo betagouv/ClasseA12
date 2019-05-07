@@ -37,7 +37,7 @@ type Msg
 
 
 init : Session -> ( Model, Cmd Msg )
-init session =
+init _ =
     ( { title = "Oubli du mot de passe"
       , resetForm = emptyResetForm
       , notifications = Notifications.init
@@ -56,12 +56,12 @@ update session msg model =
         ResetPassword ->
             resetPassword session.peerTubeURL model
 
-        PasswordReset (Ok passwordReset) ->
+        PasswordReset (Ok _) ->
             ( { model | passwordReset = Data.PeerTube.Received "Un lien de réinitialisation du mot de passe vous a été envoyé par email" }
             , Cmd.none
             )
 
-        PasswordReset (Err error) ->
+        PasswordReset (Err _) ->
             ( { model
                 | notifications =
                     "Demande de réinitialisation du mot de passe échouée"
@@ -92,7 +92,7 @@ resetPassword peerTubeURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, resetForm, passwordReset } =
+view _ { title, notifications, resetForm, passwordReset } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""

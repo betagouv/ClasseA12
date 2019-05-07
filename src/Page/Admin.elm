@@ -4,13 +4,10 @@ import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
-import Html.Events as HE
-import Http
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Page.Common.Video
 import Request.PeerTube
-import Route
 
 
 type alias Model =
@@ -192,7 +189,7 @@ view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData,
         , if Data.Session.isLoggedIn userInfo then
             if username == "classea12" then
                 case blacklistedVideoListData of
-                    Data.PeerTube.Received blacklistedVideoList ->
+                    Data.PeerTube.Received _ ->
                         H.section [ HA.class "section section-grey cards" ]
                             [ H.div [ HA.class "container" ]
                                 (viewVideoList

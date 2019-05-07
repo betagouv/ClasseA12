@@ -9,7 +9,6 @@ import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Json.Decode as Decode
-import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
 import Markdown
 import Page.Common.Components as Components
@@ -24,7 +23,6 @@ import Request.PeerTube
 import Route
 import Set
 import Task
-import Time
 import Url exposing (Url)
 
 
@@ -165,17 +163,15 @@ update session msg model =
             ( model, Ports.navigatorShare shareText, Nothing )
 
         CommentsReceived (Ok comments) ->
-            let
-                contributorIDs =
-                    comments
-                        |> List.map (\comment -> comment.account.name)
-            in
-            ( { model | comments = Data.PeerTube.Received comments }
+            ( { model
+                | comments = Data.PeerTube.Received comments
+                , refreshing = False
+              }
             , scrollToComment session.url.fragment model
             , Nothing
             )
 
-        CommentsReceived (Err error) ->
+        CommentsReceived (Err _) ->
             ( { model
                 | comments = Data.PeerTube.Failed "Échec de la récupération des commentaires"
                 , notifications =
@@ -296,7 +292,7 @@ update session msg model =
                     , Nothing
                     )
 
-                Ok (Page.Common.XHR.BadStatus status statusText) ->
+                Ok (Page.Common.XHR.BadStatus status _) ->
                     ( { updatedModel
                         | notifications =
                             "Échec de l'envoi du fichier"
@@ -311,7 +307,7 @@ update session msg model =
                         Nothing
                     )
 
-                Err error ->
+                Err _ ->
                     ( { updatedModel
                         | notifications =
                             "Échec de l'envoi du fichier"
@@ -397,7 +393,7 @@ update session msg model =
             , Nothing
             )
 
-        RelatedVideosReceived keywords (Err error) ->
+        RelatedVideosReceived _ (Err _) ->
             ( { model
                 | relatedVideos = Data.PeerTube.Failed "Échec de la récupération des vidéos"
                 , notifications =
@@ -477,7 +473,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
     { title = title
     , pageTitle = "Vidéo"
     , pageSubTitle = videoTitle
@@ -490,7 +486,7 @@ view { peerTubeURL, navigatorShare, url, userInfo, filesURL } { videoID, title, 
             , H.div [ HA.class "container" ]
                 [ viewComments videoID comments attachmentList
                 , case commentData of
-                    Data.PeerTube.Failed error ->
+                    Data.PeerTube.Failed _ ->
                         H.div []
                             [ H.text "Erreur lors de l'ajout de la contribution"
                             ]
@@ -504,16 +500,6 @@ view { peerTubeURL, navigatorShare, url, userInfo, filesURL } { videoID, title, 
             ]
         ]
     }
-
-
-viewTitle : Data.PeerTube.RemoteData Data.PeerTube.Video -> H.Html Msg
-viewTitle videoData =
-    case videoData of
-        Data.PeerTube.Received video ->
-            H.p [] [ H.text video.name ]
-
-        _ ->
-            H.p [] []
 
 
 viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> List Attachment -> H.Html Msg
@@ -711,7 +697,11 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
                             Components.Loading
 
                         _ ->
-                            Components.NotLoading
+                            if refreshing then
+                                Components.Loading
+
+                            else
+                                Components.NotLoading
 
                 else
                     Components.Disabled

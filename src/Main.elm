@@ -1,12 +1,10 @@
-port module Main exposing (main)
+module Main exposing (main)
 
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.PeerTube
 import Data.Session exposing (Session)
-import Dict
 import Html exposing (..)
-import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import Page.About as About

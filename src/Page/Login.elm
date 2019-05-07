@@ -26,6 +26,7 @@ type alias LoginForm =
     }
 
 
+emptyLoginForm : LoginForm
 emptyLoginForm =
     { username = "", password = "" }
 
@@ -39,7 +40,7 @@ type Msg
 
 
 init : Session -> ( Model, Cmd Msg )
-init session =
+init _ =
     let
         initialModel =
             { title = "Connexion"
@@ -75,7 +76,7 @@ update session msg model =
             , Nothing
             )
 
-        UserTokenReceived (Err error) ->
+        UserTokenReceived (Err _) ->
             ( { model
                 | notifications =
                     "Connection échouée"
@@ -92,7 +93,7 @@ update session msg model =
             , Just <| Data.Session.Login userToken userInfo
             )
 
-        UserInfoReceived _ (Err error) ->
+        UserInfoReceived _ (Err _) ->
             ( { model
                 | notifications =
                     "Connection échouée"
@@ -122,14 +123,14 @@ useLogin serverURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, loginForm, userInfoData } =
+view _ { title, notifications, loginForm, userInfoData } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
         , case userInfoData of
-            PeerTube.Received userInfo ->
+            PeerTube.Received _ ->
                 H.div [] [ H.text "Vous êtes maintenant connecté" ]
 
             _ ->

@@ -3,14 +3,10 @@ module Page.Home exposing (Model, Msg(..), init, update, view)
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Dict
-import Html as H
-import Html.Attributes as HA
-import Html.Events as HE
 import Http
 import Page.Common.Components
 import Page.Common.Video
 import Request.PeerTube
-import Route
 
 
 type alias Model =
@@ -68,7 +64,7 @@ init session =
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update session msg model =
+update _ msg model =
     case msg of
         UpdateSearch newSearch ->
             ( { model | search = newSearch }, Cmd.none )
@@ -78,7 +74,7 @@ update session msg model =
             , Cmd.none
             )
 
-        RecentVideoListReceived (Err error) ->
+        RecentVideoListReceived (Err _) ->
             ( { model | recentVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos" }, Cmd.none )
 
         VideoListReceived keyword (Ok videoList) ->
@@ -92,7 +88,7 @@ update session msg model =
             , Cmd.none
             )
 
-        VideoListReceived keyword (Err error) ->
+        VideoListReceived keyword (Err _) ->
             ( { model
                 | videoData =
                     Dict.insert
@@ -105,7 +101,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } ({ title, search, recentVideoData, videoData } as model) =
+view { peerTubeURL } { title, recentVideoData, videoData } =
     let
         viewRecentVideo =
             [ Page.Common.Video.viewCategory recentVideoData peerTubeURL "Nouveautés" ]

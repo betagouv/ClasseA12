@@ -15,19 +15,19 @@ type Msg
 
 
 init : Session -> ( Model, Cmd Msg )
-init session =
+init _ =
     ( { title = "Politique de confidentialité" }
     , Cmd.none
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update _ msg model =
+update _ _ model =
     ( model, Cmd.none )
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title } =
+view _ { title } =
     { title = title
     , pageTitle = "Politique de confidentialité"
     , pageSubTitle = "suivi d'audience et vie privée"

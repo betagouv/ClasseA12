@@ -4,7 +4,6 @@ import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
-import Html.Events as HE
 import Http
 import Markdown
 import Page.Common.Components
@@ -37,14 +36,14 @@ init session =
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
-update session msg model =
+update _ msg model =
     case msg of
         CommentDataListReceived (Ok commentDataList) ->
             ( { model | commentDataList = Data.PeerTube.Received commentDataList }
             , Cmd.none
             )
 
-        CommentDataListReceived (Err error) ->
+        CommentDataListReceived (Err _) ->
             ( { model
                 | notifications =
                     "Erreur lors de la récupération des commentaires"
@@ -59,7 +58,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, commentDataList } =
+view _ { title, notifications, commentDataList } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""

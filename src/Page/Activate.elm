@@ -28,7 +28,7 @@ type Msg
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
-init userID verificationString session =
+init userID verificationString _ =
     ( { title = "Activation"
       , userID = userID
       , verificationString = verificationString
@@ -47,12 +47,12 @@ update session msg model =
             , Request.PeerTube.activate model.userID model.verificationString session.peerTubeURL AccountActivated
             )
 
-        AccountActivated (Ok userInfo) ->
+        AccountActivated (Ok _) ->
             ( { model | activationRequest = Data.PeerTube.Received "Votre compte a été activé !" }
             , Cmd.none
             )
 
-        AccountActivated (Err error) ->
+        AccountActivated (Err _) ->
             ( { model
                 | notifications =
                     "Activation échouée"
@@ -67,7 +67,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, activationRequest, userID } =
+view _ { title, notifications, activationRequest } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
@@ -84,15 +84,15 @@ view session { title, notifications, activationRequest, userID } =
                             ]
 
                     _ ->
-                        viewActivationForm userID activationRequest
+                        viewActivationForm activationRequest
                 ]
             ]
         ]
     }
 
 
-viewActivationForm : String -> Data.PeerTube.RemoteData String -> H.Html Msg
-viewActivationForm userID activationRequest =
+viewActivationForm : Data.PeerTube.RemoteData String -> H.Html Msg
+viewActivationForm activationRequest =
     let
         buttonState =
             case activationRequest of
