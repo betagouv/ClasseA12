@@ -2507,43 +2507,6 @@ function _Url_percentDecode(string)
 }
 
 
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-
-
-
 
 // HELPERS
 
@@ -4580,6 +4543,43 @@ function _Time_getZoneName()
 
 
 
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
+
+
+
 
 // VIRTUAL-DOM WIDGETS
 
@@ -5191,44 +5191,6 @@ var author$project$Data$PeerTube$userTokenDecoder = A3(
 				'access_token',
 				elm$json$Json$Decode$string,
 				elm$json$Json$Decode$succeed(author$project$Data$PeerTube$UserToken)))));
-var author$project$Data$Session$StaticFiles = F4(
-	function (logo, logo_ca12, autorisationCaptationImageMineur, autorisationCaptationImageMajeur) {
-		return {autorisationCaptationImageMajeur: autorisationCaptationImageMajeur, autorisationCaptationImageMineur: autorisationCaptationImageMineur, logo: logo, logo_ca12: logo_ca12};
-	});
-var elm$json$Json$Decode$map4 = _Json_map4;
-var author$project$Data$Session$decodeStaticFiles = A5(
-	elm$json$Json$Decode$map4,
-	author$project$Data$Session$StaticFiles,
-	A2(elm$json$Json$Decode$field, 'logo', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'logo_ca12', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'autorisationCaptationImageMineur', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'autorisationCaptationImageMajeur', elm$json$Json$Decode$string));
-var author$project$Data$Session$UserData = F3(
-	function (username, password, profile) {
-		return {password: password, profile: profile, username: username};
-	});
-var elm$json$Json$Decode$map3 = _Json_map3;
-var elm$json$Json$Decode$map = _Json_map1;
-var elm$json$Json$Decode$oneOf = _Json_oneOf;
-var elm$json$Json$Decode$maybe = function (decoder) {
-	return elm$json$Json$Decode$oneOf(
-		_List_fromArray(
-			[
-				A2(elm$json$Json$Decode$map, elm$core$Maybe$Just, decoder),
-				elm$json$Json$Decode$succeed(elm$core$Maybe$Nothing)
-			]));
-};
-var author$project$Data$Session$decodeUserData = A4(
-	elm$json$Json$Decode$map3,
-	author$project$Data$Session$UserData,
-	A2(elm$json$Json$Decode$field, 'username', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'password', elm$json$Json$Decode$string),
-	A2(
-		elm$json$Json$Decode$field,
-		'profile',
-		elm$json$Json$Decode$maybe(elm$json$Json$Decode$string)));
-var author$project$Data$Session$emptyStaticFiles = {autorisationCaptationImageMajeur: '', autorisationCaptationImageMineur: '', logo: '', logo_ca12: ''};
-var author$project$Data$Session$emptyUserData = {password: '', profile: elm$core$Maybe$Nothing, username: ''};
 var author$project$Data$PeerTube$UserInfo = F2(
 	function (username, channelID) {
 		return {channelID: channelID, username: username};
@@ -5381,7 +5343,7 @@ var elm$core$Maybe$withDefault = F2(
 			return _default;
 		}
 	});
-var author$project$Data$Session$isPeerTubeLoggedIn = function (maybeUserInfo) {
+var author$project$Data$Session$isLoggedIn = function (maybeUserInfo) {
 	return A2(
 		elm$core$Maybe$withDefault,
 		false,
@@ -6215,6 +6177,7 @@ var elm$json$Json$Decode$andThen = _Json_andThen;
 var elm$json$Json$Decode$decodeValue = _Json_run;
 var elm$json$Json$Decode$fail = _Json_fail;
 var elm$json$Json$Decode$null = _Json_decodeNull;
+var elm$json$Json$Decode$oneOf = _Json_oneOf;
 var elm$json$Json$Decode$value = _Json_decodeValue;
 var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optionalDecoder = F3(
 	function (pathDecoder, valDecoder, fallback) {
@@ -6516,7 +6479,7 @@ var author$project$Page$Admin$init = function (session) {
 						return $.username;
 					},
 					session.userInfo));
-			return (author$project$Data$Session$isPeerTubeLoggedIn(session.userInfo) && (username === 'classea12')) ? _Utils_Tuple2(
+			return (author$project$Data$Session$isLoggedIn(session.userInfo) && (username === 'classea12')) ? _Utils_Tuple2(
 				_Utils_update(
 					initialModel,
 					{blacklistedVideoListData: author$project$Data$PeerTube$Requested}),
@@ -6532,1160 +6495,97 @@ var author$project$Page$CGU$init = function (session) {
 		{title: 'Conditions générales d’utilisation'},
 		elm$core$Platform$Cmd$none);
 };
-var author$project$Data$Kinto$Requested = {$: 'Requested'};
 var author$project$Page$Comments$CommentDataListReceived = function (a) {
 	return {$: 'CommentDataListReceived', a: a};
 };
-var elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var elm$time$Time$millisToPosix = elm$time$Time$Posix;
-var author$project$Data$Kinto$emptyProfile = {
-	bio: '',
-	id: '',
-	last_modified: elm$time$Time$millisToPosix(0),
-	name: ''
-};
-var author$project$Data$Kinto$emptyAttachment = {filename: '', hash: '', location: '', mimetype: '', size: 0};
-var author$project$Data$Kinto$emptyVideo = {
-	attachment: author$project$Data$Kinto$emptyAttachment,
-	creation_date: elm$time$Time$millisToPosix(0),
-	description: '',
-	duration: 0,
-	grade: 'CP',
-	id: '',
-	keywords: _List_Nil,
-	last_modified: 0,
-	profile: '',
-	publish_date: elm$time$Time$millisToPosix(0),
-	thumbnail: '',
-	title: ''
-};
-var Kinto$elm_kinto$Kinto$NetworkError = function (a) {
-	return {$: 'NetworkError', a: a};
-};
-var Kinto$elm_kinto$Kinto$ServerError = F3(
-	function (a, b, c) {
-		return {$: 'ServerError', a: a, b: b, c: c};
-	});
-var Kinto$elm_kinto$Kinto$KintoError = F3(
-	function (a, b, c) {
-		return {$: 'KintoError', a: a, b: b, c: c};
-	});
-var Kinto$elm_kinto$Kinto$ErrorDetail = F4(
-	function (errno, message, code, error) {
-		return {code: code, errno: errno, error: error, message: message};
-	});
-var Kinto$elm_kinto$Kinto$errorDecoder = A5(
-	elm$json$Json$Decode$map4,
-	Kinto$elm_kinto$Kinto$ErrorDetail,
-	A2(elm$json$Json$Decode$field, 'errno', elm$json$Json$Decode$int),
-	A2(elm$json$Json$Decode$field, 'message', elm$json$Json$Decode$string),
-	A2(elm$json$Json$Decode$field, 'code', elm$json$Json$Decode$int),
-	A2(elm$json$Json$Decode$field, 'error', elm$json$Json$Decode$string));
-var Kinto$elm_kinto$Kinto$extractKintoError = F3(
-	function (statusCode, statusMsg, body) {
-		var _n0 = A2(elm$json$Json$Decode$decodeString, Kinto$elm_kinto$Kinto$errorDecoder, body);
-		if (_n0.$ === 'Ok') {
-			var errRecord = _n0.a;
-			return A3(Kinto$elm_kinto$Kinto$KintoError, statusCode, statusMsg, errRecord);
-		} else {
-			var err = _n0.a;
-			return A3(
-				Kinto$elm_kinto$Kinto$ServerError,
-				statusCode,
-				statusMsg,
-				elm$json$Json$Decode$errorToString(err));
-		}
-	});
-var Kinto$elm_kinto$Kinto$extractError = function (error) {
-	switch (error.$) {
-		case 'BadStatus':
-			var status = error.a.status;
-			var body = error.a.body;
-			return A3(Kinto$elm_kinto$Kinto$extractKintoError, status.code, status.message, body);
-		case 'BadPayload':
-			var str = error.a;
-			var status = error.b.status;
-			var body = error.b.body;
-			return A3(Kinto$elm_kinto$Kinto$ServerError, status.code, status.message, 'failed decoding json: ' + (str + ('\n\nBody received from server: ' + body)));
-		default:
-			var anyError = error;
-			return Kinto$elm_kinto$Kinto$NetworkError(anyError);
-	}
-};
-var lukewestby$elm_http_builder$HttpBuilder$withQueryParams = F2(
-	function (queryParams, builder) {
-		return _Utils_update(
-			builder,
-			{
-				queryParams: _Utils_ap(builder.queryParams, queryParams)
-			});
-	});
-var Kinto$elm_kinto$Kinto$sort = F2(
-	function (keys, builder) {
-		return A2(
-			lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'_sort',
-					A2(elm$core$String$join, ',', keys))
-				]),
-			builder);
-	});
-var elm$core$String$isEmpty = function (string) {
-	return string === '';
-};
-var elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
-var elm$url$Url$percentEncode = _Url_percentEncode;
-var lukewestby$elm_http_builder$HttpBuilder$replace = F2(
-	function (old, _new) {
-		return A2(
-			elm$core$Basics$composeR,
-			elm$core$String$split(old),
-			elm$core$String$join(_new));
-	});
-var lukewestby$elm_http_builder$HttpBuilder$queryEscape = A2(
-	elm$core$Basics$composeR,
-	elm$url$Url$percentEncode,
-	A2(lukewestby$elm_http_builder$HttpBuilder$replace, '%20', '+'));
-var lukewestby$elm_http_builder$HttpBuilder$queryPair = function (_n0) {
-	var key = _n0.a;
-	var value = _n0.b;
-	return lukewestby$elm_http_builder$HttpBuilder$queryEscape(key) + ('=' + lukewestby$elm_http_builder$HttpBuilder$queryEscape(value));
-};
-var lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded = function (args) {
-	return A2(
-		elm$core$String$join,
-		'&',
-		A2(elm$core$List$map, lukewestby$elm_http_builder$HttpBuilder$queryPair, args));
-};
-var lukewestby$elm_http_builder$HttpBuilder$requestUrl = function (builder) {
-	var encodedParams = lukewestby$elm_http_builder$HttpBuilder$joinUrlEncoded(builder.queryParams);
-	var fullUrl = elm$core$String$isEmpty(encodedParams) ? builder.url : (builder.url + ('?' + encodedParams));
-	return fullUrl;
-};
-var lukewestby$elm_http_builder$HttpBuilder$toRequest = function (builder) {
-	return elm$http$Http$request(
-		{
-			body: builder.body,
-			expect: builder.expect,
-			headers: builder.headers,
-			method: builder.method,
-			timeout: builder.timeout,
-			url: lukewestby$elm_http_builder$HttpBuilder$requestUrl(builder),
-			withCredentials: builder.withCredentials
-		});
-};
-var Kinto$elm_kinto$Kinto$toRequest = function (builder) {
-	return lukewestby$elm_http_builder$HttpBuilder$toRequest(builder);
-};
-var elm$core$Result$mapError = F2(
-	function (f, result) {
-		if (result.$ === 'Ok') {
-			var v = result.a;
-			return elm$core$Result$Ok(v);
-		} else {
-			var e = result.a;
-			return elm$core$Result$Err(
-				f(e));
-		}
-	});
-var elm$core$String$toInt = _String_toInt;
-var elm$core$String$toLower = _String_toLower;
-var elm$core$Dict$foldl = F3(
-	function (func, acc, dict) {
-		foldl:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return acc;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var $temp$func = func,
-					$temp$acc = A3(
-					func,
-					key,
-					value,
-					A3(elm$core$Dict$foldl, func, acc, left)),
-					$temp$dict = right;
-				func = $temp$func;
-				acc = $temp$acc;
-				dict = $temp$dict;
-				continue foldl;
-			}
-		}
-	});
-var elm_community$dict_extra$Dict$Extra$mapKeys = F2(
-	function (keyMapper, dict) {
-		return A3(
-			elm$core$Dict$foldl,
-			F3(
-				function (k, v, acc) {
-					return A3(
-						elm$core$Dict$insert,
-						keyMapper(k),
-						v,
-						acc);
-				}),
-			elm$core$Dict$empty,
-			dict);
-	});
-var Kinto$elm_kinto$Kinto$decodePager = F3(
-	function (clientInstance, decoder, response) {
-		var headers = A2(elm_community$dict_extra$Dict$Extra$mapKeys, elm$core$String$toLower, response.headers);
-		var nextPage = A2(elm$core$Dict$get, 'next-page', headers);
-		var total = A2(
-			elm$core$Maybe$withDefault,
-			0,
-			A2(
-				elm$core$Maybe$map,
-				A2(
-					elm$core$Basics$composeR,
-					elm$core$String$toInt,
-					elm$core$Maybe$withDefault(0)),
-				A2(elm$core$Dict$get, 'total-records', headers)));
-		var createPager = function (objects) {
-			return {client: clientInstance, decoder: decoder, nextPage: nextPage, objects: objects, total: total};
-		};
-		return A2(
-			elm$core$Result$mapError,
-			elm$json$Json$Decode$errorToString,
-			A2(
-				elm$core$Result$map,
-				createPager,
-				A2(elm$json$Json$Decode$decodeString, decoder, response.body)));
-	});
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var elm$core$String$slice = _String_slice;
-var elm$core$String$dropRight = F2(
-	function (n, string) {
-		return (n < 1) ? string : A3(elm$core$String$slice, 0, -n, string);
-	});
-var elm$core$String$endsWith = _String_endsWith;
-var Kinto$elm_kinto$Kinto$endpointUrl = F2(
-	function (baseUrl, endpoint) {
-		var url = A2(elm$core$String$endsWith, '/', baseUrl) ? A2(elm$core$String$dropRight, 1, baseUrl) : baseUrl;
-		var joinUrl = elm$core$String$join('/');
-		switch (endpoint.$) {
-			case 'RootEndpoint':
-				return url + '/';
-			case 'BucketListEndpoint':
-				return joinUrl(
-					_List_fromArray(
-						[url, 'buckets']));
-			case 'BucketEndpoint':
-				var bucketName = endpoint.a;
-				return joinUrl(
-					_List_fromArray(
-						[url, 'buckets', bucketName]));
-			case 'CollectionListEndpoint':
-				var bucketName = endpoint.a;
-				return joinUrl(
-					_List_fromArray(
-						[url, 'buckets', bucketName, 'collections']));
-			case 'CollectionEndpoint':
-				var bucketName = endpoint.a;
-				var collectionName = endpoint.b;
-				return joinUrl(
-					_List_fromArray(
-						[url, 'buckets', bucketName, 'collections', collectionName]));
-			case 'RecordListEndpoint':
-				var bucketName = endpoint.a;
-				var collectionName = endpoint.b;
-				return joinUrl(
-					_List_fromArray(
-						[url, 'buckets', bucketName, 'collections', collectionName, 'records']));
-			default:
-				var bucketName = endpoint.a;
-				var collectionName = endpoint.b;
-				var recordId = endpoint.c;
-				return joinUrl(
-					_List_fromArray(
-						[url, 'buckets', bucketName, 'collections', collectionName, 'records', recordId]));
-		}
-	});
-var lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl = F2(
-	function (method, url) {
-		return {
-			body: elm$http$Http$emptyBody,
-			cacheBuster: elm$core$Maybe$Nothing,
-			expect: elm$http$Http$expectStringResponse(
-				function (_n0) {
-					return elm$core$Result$Ok(_Utils_Tuple0);
-				}),
-			headers: _List_Nil,
-			method: method,
-			queryParams: _List_Nil,
-			timeout: elm$core$Maybe$Nothing,
-			url: url,
-			withCredentials: false
-		};
-	});
-var lukewestby$elm_http_builder$HttpBuilder$get = lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('GET');
-var lukewestby$elm_http_builder$HttpBuilder$withExpect = F2(
-	function (expect, builder) {
-		return {body: builder.body, cacheBuster: builder.cacheBuster, expect: expect, headers: builder.headers, method: builder.method, queryParams: builder.queryParams, timeout: builder.timeout, url: builder.url, withCredentials: builder.withCredentials};
-	});
-var lukewestby$elm_http_builder$HttpBuilder$withHeaders = F2(
-	function (headerPairs, builder) {
-		return _Utils_update(
-			builder,
-			{
-				headers: _Utils_ap(
-					A2(
-						elm$core$List$map,
-						function (_n0) {
-							var key = _n0.a;
-							var value = _n0.b;
-							return A2(elm$http$Http$header, key, value);
-						},
-						headerPairs),
-					builder.headers)
-			});
-	});
-var Kinto$elm_kinto$Kinto$getList = F2(
-	function (resource, clientInstance) {
-		return A2(
-			lukewestby$elm_http_builder$HttpBuilder$withExpect,
-			elm$http$Http$expectStringResponse(
-				A2(Kinto$elm_kinto$Kinto$decodePager, clientInstance, resource.listDecoder)),
-			A2(
-				lukewestby$elm_http_builder$HttpBuilder$withHeaders,
-				clientInstance.headers,
-				lukewestby$elm_http_builder$HttpBuilder$get(
-					A2(Kinto$elm_kinto$Kinto$endpointUrl, clientInstance.baseUrl, resource.listEndpoint))));
-	});
-var Kinto$elm_kinto$Kinto$NoAuth = {$: 'NoAuth'};
-var Kinto$elm_kinto$Kinto$Client = F2(
-	function (baseUrl, headers) {
-		return {baseUrl: baseUrl, headers: headers};
-	});
-var elm$core$String$foldl = _String_foldl;
-var elm$core$Basics$ge = _Utils_ge;
-var elm$core$Bitwise$and = _Bitwise_and;
-var elm$core$Bitwise$or = _Bitwise_or;
-var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
-var truqu$elm_base64$Base64$Encode$intToBase64 = function (i) {
-	switch (i) {
-		case 0:
-			return 'A';
-		case 1:
-			return 'B';
-		case 2:
-			return 'C';
-		case 3:
-			return 'D';
-		case 4:
-			return 'E';
-		case 5:
-			return 'F';
-		case 6:
-			return 'G';
-		case 7:
-			return 'H';
-		case 8:
-			return 'I';
-		case 9:
-			return 'J';
-		case 10:
-			return 'K';
-		case 11:
-			return 'L';
-		case 12:
-			return 'M';
-		case 13:
-			return 'N';
-		case 14:
-			return 'O';
-		case 15:
-			return 'P';
-		case 16:
-			return 'Q';
-		case 17:
-			return 'R';
-		case 18:
-			return 'S';
-		case 19:
-			return 'T';
-		case 20:
-			return 'U';
-		case 21:
-			return 'V';
-		case 22:
-			return 'W';
-		case 23:
-			return 'X';
-		case 24:
-			return 'Y';
-		case 25:
-			return 'Z';
-		case 26:
-			return 'a';
-		case 27:
-			return 'b';
-		case 28:
-			return 'c';
-		case 29:
-			return 'd';
-		case 30:
-			return 'e';
-		case 31:
-			return 'f';
-		case 32:
-			return 'g';
-		case 33:
-			return 'h';
-		case 34:
-			return 'i';
-		case 35:
-			return 'j';
-		case 36:
-			return 'k';
-		case 37:
-			return 'l';
-		case 38:
-			return 'm';
-		case 39:
-			return 'n';
-		case 40:
-			return 'o';
-		case 41:
-			return 'p';
-		case 42:
-			return 'q';
-		case 43:
-			return 'r';
-		case 44:
-			return 's';
-		case 45:
-			return 't';
-		case 46:
-			return 'u';
-		case 47:
-			return 'v';
-		case 48:
-			return 'w';
-		case 49:
-			return 'x';
-		case 50:
-			return 'y';
-		case 51:
-			return 'z';
-		case 52:
-			return '0';
-		case 53:
-			return '1';
-		case 54:
-			return '2';
-		case 55:
-			return '3';
-		case 56:
-			return '4';
-		case 57:
-			return '5';
-		case 58:
-			return '6';
-		case 59:
-			return '7';
-		case 60:
-			return '8';
-		case 61:
-			return '9';
-		case 62:
-			return '+';
-		default:
-			return '/';
-	}
-};
-var truqu$elm_base64$Base64$Encode$toBase64 = function (_int) {
-	return _Utils_ap(
-		truqu$elm_base64$Base64$Encode$intToBase64(63 & (_int >>> 18)),
-		_Utils_ap(
-			truqu$elm_base64$Base64$Encode$intToBase64(63 & (_int >>> 12)),
-			_Utils_ap(
-				truqu$elm_base64$Base64$Encode$intToBase64(63 & (_int >>> 6)),
-				truqu$elm_base64$Base64$Encode$intToBase64(63 & (_int >>> 0)))));
-};
-var truqu$elm_base64$Base64$Encode$add = F2(
-	function (_char, _n0) {
-		var res = _n0.a;
-		var count = _n0.b;
-		var acc = _n0.c;
-		var current = (acc << 8) | _char;
-		if (count === 2) {
-			return _Utils_Tuple3(
-				_Utils_ap(
-					res,
-					truqu$elm_base64$Base64$Encode$toBase64(current)),
-				0,
-				0);
-		} else {
-			return _Utils_Tuple3(res, count + 1, current);
-		}
-	});
-var truqu$elm_base64$Base64$Encode$chomp = F2(
-	function (char_, acc) {
-		var _char = elm$core$Char$toCode(char_);
-		return (_char < 128) ? A2(truqu$elm_base64$Base64$Encode$add, _char, acc) : ((_char < 2048) ? A2(
-			truqu$elm_base64$Base64$Encode$add,
-			128 | (63 & _char),
-			A2(truqu$elm_base64$Base64$Encode$add, 192 | (_char >>> 6), acc)) : (((_char < 55296) || ((_char >= 57344) && (_char <= 65535))) ? A2(
-			truqu$elm_base64$Base64$Encode$add,
-			128 | (63 & _char),
-			A2(
-				truqu$elm_base64$Base64$Encode$add,
-				128 | (63 & (_char >>> 6)),
-				A2(truqu$elm_base64$Base64$Encode$add, 224 | (_char >>> 12), acc))) : A2(
-			truqu$elm_base64$Base64$Encode$add,
-			128 | (63 & _char),
-			A2(
-				truqu$elm_base64$Base64$Encode$add,
-				128 | (63 & (_char >>> 6)),
-				A2(
-					truqu$elm_base64$Base64$Encode$add,
-					128 | (63 & (_char >>> 12)),
-					A2(truqu$elm_base64$Base64$Encode$add, 240 | (_char >>> 18), acc))))));
-	});
-var truqu$elm_base64$Base64$Encode$initial = _Utils_Tuple3('', 0, 0);
-var truqu$elm_base64$Base64$Encode$wrapUp = function (_n0) {
-	var res = _n0.a;
-	var cnt = _n0.b;
-	var acc = _n0.c;
-	switch (cnt) {
-		case 1:
-			return res + (truqu$elm_base64$Base64$Encode$intToBase64(63 & (acc >>> 2)) + (truqu$elm_base64$Base64$Encode$intToBase64(63 & (acc << 4)) + '=='));
-		case 2:
-			return res + (truqu$elm_base64$Base64$Encode$intToBase64(63 & (acc >>> 10)) + (truqu$elm_base64$Base64$Encode$intToBase64(63 & (acc >>> 4)) + (truqu$elm_base64$Base64$Encode$intToBase64(63 & (acc << 2)) + '=')));
-		default:
-			return res;
-	}
-};
-var truqu$elm_base64$Base64$Encode$encode = function (input) {
-	return truqu$elm_base64$Base64$Encode$wrapUp(
-		A3(elm$core$String$foldl, truqu$elm_base64$Base64$Encode$chomp, truqu$elm_base64$Base64$Encode$initial, input));
-};
-var truqu$elm_base64$Base64$encode = truqu$elm_base64$Base64$Encode$encode;
-var Kinto$elm_kinto$Kinto$alwaysEncode = function (string) {
-	return truqu$elm_base64$Base64$encode(string);
-};
-var Kinto$elm_kinto$Kinto$headersForAuth = function (auth) {
-	switch (auth.$) {
-		case 'NoAuth':
-			return _Utils_Tuple2('Authorization', '');
-		case 'Basic':
-			var username = auth.a;
-			var password = auth.b;
-			return _Utils_Tuple2(
-				'Authorization',
-				'Basic ' + Kinto$elm_kinto$Kinto$alwaysEncode(username + (':' + password)));
-		case 'Bearer':
-			var token = auth.a;
-			return _Utils_Tuple2('Authorization', 'Bearer ' + token);
-		default:
-			var realm = auth.a;
-			var token = auth.b;
-			return _Utils_Tuple2('Authorization', realm + (' ' + token));
-	}
-};
-var Kinto$elm_kinto$Kinto$client = F2(
-	function (baseUrl, auth) {
-		return A2(
-			Kinto$elm_kinto$Kinto$Client,
-			baseUrl,
-			_List_fromArray(
-				[
-					Kinto$elm_kinto$Kinto$headersForAuth(auth)
-				]));
-	});
-var author$project$Request$Kinto$AnonymousClient = function (a) {
-	return {$: 'AnonymousClient', a: a};
-};
-var author$project$Request$Kinto$anonymousClient = function (serverURL) {
-	return author$project$Request$Kinto$AnonymousClient(
-		A2(Kinto$elm_kinto$Kinto$client, serverURL, Kinto$elm_kinto$Kinto$NoAuth));
-};
-var Kinto$elm_kinto$Kinto$RecordEndpoint = F3(
-	function (a, b, c) {
-		return {$: 'RecordEndpoint', a: a, b: b, c: c};
-	});
-var Kinto$elm_kinto$Kinto$RecordListEndpoint = F2(
-	function (a, b) {
-		return {$: 'RecordListEndpoint', a: a, b: b};
-	});
-var Kinto$elm_kinto$Kinto$Resource = F4(
-	function (itemEndpoint, listEndpoint, itemDecoder, listDecoder) {
-		return {itemDecoder: itemDecoder, itemEndpoint: itemEndpoint, listDecoder: listDecoder, listEndpoint: listEndpoint};
-	});
-var Kinto$elm_kinto$Kinto$decodeData = function (decoder) {
-	return A2(elm$json$Json$Decode$field, 'data', decoder);
-};
-var Kinto$elm_kinto$Kinto$recordResource = F3(
-	function (bucket, collection, decoder) {
-		return A4(
-			Kinto$elm_kinto$Kinto$Resource,
-			A2(Kinto$elm_kinto$Kinto$RecordEndpoint, bucket, collection),
-			A2(Kinto$elm_kinto$Kinto$RecordListEndpoint, bucket, collection),
-			Kinto$elm_kinto$Kinto$decodeData(decoder),
-			Kinto$elm_kinto$Kinto$decodeData(
-				elm$json$Json$Decode$list(decoder)));
-	});
-var author$project$Data$Kinto$Comment = F6(
-	function (id, profile, video, comment, last_modified, attachment) {
-		return {attachment: attachment, comment: comment, id: id, last_modified: last_modified, profile: profile, video: video};
-	});
-var author$project$Data$Kinto$Attachment = F5(
-	function (filename, hash, location, mimetype, size) {
-		return {filename: filename, hash: hash, location: location, mimetype: mimetype, size: size};
-	});
-var author$project$Data$Kinto$attachmentDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'size',
-	elm$json$Json$Decode$int,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'mimetype',
-		elm$json$Json$Decode$string,
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'location',
-			elm$json$Json$Decode$string,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'hash',
-				elm$json$Json$Decode$string,
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'filename',
-					elm$json$Json$Decode$string,
-					elm$json$Json$Decode$succeed(author$project$Data$Kinto$Attachment))))));
-var author$project$Data$Kinto$posixDecoder = A2(elm$json$Json$Decode$map, elm$time$Time$millisToPosix, elm$json$Json$Decode$int);
-var author$project$Data$Kinto$commentDecoder = A4(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-	'attachment',
-	author$project$Data$Kinto$attachmentDecoder,
-	author$project$Data$Kinto$emptyAttachment,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'last_modified',
-		author$project$Data$Kinto$posixDecoder,
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'comment',
-			elm$json$Json$Decode$string,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'video',
-				elm$json$Json$Decode$string,
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'profile',
-					elm$json$Json$Decode$string,
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'id',
-						elm$json$Json$Decode$string,
-						elm$json$Json$Decode$succeed(author$project$Data$Kinto$Comment)))))));
-var author$project$Request$KintoComment$recordResource = A3(Kinto$elm_kinto$Kinto$recordResource, 'classea12', 'comments', author$project$Data$Kinto$commentDecoder);
-var author$project$Request$KintoComment$getCommentListRequest = function (serverURL) {
-	var _n0 = author$project$Request$Kinto$anonymousClient(serverURL);
-	var client = _n0.a;
-	return A2(Kinto$elm_kinto$Kinto$getList, author$project$Request$KintoComment$recordResource, client);
-};
-var author$project$Request$KintoBatch$getComments = function (serverURL) {
-	return A2(
-		elm$core$Task$mapError,
-		Kinto$elm_kinto$Kinto$extractError,
-		elm$http$Http$toTask(
-			Kinto$elm_kinto$Kinto$toRequest(
-				A2(
-					Kinto$elm_kinto$Kinto$sort,
-					_List_fromArray(
-						['-last_modified']),
-					author$project$Request$KintoComment$getCommentListRequest(serverURL)))));
-};
-var Kinto$elm_kinto$Kinto$IN = F2(
-	function (a, b) {
-		return {$: 'IN', a: a, b: b};
-	});
-var Kinto$elm_kinto$Kinto$filter = F2(
-	function (filterValue, builder) {
-		var header = function () {
-			switch (filterValue.$) {
-				case 'EQUAL':
-					var key = filterValue.a;
-					var val = filterValue.b;
-					return _Utils_Tuple2(key, val);
-				case 'MIN':
-					var key = filterValue.a;
-					var val = filterValue.b;
-					return _Utils_Tuple2('min_' + key, val);
-				case 'MAX':
-					var key = filterValue.a;
-					var val = filterValue.b;
-					return _Utils_Tuple2('max_' + key, val);
-				case 'LT':
-					var key = filterValue.a;
-					var val = filterValue.b;
-					return _Utils_Tuple2('lt_' + key, val);
-				case 'GT':
-					var key = filterValue.a;
-					var val = filterValue.b;
-					return _Utils_Tuple2('gt_' + key, val);
-				case 'IN':
-					var key = filterValue.a;
-					var values = filterValue.b;
-					return _Utils_Tuple2(
-						'in_' + key,
-						A2(elm$core$String$join, ',', values));
-				case 'NOT':
-					var key = filterValue.a;
-					var val = filterValue.b;
-					return _Utils_Tuple2('not_' + key, val);
-				case 'LIKE':
-					var key = filterValue.a;
-					var val = filterValue.b;
-					return _Utils_Tuple2('like_' + key, val);
-				case 'SINCE':
-					var val = filterValue.a;
-					return _Utils_Tuple2('_since', val);
-				default:
-					var val = filterValue.a;
-					return _Utils_Tuple2('_before', val);
-			}
-		}();
-		return A2(
-			lukewestby$elm_http_builder$HttpBuilder$withQueryParams,
-			_List_fromArray(
-				[header]),
-			builder);
-	});
-var author$project$Data$Kinto$Profile = F4(
-	function (id, name, bio, last_modified) {
-		return {bio: bio, id: id, last_modified: last_modified, name: name};
-	});
-var author$project$Data$Kinto$profileDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'last_modified',
-	author$project$Data$Kinto$posixDecoder,
-	A3(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-		'bio',
-		elm$json$Json$Decode$string,
-		A3(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-			'name',
-			elm$json$Json$Decode$string,
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'id',
-				elm$json$Json$Decode$string,
-				elm$json$Json$Decode$succeed(author$project$Data$Kinto$Profile)))));
-var author$project$Data$Kinto$Video = function (id) {
-	return function (last_modified) {
-		return function (title) {
-			return function (grade) {
-				return function (keywords) {
-					return function (description) {
-						return function (attachment) {
-							return function (duration) {
-								return function (thumbnail) {
-									return function (creation_date) {
-										return function (publish_date) {
-											return function (profile) {
-												return {attachment: attachment, creation_date: creation_date, description: description, duration: duration, grade: grade, id: id, keywords: keywords, last_modified: last_modified, profile: profile, publish_date: publish_date, thumbnail: thumbnail, title: title};
-											};
-										};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
-var author$project$Data$Kinto$keywordsDecoder = elm$json$Json$Decode$list(elm$json$Json$Decode$string);
-var author$project$Data$Kinto$videoDecoder = A3(
-	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-	'profile',
-	elm$json$Json$Decode$string,
-	A4(
-		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-		'publish_date',
-		author$project$Data$Kinto$posixDecoder,
-		elm$time$Time$millisToPosix(0),
-		A4(
-			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
-			'creation_date',
-			author$project$Data$Kinto$posixDecoder,
-			elm$time$Time$millisToPosix(0),
-			A3(
-				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-				'thumbnail',
-				elm$json$Json$Decode$string,
-				A3(
-					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-					'duration',
-					elm$json$Json$Decode$int,
-					A3(
-						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-						'attachment',
-						author$project$Data$Kinto$attachmentDecoder,
-						A3(
-							NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-							'description',
-							elm$json$Json$Decode$string,
-							A3(
-								NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-								'keywords',
-								author$project$Data$Kinto$keywordsDecoder,
-								A3(
-									NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-									'grade',
-									elm$json$Json$Decode$string,
-									A3(
-										NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-										'title',
-										elm$json$Json$Decode$string,
-										A3(
-											NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-											'last_modified',
-											elm$json$Json$Decode$int,
-											A3(
-												NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
-												'id',
-												elm$json$Json$Decode$string,
-												elm$json$Json$Decode$succeed(author$project$Data$Kinto$Video)))))))))))));
-var elm$core$String$replace = F3(
-	function (before, after, string) {
-		return A2(
-			elm$core$String$join,
-			after,
-			A2(elm$core$String$split, before, string));
-	});
-var elm$url$Url$Builder$toQueryPair = function (_n0) {
-	var key = _n0.a;
-	var value = _n0.b;
-	return key + ('=' + value);
-};
-var elm$url$Url$Builder$toQuery = function (parameters) {
-	if (!parameters.b) {
-		return '';
-	} else {
-		return '?' + A2(
-			elm$core$String$join,
-			'&',
-			A2(elm$core$List$map, elm$url$Url$Builder$toQueryPair, parameters));
-	}
-};
-var elm$url$Url$Builder$absolute = F2(
-	function (pathSegments, parameters) {
-		return '/' + (A2(elm$core$String$join, '/', pathSegments) + elm$url$Url$Builder$toQuery(parameters));
-	});
-var elm$url$Url$Builder$QueryParameter = F2(
-	function (a, b) {
-		return {$: 'QueryParameter', a: a, b: b};
-	});
-var elm$url$Url$Builder$string = F2(
-	function (key, value) {
-		return A2(
-			elm$url$Url$Builder$QueryParameter,
-			elm$url$Url$percentEncode(key),
-			elm$url$Url$percentEncode(value));
-	});
-var author$project$Request$KintoBatch$requestToPath = F2(
-	function (serverURL, request) {
-		var url = A3(elm$core$String$replace, serverURL, '', request.url);
-		var queryParams = A2(
-			elm$core$List$map,
-			function (_n0) {
-				var key = _n0.a;
-				var value = _n0.b;
-				return A2(elm$url$Url$Builder$string, key, value);
-			},
-			request.queryParams);
-		return A2(
-			elm$url$Url$Builder$absolute,
-			_List_fromArray(
-				[url]),
-			queryParams);
-	});
-var elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		elm$core$List$foldl,
-		F2(
-			function (_n0, dict) {
-				var key = _n0.a;
-				var value = _n0.b;
-				return A3(elm$core$Dict$insert, key, value, dict);
-			}),
-		elm$core$Dict$empty,
-		assocs);
-};
-var author$project$Request$KintoBatch$toDict = function (recordList) {
-	return elm$core$Dict$fromList(
-		A2(
-			elm$core$List$map,
-			function (record) {
-				return _Utils_Tuple2(record.id, record);
-			},
-			recordList));
-};
-var author$project$Request$KintoProfile$recordResource = A3(Kinto$elm_kinto$Kinto$recordResource, 'classea12', 'profiles', author$project$Data$Kinto$profileDecoder);
-var author$project$Request$KintoProfile$getProfileListRequest = F2(
-	function (serverURL, profileIDs) {
-		var _n0 = author$project$Request$Kinto$anonymousClient(serverURL);
-		var client = _n0.a;
-		return A2(
-			Kinto$elm_kinto$Kinto$filter,
-			A2(Kinto$elm_kinto$Kinto$IN, 'id', profileIDs),
-			A2(Kinto$elm_kinto$Kinto$getList, author$project$Request$KintoProfile$recordResource, client));
-	});
-var author$project$Request$KintoVideo$recordResource = A3(Kinto$elm_kinto$Kinto$recordResource, 'classea12', 'videos', author$project$Data$Kinto$videoDecoder);
-var author$project$Request$KintoVideo$getVideoListRequest = function (serverURL) {
-	var _n0 = author$project$Request$Kinto$anonymousClient(serverURL);
-	var client = _n0.a;
-	return A2(Kinto$elm_kinto$Kinto$getList, author$project$Request$KintoVideo$recordResource, client);
-};
-var elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
+var author$project$Data$PeerTube$Comment = F6(
+	function (id, text, videoId, createdAt, updatedAt, account) {
+		return {account: account, createdAt: createdAt, id: id, text: text, updatedAt: updatedAt, videoId: videoId};
 	});
 var elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3(elm$core$List$foldr, elm$json$Json$Decode$field, decoder, fields);
 	});
-var elm$json$Json$Decode$index = _Json_decodeIndex;
-var elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
-var elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			elm$core$List$foldl,
-			F2(
-				function (_n0, obj) {
-					var k = _n0.a;
-					var v = _n0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
-};
-var elm$json$Json$Encode$string = _Json_wrap;
-var lukewestby$elm_http_builder$HttpBuilder$post = lukewestby$elm_http_builder$HttpBuilder$requestWithMethodAndUrl('POST');
-var lukewestby$elm_http_builder$HttpBuilder$withExpectJson = F2(
-	function (decoder, builder) {
-		return {
-			body: builder.body,
-			cacheBuster: builder.cacheBuster,
-			expect: elm$http$Http$expectJson(decoder),
-			headers: builder.headers,
-			method: builder.method,
-			queryParams: builder.queryParams,
-			timeout: builder.timeout,
-			url: builder.url,
-			withCredentials: builder.withCredentials
-		};
-	});
-var elm$http$Http$jsonBody = function (value) {
-	return A2(
-		elm$http$Http$Internal$StringBody,
-		'application/json',
-		A2(elm$json$Json$Encode$encode, 0, value));
-};
-var lukewestby$elm_http_builder$HttpBuilder$withBody = F2(
-	function (body, builder) {
-		return _Utils_update(
-			builder,
-			{body: body});
-	});
-var lukewestby$elm_http_builder$HttpBuilder$withJsonBody = function (value) {
-	return lukewestby$elm_http_builder$HttpBuilder$withBody(
-		elm$http$Http$jsonBody(value));
-};
-var author$project$Request$KintoBatch$getContributorsVideosBatch = F3(
-	function (serverURL, profileIDs, videoIDs) {
-		var videoListDecoder = A2(
-			elm$json$Json$Decode$map,
-			author$project$Request$KintoBatch$toDict,
-			A2(
-				elm$json$Json$Decode$at,
-				_List_fromArray(
-					['body', 'data']),
-				elm$json$Json$Decode$list(author$project$Data$Kinto$videoDecoder)));
-		var getVideosPath = A2(
-			author$project$Request$KintoBatch$requestToPath,
-			serverURL,
-			A2(
-				Kinto$elm_kinto$Kinto$filter,
-				A2(Kinto$elm_kinto$Kinto$IN, 'id', videoIDs),
-				author$project$Request$KintoVideo$getVideoListRequest(serverURL)));
-		var getContributorsPath = A2(
-			author$project$Request$KintoBatch$requestToPath,
-			serverURL,
-			A2(author$project$Request$KintoProfile$getProfileListRequest, serverURL, profileIDs));
-		var encodedRequests = elm$json$Json$Encode$object(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'defaults',
-					elm$json$Json$Encode$object(
-						_List_fromArray(
-							[
-								_Utils_Tuple2(
-								'method',
-								elm$json$Json$Encode$string('GET'))
-							]))),
-					_Utils_Tuple2(
-					'requests',
-					A2(
-						elm$json$Json$Encode$list,
-						elm$json$Json$Encode$object,
-						_List_fromArray(
-							[
-								_List_fromArray(
-								[
-									_Utils_Tuple2(
-									'path',
-									elm$json$Json$Encode$string(getContributorsPath))
-								]),
-								_List_fromArray(
-								[
-									_Utils_Tuple2(
-									'path',
-									elm$json$Json$Encode$string(getVideosPath))
-								])
-							])))
-				]));
-		var contributorListDecoder = A2(
-			elm$json$Json$Decode$map,
-			author$project$Request$KintoBatch$toDict,
-			A2(
-				elm$json$Json$Decode$at,
-				_List_fromArray(
-					['body', 'data']),
-				elm$json$Json$Decode$list(author$project$Data$Kinto$profileDecoder)));
-		var batchURL = serverURL + 'batch';
-		var batchResponseDecoder = A3(
-			elm$json$Json$Decode$map2,
-			elm$core$Tuple$pair,
-			A2(
-				elm$json$Json$Decode$field,
-				'responses',
-				A2(elm$json$Json$Decode$index, 0, contributorListDecoder)),
-			A2(
-				elm$json$Json$Decode$field,
-				'responses',
-				A2(elm$json$Json$Decode$index, 1, videoListDecoder)));
+var NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt = F3(
+	function (path, valDecoder, decoder) {
 		return A2(
-			elm$core$Task$mapError,
-			Kinto$elm_kinto$Kinto$extractError,
-			elm$http$Http$toTask(
-				lukewestby$elm_http_builder$HttpBuilder$toRequest(
-					A2(
-						lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
-						encodedRequests,
-						A2(
-							lukewestby$elm_http_builder$HttpBuilder$withExpectJson,
-							batchResponseDecoder,
-							lukewestby$elm_http_builder$HttpBuilder$post(batchURL))))));
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$custom,
+			A2(elm$json$Json$Decode$at, path, valDecoder),
+			decoder);
 	});
-var elm$core$List$unzip = function (pairs) {
-	var step = F2(
-		function (_n0, _n1) {
-			var x = _n0.a;
-			var y = _n0.b;
-			var xs = _n1.a;
-			var ys = _n1.b;
-			return _Utils_Tuple2(
-				A2(elm$core$List$cons, x, xs),
-				A2(elm$core$List$cons, y, ys));
-		});
-	return A3(
-		elm$core$List$foldr,
-		step,
-		_Utils_Tuple2(_List_Nil, _List_Nil),
-		pairs);
+var author$project$Data$PeerTube$alternateAccountDecoder = A4(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$optional,
+	'description',
+	elm$json$Json$Decode$string,
+	'',
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'name',
+		elm$json$Json$Decode$string,
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$requiredAt,
+			_List_fromArray(
+				['Actor', 'preferredUsername']),
+			elm$json$Json$Decode$string,
+			elm$json$Json$Decode$succeed(author$project$Data$PeerTube$Account))));
+var author$project$Data$PeerTube$alternateCommentDecoder = A3(
+	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+	'Account',
+	author$project$Data$PeerTube$alternateAccountDecoder,
+	A3(
+		NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+		'updatedAt',
+		elm$json$Json$Decode$string,
+		A3(
+			NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+			'createdAt',
+			elm$json$Json$Decode$string,
+			A3(
+				NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+				'videoId',
+				elm$json$Json$Decode$int,
+				A3(
+					NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+					'text',
+					elm$json$Json$Decode$string,
+					A3(
+						NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
+						'id',
+						elm$json$Json$Decode$int,
+						elm$json$Json$Decode$succeed(author$project$Data$PeerTube$Comment)))))));
+var author$project$Data$PeerTube$alternateCommentListDecoder = A2(
+	elm$json$Json$Decode$field,
+	'data',
+	elm$json$Json$Decode$list(author$project$Data$PeerTube$alternateCommentDecoder));
+var author$project$Request$PeerTube$commentListRequest = function (serverURL) {
+	var url = serverURL + '/api/v1/videos/comments-feed';
+	return A2(elm$http$Http$get, url, author$project$Data$PeerTube$alternateCommentListDecoder);
 };
-var author$project$Request$KintoBatch$getCommentDataListTask = function (serverURL) {
-	return A2(
-		elm$core$Task$andThen,
-		function (_n1) {
-			var comments = _n1.a;
-			var profileIDs = _n1.b;
-			var videoIDs = _n1.c;
-			return A2(
-				elm$core$Task$map,
-				function (_n2) {
-					var contributorDict = _n2.a;
-					var videoDict = _n2.b;
-					return A2(
-						elm$core$List$map,
-						function (comment) {
-							var video = A2(
-								elm$core$Maybe$withDefault,
-								author$project$Data$Kinto$emptyVideo,
-								A2(elm$core$Dict$get, comment.video, videoDict));
-							var contributor = A2(
-								elm$core$Maybe$withDefault,
-								author$project$Data$Kinto$emptyProfile,
-								A2(elm$core$Dict$get, comment.profile, contributorDict));
-							return {comment: comment, contributor: contributor, video: video};
-						},
-						comments);
-				},
-				A3(author$project$Request$KintoBatch$getContributorsVideosBatch, serverURL, profileIDs, videoIDs));
-		},
-		A2(
-			elm$core$Task$map,
-			function (commentsPager) {
-				var comments = commentsPager.objects;
-				var _n0 = elm$core$List$unzip(
-					A2(
-						elm$core$List$map,
-						function (comment) {
-							return _Utils_Tuple2(comment.profile, comment.video);
-						},
-						comments));
-				var profileIDs = _n0.a;
-				var videoIDs = _n0.b;
-				return _Utils_Tuple3(comments, profileIDs, videoIDs);
-			},
-			author$project$Request$KintoBatch$getComments(serverURL)));
-};
+var elm$http$Http$send = F2(
+	function (resultToMessage, request_) {
+		return A2(
+			elm$core$Task$attempt,
+			resultToMessage,
+			elm$http$Http$toTask(request_));
+	});
+var author$project$Request$PeerTube$getCommentList = F2(
+	function (serverURL, message) {
+		return A2(
+			elm$http$Http$send,
+			message,
+			author$project$Request$PeerTube$commentListRequest(serverURL));
+	});
 var author$project$Page$Comments$init = function (session) {
 	return _Utils_Tuple2(
-		{commentDataList: author$project$Data$Kinto$Requested, notifications: author$project$Page$Common$Notifications$init, title: 'Liste des commentaires'},
-		A2(
-			elm$core$Task$attempt,
-			author$project$Page$Comments$CommentDataListReceived,
-			author$project$Request$KintoBatch$getCommentDataListTask(session.kintoURL)));
+		{commentDataList: author$project$Data$PeerTube$Requested, notifications: author$project$Page$Common$Notifications$init, title: 'Liste des commentaires'},
+		A2(author$project$Request$PeerTube$getCommentList, session.peerTubeURL, author$project$Page$Comments$CommentDataListReceived));
 };
 var author$project$Page$Convention$init = function (session) {
 	return _Utils_Tuple2(
 		{title: 'Charte de bonne conduite du site'},
 		elm$core$Platform$Cmd$none);
 };
-var author$project$Data$Kinto$keywordList = _List_fromArray(
+var author$project$Data$PeerTube$keywordList = _List_fromArray(
 	[
 		_Utils_Tuple2('Français', 'Lecture / écriture / oral / compréhension / production d’écrit / grammaire / conjugaison / vocabulaire / orthographe / album'),
 		_Utils_Tuple2('Mathématiques', 'numération / calcul / résolution de problème / mesure / géométrie / jeux'),
@@ -7724,13 +6624,6 @@ var author$project$Request$PeerTube$videoListRequest = F2(
 			A2(author$project$Request$PeerTube$urlFromVideoListParams, videoListParams, serverURL),
 			author$project$Data$PeerTube$dataDecoder);
 	});
-var elm$http$Http$send = F2(
-	function (resultToMessage, request_) {
-		return A2(
-			elm$core$Task$attempt,
-			resultToMessage,
-			elm$http$Http$toTask(request_));
-	});
 var author$project$Request$PeerTube$getVideoList = F3(
 	function (videoListParams, serverURL, message) {
 		return A2(
@@ -7754,7 +6647,7 @@ var author$project$Page$Home$init = function (session) {
 			var keyword = _n0.a;
 			return keyword;
 		},
-		author$project$Data$Kinto$keywordList);
+		author$project$Data$PeerTube$keywordList);
 	return _Utils_Tuple2(
 		{
 			recentVideoData: author$project$Data$PeerTube$Requested,
@@ -7794,6 +6687,18 @@ var author$project$Page$Login$init = function (session) {
 };
 var author$project$Data$PeerTube$emptyNewVideo = {description: '', grade: 'CP', keywords: _List_Nil, title: ''};
 var author$project$Page$Common$Progress$empty = {message: '', percentage: 0};
+var elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		elm$core$List$foldl,
+		F2(
+			function (_n0, dict) {
+				var key = _n0.a;
+				var value = _n0.b;
+				return A3(elm$core$Dict$insert, key, value, dict);
+			}),
+		elm$core$Dict$empty,
+		assocs);
+};
 var author$project$Page$Participate$noKeywords = elm$core$Dict$fromList(
 	A2(
 		elm$core$List$map,
@@ -7801,7 +6706,7 @@ var author$project$Page$Participate$noKeywords = elm$core$Dict$fromList(
 			var keyword = _n0.a;
 			return _Utils_Tuple2(keyword, false);
 		},
-		author$project$Data$Kinto$keywordList));
+		author$project$Data$PeerTube$keywordList));
 var author$project$Page$Participate$init = function (session) {
 	return _Utils_Tuple2(
 		{freeformKeywords: '', newVideo: author$project$Data$PeerTube$emptyNewVideo, newVideoData: author$project$Data$PeerTube$NotRequested, notifications: author$project$Page$Common$Notifications$init, preSelectedKeywords: author$project$Page$Participate$noKeywords, progress: author$project$Page$Common$Progress$empty, title: 'Je participe !', videoObjectUrl: elm$core$Maybe$Nothing},
@@ -7962,6 +6867,26 @@ var author$project$Request$Files$getVideoAttachmentList = F3(
 			message,
 			A2(author$project$Request$Files$getVideoAttachmentListRequest, videoID, serverURL));
 	});
+var author$project$Request$PeerTube$videoDescriptionRequest = F2(
+	function (videoID, serverURL) {
+		var url = serverURL + ('/api/v1/videos/' + (videoID + '/description'));
+		var request = {
+			body: elm$http$Http$emptyBody,
+			expect: elm$http$Http$expectJson(
+				A2(elm$json$Json$Decode$field, 'description', elm$json$Json$Decode$string)),
+			headers: _List_Nil,
+			method: 'GET',
+			timeout: elm$core$Maybe$Nothing,
+			url: url,
+			withCredentials: false
+		};
+		return request;
+	});
+var author$project$Request$PeerTube$anonymousVideoDescriptionRequest = F2(
+	function (videoID, serverURL) {
+		return elm$http$Http$request(
+			A2(author$project$Request$PeerTube$videoDescriptionRequest, videoID, serverURL));
+	});
 var author$project$Request$PeerTube$videoRequest = F2(
 	function (videoID, serverURL) {
 		var url = serverURL + ('/api/v1/videos/' + videoID);
@@ -7981,6 +6906,15 @@ var author$project$Request$PeerTube$anonymousVideoRequest = F2(
 		return elm$http$Http$request(
 			A2(author$project$Request$PeerTube$videoRequest, videoID, serverURL));
 	});
+var author$project$Request$PeerTube$authVideoDescriptionRequest = F3(
+	function (videoID, access_token, serverURL) {
+		return elm$http$Http$request(
+			A3(
+				author$project$Request$PeerTube$withHeader,
+				'Authorization',
+				'Bearer ' + access_token,
+				A2(author$project$Request$PeerTube$videoDescriptionRequest, videoID, serverURL)));
+	});
 var author$project$Request$PeerTube$authVideoRequest = F3(
 	function (videoID, access_token, serverURL) {
 		return elm$http$Http$request(
@@ -7990,35 +6924,90 @@ var author$project$Request$PeerTube$authVideoRequest = F3(
 				'Bearer ' + access_token,
 				A2(author$project$Request$PeerTube$videoRequest, videoID, serverURL)));
 	});
-var author$project$Request$PeerTube$getVideo = F4(
-	function (videoID, maybeUserToken, serverURL, message) {
-		if (maybeUserToken.$ === 'Just') {
-			var userToken = maybeUserToken.a;
-			return A2(
-				elm$core$Task$attempt,
-				message,
-				A3(
-					author$project$Request$PeerTube$authRequestWrapper,
-					userToken,
-					serverURL,
-					author$project$Request$PeerTube$authVideoRequest(videoID)));
+var author$project$Request$PeerTube$extractResult = function (authResult) {
+	if (authResult.$ === 'Succeed') {
+		var result = authResult.a;
+		return result;
+	} else {
+		var result = authResult.b;
+		return result;
+	}
+};
+var author$project$Request$PeerTube$updateResult = F2(
+	function (updateFunction, authResult) {
+		if (authResult.$ === 'Succeed') {
+			var result = authResult.a;
+			return author$project$Request$PeerTube$Succeed(
+				updateFunction(result));
 		} else {
+			var userToken = authResult.a;
+			var result = authResult.b;
 			return A2(
-				elm$core$Task$attempt,
-				message,
-				A2(
-					elm$core$Task$mapError,
-					author$project$Request$PeerTube$Error,
-					A2(
-						elm$core$Task$map,
-						author$project$Request$PeerTube$Succeed,
-						elm$http$Http$toTask(
-							A2(author$project$Request$PeerTube$anonymousVideoRequest, videoID, serverURL)))));
+				author$project$Request$PeerTube$Refreshed,
+				userToken,
+				updateFunction(result));
 		}
 	});
-var author$project$Data$PeerTube$Comment = F6(
-	function (id, text, videoId, createdAt, updatedAt, account) {
-		return {account: account, createdAt: createdAt, id: id, text: text, updatedAt: updatedAt, videoId: videoId};
+var author$project$Request$PeerTube$getVideo = F4(
+	function (videoID, maybeUserToken, serverURL, message) {
+		var _n0 = function () {
+			if (maybeUserToken.$ === 'Just') {
+				var userToken = maybeUserToken.a;
+				return _Utils_Tuple2(
+					A3(
+						author$project$Request$PeerTube$authRequestWrapper,
+						userToken,
+						serverURL,
+						author$project$Request$PeerTube$authVideoRequest(videoID)),
+					A3(
+						author$project$Request$PeerTube$authRequestWrapper,
+						userToken,
+						serverURL,
+						author$project$Request$PeerTube$authVideoDescriptionRequest(videoID)));
+			} else {
+				return _Utils_Tuple2(
+					A2(
+						elm$core$Task$mapError,
+						author$project$Request$PeerTube$Error,
+						A2(
+							elm$core$Task$map,
+							author$project$Request$PeerTube$Succeed,
+							elm$http$Http$toTask(
+								A2(author$project$Request$PeerTube$anonymousVideoRequest, videoID, serverURL)))),
+					A2(
+						elm$core$Task$mapError,
+						author$project$Request$PeerTube$Error,
+						A2(
+							elm$core$Task$map,
+							author$project$Request$PeerTube$Succeed,
+							elm$http$Http$toTask(
+								A2(author$project$Request$PeerTube$anonymousVideoDescriptionRequest, videoID, serverURL)))));
+			}
+		}();
+		var videoTask = _n0.a;
+		var descriptionTask = _n0.b;
+		return A2(
+			elm$core$Task$attempt,
+			message,
+			A2(
+				elm$core$Task$andThen,
+				function (videoAuthResult) {
+					return A2(
+						elm$core$Task$map,
+						function (descriptionAuthResult) {
+							var description = author$project$Request$PeerTube$extractResult(descriptionAuthResult);
+							return A2(
+								author$project$Request$PeerTube$updateResult,
+								function (video) {
+									return _Utils_update(
+										video,
+										{description: description});
+								},
+								videoAuthResult);
+						},
+						descriptionTask);
+				},
+				videoTask));
 	});
 var author$project$Data$PeerTube$commentDecoder = A3(
 	NoRedInk$elm_json_decode_pipeline$Json$Decode$Pipeline$required,
@@ -8078,6 +7067,16 @@ var author$project$Page$Video$init = F3(
 						A3(author$project$Request$Files$getVideoAttachmentList, videoID, session.filesURL, author$project$Page$Video$AttachmentListReceived)
 					])));
 	});
+var elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var elm$json$Json$Encode$string = _Json_wrap;
 var author$project$Ports$newURL = _Platform_outgoingPort(
 	'newURL',
 	function ($) {
@@ -8747,6 +7746,7 @@ var author$project$Main$setRoute = F2(
 			}
 		}
 	});
+var elm$url$Url$percentEncode = _Url_percentEncode;
 var elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
@@ -8766,6 +7766,7 @@ var elm$core$Set$member = F2(
 		return A2(elm$core$Dict$member, key, dict);
 	});
 var elm$core$String$length = _String_length;
+var elm$core$String$slice = _String_slice;
 var elm$core$String$dropLeft = F2(
 	function (n, string) {
 		return (n < 1) ? string : A3(
@@ -8774,11 +7775,21 @@ var elm$core$String$dropLeft = F2(
 			elm$core$String$length(string),
 			string);
 	});
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var elm$core$String$dropRight = F2(
+	function (n, string) {
+		return (n < 1) ? string : A3(elm$core$String$slice, 0, -n, string);
+	});
+var elm$core$String$endsWith = _String_endsWith;
+var elm$core$String$foldl = _String_foldl;
 var elm$core$String$cons = _String_cons;
 var elm$core$String$fromChar = function (_char) {
 	return A2(elm$core$String$cons, _char, '');
 };
 var elm$core$String$startsWith = _String_startsWith;
+var elm$core$String$toLower = _String_toLower;
 var kuon$elm_string_normalize$String$Normalize$Diacritics$lookupList = _Utils_ap(
 	_List_fromArray(
 		[
@@ -11898,6 +10909,7 @@ var elm$core$Task$perform = F2(
 			elm$core$Task$Perform(
 				A2(elm$core$Task$map, toMessage, task)));
 	});
+var elm$json$Json$Decode$map = _Json_map1;
 var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 	switch (handler.$) {
 		case 'Normal':
@@ -11913,11 +10925,15 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 var elm$url$Url$Http = {$: 'Http'};
 var elm$url$Url$Https = {$: 'Https'};
 var elm$core$String$indexes = _String_indexes;
+var elm$core$String$isEmpty = function (string) {
+	return string === '';
+};
 var elm$core$String$left = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
 var elm$core$String$contains = _String_contains;
+var elm$core$String$toInt = _String_toInt;
 var elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
 		return {fragment: fragment, host: host, path: path, port_: port_, protocol: protocol, query: query};
@@ -12099,23 +11115,6 @@ var author$project$Main$init = F3(
 						elm$json$Json$Decode$decodeValue,
 						A2(elm$json$Json$Decode$field, 'userInfo', elm$json$Json$Decode$string),
 						flags))));
-		var userData = A2(
-			elm$core$Result$withDefault,
-			author$project$Data$Session$emptyUserData,
-			A2(
-				elm$core$Result$andThen,
-				elm$json$Json$Decode$decodeString(author$project$Data$Session$decodeUserData),
-				A2(
-					elm$json$Json$Decode$decodeValue,
-					A2(elm$json$Json$Decode$field, 'loginForm', elm$json$Json$Decode$string),
-					flags)));
-		var staticFiles = A2(
-			elm$core$Result$withDefault,
-			author$project$Data$Session$emptyStaticFiles,
-			A2(
-				elm$json$Json$Decode$decodeValue,
-				A2(elm$json$Json$Decode$field, 'staticFiles', author$project$Data$Session$decodeStaticFiles),
-				flags));
 		var peerTubeURL = A2(
 			elm$core$Result$withDefault,
 			'No PeerTube URL',
@@ -12130,13 +11129,6 @@ var author$project$Main$init = F3(
 				elm$json$Json$Decode$decodeValue,
 				A2(elm$json$Json$Decode$field, 'navigatorShare', elm$json$Json$Decode$bool),
 				flags));
-		var kintoURL = A2(
-			elm$core$Result$withDefault,
-			'No Kinto URL',
-			A2(
-				elm$json$Json$Decode$decodeValue,
-				A2(elm$json$Json$Decode$field, 'kintoURL', elm$json$Json$Decode$string),
-				flags));
 		var filesURL = A2(
 			elm$core$Result$withDefault,
 			'No Files URL',
@@ -12144,7 +11136,7 @@ var author$project$Main$init = F3(
 				elm$json$Json$Decode$decodeValue,
 				A2(elm$json$Json$Decode$field, 'filesURL', elm$json$Json$Decode$string),
 				flags));
-		var session = {filesURL: filesURL, kintoURL: kintoURL, navigatorShare: navigatorShare, peerTubeURL: peerTubeURL, prevUrl: url, search: '', staticFiles: staticFiles, timezone: elm$time$Time$utc, url: url, userData: userData, userInfo: userInfo, userToken: userToken, version: version};
+		var session = {filesURL: filesURL, navigatorShare: navigatorShare, peerTubeURL: peerTubeURL, prevUrl: url, search: '', timezone: elm$time$Time$utc, url: url, userInfo: userInfo, userToken: userToken, version: version};
 		var _n0 = A2(
 			author$project$Main$setRoute,
 			url,
@@ -12255,6 +11247,19 @@ var author$project$Main$subscriptions = function (model) {
 			]));
 };
 var elm$json$Json$Encode$int = _Json_wrap;
+var elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			elm$core$List$foldl,
+			F2(
+				function (_n0, obj) {
+					var k = _n0.a;
+					var v = _n0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
 var author$project$Data$PeerTube$encodeUserInfo = function (userInfo) {
 	return elm$json$Json$Encode$object(
 		_List_fromArray(
@@ -12358,7 +11363,7 @@ var author$project$Data$Session$interpretMsg = function (_n0) {
 					return _Utils_Tuple2(
 						_Utils_update(
 							session,
-							{userData: author$project$Data$Session$emptyUserData, userInfo: elm$core$Maybe$Nothing, userToken: elm$core$Maybe$Nothing}),
+							{userInfo: elm$core$Maybe$Nothing, userToken: elm$core$Maybe$Nothing}),
 						elm$core$Platform$Cmd$batch(
 							_List_fromArray(
 								[
@@ -12467,6 +11472,12 @@ var elm$http$Http$expectString = elm$http$Http$expectStringResponse(
 	function (response) {
 		return elm$core$Result$Ok(response.body);
 	});
+var elm$http$Http$jsonBody = function (value) {
+	return A2(
+		elm$http$Http$Internal$StringBody,
+		'application/json',
+		A2(elm$json$Json$Encode$encode, 0, value));
+};
 var author$project$Request$PeerTube$activateRequest = F3(
 	function (userID, verificationString, serverURL) {
 		var url = serverURL + ('/api/v1/users/' + (userID + '/verify-email'));
@@ -12540,15 +11551,6 @@ var author$project$Page$Admin$VideoPublished = F2(
 	function (a, b) {
 		return {$: 'VideoPublished', a: a, b: b};
 	});
-var author$project$Request$PeerTube$extractResult = function (authResult) {
-	if (authResult.$ === 'Succeed') {
-		var result = authResult.a;
-		return result;
-	} else {
-		var result = authResult.b;
-		return result;
-	}
-};
 var author$project$Data$Session$RefreshToken = function (a) {
 	return {$: 'RefreshToken', a: a};
 };
@@ -12717,27 +11719,6 @@ var author$project$Page$Admin$update = F3(
 					elm$core$Maybe$Nothing);
 		}
 	});
-var Kinto$elm_kinto$Kinto$errorToString = function (error) {
-	switch (error.$) {
-		case 'ServerError':
-			var status = error.a;
-			var message = error.b;
-			var info = error.c;
-			return elm$core$String$fromInt(status) + (' ' + (message + (' ' + info)));
-		case 'KintoError':
-			var status = error.a;
-			var message = error.b;
-			var detail = error.c;
-			return elm$core$String$fromInt(status) + (' ' + (message + (' ' + detail.message)));
-		default:
-			var httpError = error.a;
-			return 'NetworkError';
-	}
-};
-var author$project$Data$Kinto$NotRequested = {$: 'NotRequested'};
-var author$project$Data$Kinto$Received = function (a) {
-	return {$: 'Received', a: a};
-};
 var author$project$Page$Comments$update = F3(
 	function (session, msg, model) {
 		if (msg.$ === 'CommentDataListReceived') {
@@ -12747,7 +11728,7 @@ var author$project$Page$Comments$update = F3(
 					_Utils_update(
 						model,
 						{
-							commentDataList: author$project$Data$Kinto$Received(commentDataList)
+							commentDataList: author$project$Data$PeerTube$Received(commentDataList)
 						}),
 					elm$core$Platform$Cmd$none);
 			} else {
@@ -12756,11 +11737,8 @@ var author$project$Page$Comments$update = F3(
 					_Utils_update(
 						model,
 						{
-							commentDataList: author$project$Data$Kinto$NotRequested,
-							notifications: A2(
-								author$project$Page$Common$Notifications$addError,
-								model.notifications,
-								'Erreur lors de la récupération des commentaires : ' + Kinto$elm_kinto$Kinto$errorToString(error))
+							commentDataList: author$project$Data$PeerTube$NotRequested,
+							notifications: A2(author$project$Page$Common$Notifications$addError, model.notifications, 'Erreur lors de la récupération des commentaires')
 						}),
 					elm$core$Platform$Cmd$none);
 			}
@@ -13142,6 +12120,31 @@ var author$project$Page$Common$XHR$decoder = A2(
 					'status',
 					elm$json$Json$Decode$int,
 					elm$json$Json$Decode$succeed(author$project$Page$Common$XHR$XHR))))));
+var elm$core$Dict$foldl = F3(
+	function (func, acc, dict) {
+		foldl:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$func = func,
+					$temp$acc = A3(
+					func,
+					key,
+					value,
+					A3(elm$core$Dict$foldl, func, acc, left)),
+					$temp$dict = right;
+				func = $temp$func;
+				acc = $temp$acc;
+				dict = $temp$dict;
+				continue foldl;
+			}
+		}
+	});
 var elm$core$Dict$filter = F2(
 	function (isGood, dict) {
 		return A3(
@@ -13226,7 +12229,7 @@ var author$project$Page$Participate$update = F3(
 					elm$core$Platform$Cmd$none,
 					elm$core$Maybe$Nothing);
 			case 'SubmitNewVideo':
-				if (author$project$Data$Session$isPeerTubeLoggedIn(userInfo)) {
+				if (author$project$Data$Session$isLoggedIn(userInfo)) {
 					var updatedKeywords = A3(
 						elm$core$List$foldl,
 						F2(
@@ -13475,7 +12478,7 @@ var author$project$Page$Profile$updateProfile = F2(
 		var peerTubeURL = _n0.peerTubeURL;
 		var userInfo = _n0.userInfo;
 		var userToken = _n0.userToken;
-		if (author$project$Page$Profile$isProfileFormComplete(model.profileForm) && author$project$Data$Session$isPeerTubeLoggedIn(userInfo)) {
+		if (author$project$Page$Profile$isProfileFormComplete(model.profileForm) && author$project$Data$Session$isLoggedIn(userInfo)) {
 			if (userToken.$ === 'Just') {
 				var token = userToken.a;
 				return _Utils_Tuple3(
@@ -13603,6 +12606,7 @@ var author$project$Page$Profile$update = F3(
 var author$project$Page$Register$AccountRegistered = function (a) {
 	return {$: 'AccountRegistered', a: a};
 };
+var elm$core$Basics$ge = _Utils_ge;
 var author$project$Page$Register$isRegisterFormComplete = F2(
 	function (registerForm, approved) {
 		return approved && ((registerForm.username !== '') && ((registerForm.email !== '') && ((registerForm.password !== '') && (elm$core$String$length(registerForm.password) >= 6))));
@@ -13982,7 +12986,9 @@ var elm$core$Array$fromList = function (list) {
 		return A3(elm$core$Array$fromListHelp, list, _List_Nil, 0);
 	}
 };
+var elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
 var elm$core$Array$bitMask = 4294967295 >>> (32 - elm$core$Array$shiftStep);
+var elm$core$Bitwise$and = _Bitwise_and;
 var elm$core$Elm$JsArray$unsafeGet = _JsArray_unsafeGet;
 var elm$core$Array$getHelp = F3(
 	function (shift, index, tree) {
@@ -14005,6 +13011,7 @@ var elm$core$Array$getHelp = F3(
 			}
 		}
 	});
+var elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
 var elm$core$Array$tailIndex = function (len) {
 	return (len >>> 5) << 5;
 };
@@ -15749,7 +14756,7 @@ var author$project$Page$Admin$view = F2(
 					author$project$Page$Admin$NotificationMsg,
 					author$project$Page$Common$Notifications$view(notifications)),
 					function () {
-					if (author$project$Data$Session$isPeerTubeLoggedIn(userInfo)) {
+					if (author$project$Data$Session$isLoggedIn(userInfo)) {
 						if (username === 'classea12') {
 							if (blacklistedVideoListData.$ === 'Received') {
 								var blacklistedVideoList = blacklistedVideoListData.a;
@@ -16375,272 +15382,108 @@ var author$project$Page$CGU$view = F2(
 var author$project$Page$Comments$NotificationMsg = function (a) {
 	return {$: 'NotificationMsg', a: a};
 };
-var elm$time$Time$flooredDiv = F2(
-	function (numerator, denominator) {
-		return elm$core$Basics$floor(numerator / denominator);
+var elm$core$String$replace = F3(
+	function (before, after, string) {
+		return A2(
+			elm$core$String$join,
+			after,
+			A2(elm$core$String$split, before, string));
 	});
-var elm$time$Time$posixToMillis = function (_n0) {
-	var millis = _n0.a;
-	return millis;
+var author$project$Page$Common$Dates$formatStringDatetime = function (date) {
+	return A3(
+		elm$core$String$replace,
+		'T',
+		' ',
+		A2(elm$core$String$left, 19, date));
 };
-var elm$time$Time$toAdjustedMinutesHelp = F3(
-	function (defaultOffset, posixMinutes, eras) {
-		toAdjustedMinutesHelp:
-		while (true) {
-			if (!eras.b) {
-				return posixMinutes + defaultOffset;
-			} else {
-				var era = eras.a;
-				var olderEras = eras.b;
-				if (_Utils_cmp(era.start, posixMinutes) < 0) {
-					return posixMinutes + era.offset;
-				} else {
-					var $temp$defaultOffset = defaultOffset,
-						$temp$posixMinutes = posixMinutes,
-						$temp$eras = olderEras;
-					defaultOffset = $temp$defaultOffset;
-					posixMinutes = $temp$posixMinutes;
-					eras = $temp$eras;
-					continue toAdjustedMinutesHelp;
-				}
-			}
-		}
-	});
-var elm$time$Time$toAdjustedMinutes = F2(
-	function (_n0, time) {
-		var defaultOffset = _n0.a;
-		var eras = _n0.b;
-		return A3(
-			elm$time$Time$toAdjustedMinutesHelp,
-			defaultOffset,
-			A2(
-				elm$time$Time$flooredDiv,
-				elm$time$Time$posixToMillis(time),
-				60000),
-			eras);
-	});
-var elm$time$Time$toCivil = function (minutes) {
-	var rawDay = A2(elm$time$Time$flooredDiv, minutes, 60 * 24) + 719468;
-	var era = (((rawDay >= 0) ? rawDay : (rawDay - 146096)) / 146097) | 0;
-	var dayOfEra = rawDay - (era * 146097);
-	var yearOfEra = ((((dayOfEra - ((dayOfEra / 1460) | 0)) + ((dayOfEra / 36524) | 0)) - ((dayOfEra / 146096) | 0)) / 365) | 0;
-	var dayOfYear = dayOfEra - (((365 * yearOfEra) + ((yearOfEra / 4) | 0)) - ((yearOfEra / 100) | 0));
-	var mp = (((5 * dayOfYear) + 2) / 153) | 0;
-	var month = mp + ((mp < 10) ? 3 : (-9));
-	var year = yearOfEra + (era * 400);
-	return {
-		day: (dayOfYear - ((((153 * mp) + 2) / 5) | 0)) + 1,
-		month: month,
-		year: year + ((month <= 2) ? 1 : 0)
-	};
-};
-var elm$time$Time$toDay = F2(
-	function (zone, time) {
-		return elm$time$Time$toCivil(
-			A2(elm$time$Time$toAdjustedMinutes, zone, time)).day;
-	});
-var elm$time$Time$Apr = {$: 'Apr'};
-var elm$time$Time$Aug = {$: 'Aug'};
-var elm$time$Time$Dec = {$: 'Dec'};
-var elm$time$Time$Feb = {$: 'Feb'};
-var elm$time$Time$Jan = {$: 'Jan'};
-var elm$time$Time$Jul = {$: 'Jul'};
-var elm$time$Time$Jun = {$: 'Jun'};
-var elm$time$Time$Mar = {$: 'Mar'};
-var elm$time$Time$May = {$: 'May'};
-var elm$time$Time$Nov = {$: 'Nov'};
-var elm$time$Time$Oct = {$: 'Oct'};
-var elm$time$Time$Sep = {$: 'Sep'};
-var elm$time$Time$toMonth = F2(
-	function (zone, time) {
-		var _n0 = elm$time$Time$toCivil(
-			A2(elm$time$Time$toAdjustedMinutes, zone, time)).month;
-		switch (_n0) {
-			case 1:
-				return elm$time$Time$Jan;
-			case 2:
-				return elm$time$Time$Feb;
-			case 3:
-				return elm$time$Time$Mar;
-			case 4:
-				return elm$time$Time$Apr;
-			case 5:
-				return elm$time$Time$May;
-			case 6:
-				return elm$time$Time$Jun;
-			case 7:
-				return elm$time$Time$Jul;
-			case 8:
-				return elm$time$Time$Aug;
-			case 9:
-				return elm$time$Time$Sep;
-			case 10:
-				return elm$time$Time$Oct;
-			case 11:
-				return elm$time$Time$Nov;
-			default:
-				return elm$time$Time$Dec;
-		}
-	});
-var elm$time$Time$toYear = F2(
-	function (zone, time) {
-		return elm$time$Time$toCivil(
-			A2(elm$time$Time$toAdjustedMinutes, zone, time)).year;
-	});
-var author$project$Page$Common$Dates$posixToDate = F2(
-	function (timezone, posix) {
-		var year = elm$core$String$fromInt(
-			A2(elm$time$Time$toYear, timezone, posix));
-		var month = function () {
-			var _n0 = A2(elm$time$Time$toMonth, timezone, posix);
-			switch (_n0.$) {
-				case 'Jan':
-					return '01';
-				case 'Feb':
-					return '02';
-				case 'Mar':
-					return '03';
-				case 'Apr':
-					return '04';
-				case 'May':
-					return '05';
-				case 'Jun':
-					return '06';
-				case 'Jul':
-					return '07';
-				case 'Aug':
-					return '08';
-				case 'Sep':
-					return '09';
-				case 'Oct':
-					return '10';
-				case 'Nov':
-					return '11';
-				default:
-					return '12';
-			}
-		}();
-		var day = function (str) {
-			return (elm$core$String$length(str) < 2) ? ('0' + str) : str;
-		}(
-			elm$core$String$fromInt(
-				A2(elm$time$Time$toDay, timezone, posix)));
-		return year + ('-' + (month + ('-' + day)));
-	});
 var elm$html$Html$Attributes$id = elm$html$Html$Attributes$stringProperty('id');
-var author$project$Page$Comments$viewCommentDetails = F2(
-	function (timezone, _n0) {
-		var comment = _n0.comment;
-		var contributor = _n0.contributor;
-		var video = _n0.video;
-		var contributorName = (!_Utils_eq(contributor, author$project$Data$Kinto$emptyProfile)) ? contributor.name : comment.profile;
-		var attachment = (!_Utils_eq(comment.attachment, author$project$Data$Kinto$emptyAttachment)) ? A2(
-			elm$html$Html$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					elm$html$Html$text('Pièce jointe : '),
-					A2(
-					elm$html$Html$a,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$href(comment.attachment.location)
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text(comment.attachment.filename)
-						]))
-				])) : A2(elm$html$Html$div, _List_Nil, _List_Nil);
-		var _n1 = (!_Utils_eq(video, author$project$Data$Kinto$emptyVideo)) ? _Utils_Tuple2(video.id, video.title) : _Utils_Tuple2(comment.video, 'video-title');
-		var videoID = _n1.a;
-		var videoTitle = _n1.b;
-		var commentURL = elm$html$Html$Attributes$href(
-			function (url) {
-				return url + ('#' + comment.id);
-			}(
-				author$project$Route$toString(
-					A2(author$project$Route$Video, videoID, videoTitle))));
-		return A2(
-			elm$html$Html$li,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('comment panel'),
-					elm$html$Html$Attributes$id(comment.id)
-				]),
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$a,
-					_List_fromArray(
-						[
-							commentURL,
-							elm$html$Html$Attributes$class('comment-link')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$time,
-							_List_Nil,
-							_List_fromArray(
-								[
-									elm$html$Html$text(
-									A2(author$project$Page$Common$Dates$posixToDate, timezone, comment.last_modified))
-								]))
-						])),
-					A2(
-					elm$html$Html$a,
-					_List_fromArray(
-						[
-							author$project$Route$href(
-							author$project$Route$Profile(comment.profile)),
-							elm$html$Html$Attributes$class('comment-author')
-						]),
-					_List_fromArray(
-						[
-							elm$html$Html$text(contributorName)
-						])),
-					A2(elm_explorations$markdown$Markdown$toHtml, _List_Nil, comment.comment),
-					attachment
-				]));
-	});
-var author$project$Page$Comments$viewComments = F2(
-	function (timezone, comments) {
-		return A2(
-			elm$html$Html$div,
-			_List_fromArray(
-				[
-					elm$html$Html$Attributes$class('comment-list-wrapper')
-				]),
-			_List_fromArray(
-				[
-					A2(
-					elm$html$Html$div,
-					_List_fromArray(
-						[
-							elm$html$Html$Attributes$class('comment-wrapper')
-						]),
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$h3,
-							_List_Nil,
-							_List_fromArray(
-								[
-									elm$html$Html$text('Contributions')
-								])),
-							A2(
-							elm$html$Html$ul,
-							_List_fromArray(
-								[
-									elm$html$Html$Attributes$class('comment-list')
-								]),
-							A2(
-								elm$core$List$map,
-								author$project$Page$Comments$viewCommentDetails(timezone),
-								comments))
-						]))
-				]));
-	});
+var author$project$Page$Comments$viewCommentDetails = function (comment) {
+	var commentURL = elm$html$Html$Attributes$href(
+		function (url) {
+			return url + ('#' + elm$core$String$fromInt(comment.id));
+		}(
+			author$project$Route$toString(
+				A2(
+					author$project$Route$Video,
+					elm$core$String$fromInt(comment.videoId),
+					'vidéo'))));
+	return A2(
+		elm$html$Html$li,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('comment panel'),
+				elm$html$Html$Attributes$id(
+				elm$core$String$fromInt(comment.id))
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$a,
+				_List_fromArray(
+					[
+						commentURL,
+						elm$html$Html$Attributes$class('comment-link')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$time,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text(
+								author$project$Page$Common$Dates$formatStringDatetime(comment.createdAt))
+							]))
+					])),
+				A2(
+				elm$html$Html$a,
+				_List_fromArray(
+					[
+						author$project$Route$href(
+						author$project$Route$Profile(comment.account.name)),
+						elm$html$Html$Attributes$class('comment-author')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(comment.account.displayName)
+					])),
+				A2(elm_explorations$markdown$Markdown$toHtml, _List_Nil, comment.text)
+			]));
+};
+var author$project$Page$Comments$viewComments = function (comments) {
+	return A2(
+		elm$html$Html$div,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('comment-list-wrapper')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				elm$html$Html$div,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('comment-wrapper')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						elm$html$Html$h3,
+						_List_Nil,
+						_List_fromArray(
+							[
+								elm$html$Html$text('Contributions')
+							])),
+						A2(
+						elm$html$Html$ul,
+						_List_fromArray(
+							[
+								elm$html$Html$Attributes$class('comment-list')
+							]),
+						A2(elm$core$List$map, author$project$Page$Comments$viewCommentDetails, comments))
+					]))
+			]));
+};
 var author$project$Page$Comments$view = F2(
 	function (session, _n0) {
 		var title = _n0.title;
@@ -16672,7 +15515,7 @@ var author$project$Page$Comments$view = F2(
 									function () {
 									if (commentDataList.$ === 'Received') {
 										var commentsData = commentDataList.a;
-										return A2(author$project$Page$Comments$viewComments, session.timezone, commentsData);
+										return author$project$Page$Comments$viewComments(commentsData);
 									} else {
 										return elm$html$Html$text('Récupération des commentaires...');
 									}
@@ -16951,17 +15794,17 @@ var author$project$Page$Common$Video$viewList = F3(
 			elm$html$Html$div,
 			_List_fromArray(
 				[
-					elm$html$Html$Attributes$class('row')
+					elm$html$Html$Attributes$class('grid')
 				]),
 			videoCards);
 	});
 var author$project$Page$Common$Video$viewCategory = F3(
 	function (data, peerTubeURL, keyword) {
 		return A2(
-			elm$html$Html$div,
+			elm$html$Html$section,
 			_List_fromArray(
 				[
-					elm$html$Html$Attributes$class('panel'),
+					elm$html$Html$Attributes$class('category'),
 					elm$html$Html$Attributes$id(keyword)
 				]),
 			_List_fromArray(
@@ -16970,35 +15813,33 @@ var author$project$Page$Common$Video$viewCategory = F3(
 					elm$html$Html$div,
 					_List_fromArray(
 						[
-							elm$html$Html$Attributes$class('panel__header')
+							elm$html$Html$Attributes$class('home-title_wrapper')
 						]),
 					_List_fromArray(
 						[
 							A2(
 							elm$html$Html$h3,
-							_List_Nil,
 							_List_fromArray(
 								[
-									elm$html$Html$text(keyword),
-									elm$html$Html$text(' '),
-									A2(
-									elm$html$Html$a,
-									_List_fromArray(
-										[
-											author$project$Route$href(
-											author$project$Route$Search(
-												elm$core$Maybe$Just(keyword)))
-										]),
-									_List_fromArray(
-										[
-											A2(
-											elm$html$Html$i,
-											_List_fromArray(
-												[
-													elm$html$Html$Attributes$class('fas fa-angle-right')
-												]),
-											_List_Nil)
-										]))
+									elm$html$Html$Attributes$class('home-title')
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('Le coin '),
+									elm$html$Html$text(keyword)
+								])),
+							A2(
+							elm$html$Html$a,
+							_List_fromArray(
+								[
+									author$project$Route$href(
+									author$project$Route$Search(
+										elm$core$Maybe$Just(keyword)))
+								]),
+							_List_fromArray(
+								[
+									elm$html$Html$text('Toutes les vidéos '),
+									elm$html$Html$text(keyword)
 								]))
 						])),
 					A2(
@@ -17025,7 +15866,6 @@ var author$project$Page$Common$Video$viewCategory = F3(
 	});
 var author$project$Page$Home$view = F2(
 	function (_n0, model) {
-		var staticFiles = _n0.staticFiles;
 		var peerTubeURL = _n0.peerTubeURL;
 		var title = model.title;
 		var search = model.search;
@@ -17041,7 +15881,7 @@ var author$project$Page$Home$view = F2(
 					A2(elm$core$Dict$get, keyword, videoData));
 				return A3(author$project$Page$Common$Video$viewCategory, videoListData, peerTubeURL, keyword);
 			},
-			author$project$Data$Kinto$keywordList);
+			author$project$Data$PeerTube$keywordList);
 		var viewRecentVideo = _List_fromArray(
 			[
 				A3(author$project$Page$Common$Video$viewCategory, recentVideoData, peerTubeURL, 'Nouveautés')
@@ -17472,7 +16312,7 @@ var author$project$Page$Participate$checkbox = F2(
 							var included = _n1.b;
 							return _Utils_eq(keyword, key) && (included !== '');
 						},
-						author$project$Data$Kinto$keywordList))));
+						author$project$Data$PeerTube$keywordList))));
 		var id = 'keyword-' + key;
 		return A2(
 			elm$html$Html$div,
@@ -17888,7 +16728,6 @@ var author$project$Page$Participate$displaySubmitVideoForm = function (_n0) {
 };
 var author$project$Page$Participate$view = F2(
 	function (_n0, model) {
-		var staticFiles = _n0.staticFiles;
 		var userInfo = _n0.userInfo;
 		return {
 			body: _List_fromArray(
@@ -17937,7 +16776,7 @@ var author$project$Page$Participate$view = F2(
 															elm$html$Html$a,
 															_List_fromArray(
 																[
-																	elm$html$Html$Attributes$href(staticFiles.autorisationCaptationImageMineur)
+																	elm$html$Html$Attributes$href('%PUBLIC_URL%/documents/Autorisation-captation-image-mineur_2017.pdf')
 																]),
 															_List_fromArray(
 																[
@@ -17953,7 +16792,7 @@ var author$project$Page$Participate$view = F2(
 															elm$html$Html$a,
 															_List_fromArray(
 																[
-																	elm$html$Html$Attributes$href(staticFiles.autorisationCaptationImageMajeur)
+																	elm$html$Html$Attributes$href('%PUBLIC_URL%/documents/Autorisation-captation-image-majeur_2017.pdf')
 																]),
 															_List_fromArray(
 																[
@@ -17962,7 +16801,7 @@ var author$project$Page$Participate$view = F2(
 														]))
 												]))
 										])),
-									(!author$project$Data$Session$isPeerTubeLoggedIn(userInfo)) ? A2(author$project$Page$Common$Components$viewConnectNow, 'Pour ajouter une contribution veuillez vous ', 'connecter') : author$project$Page$Participate$displaySubmitVideoForm(model)
+									(!author$project$Data$Session$isLoggedIn(userInfo)) ? A2(author$project$Page$Common$Components$viewConnectNow, 'Pour ajouter une contribution veuillez vous ', 'connecter') : author$project$Page$Participate$displaySubmitVideoForm(model)
 								]))
 						]))
 				]),
@@ -18231,7 +17070,6 @@ var author$project$Page$Profile$viewProfile = function (profileData) {
 };
 var author$project$Page$Profile$view = F2(
 	function (_n0, _n1) {
-		var staticFiles = _n0.staticFiles;
 		var title = _n1.title;
 		var pageState = _n1.pageState;
 		var profileForm = _n1.profileForm;
@@ -18704,7 +17542,6 @@ var author$project$Page$Search$NotificationMsg = function (a) {
 };
 var author$project$Page$Search$view = F2(
 	function (_n0, model) {
-		var staticFiles = _n0.staticFiles;
 		var peerTubeURL = _n0.peerTubeURL;
 		var title = model.title;
 		var videoListData = model.videoListData;
@@ -18883,7 +17720,7 @@ var author$project$Page$Video$UpdateCommentForm = function (a) {
 };
 var author$project$Page$Video$viewCommentForm = F6(
 	function (comment, userInfo, refreshing, commentData, attachmentData, progress) {
-		if (!author$project$Data$Session$isPeerTubeLoggedIn(userInfo)) {
+		if (!author$project$Data$Session$isLoggedIn(userInfo)) {
 			return A2(author$project$Page$Common$Components$viewConnectNow, 'Pour ajouter une contribution veuillez vous ', 'connecter');
 		} else {
 			var formComplete = comment !== '';
@@ -19034,13 +17871,6 @@ var author$project$Page$Video$viewCommentForm = F6(
 					]));
 		}
 	});
-var author$project$Page$Common$Dates$formatStringDatetime = function (date) {
-	return A3(
-		elm$core$String$replace,
-		'T',
-		' ',
-		A2(elm$core$String$left, 19, date));
-};
 var author$project$Page$Video$CommentSelected = function (a) {
 	return {$: 'CommentSelected', a: a};
 };
@@ -19465,7 +18295,6 @@ var author$project$Page$Video$view = F2(
 	function (_n0, _n1) {
 		var peerTubeURL = _n0.peerTubeURL;
 		var navigatorShare = _n0.navigatorShare;
-		var staticFiles = _n0.staticFiles;
 		var url = _n0.url;
 		var userInfo = _n0.userInfo;
 		var filesURL = _n0.filesURL;
@@ -19572,341 +18401,147 @@ var author$project$Views$Page$Search = function (a) {
 var author$project$Views$Page$SetNewPassword = {$: 'SetNewPassword'};
 var author$project$Views$Page$Video = {$: 'Video'};
 var elm$html$Html$aside = _VirtualDom_node('aside');
-var author$project$Views$Page$viewContent = F2(
-	function (_n0, body) {
-		var activePage = _n0.activePage;
-		var linkMaybeActive = F3(
-			function (page, route, caption) {
-				return A2(
-					elm$html$Html$li,
-					_List_Nil,
-					_List_fromArray(
-						[
-							A2(
-							elm$html$Html$a,
-							_List_fromArray(
-								[
-									author$project$Route$href(route),
-									elm$html$Html$Attributes$classList(
-									_List_fromArray(
-										[
-											_Utils_Tuple2(
-											'active',
-											_Utils_eq(page, activePage))
-										]))
-								]),
-							_List_fromArray(
-								[
-									elm$html$Html$text(caption)
-								]))
-						]));
-			});
-		return _List_fromArray(
-			[
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('dashboard')
-					]),
+var elm$html$Html$nav = _VirtualDom_node('nav');
+var author$project$Views$Page$viewAside = function (_n0) {
+	var activePage = _n0.activePage;
+	var linkMaybeActive = F3(
+		function (page, route, caption) {
+			return A2(
+				elm$html$Html$nav,
+				_List_Nil,
 				_List_fromArray(
 					[
 						A2(
-						elm$html$Html$aside,
+						elm$html$Html$a,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('side-menu')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$ul,
-								_List_Nil,
+								author$project$Route$href(route),
+								elm$html$Html$Attributes$classList(
 								_List_fromArray(
 									[
-										A3(linkMaybeActive, author$project$Views$Page$Home, author$project$Route$Home, 'Accueil'),
-										A3(
-										linkMaybeActive,
-										author$project$Views$Page$Search('Nouveautés'),
-										author$project$Route$Search(elm$core$Maybe$Nothing),
-										'Nouveautés')
-									])),
-								A2(
-								elm$html$Html$h5,
-								_List_Nil,
-								_List_fromArray(
-									[
-										elm$html$Html$text('Catégories')
-									])),
-								A2(
-								elm$html$Html$ul,
-								_List_Nil,
-								A2(
-									elm$core$List$map,
-									function (_n1) {
-										var keyword = _n1.a;
-										var route = author$project$Route$Search(
-											elm$core$Maybe$Just(keyword));
-										return A3(
-											linkMaybeActive,
-											author$project$Views$Page$Search(keyword),
-											route,
-											keyword);
-									},
-									author$project$Data$Kinto$keywordList)),
-								A2(
-								elm$html$Html$h5,
-								_List_Nil,
-								_List_fromArray(
-									[
-										elm$html$Html$text('Le projet')
-									])),
-								A2(
-								elm$html$Html$ul,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A3(linkMaybeActive, author$project$Views$Page$About, author$project$Route$About, 'Classe à 12 ?'),
-										A3(linkMaybeActive, author$project$Views$Page$Participate, author$project$Route$Participate, 'Je participe'),
-										A2(
-										elm$html$Html$li,
-										_List_Nil,
-										_List_fromArray(
-											[
-												A2(
-												elm$html$Html$a,
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$href('mailto:classea12@education.gouv.fr')
-													]),
-												_List_fromArray(
-													[
-														elm$html$Html$text('Contactez-nous')
-													]))
-											])),
-										A2(
-										elm$html$Html$li,
-										_List_Nil,
-										_List_fromArray(
-											[
-												A2(
-												elm$html$Html$a,
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$href('http://eepurl.com/gnJbYz')
-													]),
-												_List_fromArray(
-													[
-														elm$html$Html$text('Inscrivez-vous à notre infolettre')
-													]))
-											]))
+										_Utils_Tuple2(
+										'active',
+										_Utils_eq(page, activePage))
 									]))
-							])),
-						A2(
-						elm$html$Html$div,
+							]),
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('main')
-							]),
-						body)
-					]))
-			]);
-	});
-var elm$html$Html$footer = _VirtualDom_node('footer');
-var author$project$Views$Page$viewFooter = function (session) {
+								elm$html$Html$text(caption)
+							]))
+					]));
+		});
 	return A2(
-		elm$html$Html$footer,
+		elm$html$Html$aside,
 		_List_fromArray(
 			[
-				elm$html$Html$Attributes$class('footer')
+				elm$html$Html$Attributes$class('side-menu')
 			]),
 		_List_fromArray(
 			[
 				A2(
-				elm$html$Html$div,
+				elm$html$Html$img,
 				_List_fromArray(
 					[
-						elm$html$Html$Attributes$class('container')
+						elm$html$Html$Attributes$src('images/logos/classea12.svg')
 					]),
+				_List_Nil),
+				A2(
+				elm$html$Html$nav,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A3(linkMaybeActive, author$project$Views$Page$Home, author$project$Route$Home, 'Accueil'),
+						A3(
+						linkMaybeActive,
+						author$project$Views$Page$Search('Nouveautés'),
+						author$project$Route$Search(elm$core$Maybe$Nothing),
+						'Nouveautés')
+					])),
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
 				_List_fromArray(
 					[
 						A2(
-						elm$html$Html$div,
+						elm$html$Html$h3,
+						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('footer__logo')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$img,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$src('//res.cloudinary.com/hrscywv4p/image/upload/c_limit,fl_lossy,h_300,w_300,f_auto,q_auto/v1/1436014/r7mrgstb76x8onkugzno.jpg'),
-										elm$html$Html$Attributes$alt('Logo du Lab 110bis')
-									]),
-								_List_Nil),
-								A2(
-								elm$html$Html$ul,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$class('footer__social')
-									]),
-								_List_fromArray(
-									[
-										A2(
-										elm$html$Html$li,
-										_List_Nil,
-										_List_fromArray(
-											[
-												A2(
-												elm$html$Html$a,
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$href('https://twitter.com/startupC12'),
-														elm$html$Html$Attributes$class('icon icon-twitter')
-													]),
-												_List_fromArray(
-													[
-														A2(
-														elm$html$Html$i,
-														_List_fromArray(
-															[
-																elm$html$Html$Attributes$class('fab fa-twitter fa-2x')
-															]),
-														_List_Nil)
-													]))
-											])),
-										A2(
-										elm$html$Html$li,
-										_List_Nil,
-										_List_fromArray(
-											[
-												A2(
-												elm$html$Html$a,
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$href('https://github.com/betagouv/ClasseA12'),
-														elm$html$Html$Attributes$class('icon icon-github')
-													]),
-												_List_fromArray(
-													[
-														A2(
-														elm$html$Html$i,
-														_List_fromArray(
-															[
-																elm$html$Html$Attributes$class('fab fa-github fa-2x')
-															]),
-														_List_Nil)
-													]))
-											])),
-										A2(
-										elm$html$Html$li,
-										_List_Nil,
-										_List_fromArray(
-											[
-												A2(
-												elm$html$Html$a,
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$href('mailto:classea12@education.gouv.fr?subject=Classes à 12 sur beta.gouv.fr'),
-														elm$html$Html$Attributes$class('icon icon-mail')
-													]),
-												_List_fromArray(
-													[
-														A2(
-														elm$html$Html$i,
-														_List_fromArray(
-															[
-																elm$html$Html$Attributes$class('fas fa-envelope fa-2x')
-															]),
-														_List_Nil)
-													]))
-											]))
-									]))
+								elm$html$Html$text('Catégories')
 							])),
 						A2(
-						elm$html$Html$ul,
+						elm$html$Html$nav,
+						_List_Nil,
+						A2(
+							elm$core$List$map,
+							function (_n1) {
+								var keyword = _n1.a;
+								var route = author$project$Route$Search(
+									elm$core$Maybe$Just(keyword));
+								return A3(
+									linkMaybeActive,
+									author$project$Views$Page$Search(keyword),
+									route,
+									keyword);
+							},
+							author$project$Data$PeerTube$keywordList)),
+						A2(
+						elm$html$Html$h3,
+						_List_Nil,
 						_List_fromArray(
 							[
-								elm$html$Html$Attributes$class('footer__links')
-							]),
+								elm$html$Html$text('Le projet')
+							])),
+						A2(
+						elm$html$Html$nav,
+						_List_Nil,
 						_List_fromArray(
 							[
+								A3(linkMaybeActive, author$project$Views$Page$About, author$project$Route$About, 'Classe à 12 ?'),
+								A3(linkMaybeActive, author$project$Views$Page$Participate, author$project$Route$Participate, 'Je participe'),
 								A2(
-								elm$html$Html$li,
-								_List_Nil,
+								elm$html$Html$a,
 								_List_fromArray(
 									[
-										A2(
-										elm$html$Html$h2,
-										_List_Nil,
-										_List_fromArray(
-											[
-												elm$html$Html$text('classe-a-12.beta.gouv.fr')
-											]))
+										elm$html$Html$Attributes$href('mailto:classea12@education.gouv.fr')
+									]),
+								_List_fromArray(
+									[
+										elm$html$Html$text('Contactez-nous')
 									])),
 								A2(
-								elm$html$Html$li,
-								_List_Nil,
+								elm$html$Html$a,
 								_List_fromArray(
 									[
-										A2(
-										elm$html$Html$a,
-										_List_fromArray(
-											[
-												author$project$Route$href(author$project$Route$CGU)
-											]),
-										_List_fromArray(
-											[
-												elm$html$Html$text('Conditions générales d\'utilisation')
-											]))
-									])),
-								A2(
-								elm$html$Html$li,
-								_List_Nil,
+										elm$html$Html$Attributes$href('http://eepurl.com/gnJbYz')
+									]),
 								_List_fromArray(
 									[
-										A2(
-										elm$html$Html$a,
-										_List_fromArray(
-											[
-												author$project$Route$href(author$project$Route$Convention)
-											]),
-										_List_fromArray(
-											[
-												elm$html$Html$text('Charte de bonne conduite')
-											]))
-									])),
-								A2(
-								elm$html$Html$li,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										elm$html$Html$a,
-										_List_fromArray(
-											[
-												author$project$Route$href(author$project$Route$PrivacyPolicy)
-											]),
-										_List_fromArray(
-											[
-												elm$html$Html$text('Politique de confidentialité')
-											]))
-									])),
-								A2(
-								elm$html$Html$li,
-								_List_Nil,
-								_List_fromArray(
-									[
-										elm$html$Html$text('Version : ' + session.version)
+										elm$html$Html$text('Inscrivez-vous à notre infolettre')
 									]))
 							]))
 					]))
 			]));
 };
+var elm$html$Html$main_ = _VirtualDom_node('main');
+var author$project$Views$Page$viewContent = function (body) {
+	return A2(
+		elm$html$Html$main_,
+		_List_fromArray(
+			[
+				elm$html$Html$Attributes$class('wrapper')
+			]),
+		body);
+};
+var elm$html$Html$footer = _VirtualDom_node('footer');
+var author$project$Views$Page$viewFooter = A2(
+	elm$html$Html$footer,
+	_List_fromArray(
+		[
+			elm$html$Html$Attributes$class('wrapper')
+		]),
+	_List_Nil);
 var elm$html$Html$header = _VirtualDom_node('header');
-var elm$html$Html$nav = _VirtualDom_node('nav');
 var author$project$Views$Page$viewHeader = F3(
 	function (_n0, pageTitle, pageSubTitle) {
 		var session = _n0.session;
@@ -19957,171 +18592,95 @@ var author$project$Views$Page$viewHeader = F3(
 					_List_Nil),
 					elm$html$Html$text(' Se connecter')
 				]));
-		var loginProfileIcon = author$project$Data$Session$isPeerTubeLoggedIn(session.userInfo) ? profileIcon : loginIcon;
-		return _List_fromArray(
-			[
-				A2(
-				elm$html$Html$header,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('navbar')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('navbar__container')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$a,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$class('navbar__home'),
-										author$project$Route$href(author$project$Route$Home)
-									]),
-								_List_fromArray(
-									[
-										A2(
-										elm$html$Html$img,
-										_List_fromArray(
-											[
-												elm$html$Html$Attributes$src(session.staticFiles.logo),
-												elm$html$Html$Attributes$alt('logo'),
-												elm$html$Html$Attributes$class('navbar__logo')
-											]),
-										_List_Nil),
-										elm$html$Html$text('classe-a-12.beta.gouv.fr')
-									])),
-								A2(
-								elm$html$Html$nav,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										elm$html$Html$ul,
-										_List_fromArray(
-											[
-												elm$html$Html$Attributes$class('nav__links')
-											]),
-										_List_fromArray(
-											[
-												A2(
-												elm$html$Html$li,
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$class('nav__item')
-													]),
-												_List_fromArray(
-													[
-														A2(
-														elm$html$Html$form,
-														_List_fromArray(
-															[
-																elm$html$Html$Events$onSubmit(submitSearchMsg)
-															]),
-														_List_fromArray(
-															[
-																A2(
-																elm$html$Html$div,
-																_List_fromArray(
-																	[
-																		elm$html$Html$Attributes$class('search__group')
-																	]),
-																_List_fromArray(
-																	[
-																		A2(
-																		elm$html$Html$input,
-																		_List_fromArray(
-																			[
-																				elm$html$Html$Attributes$type_('search'),
-																				elm$html$Html$Attributes$value(session.search),
-																				elm$html$Html$Events$onInput(updateSearchMsg),
-																				elm$html$Html$Attributes$placeholder('Exemple : Français')
-																			]),
-																		_List_Nil),
-																		A2(
-																		elm$html$Html$button,
-																		_List_fromArray(
-																			[
-																				elm$html$Html$Attributes$class('overlay-button')
-																			]),
-																		_List_fromArray(
-																			[
-																				A2(
-																				elm$html$Html$i,
-																				_List_fromArray(
-																					[
-																						elm$html$Html$Attributes$class('fas fa-search')
-																					]),
-																				_List_Nil)
-																			]))
-																	]))
-															]))
-													])),
-												A2(
-												elm$html$Html$li,
-												_List_fromArray(
-													[
-														elm$html$Html$Attributes$class('nav__item')
-													]),
-												_List_fromArray(
-													[loginProfileIcon]))
-											]))
-									]))
-							]))
-					])),
-				A2(
-				elm$html$Html$div,
-				_List_fromArray(
-					[
-						elm$html$Html$Attributes$class('hero')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('hero__banner')
-							]),
-						_List_Nil),
-						A2(
-						elm$html$Html$div,
-						_List_fromArray(
-							[
-								elm$html$Html$Attributes$class('hero__container')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								elm$html$Html$img,
-								_List_fromArray(
-									[
-										elm$html$Html$Attributes$src(session.staticFiles.logo_ca12),
-										elm$html$Html$Attributes$class('hero__logo')
-									]),
-								_List_Nil),
-								A2(
-								elm$html$Html$h1,
-								_List_Nil,
-								_List_fromArray(
-									[
-										elm$html$Html$text(pageTitle)
-									])),
-								A2(
-								elm$html$Html$p,
-								_List_Nil,
-								_List_fromArray(
-									[
-										elm$html$Html$text(pageSubTitle)
-									]))
-							]))
-					]))
-			]);
+		var loginProfileIcon = author$project$Data$Session$isLoggedIn(session.userInfo) ? profileIcon : loginIcon;
+		return A2(
+			elm$html$Html$header,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
+					_List_fromArray(
+						[
+							elm$html$Html$Attributes$class('wrapper')
+						]),
+					_List_fromArray(
+						[
+							A2(
+							elm$html$Html$img,
+							_List_fromArray(
+								[
+									elm$html$Html$Attributes$alt('Ministère de l\'éducation nationale et de la jeunesse'),
+									elm$html$Html$Attributes$src('')
+								]),
+							_List_Nil),
+							A2(
+							elm$html$Html$nav,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$a,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$href('')
+										]),
+									_List_fromArray(
+										[
+											elm$html$Html$text('Découvrez')
+										])),
+									A2(
+									elm$html$Html$a,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$href('')
+										]),
+									_List_fromArray(
+										[
+											elm$html$Html$text('Vos favoris')
+										]))
+								])),
+							A2(
+							elm$html$Html$form,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$input,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$type_('text')
+										]),
+									_List_Nil),
+									elm$html$Html$text('  ')
+								])),
+							A2(
+							elm$html$Html$div,
+							_List_Nil,
+							_List_fromArray(
+								[
+									A2(
+									elm$html$Html$a,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('btn'),
+											elm$html$Html$Attributes$href('')
+										]),
+									_List_fromArray(
+										[
+											elm$html$Html$text('Partagez une vidéo')
+										])),
+									A2(
+									elm$html$Html$a,
+									_List_fromArray(
+										[
+											elm$html$Html$Attributes$class('account'),
+											elm$html$Html$Attributes$href('')
+										]),
+									_List_Nil)
+								]))
+						]))
+				]));
 	});
 var author$project$Views$Page$frame = F2(
 	function (config, _n0) {
@@ -20130,14 +18689,22 @@ var author$project$Views$Page$frame = F2(
 		var pageSubTitle = _n0.pageSubTitle;
 		var body = _n0.body;
 		return {
-			body: _Utils_ap(
-				A3(author$project$Views$Page$viewHeader, config, pageTitle, pageSubTitle),
-				_Utils_ap(
-					A2(author$project$Views$Page$viewContent, config, body),
+			body: _List_fromArray(
+				[
+					A2(
+					elm$html$Html$div,
 					_List_fromArray(
 						[
-							author$project$Views$Page$viewFooter(config.session)
-						]))),
+							elm$html$Html$Attributes$class('content')
+						]),
+					_List_fromArray(
+						[
+							A3(author$project$Views$Page$viewHeader, config, pageTitle, pageSubTitle),
+							author$project$Views$Page$viewContent(body),
+							author$project$Views$Page$viewFooter
+						])),
+					author$project$Views$Page$viewAside(config)
+				]),
 			title: title + ' | Classe à 12'
 		};
 	});
