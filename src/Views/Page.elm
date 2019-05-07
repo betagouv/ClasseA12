@@ -85,7 +85,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
     in
     header []
         [ div [ class "wrapper" ]
-            [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "" ]
+            [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "%PUBLIC_URL%/images/logos/marianne.svg" ]
                 []
             , nav []
                 [ a [ href "" ]
@@ -116,7 +116,20 @@ viewContent body =
 
 viewFooter : Html msg
 viewFooter =
-    footer [ class "wrapper" ] []
+    footer [ class "wrapper" ]
+        [ a [ href "" ]
+            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                []
+            ]
+        , div []
+            [ nav []
+                [ a [ href "" ] [ text "Conditions générales d'utilisation" ]
+                , a [ href "" ] [ text "Charte de bonne conduite" ]
+                , a [ href "" ] [ text "Politique de confidentialité" ]
+                ]
+            , span [] [ text "Version : " ]
+            ]
+        ]
 
 
 viewAside : Config msg -> Html msg
@@ -134,7 +147,7 @@ viewAside { activePage } =
                 ]
     in
     aside [ class "side-menu" ]
-        [ img [ src "images/logos/classea12.svg", class "logo" ] []
+        [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
         , nav []
             [ linkMaybeActive Home Route.Home "Accueil"
             , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
