@@ -3,14 +3,11 @@ module Page.Search exposing (Model, Msg(..), init, update, view)
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
-import Html.Attributes as HA
-import Html.Events as HE
 import Http
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Page.Common.Video
 import Request.PeerTube
-import Route
 import Url
 
 
@@ -81,15 +78,13 @@ update session msg model =
     case msg of
         VideoListReceived (Ok videoList) ->
             let
-                ( videoListData, loadMoreState ) =
+                videoListData =
                     case model.videoListData of
                         Data.PeerTube.Received previousList ->
-                            ( Data.PeerTube.Received (previousList ++ videoList)
-                            , Page.Common.Components.NotLoading
-                            )
+                            Data.PeerTube.Received (previousList ++ videoList)
 
                         _ ->
-                            ( Data.PeerTube.Received videoList, Page.Common.Components.NotLoading )
+                            Data.PeerTube.Received videoList
 
                 maybeDisabled =
                     if videoList == [] then
@@ -106,7 +101,7 @@ update session msg model =
             , Cmd.none
             )
 
-        VideoListReceived (Err error) ->
+        VideoListReceived (Err _) ->
             ( { model
                 | videoListData = Data.PeerTube.Failed "Échec de la récupération des vidéos"
                 , notifications =
@@ -140,7 +135,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } ({ title, videoListData, keyword, notifications, loadMoreState } as model) =
+view { peerTubeURL } { title, videoListData, keyword, notifications, loadMoreState } =
     { title = title
     , pageTitle =
         if keyword == "Nouveautés" then

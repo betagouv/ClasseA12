@@ -40,7 +40,7 @@ type Msg
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
-init userID verificationString session =
+init userID verificationString _ =
     ( { title = "Nouveau mot de passe"
       , userID = userID
       , verificationString = verificationString
@@ -61,12 +61,12 @@ update session msg model =
         SetNewPassword ->
             setNewPassword session.peerTubeURL model
 
-        NewPasswordSet (Ok userInfo) ->
+        NewPasswordSet (Ok _) ->
             ( { model | newPasswordRequest = Data.PeerTube.Received "Votre nouveau mot de passe a été enregistré" }
             , Cmd.none
             )
 
-        NewPasswordSet (Err error) ->
+        NewPasswordSet (Err _) ->
             ( { model
                 | notifications =
                     "Changement du mot de passe échoué"
@@ -97,7 +97,7 @@ setNewPassword peerTubeURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view session { title, notifications, setNewPasswordForm, newPasswordRequest } =
+view _ { title, notifications, setNewPasswordForm, newPasswordRequest } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""

@@ -8,11 +8,8 @@ module Data.Session exposing
 
 import Browser.Navigation as Nav
 import Data.PeerTube
-import Dict
-import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
-import Json.Encode as Encode
 import Ports
 import Route
 import Time

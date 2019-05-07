@@ -81,6 +81,7 @@ type alias VideoUploaded =
     }
 
 
+emptyNewVideo : NewVideo
 emptyNewVideo =
     { description = ""
     , title = ""

@@ -1,6 +1,5 @@
 module Route exposing (Route(..), fromUrl, href, pushUrl, toString)
 
-import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Html exposing (Attribute)
 import Html.Attributes as Attr

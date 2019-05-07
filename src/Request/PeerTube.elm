@@ -813,7 +813,7 @@ extractResult authResult =
 extractSessionMsg : AuthResult result -> Maybe Data.Session.Msg
 extractSessionMsg authResult =
     case authResult of
-        Succeed result ->
+        Succeed _ ->
             Nothing
 
         Refreshed userToken _ ->

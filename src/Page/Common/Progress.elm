@@ -15,6 +15,7 @@ empty =
     { percentage = 0, message = "" }
 
 
+decoder : Decode.Decoder Progress
 decoder =
     Decode.succeed Progress
         |> Pipeline.required "percentage" Decode.int

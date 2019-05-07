@@ -10,15 +10,11 @@ module Page.Common.Video exposing
     )
 
 import Data.PeerTube
-import Dict
 import Html as H
 import Html.Attributes as HA
-import Html.Events as HE
-import Json.Decode as Decode
 import Markdown
 import Page.Common.Dates as Dates
 import Route
-import Time
 
 
 publishedAtFromVideo : Data.PeerTube.Video -> String
@@ -130,7 +126,7 @@ viewCategory data peerTubeURL keyword =
                     H.text "Chargement des vidéos..."
 
                 Data.PeerTube.Received videoList ->
-                    viewList keyword peerTubeURL videoList
+                    viewList peerTubeURL videoList
 
                 Data.PeerTube.Failed error ->
                     H.text error
@@ -138,12 +134,8 @@ viewCategory data peerTubeURL keyword =
         ]
 
 
-viewList :
-    String
-    -> String
-    -> List Data.PeerTube.Video
-    -> H.Html msg
-viewList title peerTubeURL videoList =
+viewList : String -> List Data.PeerTube.Video -> H.Html msg
+viewList peerTubeURL videoList =
     let
         videoCards =
             if videoList /= [] then
