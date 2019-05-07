@@ -73,7 +73,7 @@ update { userInfo, userToken } msg model =
             ( { model | newVideo = video }, Cmd.none, Nothing )
 
         SubmitNewVideo ->
-            if Data.Session.isPeerTubeLoggedIn userInfo then
+            if Data.Session.isLoggedIn userInfo then
                 let
                     access_token =
                         userToken
@@ -237,7 +237,7 @@ view { staticFiles, userInfo } model =
                             ]
                         ]
                     ]
-                , if not <| Data.Session.isPeerTubeLoggedIn userInfo then
+                , if not <| Data.Session.isLoggedIn userInfo then
                     Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
                   else

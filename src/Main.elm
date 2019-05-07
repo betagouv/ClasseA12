@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.PeerTube
-import Data.Session exposing (Session, decodeStaticFiles, decodeUserData, emptyStaticFiles, emptyUserData, encodeUserData)
+import Data.Session exposing (Session, decodeStaticFiles, emptyStaticFiles)
 import Dict
 import Html exposing (..)
 import Http
@@ -176,13 +176,6 @@ setRoute url oldModel =
 init : Flags -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url navKey =
     let
-        userData =
-            -- Decode a string from the "loginForm" field in the value (the stringified session data)
-            Decode.decodeValue (Decode.field "loginForm" Decode.string) flags
-                -- Decode a loginForm from the value
-                |> Result.andThen (Decode.decodeString decodeUserData)
-                |> Result.withDefault emptyUserData
-
         userToken =
             -- Decode a string from the "userToken" field in the value (stored in the localstorage)
             Decode.decodeValue (Decode.field "userToken" Decode.string) flags
@@ -226,8 +219,7 @@ init flags url navKey =
 
         session : Session
         session =
-            { userData = userData
-            , timezone = Time.utc
+            { timezone = Time.utc
             , version = version
             , peerTubeURL = peerTubeURL
             , filesURL = filesURL
