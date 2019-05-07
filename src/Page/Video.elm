@@ -479,11 +479,9 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
     , pageSubTitle = videoTitle
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , H.div [ HA.class "section section-white" ]
-            [ H.div [ HA.class "container" ]
-                [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
-                ]
-            , H.div [ HA.class "container" ]
+        , H.section []
+            [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
+            , H.div []
                 [ viewComments videoID comments attachmentList
                 , case commentData of
                     Data.PeerTube.Failed _ ->
@@ -494,7 +492,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                     _ ->
                         viewCommentForm comment userInfo refreshing commentData attachmentData progress
                 ]
-            , H.div [ HA.class "container" ]
+            , H.div []
                 [ viewRelatedVideos peerTubeURL relatedVideos
                 ]
             ]
@@ -583,9 +581,9 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
 
         viewAttachments =
             if attachmentList /= [] then
-                H.div []
-                    [ H.h5 [] [ H.text "Ressources" ]
-                    , H.ul []
+                H.div [ HA.class "video_resources" ]
+                    [ H.h3 [] [ H.text "Ressources" ]
+                    , H.ul [ HA.class "list-reset" ]
                         (attachmentList
                             |> List.map
                                 (\attachment ->
@@ -607,9 +605,17 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
     H.div
         []
         [ Page.Common.Video.playerForVideo video peerTubeURL
-        , Page.Common.Video.details video
-        , Page.Common.Video.keywords video.tags
-        , viewAttachments
+        , H.div [ HA.class "video_details" ]
+            [ Page.Common.Video.title video
+            , H.div []
+                [ Page.Common.Video.metadata video
+                , Page.Common.Video.keywords video.tags
+                ]
+            ]
+        , H.div [ HA.class "video_infos" ]
+            [ Page.Common.Video.description video
+            , viewAttachments
+            ]
         , shareButtons
         ]
 

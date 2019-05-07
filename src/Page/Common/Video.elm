@@ -1,10 +1,13 @@
 module Page.Common.Video exposing
-    ( details
+    ( description
+    , details
     , embedPlayer
     , keywords
+    , metadata
     , playerForVideo
     , rawPlayer
     , shortDetails
+    , title
     , viewCategory
     , viewVideo
     )
@@ -66,15 +69,37 @@ playerForVideo video peerTubeURL =
 details : Data.PeerTube.Video -> H.Html msg
 details video =
     H.div
-        [ HA.class "video-details" ]
-        [ H.h3 [] [ H.text video.name ]
-        , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
-            , H.text " "
+        [ HA.class "video_details" ]
+        [ H.h1 [ HA.class "video_title" ] [ H.text video.name ]
+        , H.div [ HA.class "video_metadata" ]
+            [ H.text "Par "
             , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
+            , H.text " le "
+            , H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
             ]
-        , Markdown.toHtml [] video.description
         ]
+
+
+title : Data.PeerTube.Video -> H.Html msg
+title video =
+    H.h1 [ HA.class "video_title" ] [ H.text video.name ]
+
+
+metadata : Data.PeerTube.Video -> H.Html msg
+metadata video =
+    H.div [ HA.class "video_metadata" ]
+        [ H.text "Par "
+        , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
+        , H.text " le "
+        , H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
+        ]
+
+
+description : Data.PeerTube.Video -> H.Html msg
+description video =
+    H.div
+        [ HA.class "video_description" ]
+        [ Markdown.toHtml [] video.description ]
 
 
 shortDetails : Data.PeerTube.Video -> H.Html msg
@@ -92,12 +117,12 @@ keywords keywordList =
         keywordList
             |> List.map
                 (\keyword ->
-                    H.div [ HA.class "label" ]
+                    H.li [ HA.class "label" ]
                         [ H.a [ Route.href <| Route.Search (Just keyword) ]
                             [ H.text keyword ]
                         ]
                 )
-            |> H.div [ HA.class "video-keywords" ]
+            |> H.ul [ HA.class "video_keywords list-reset" ]
 
     else
         H.text ""
