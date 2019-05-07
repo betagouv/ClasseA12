@@ -140,7 +140,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles, peerTubeURL } ({ title, videoListData, keyword, notifications, loadMoreState } as model) =
+view { peerTubeURL } ({ title, videoListData, keyword, notifications, loadMoreState } as model) =
     { title = title
     , pageTitle =
         if keyword == "Nouveautés" then

@@ -218,7 +218,7 @@ updateProfile { peerTubeURL, userInfo, userToken } model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles } { title, pageState, profileForm, profileData, ownProfile, notifications } =
+view _ { title, pageState, profileForm, profileData, ownProfile, notifications } =
     let
         logoutButton =
             if ownProfile then
