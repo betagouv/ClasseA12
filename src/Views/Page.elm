@@ -49,7 +49,7 @@ frame config { title, pageTitle, pageSubTitle, body } =
         [ div [ class "content" ]
             [ viewHeader config pageTitle pageSubTitle
             , viewContent body
-            , viewFooter
+            , viewFooter config.session
             ]
         , viewAside config
         ]
@@ -122,8 +122,8 @@ viewContent body =
         body
 
 
-viewFooter : Html msg
-viewFooter =
+viewFooter : Session -> Html msg
+viewFooter session =
     footer [ class "wrapper" ]
         [ a [ href "" ]
             [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
@@ -131,11 +131,11 @@ viewFooter =
             ]
         , div []
             [ nav []
-                [ a [ href "" ] [ text "Conditions générales d'utilisation" ]
-                , a [ href "" ] [ text "Charte de bonne conduite" ]
-                , a [ href "" ] [ text "Politique de confidentialité" ]
+                [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ]
+                , a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ]
+                , a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ]
                 ]
-            , span [] [ text "Version : " ]
+            , span [] [ text <| "Version : " ++ session.version ]
             ]
         ]
 
