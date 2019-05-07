@@ -123,7 +123,7 @@ viewAside : Config msg -> Html msg
 viewAside { activePage } =
     let
         linkMaybeActive page route caption =
-            li []
+            nav []
                 [ a
                     [ Route.href route
                     , classList
@@ -134,29 +134,32 @@ viewAside { activePage } =
                 ]
     in
     aside [ class "side-menu" ]
-        [ ul []
+        [ img [ src "images/logos/classea12.svg" ] []
+        , nav []
             [ linkMaybeActive Home Route.Home "Accueil"
             , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
             ]
-        , h5 [] [ text "Catégories" ]
-        , ul []
-            (Data.Kinto.keywordList
-                |> List.map
-                    (\( keyword, _ ) ->
-                        let
-                            route =
-                                Route.Search <| Just keyword
-                        in
-                        linkMaybeActive (Search keyword) route keyword
-                    )
-            )
-        , h5 [] [ text "Le projet" ]
-        , ul []
-            [ linkMaybeActive About Route.About "Classe à 12 ?"
-            , linkMaybeActive Participate Route.Participate "Je participe"
-            , li [] [ a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ] ]
+        , div []
+            [ h3 [] [ text "Catégories" ]
+            , nav []
+                (Data.Kinto.keywordList
+                    |> List.map
+                        (\( keyword, _ ) ->
+                            let
+                                route =
+                                    Route.Search <| Just keyword
+                            in
+                            linkMaybeActive (Search keyword) route keyword
+                        )
+                )
+            , h3 [] [ text "Le projet" ]
+            , nav []
+                [ linkMaybeActive About Route.About "Classe à 12 ?"
+                , linkMaybeActive Participate Route.Participate "Je participe"
+                , a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ]
 
-            -- Link to the Mailchimp signup form.
-            , li [] [ a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ] ]
+                -- Link to the Mailchimp signup form.
+                , a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ]
+                ]
             ]
         ]
