@@ -197,7 +197,7 @@ updateProfile :
     -> Model
     -> ( Model, Cmd Msg, Maybe Data.Session.Msg )
 updateProfile { peerTubeURL, userInfo, userToken } model =
-    if isProfileFormComplete model.profileForm && Data.Session.isPeerTubeLoggedIn userInfo then
+    if isProfileFormComplete model.profileForm && Data.Session.isLoggedIn userInfo then
         case userToken of
             Just token ->
                 ( { model | profileData = Data.PeerTube.Requested }
@@ -218,7 +218,7 @@ updateProfile { peerTubeURL, userInfo, userToken } model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles } { title, pageState, profileForm, profileData, ownProfile, notifications } =
+view _ { title, pageState, profileForm, profileData, ownProfile, notifications } =
     let
         logoutButton =
             if ownProfile then

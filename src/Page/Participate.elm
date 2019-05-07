@@ -73,7 +73,7 @@ update { userInfo, userToken } msg model =
             ( { model | newVideo = video }, Cmd.none, Nothing )
 
         SubmitNewVideo ->
-            if Data.Session.isPeerTubeLoggedIn userInfo then
+            if Data.Session.isLoggedIn userInfo then
                 let
                     access_token =
                         userToken
@@ -215,7 +215,7 @@ update { userInfo, userToken } msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { staticFiles, userInfo } model =
+view { userInfo } model =
     { title = model.title
     , pageTitle = model.title
     , pageSubTitle = "Partagez une vidéo"
@@ -228,16 +228,16 @@ view { staticFiles, userInfo } model =
                     [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
                     , H.ul []
                         [ H.li []
-                            [ H.a [ HA.href staticFiles.autorisationCaptationImageMineur ]
+                            [ H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-mineur_2017.pdf" ]
                                 [ H.text "Autorisation captation image mineur" ]
                             ]
                         , H.li []
-                            [ H.a [ HA.href staticFiles.autorisationCaptationImageMajeur ]
+                            [ H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-majeur_2017.pdf" ]
                                 [ H.text "Autorisation captation image majeur" ]
                             ]
                         ]
                     ]
-                , if not <| Data.Session.isPeerTubeLoggedIn userInfo then
+                , if not <| Data.Session.isLoggedIn userInfo then
                     Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
                   else

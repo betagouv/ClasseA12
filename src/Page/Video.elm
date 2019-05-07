@@ -477,7 +477,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, staticFiles, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
+view { peerTubeURL, navigatorShare, url, userInfo, filesURL } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
     { title = title
     , pageTitle = "Vidéo"
     , pageSubTitle = videoTitle
@@ -696,7 +696,7 @@ viewCommentForm :
     -> Page.Common.Progress.Progress
     -> H.Html Msg
 viewCommentForm comment userInfo refreshing commentData attachmentData progress =
-    if not <| Data.Session.isPeerTubeLoggedIn userInfo then
+    if not <| Data.Session.isLoggedIn userInfo then
         Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
     else

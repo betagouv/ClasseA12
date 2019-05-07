@@ -2,6 +2,7 @@
 
 Source code for the project [Classe à 12](https://beta.gouv.fr/startup/classes12.html).
 This has been bootstraped with [elm-kitchen](https://allo-media.github.io/elm-kitchen/), see after the separator for more information.
+The project is bundled using [create-elm-app](https://github.com/halfzebra/create-elm-app).
 
 To install and tinker:
 
