@@ -46,14 +46,17 @@ frame : Config msg -> Page.Common.Components.Document msg -> Document msg
 frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        viewHeader config pageTitle pageSubTitle
-            ++ viewContent config body
-            ++ [ viewFooter config.session ]
-            ++ [ viewAside config.session ]
+        [ div [ class "content" ]
+            [ viewHeader config pageTitle pageSubTitle
+            , viewContent body
+            , viewFooter
+            ]
+        , viewAside config
+        ]
     }
 
 
-viewHeader : Config msg -> String -> String -> List (Html msg)
+viewHeader : Config msg -> String -> String -> Html msg
 viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle =
     let
         loginIcon =
@@ -80,36 +83,44 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
             else
                 loginIcon
     in
-    [ div [ class "content" ]
-        [ header []
-            [ div [ class "wrapper" ]
-                [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "" ]
+    header []
+        [ div [ class "wrapper" ]
+            [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "" ]
+                []
+            , nav []
+                [ a [ href "" ]
+                    [ text "Découvrez" ]
+                , a [ href "" ]
+                    [ text "Vos favoris" ]
+                ]
+            , form []
+                [ input [ type_ "text" ]
                     []
-                , nav []
-                    [ a [ href "" ]
-                        [ text "Découvrez" ]
-                    , a [ href "" ]
-                        [ text "Vos favoris" ]
-                    ]
-                , form []
-                    [ input [ type_ "text" ]
-                        []
-                    , text "  "
-                    ]
-                , div []
-                    [ a [ class "btn", href "" ]
-                        [ text "Partagez une vidéo" ]
-                    , a [ class "account", href "" ]
-                        []
-                    ]
+                , text "  "
+                ]
+            , div []
+                [ a [ class "btn", href "" ]
+                    [ text "Partagez une vidéo" ]
+                , a [ class "account", href "" ]
+                    []
                 ]
             ]
         ]
-    ]
 
 
-viewContent : Config msg -> List (Html msg) -> List (Html msg)
-viewContent { activePage } body =
+viewContent : List (Html msg) -> Html msg
+viewContent body =
+    main_ [ class "wrapper" ]
+        body
+
+
+viewFooter : Html msg
+viewFooter =
+    footer [ class "wrapper" ] []
+
+
+viewAside : Config msg -> Html msg
+viewAside { activePage } =
     let
         linkMaybeActive page route caption =
             li []
@@ -122,45 +133,30 @@ viewContent { activePage } body =
                     [ text caption ]
                 ]
     in
-    [ div [ class "dashboard" ]
-        [ aside [ class "side-menu" ]
-            [ ul []
-                [ linkMaybeActive Home Route.Home "Accueil"
-                , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
-                ]
-            , h5 [] [ text "Catégories" ]
-            , ul []
-                (Data.Kinto.keywordList
-                    |> List.map
-                        (\( keyword, _ ) ->
-                            let
-                                route =
-                                    Route.Search <| Just keyword
-                            in
-                            linkMaybeActive (Search keyword) route keyword
-                        )
-                )
-            , h5 [] [ text "Le projet" ]
-            , ul []
-                [ linkMaybeActive About Route.About "Classe à 12 ?"
-                , linkMaybeActive Participate Route.Participate "Je participe"
-                , li [] [ a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ] ]
-
-                -- Link to the Mailchimp signup form.
-                , li [] [ a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ] ]
-                ]
+    aside [ class "side-menu" ]
+        [ ul []
+            [ linkMaybeActive Home Route.Home "Accueil"
+            , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
             ]
-        , main_ [ class "wrapper" ]
-            body
+        , h5 [] [ text "Catégories" ]
+        , ul []
+            (Data.Kinto.keywordList
+                |> List.map
+                    (\( keyword, _ ) ->
+                        let
+                            route =
+                                Route.Search <| Just keyword
+                        in
+                        linkMaybeActive (Search keyword) route keyword
+                    )
+            )
+        , h5 [] [ text "Le projet" ]
+        , ul []
+            [ linkMaybeActive About Route.About "Classe à 12 ?"
+            , linkMaybeActive Participate Route.Participate "Je participe"
+            , li [] [ a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ] ]
+
+            -- Link to the Mailchimp signup form.
+            , li [] [ a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ] ]
+            ]
         ]
-    ]
-
-
-viewFooter : Session -> Html msg
-viewFooter session =
-    footer [ class "wrapper" ] []
-
-
-viewAside : Session -> Html msg
-viewAside session =
-    aside [] []
