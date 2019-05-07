@@ -93,16 +93,24 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
                 , a [ href "" ]
                     [ text "Vos favoris" ]
                 ]
-            , form []
-                [ input [ type_ "text" ]
-                    []
-                , text "  "
+            , form [ onSubmit submitSearchMsg ]
+                [ div [ class "search__group" ]
+                    [ input
+                        [ type_ "search"
+                        , value session.search
+                        , onInput updateSearchMsg
+                        , placeholder "Exemple : Français"
+                        ]
+                        []
+                    , button [ class "overlay-button" ]
+                        [ i [ class "fas fa-search" ] [] ]
+                    ]
                 ]
             , div []
                 [ a [ class "btn", href "" ]
                     [ text "Partagez une vidéo" ]
                 , a [ class "account", href "" ]
-                    []
+                    [ loginProfileIcon ]
                 ]
             ]
         ]
@@ -136,18 +144,18 @@ viewAside : Config msg -> Html msg
 viewAside { activePage } =
     let
         linkMaybeActive page route caption =
-            nav []
-                [ a
-                    [ Route.href route
-                    , classList
-                        [ ( "active", page == activePage )
-                        ]
+            a
+                [ Route.href route
+                , classList
+                    [ ( "active", page == activePage )
                     ]
-                    [ text caption ]
                 ]
+                [ text caption ]
     in
     aside [ class "side-menu" ]
-        [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
+        [ a [ href "/" ]
+            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
+            ]
         , nav []
             [ linkMaybeActive Home Route.Home "Accueil"
             , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
