@@ -308,6 +308,10 @@
   
   
   /* HOME */
+  .category:not(:first-of-type) {
+    margin-top: 8rem;
+  }
+
   .home-title_wrapper {
     display: flex;
     justify-content: space-between;

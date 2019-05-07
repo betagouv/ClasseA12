@@ -111,7 +111,7 @@ keywords keywordList =
 
 viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> String -> H.Html msg
 viewCategory data peerTubeURL keyword =
-    H.section [ HA.id keyword ]
+    H.section [ HA.class "category", HA.id keyword ]
         [ H.div [ HA.class "home-title_wrapper" ]
             [ H.h3 [ HA.class "home-title" ]
                 [ H.text "Le coin "
