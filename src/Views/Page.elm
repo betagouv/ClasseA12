@@ -109,7 +109,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
             , div []
                 [ a [ class "btn", href "" ]
                     [ text "Partagez une vidéo" ]
-                , a [ class "account", href "" ]
+                , a [ class "account", Route.href Route.Participate ]
                     [ loginProfileIcon ]
                 ]
             ]
