@@ -482,9 +482,14 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
         , viewBreadCrumbs videoData
         , H.section []
             [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
-            , H.div []
+            , H.div [ HA.class "cols_third" ]
                 [ viewComments videoID comments attachmentList
-                , case commentData of
+                , H.div []
+                    [ viewRelatedVideos peerTubeURL relatedVideos
+                    ]
+                ]
+            , H.div []
+                [ case commentData of
                     Data.PeerTube.Failed _ ->
                         H.div []
                             [ H.text "Erreur lors de l'ajout de la contribution"
@@ -492,9 +497,6 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
 
                     _ ->
                         viewCommentForm comment userInfo refreshing commentData attachmentData progress
-                ]
-            , H.div []
-                [ viewRelatedVideos peerTubeURL relatedVideos
                 ]
             ]
         ]
@@ -611,17 +613,25 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
             H.div [ HA.class "video_resources" ]
                 [ H.h3 [] [ H.text "Ressources" ]
                 , if attachmentList /= [] then
-                    H.ul [ HA.class "list-reset" ]
+                    H.ul []
                         (attachmentList
                             |> List.map
                                 (\attachment ->
                                     H.li []
-                                        [ H.a
+                                        [ H.img
+                                            [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_purple.svg"
+                                            , HA.title ""
+                                            ]
+                                            []
+                                        , H.a
                                             [ HA.href <| "#" ++ attachment.commentID
                                             , HA.class "comment-link"
                                             , HE.onClick <| CommentSelected attachment.commentID
                                             ]
                                             [ H.text attachment.filename ]
+                                        , H.span [ HA.class "file_info" ]
+                                            [ H.text " Type - n Ko"
+                                            ]
                                         ]
                                 )
                         )
@@ -646,7 +656,7 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                 , Page.Common.Video.keywords video.tags
                 ]
             ]
-        , H.div [ HA.class "video_infos" ]
+        , H.div [ HA.class "video_infos cols_third" ]
             [ Page.Common.Video.description video
             , viewAttachments
             ]
@@ -662,7 +672,7 @@ viewComments videoID commentsData attachmentList =
             Data.PeerTube.Received comments ->
                 H.div [ HA.class "comment_wrapper" ]
                     [ H.h2 [] [ H.text "Contributions" ]
-                    , H.ul [ HA.class "comment_list list-reset" ]
+                    , H.ul [ HA.class "comment_list" ]
                         (comments
                             |> List.map (viewCommentDetails videoID attachmentList)
                         )
@@ -687,9 +697,16 @@ viewCommentDetails videoID attachmentList comment =
                 |> List.filter (\attachment -> attachment.videoID == videoID && attachment.commentID == commentID)
                 |> List.map
                     (\attachment ->
-                        H.div []
-                            [ H.text "Pièce jointe : "
+                        H.li []
+                            [ H.img
+                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_purple.svg"
+                                , HA.title ""
+                                ]
+                                []
                             , H.a [ HA.href <| attachment.url ] [ H.text attachment.filename ]
+                            , H.span [ HA.class "file_info" ]
+                                [ H.text " Type - n Ko"
+                                ]
                             ]
                     )
     in
@@ -703,7 +720,7 @@ viewCommentDetails videoID attachmentList comment =
         , H.div [ HA.class "comment_content" ]
             [ H.a
                 [ Route.href <| Route.Profile comment.account.name
-                , HA.class "comment-author"
+                , HA.class "comment_author"
                 ]
                 [ H.h3 []
                     [ H.text comment.account.displayName
@@ -711,13 +728,13 @@ viewCommentDetails videoID attachmentList comment =
                 ]
             , H.a
                 [ HA.href <| "#" ++ commentID
-                , HA.class "comment-link"
+                , HA.class "comment_link"
                 , HE.onClick <| CommentSelected commentID
                 ]
                 [ H.time [] [ H.text <| Dates.formatStringDatetime comment.createdAt ]
                 ]
-            , Markdown.toHtml [] comment.text
-            , H.div [] attachmentNodes
+            , Markdown.toHtml [ HA.class "comment_value" ] comment.text
+            , H.ul [ HA.class "comment_attachment" ] attachmentNodes
             ]
         ]
 
@@ -811,8 +828,8 @@ viewRelatedVideos peerTubeURL relatedVideos =
         Data.PeerTube.Received videos ->
             if videos /= [] then
                 H.div []
-                    [ H.h5 [] [ H.text "Ces vidéos pourraient vous intéresser" ]
-                    , H.div [ HA.class "row" ]
+                    [ H.h4 [] [ H.text "Suggestions" ]
+                    , H.div []
                         (videos
                             |> List.map (Page.Common.Video.viewVideo peerTubeURL)
                         )

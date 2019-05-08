@@ -122,7 +122,7 @@ keywords keywordList =
                             [ H.text keyword ]
                         ]
                 )
-            |> H.ul [ HA.class "video_keywords list-reset" ]
+            |> H.ul [ HA.class "video_keywords" ]
 
     else
         H.text ""
