@@ -438,18 +438,37 @@ aside nav a img[src*="book.svg"] {
 }
 
 /* COMMENTS */
+.comment_wrapper h2 {
+  margin-bottom: 5.6rem;
+}
+
 .comment {
   display: flex;
+  flex-wrap: wrap;
+}
+.comment:not(:last-of-type) {
+  margin-bottom: 6.4rem;
+}
+.comment::after {
+  content: '';
+  display: block;
+  width: 32rem;
+  height: 2px; 
+  margin-top: 4.8rem;
+  background-color: var(--border-color);
 }
 
 .comment_avatar {
   display: block;
   width: 10.4rem;
   height: 10.4rem;
+  margin-right: 6.4rem;
+  background-color:  var(--font-color-secondary);
+  border-radius: 50%;
 }
 
 .comment_content {
-  width: calc(100% - 10.4rem)
+  width: calc(100% - 16.8rem)
 }
 
 /* BREADCRUMBS */

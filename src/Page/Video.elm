@@ -660,7 +660,7 @@ viewComments videoID commentsData attachmentList =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.PeerTube.Received comments ->
-                H.div [ HA.class "comment-wrapper" ]
+                H.div [ HA.class "comment_wrapper" ]
                     [ H.h2 [] [ H.text "Contributions" ]
                     , H.ul [ HA.class "comment_list list-reset" ]
                         (comments
