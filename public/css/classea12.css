@@ -439,3 +439,15 @@ aside nav a img[src*="book.svg"] {
 .comment_content {
   width: calc(100% - 10.4rem)
 }
+
+/* BREADCRUMBS */
+.breadcrumbs {
+  margin-bottom: 3.2rem;
+  font-size: 1.4rem;
+  color: rgba(30,17,105,0.5);
+}
+
+.breadcrumbs a {
+  color: var(--primary-color);
+  border-bottom: 1px solid var(--primary-color);
+}

@@ -479,6 +479,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
     , pageSubTitle = videoTitle
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
+        , viewBreadCrumbs videoData
         , H.section []
             [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
             , H.div []
@@ -498,6 +499,33 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
             ]
         ]
     }
+
+
+viewBreadCrumbs : Data.PeerTube.RemoteData Data.PeerTube.Video -> H.Html Msg
+viewBreadCrumbs videoData =
+    case videoData of
+        Data.PeerTube.Received video ->
+            let
+                keywordCrumbs =
+                    video.tags
+                        |> List.concatMap
+                            (\keyword ->
+                                [ H.text " / "
+                                , H.a [ Route.href (Route.Search <| Just keyword) ] [ H.text keyword ]
+                                ]
+                            )
+            in
+            H.div [ HA.class "breadcrumbs" ]
+                ([ H.a [ Route.href Route.Home ] [ H.text "Accueil" ]
+                 ]
+                    ++ keywordCrumbs
+                    ++ [ H.text " / "
+                       , H.text video.name
+                       ]
+                )
+
+        _ ->
+            H.text ""
 
 
 viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> List Attachment -> H.Html Msg
