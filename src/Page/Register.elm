@@ -124,7 +124,7 @@ view _ { title, notifications, registerForm, registration, approved } =
     , pageSubTitle = ""
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , H.div [ HA.class "section section-white" ]
+        , H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ case registration of
                     Data.PeerTube.Received message ->

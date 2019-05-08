@@ -32,7 +32,7 @@ view _ { title } =
     , pageTitle = title
     , pageSubTitle = ""
     , body =
-        [ H.div [ HA.class "section section-white" ]
+        [ H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ H.p [] [ H.text "Le site «\u{00A0}Classe à 12\u{00A0}» est un projet en construction édité dans le cadre d’une Startup d’État portée par le laboratoire d’innovation du Ministère (Lab110bis), la Direction interministérielle des systèmes d'information et de communication de l'État (DINSIC)." ]
                 , H.p [] [ H.text "Ce projet actuellement hébergé par les services de beta.gouv.fr, est en lien avec le réseau des incubateurs de Startup d’État." ]

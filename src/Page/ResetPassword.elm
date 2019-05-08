@@ -98,7 +98,7 @@ view _ { title, notifications, resetForm, passwordReset } =
     , pageSubTitle = ""
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , H.div [ HA.class "section section-white" ]
+        , H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ case passwordReset of
                     Data.PeerTube.Received message ->

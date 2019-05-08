@@ -89,7 +89,7 @@ optgroup label nodes =
 
 viewConnectNow : String -> String -> H.Html msg
 viewConnectNow label linkLabel =
-    H.div [ HA.class "section section-white" ]
+    H.div [ HA.class "section " ]
         [ H.div [ HA.class "container" ]
             [ H.text label
             , H.a [ Route.href Route.Login ] [ H.text linkLabel ]

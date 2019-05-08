@@ -32,7 +32,7 @@ view _ { title } =
     , pageTitle = "Charte de bonne conduite"
     , pageSubTitle = "du site « Classe à 12 » du Ministère de l’éducation et de la jeunesse"
     , body =
-        [ H.div [ HA.class "section section-white" ]
+        [ H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ H.p [] [ H.text "Définition du projet :" ]
                 , H.ul []

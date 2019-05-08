@@ -220,7 +220,7 @@ view { userInfo } model =
     , pageTitle = model.title
     , pageSubTitle = "Partagez une vidéo"
     , body =
-        [ H.div [ HA.class "section section-white" ]
+        [ H.div [ HA.class "section" ]
             [ H.div [ HA.class "container" ]
                 [ displayRemoteData model.newVideoData
                 , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]

@@ -200,13 +200,13 @@ view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData,
                             ]
 
                     _ ->
-                        H.div [ HA.class "section section-white" ]
+                        H.div [ HA.class "section " ]
                             [ H.div [ HA.class "container" ]
                                 [ H.text "Chargement des vidéos en cours..." ]
                             ]
 
             else
-                H.div [ HA.class "section section-white" ]
+                H.div [ HA.class "section " ]
                     [ H.div [ HA.class "container" ]
                         [ H.text "Cette page est réservée aux administrateurs" ]
                     ]
@@ -238,7 +238,7 @@ viewVideo publishingVideos peerTubeURL video =
     in
     H.div []
         [ H.div
-            [ HA.class "section section-white" ]
+            [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ Page.Common.Video.playerForVideo video peerTubeURL
                 , Page.Common.Video.details video
