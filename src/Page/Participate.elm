@@ -220,30 +220,28 @@ view { userInfo } model =
     , pageTitle = model.title
     , pageSubTitle = "Partagez une vidéo"
     , body =
-        [ H.div [ HA.class "section" ]
-            [ H.div [ HA.class "container" ]
-                [ displayRemoteData model.newVideoData
-                , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
-                , H.p []
-                    [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
-                    , H.ul []
-                        [ H.li []
-                            [ H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-mineur_2017.pdf" ]
-                                [ H.text "Autorisation captation image mineur" ]
-                            ]
-                        , H.li []
-                            [ H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-majeur_2017.pdf" ]
-                                [ H.text "Autorisation captation image majeur" ]
-                            ]
-                        ]
-                    ]
-                , if not <| Data.Session.isLoggedIn userInfo then
-                    Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
-
-                  else
-                    displaySubmitVideoForm model
+        [ H.div [ HA.class "participate_intro" ]
+            [ displayRemoteData model.newVideoData
+            , H.h1 []
+                [ H.text "Je participe !"
+                ]
+            , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
+            , H.p []
+                [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
+                , H.br [] []
+                , H.text "Des demandes d’autorisation son disponible ici : "
+                , H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-majeur_2017.pdf" ]
+                    [ H.text "autorisation adulte" ]
+                , H.text " - "
+                , H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-mineur_2017.pdf" ]
+                    [ H.text "autorisation mineur" ]
                 ]
             ]
+
+        -- , if not <| Data.Session.isLoggedIn userInfo then
+        --     Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+        --   else
+        , displaySubmitVideoForm model
         ]
     }
 
@@ -264,8 +262,14 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
             videoObjectUrl
                 /= Nothing
     in
-    H.form [ HE.onSubmit SubmitNewVideo ]
-        [ displayVideo
+    H.form [ HE.onSubmit SubmitNewVideo, HA.class "upload_steps" ]
+        [ H.h2 [ HA.class "upload-step_title" ]
+            [ H.div [ HA.class "upload-step_icon" ]
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/download_purple.svg" ] []
+                ]
+            , H.text "Étape 1 : Télécharger votre vidéo"
+            ]
+        , displayVideo
         , H.div
             [ HA.class "upload-video"
             ]
@@ -286,110 +290,107 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     , Page.Common.Components.onFileSelected VideoSelected
                     ]
                     []
-                , H.span [ HA.class "file-cta" ]
-                    [ H.span [ HA.class "file-icon" ]
-                        [ H.i [ HA.class "fas fa-upload" ] []
+                , H.span [ HA.class "btn" ]
+                    [ H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
+                    ]
+                ]
+            ]
+        , H.div [ HA.class "upload-step" ]
+            [ formInput
+                H.input
+                "title"
+                "Titre*"
+                "Titre de la video"
+                newVideo.title
+                (\title -> UpdateVideoForm { newVideo | title = title })
+                videoSelected
+            , H.div
+                [ HA.style "display"
+                    (if videoSelected then
+                        "block"
+
+                     else
+                        "none"
+                    )
+                ]
+                [ H.fieldset []
+                    [ H.legend []
+                        [ H.text "Niveau" ]
+                    , H.input
+                        [ HA.id "grade-all"
+                        , HA.type_ "radio"
+                        , HA.name "grade"
+                        , HA.checked <| newVideo.grade == ""
+                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "" })
                         ]
-                    , H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
+                        []
+                    , H.label [ HA.for "grade-all", HA.class "label-inline" ]
+                        [ H.text "Tous les niveaux" ]
+                    , H.input
+                        [ HA.id "grade-maternelle"
+                        , HA.type_ "radio"
+                        , HA.name "grade"
+                        , HA.checked <| newVideo.grade == "Maternelle"
+                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "Maternelle" })
+                        ]
+                        []
+                    , H.label [ HA.for "grade-maternelle", HA.class "label-inline" ]
+                        [ H.text "Maternelle" ]
+                    , H.input
+                        [ HA.id "grade-cp"
+                        , HA.type_ "radio"
+                        , HA.name "grade"
+                        , HA.checked <| newVideo.grade == "CP"
+                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CP" })
+                        ]
+                        []
+                    , H.label [ HA.for "grade-cp", HA.class "label-inline" ]
+                        [ H.text "CP" ]
+                    , H.input
+                        [ HA.id "grade-ce1"
+                        , HA.type_ "radio"
+                        , HA.name "grade"
+                        , HA.checked <| newVideo.grade == "CE1"
+                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CE1" })
+                        ]
+                        []
+                    , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
+                        [ H.text "CE1" ]
                     ]
                 ]
-            ]
-        , formInput
-            H.input
-            "title"
-            "Titre*"
-            "Titre de la video"
-            newVideo.title
-            (\title -> UpdateVideoForm { newVideo | title = title })
-            videoSelected
-        , H.div
-            [ HA.class "form__group"
-            , HA.style "display"
-                (if videoSelected then
-                    "block"
+            , formInput
+                H.textarea
+                "description"
+                "Description"
+                "Description succincte, ville, académie (mise en forme possible avec Markdown)"
+                newVideo.description
+                (\description -> UpdateVideoForm { newVideo | description = description })
+                videoSelected
+            , H.div
+                [ HA.style "display"
+                    (if videoSelected then
+                        "block"
 
-                 else
-                    "none"
-                )
-            ]
-            [ H.fieldset []
-                [ H.legend []
-                    [ H.text "Niveau" ]
-                , H.input
-                    [ HA.id "grade-maternelle"
-                    , HA.type_ "radio"
-                    , HA.name "grade"
-                    , HA.checked <| newVideo.grade == "Maternelle"
-                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "Maternelle" })
-                    ]
-                    []
-                , H.label [ HA.for "grade-maternelle", HA.class "label-inline" ]
-                    [ H.text "Maternelle" ]
-                , H.input
-                    [ HA.id "grade-cp"
-                    , HA.type_ "radio"
-                    , HA.name "grade"
-                    , HA.checked <| newVideo.grade == "CP"
-                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CP" })
-                    ]
-                    []
-                , H.label [ HA.for "grade-cp", HA.class "label-inline" ]
-                    [ H.text "CP" ]
-                , H.input
-                    [ HA.id "grade-ce1"
-                    , HA.type_ "radio"
-                    , HA.name "grade"
-                    , HA.checked <| newVideo.grade == "CE1"
-                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CE1" })
-                    ]
-                    []
-                , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
-                    [ H.text "CE1" ]
-                , H.input
-                    [ HA.id "grade-all"
-                    , HA.type_ "radio"
-                    , HA.name "grade"
-                    , HA.checked <| newVideo.grade == ""
-                    , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "" })
-                    ]
-                    []
-                , H.label [ HA.for "grade-all", HA.class "label-inline" ]
-                    [ H.text "Tous les niveaux" ]
+                     else
+                        "none"
+                    )
                 ]
+                [ H.fieldset []
+                    ([ H.legend [] [ H.text "Mots Clés" ] ]
+                        ++ viewKeywords
+                            preSelectedKeywords
+                            UpdatePreSelectedKeywords
+                    )
+                ]
+            , formInput
+                H.input
+                "freeform-keyword"
+                "Préciser (parmi les mots clés grisés ci-dessus) ou ajouter des mots clés"
+                "Liste de mots clés séparés par des virgules"
+                freeformKeywords
+                UpdateFreeformKeywords
+                videoSelected
             ]
-        , formInput
-            H.textarea
-            "description"
-            "Description"
-            "Description succincte, ville, académie (mise en forme possible avec Markdown)"
-            newVideo.description
-            (\description -> UpdateVideoForm { newVideo | description = description })
-            videoSelected
-        , H.div
-            [ HA.class "form__group"
-            , HA.style "display"
-                (if videoSelected then
-                    "block"
-
-                 else
-                    "none"
-                )
-            ]
-            [ H.fieldset []
-                ([ H.legend [] [ H.text "Mots Clés" ] ]
-                    ++ viewKeywords
-                        preSelectedKeywords
-                        UpdatePreSelectedKeywords
-                )
-            ]
-        , formInput
-            H.input
-            "freeform-keyword"
-            "Préciser (parmi les mots clés grisés ci-dessus) ou ajouter des mots clés"
-            "Liste de mots clés séparés par des virgules"
-            freeformKeywords
-            UpdateFreeformKeywords
-            videoSelected
         , H.button
             [ HA.type_ "submit"
             , HA.class "button"
@@ -425,14 +426,14 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
 
 displayVideo : H.Html Msg
 displayVideo =
-    H.div [ HA.style "display" "none", HA.style "text-align" "center" ]
+    H.div [ HA.style "display" "none", HA.class "upload-step upload-step_thumbnail" ]
         [ H.video
             [ HA.controls True
             , HA.id "uploaded-video"
             ]
             []
         , H.p [] [ H.text "Aperçu de la miniature de la vidéo (déplacer le curseur de la vidéo ci-dessus)" ]
-        , H.canvas [ HA.id "thumbnail-preview" ] []
+        , H.canvas [ HA.id "thumbnail-preview", HA.style "display" "none" ] []
         ]
 
 
@@ -471,8 +472,7 @@ type alias HtmlNode msg =
 formInput : HtmlNode msg -> String -> String -> String -> String -> (String -> msg) -> Bool -> H.Html msg
 formInput input id label placeholder value onInput isVisible =
     H.div
-        [ HA.class "form__group"
-        , HA.style "display"
+        [ HA.style "display"
             (if isVisible then
                 "block"
 
@@ -519,7 +519,7 @@ checkbox msg ( key, value ) =
             []
          , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
          ]
-            ++ includedKeywords
+         -- ++ includedKeywords
         )
 
 
