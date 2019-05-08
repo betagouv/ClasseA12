@@ -356,6 +356,15 @@ aside nav a img[src*="book.svg"] {
   margin-bottom: 4rem;
 }
 
+.video_details::after {
+  content: '';
+  display: block;
+  width: 3.2rem;
+  height: 1px;
+  margin-top: 1.6rem;
+  background-color: var(--border-color);
+}
+
 .video_details > div {
   display: flex;
   font-size: 1.4rem;
@@ -366,6 +375,9 @@ aside nav a img[src*="book.svg"] {
   color: var(--primary-color);
 }
 
+.video_metadata {
+  margin-left: 1.2rem;
+}
 .video_metadata,
 .video_metadata a {
   font-weight: 600;

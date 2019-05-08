@@ -608,10 +608,10 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                 )
 
         viewAttachments =
-            if attachmentList /= [] then
-                H.div [ HA.class "video_resources" ]
-                    [ H.h3 [] [ H.text "Ressources" ]
-                    , H.ul [ HA.class "list-reset" ]
+            H.div [ HA.class "video_resources" ]
+                [ H.h3 [] [ H.text "Ressources" ]
+                , if attachmentList /= [] then
+                    H.ul [ HA.class "list-reset" ]
                         (attachmentList
                             |> List.map
                                 (\attachment ->
@@ -625,10 +625,12 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                                         ]
                                 )
                         )
-                    ]
 
-            else
-                H.div [] []
+                  else
+                    H.p []
+                        [ H.text "Aucune ressource disponible"
+                        ]
+                ]
     in
     H.div
         []
@@ -636,7 +638,11 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
         , H.div [ HA.class "video_details" ]
             [ Page.Common.Video.title video
             , H.div []
-                [ Page.Common.Video.metadata video
+                [ H.img
+                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
+                    ]
+                    []
+                , Page.Common.Video.metadata video
                 , Page.Common.Video.keywords video.tags
                 ]
             ]
