@@ -175,7 +175,8 @@ label {
 }
 
 textarea,
-[type=file] {
+[type=file],
+[type=search] {
   width: 100%;
   background-color: #fff;
   border: 1px solid #C8C8CD;
@@ -185,7 +186,8 @@ textarea {
   height: 32rem;
   padding: 0.8rem 2.4rem;
 }
-[type=file] {
+[type=file],
+[type=search] {
   padding: 0.8rem 2rem;
 }
 
@@ -242,6 +244,10 @@ header div {
 }
 header div a:last-of-type {
   margin-left: 1.6rem;
+}
+
+.search_button {
+  background: none;
 }
 
 /* FOOTER */

@@ -102,8 +102,8 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
                         , placeholder "Exemple : Français"
                         ]
                         []
-                    , button [ class "overlay-button" ]
-                        [ i [ class "fas fa-search" ] [] ]
+                    , button [ class "search_button" ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg"][] ]
                     ]
                 ]
             , div []
