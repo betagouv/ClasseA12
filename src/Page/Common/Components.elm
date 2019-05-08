@@ -89,12 +89,10 @@ optgroup label nodes =
 
 viewConnectNow : String -> String -> H.Html msg
 viewConnectNow label linkLabel =
-    H.div [ HA.class "section " ]
-        [ H.div [ HA.class "container" ]
+    H.p []
             [ H.text label
             , H.a [ Route.href Route.Login ] [ H.text linkLabel ]
             ]
-        ]
 
 
 onFileSelected : msg -> H.Attribute msg

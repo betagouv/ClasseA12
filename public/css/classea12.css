@@ -80,18 +80,26 @@ body {
   display: flex;
   flex-wrap: wrap;
 }
-.cols_third > div:first-child {
+.cols_height-four > div:first-child {
   width: 66.6666%;
   padding-right: 3.2rem;
 }
-.cols_third > div:last-of-type {
+.cols_height-four > div:last-of-type {
   width: 33.3333%;
   padding-left: 4rem;
   border-left: 1px solid var(--border-color);
 }
 
-/* HEADINGS */
+.cols_seven-five > div:first-child {
+  width: calc((100% / 12) * 7);
+}
+.cols_seven-five > div:last-of-type {
+  width: calc((100% / 12) * 5);
+  padding-left: 4rem;
+}
 
+
+/* HEADINGS */
 
 h1 {
   font-family: "montserrat_regular", Arial, sans-serif;
@@ -117,24 +125,33 @@ h4 {
 a {
   color: var(--font-color-thirdary);
 }
-.btn {
+
+button {
+  background: none;
+  border: none;
+}
+
+.btn,
+button {
   display: inline-block;
   padding: 1.3rem 2rem;
+  font-family: "montserrat_regular", Arial, sans-serif;
   font-size: 1.4rem;
   line-height: 1;
   color: #fff;
   background-color: var(--secondary-color);
   border-radius: 2.5rem;
 }
-.btn:hover {
+.btn:hover,
+button:hover {
   color: #fff;
   text-decoration: none;
 }
 
-button {
-  background: none;
-  border: none;
+button:disabled {
+  opacity: 0.5;
 }
+
 
 /* LISTS */
 ul {
@@ -148,6 +165,35 @@ ul {
   width: 100%;
 }
 
+/* FORMS */
+label {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  color: var(--primary-color);
+}
+
+textarea,
+[type=file] {
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #C8C8CD;
+  border-radius: 2px;
+}
+textarea {
+  height: 32rem;
+  padding: 0.8rem 2.4rem;
+}
+[type=file] {
+  padding: 0.8rem 2rem;
+}
+
+::placeholder {
+  font-size: 1.8rem;
+  font-weight: 200;
+  color: #6E6E78;
+}
 /* HEADER */
 header {
   padding: 2.1rem 0;
@@ -479,6 +525,23 @@ aside nav a img[src*="book.svg"] {
 }
 .video_suggestion .card_content h3 {
   font-size: 1.2rem;
+}
+
+.video_contribution {
+  margin-top: 4.6rem;
+}
+.video_contribution h2 {
+  margin-bottom: 0;
+}
+.video_contribution p {
+  color: #7F7F90;
+}
+.video_contribution form {
+  margin-top: 3.2rem;
+}
+
+.video_contribution button {
+  margin-top: 1.6rem;
 }
 
 
