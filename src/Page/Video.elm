@@ -616,7 +616,8 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
             [ Page.Common.Video.description video
             , viewAttachments
             ]
-        , shareButtons
+
+        -- , shareButtons
         ]
 
 
@@ -626,8 +627,8 @@ viewComments videoID commentsData attachmentList =
         [ case commentsData of
             Data.PeerTube.Received comments ->
                 H.div [ HA.class "comment-wrapper" ]
-                    [ H.h3 [] [ H.text "Contributions" ]
-                    , H.ul [ HA.class "comment-list" ]
+                    [ H.h2 [] [ H.text "Contributions" ]
+                    , H.ul [ HA.class "comment_list list-reset" ]
                         (comments
                             |> List.map (viewCommentDetails videoID attachmentList)
                         )
@@ -659,23 +660,31 @@ viewCommentDetails videoID attachmentList comment =
                     )
     in
     H.li
-        [ HA.class "comment panel"
+        [ HA.class "comment"
         , HA.id <| String.fromInt comment.id
         ]
-        [ H.a
-            [ HA.href <| "#" ++ commentID
-            , HA.class "comment-link"
-            , HE.onClick <| CommentSelected commentID
+        [ H.div [ HA.class "comment_avatar" ]
+            [ H.img [] []
             ]
-            [ H.time [] [ H.text <| Dates.formatStringDatetime comment.createdAt ]
+        , H.div [ HA.class "comment_content" ]
+            [ H.a
+                [ Route.href <| Route.Profile comment.account.name
+                , HA.class "comment-author"
+                ]
+                [ H.h3 []
+                    [ H.text comment.account.displayName
+                    ]
+                ]
+            , H.a
+                [ HA.href <| "#" ++ commentID
+                , HA.class "comment-link"
+                , HE.onClick <| CommentSelected commentID
+                ]
+                [ H.time [] [ H.text <| Dates.formatStringDatetime comment.createdAt ]
+                ]
+            , Markdown.toHtml [] comment.text
+            , H.div [] attachmentNodes
             ]
-        , H.a
-            [ Route.href <| Route.Profile comment.account.name
-            , HA.class "comment-author"
-            ]
-            [ H.text comment.account.displayName ]
-        , Markdown.toHtml [] comment.text
-        , H.div [] attachmentNodes
         ]
 
 

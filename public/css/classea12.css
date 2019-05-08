@@ -1,415 +1,441 @@
 :root {
-    --primary-color: #1e1169;
-    --secondary-color: #ff507d;
-    --font-color: #353555;
-    --font-color-light: #f7f7fc;
-    --font-color-secondary: #59598d;
-    --font-color-thirdary: #05005A;
-    --placeholder-color: #c8c8cd;
-    --menu-hover-color: #28dcf0;
-    --yellow: #ffd214;
-    --default-font: "nunitoregular", Arial, sans-serif;
-    --border-color: rgba(30, 17, 105, .1)
-  }
-  
-  @font-face {
-    font-family: "nunitobold";
-    src: url("../fonts/nunito-bold-webfont.woff2") format("woff2"), url("../fonts/nunito-bold-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  @font-face {
-    font-family: "nunitoregular";
-    src: url("../fonts/nunito-regular-webfont.woff2") format("woff2"), url("../fonts/nunito-regular-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  @font-face {
-    font-family: "montserrat_lightregular";
-    src: url("../fonts/montserrat-light-webfont.woff2") format("woff2"),
-      url("../fonts/montserrat-light-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  @font-face {
-    font-family: "montserrat_regular";
-    src: url("../fonts/montserrat-regular-webfont.woff2") format("woff2"),
-      url("../fonts/montserrat-regular-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  @font-face {
-    font-family: "montserrat_bold";
-    src: url("../fonts/montserrat-bold-webfont.woff2") format("woff2"),
-      url("../fonts/montserrat-bold-webfont.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-  }
-  
-  html {
-    font-size: 62.5%; /* 10px */
-  }
-  
-  body {
-    display: flex;
-    min-height: 100vh;
-    font-family: var(--default-font);
-    font-size: 1.6rem;
-    color: var(--font-color);
-    background-color: var(--font-color-light);
-  }
-  
+  --primary-color: #1e1169;
+  --secondary-color: #ff507d;
+  --font-color: #353555;
+  --font-color-light: #f7f7fc;
+  --font-color-secondary: #59598d;
+  --font-color-thirdary: #05005A;
+  --placeholder-color: #c8c8cd;
+  --menu-hover-color: #28dcf0;
+  --yellow: #ffd214;
+  --default-font: "nunitoregular", Arial, sans-serif;
+  --border-color: rgba(30, 17, 105, .1)
+}
+
+@font-face {
+  font-family: "nunitobold";
+  src: url("../fonts/nunito-bold-webfont.woff2") format("woff2"), url("../fonts/nunito-bold-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "nunitoregular";
+  src: url("../fonts/nunito-regular-webfont.woff2") format("woff2"), url("../fonts/nunito-regular-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "montserrat_lightregular";
+  src: url("../fonts/montserrat-light-webfont.woff2") format("woff2"),
+    url("../fonts/montserrat-light-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "montserrat_regular";
+  src: url("../fonts/montserrat-regular-webfont.woff2") format("woff2"),
+    url("../fonts/montserrat-regular-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "montserrat_bold";
+  src: url("../fonts/montserrat-bold-webfont.woff2") format("woff2"),
+    url("../fonts/montserrat-bold-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html {
+  font-size: 62.5%; /* 10px */
+}
+
+body {
+  display: flex;
+  min-height: 100vh;
+  font-family: var(--default-font);
+  font-size: 1.6rem;
+  color: var(--font-color);
+  background-color: var(--font-color-light);
+}
+
+.wrapper {
+  max-width: 112rem;
+  margin: 0 auto;
+}
+@media (max-width: 1350px) {
   .wrapper {
-    max-width: 112rem;
-    margin: 0 auto;
-  }
-  @media (max-width: 1350px) {
-    .wrapper {
-      width: 100%;
-      padding-right: 3%;
-      padding-left: 3%;
-    }
-  }
-  
-  h1 {
-    font-size: 2.8rem;
-    font-weight: normal;
-  }
-  
-  h2 {
-    font-size: 2.6rem;
-    font-weight: 300;
-  }
-  
-  /* LINKS & BUTTONS */
-  a {
-    color: var(--font-color);
-  }
-  .btn {
-    display: inline-block;
-    padding: 1.3rem 2rem;
-    font-size: 1.4rem;
-    line-height: 1;
-    color: #fff;
-    background-color: var(--secondary-color);
-    border-radius: 2.5rem;
-  }
-  .btn:hover {
-    color: #fff;
-    text-decoration: none;
-  }
-  
-  button {
-    background: none;
-    border: none;
-  }
-
-  /* LISTS */
-  .list-reset {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-  }
-  
-  .content {
-    order: 2;
     width: 100%;
+    padding-right: 3%;
+    padding-left: 3%;
   }
-  
-  /* HEADER */
-  header {
-    padding: 2.1rem 0;
-    background-color: #fff;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-  }
-  header .wrapper {
-    display: flex;
-  }
-  header nav {
-    display: flex;
-    margin-right: 4rem;
-    margin-left: 4rem;
-    font-family: "montserrat_regular", Arial, sans-serif;
-    font-size: 1.7rem;
-  }
-  header nav a {
-    position: relative;
-  }
-  header nav a::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    bottom: -1.2rem;
-    left: 0;
-    display: block;
-    width: 0.6rem;
-    height: 0.6rem;
-    margin: auto;
-    background-color: transparent;
-    border-radius: 50%;
-  }
-  header nav a:hover {
-    color: var(--font-color);
-    font-weight: bold;
-    text-decoration: none;
-  }
-  header nav a:hover::after {
-    background-color: var(--menu-hover-color);
-  }
-  
-  header div {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-  }
-  header div a:last-of-type {
-    margin-left: 1.6rem;
-  }
-  
-  /* FOOTER */
-  footer {
-    display: flex;
-    padding-top: 4.5rem;
-    padding-bottom: 5.6rem;
-    font-size: 1.4rem;
-    border-top: 1px solid rgba(89, 89 , 141, .1);
-  }
-  footer > a:first-of-type {
-    margin-right: 6.2rem;
-  }
-  footer div:last-of-type {
-    margin-left: auto;
-    text-align: right;
-  }
-  footer nav a {
-    display: block;
-  }
-  
-  /* MAIN */
-  main {
-    padding-top: 8rem;
-    padding-bottom: 10rem;
-  }
-  
-  
-  /* ASIDE */
-  aside {
-    order: 1;
-    width: 28.8rem;
-    padding: 1.6rem 0;
-    font-family: "montserratbold", Arial, Helvetica, sans-serif;
-    font-size: 1.4rem;
-    color: #fff;
-    background-color: var(--primary-color);
-  }
-  aside h3 {
-    margin-bottom: 1rem;
-    padding-left: 3.2rem;
-    font-size: 1.4rem;
-    line-height: 2.15;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  aside nav {
-    margin-bottom: 1.4rem;
-  }
-  aside > nav {
-    position: relative;
-    margin-right: 4.6rem;
-    padding-bottom: 0.9rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-  }
-  aside > nav::before,
-  aside > nav::after {
-    content: "";
-    position: absolute;
-    bottom: -1px;
-    display: block;
-    height: 1px;
-    background-color: var(--primary-color);
-  }
-  aside > nav::before {
-    right: 4.1rem;
-    width: 0.8rem;
-  }
-  aside > nav::after {
-    right: 1rem;
-    width: 1.5rem;
-  }
-  aside > div nav:first-of-type {
-    position: relative;
-    padding-bottom: 1.5rem;
-  }
-  aside > div nav:first-of-type::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 1.6rem;
-    display: block;
-    width: 3.2rem;
-    height: 1px;
-    background-color: rgba(255, 255, 255, 0.6);
-  }
-  aside nav a {
-    display: block;
-    margin-bottom: 0.5rem;
-    padding-left: 2.4rem;
-    font-weight: 500;
-    color: #fff;
-    border-left: 0.4rem solid transparent;
-  }
-  aside nav a:hover,
-  aside nav a.active {
-    color: #fff;
-    text-decoration: none;
-    border-color: var(--menu-hover-color);
-  }
-  aside nav a img {
-    display: inline-block;
-    width: 3.2rem;
-    height: 3.2rem;
-    margin-right: 0.8rem;
-  }
-  aside nav a img[src*="book.svg"] {
-    width: 23px;
-  }
-  
-  .logo {
-    display: block;
-    width: 14.4rem;
-    margin: 0 auto 1.8rem;
-  }
-  .logo img {
-    display: block;
-    width: 14.4rem;
-    height: 14.1rem;
-  }
-  
-  /* CARD */
-  .card {
-    display: block;
-    height: 29.6rem;
-    background-color: #fff;
-    border-radius: .5rem;
-    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.06);
-    overflow: hidden;
-  }
-  .card_img {
-    width: 100%;
-    height: 17.6rem;
-  }
-  .card_img img {
-    width: 100%;
-    height: auto;
-  } 
-  .card_tag {
-    color: #fff;
-  }
-  .card_content {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 10.4rem;
-    padding: 0.8rem 1.6rem;
-  }
-  .card_date {
-    font-size: 1.2rem;
-    color: var(--font-color-secondary);
-  }
-  
-  
-  /* HOME */
-  .category:not(:first-of-type) {
-    margin-top: 8rem;
-  }
+}
 
-  .home-title_wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 3.2rem;
-    color: var(--primary-color);
-  }
-  .home-title_wrapper a::after {
-    content: ' >';
-  }
-  .home-title {
-    font-size: 2.4rem;
-  }
-  
-  
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(4, calc(25% - 2.4rem));
-    grid-column-gap: 3.2rem;
-    grid-row-gap: 3.2rem;
-  }
+h1 {
+  font-size: 2.8rem;
+  font-weight: normal;
+}
 
-  /* PAGE VIDEO */
+h2 {
+  font-size: 2.6rem;
+  font-weight: 300;
+}
 
-  .video_details {
-    margin-top: 3.2rem;
-    margin-bottom: 4rem;
-  }
+/* LINKS & BUTTONS */
+a {
+  color: var(--font-color);
+}
+.btn {
+  display: inline-block;
+  padding: 1.3rem 2rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #fff;
+  background-color: var(--secondary-color);
+  border-radius: 2.5rem;
+}
+.btn:hover {
+  color: #fff;
+  text-decoration: none;
+}
 
-  .video_details > div {
-    display: flex;
-    font-size: 1.4rem;
-  }
-  
-  .video_title {
-    margin-bottom: 0.8rem;
-    color: var(--primary-color);
-  }
+button {
+  background: none;
+  border: none;
+}
 
-  .video_metadata,
-  .video_metadata a {
-    font-weight: 600;
-    color: var(--primary-color);
-  }
-  .video_metadata a {
-    border-bottom: 1px solid var(--secondary-color);
-  } 
-  .video_metadata a:hover {
-    text-decoration: none;
-  }
+/* LISTS */
+.list-reset {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
 
-  .video_keywords {
-    display: flex;
-    margin-left: 0.8rem;
-  }
-  .video_keywords li {
-    padding: 0 1.2rem;
-    background-color: rgba(30,17,105,0.07);
-    border-radius: 12px;
-  }
-  .video_keywords li:not(:first-of-type) {
-    margin-left: 1.6rem;
-  }
-  
-  .video_infos {
-    display: flex;
-  }
+.content {
+  order: 2;
+  width: 100%;
+}
 
-  .video_description {
-    width: 66.6666%;
-    padding-right: 2%;
-  }
+/* HEADER */
+header {
+  padding: 2.1rem 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+header .wrapper {
+  display: flex;
+}
+header nav {
+  display: flex;
+  margin-right: 4rem;
+  margin-left: 4rem;
+  font-family: "montserrat_regular", Arial, sans-serif;
+  font-size: 1.7rem;
+}
+header nav a {
+  position: relative;
+}
+header nav a::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -1.2rem;
+  left: 0;
+  display: block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin: auto;
+  background-color: transparent;
+  border-radius: 50%;
+}
+header nav a:hover {
+  color: var(--font-color);
+  font-weight: bold;
+  text-decoration: none;
+}
+header nav a:hover::after {
+  background-color: var(--menu-hover-color);
+}
 
-  .video_resources {
-    width: 33.3333%;
-    padding-left: 5%;
-    border-left: 1px solid var(--border-color);
-  }
-  .video_resources h3 {
-    margin-bottom: 1.6rem;
-    color: var(--primary-color);
-  }
+header div {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+header div a:last-of-type {
+  margin-left: 1.6rem;
+}
 
-  .video_resources li:not(:last-of-type) {
-    margin-bottom: 1.2rem;
-  }
+/* FOOTER */
+footer {
+  display: flex;
+  padding-top: 4.5rem;
+  padding-bottom: 5.6rem;
+  font-size: 1.4rem;
+  border-top: 1px solid rgba(89, 89 , 141, .1);
+}
+footer > a:first-of-type {
+  margin-right: 6.2rem;
+}
+footer div:last-of-type {
+  margin-left: auto;
+  text-align: right;
+}
+footer nav a {
+  display: block;
+}
+
+/* MAIN */
+main {
+  padding-top: 8rem;
+  padding-bottom: 10rem;
+}
+
+
+/* ASIDE */
+aside {
+  order: 1;
+  width: 28.8rem;
+  padding: 1.6rem 0;
+  font-family: "montserratbold", Arial, Helvetica, sans-serif;
+  font-size: 1.4rem;
+  color: #fff;
+  background-color: var(--primary-color);
+}
+aside h3 {
+  margin-bottom: 1rem;
+  padding-left: 3.2rem;
+  font-size: 1.4rem;
+  line-height: 2.15;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+aside nav {
+  margin-bottom: 1.4rem;
+}
+aside > nav {
+  position: relative;
+  margin-right: 4.6rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+}
+aside > nav::before,
+aside > nav::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  display: block;
+  height: 1px;
+  background-color: var(--primary-color);
+}
+aside > nav::before {
+  right: 4.1rem;
+  width: 0.8rem;
+}
+aside > nav::after {
+  right: 1rem;
+  width: 1.5rem;
+}
+aside > div nav:first-of-type {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+aside > div nav:first-of-type::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 1.6rem;
+  display: block;
+  width: 3.2rem;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+aside nav a {
+  display: block;
+  margin-bottom: 0.5rem;
+  padding-left: 2.4rem;
+  font-weight: 500;
+  color: #fff;
+  border-left: 0.4rem solid transparent;
+}
+aside nav a:hover,
+aside nav a.active {
+  color: #fff;
+  text-decoration: none;
+  border-color: var(--menu-hover-color);
+}
+aside nav a img {
+  display: inline-block;
+  width: 3.2rem;
+  height: 3.2rem;
+  margin-right: 0.8rem;
+}
+aside nav a img[src*="book.svg"] {
+  width: 23px;
+}
+
+.logo {
+  display: block;
+  width: 14.4rem;
+  margin: 0 auto 1.8rem;
+}
+.logo img {
+  display: block;
+  width: 14.4rem;
+  height: 14.1rem;
+}
+
+/* CARD */
+.card {
+  display: block;
+  height: 29.6rem;
+  background-color: #fff;
+  border-radius: .5rem;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+.card_img {
+  width: 100%;
+  height: 17.6rem;
+}
+.card_img img {
+  width: 100%;
+  height: auto;
+} 
+.card_tag {
+  color: #fff;
+}
+.card_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 10.4rem;
+  padding: 0.8rem 1.6rem;
+}
+.card_date {
+  font-size: 1.2rem;
+  color: var(--font-color-secondary);
+}
+
+
+/* HOME */
+.category:not(:first-of-type) {
+  margin-top: 8rem;
+}
+
+.home-title_wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3.2rem;
+  color: var(--primary-color);
+}
+.home-title_wrapper a::after {
+  content: ' >';
+}
+.home-title {
+  font-size: 2.4rem;
+}
+
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, calc(25% - 2.4rem));
+  grid-column-gap: 3.2rem;
+  grid-row-gap: 3.2rem;
+}
+
+/* PAGE VIDEO */
+
+.video_details {
+  margin-top: 3.2rem;
+  margin-bottom: 4rem;
+}
+
+.video_details > div {
+  display: flex;
+  font-size: 1.4rem;
+}
+
+.video_title {
+  margin-bottom: 0.8rem;
+  color: var(--primary-color);
+}
+
+.video_metadata,
+.video_metadata a {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+.video_metadata a {
+  border-bottom: 1px solid var(--secondary-color);
+} 
+.video_metadata a:hover {
+  text-decoration: none;
+}
+
+.video_keywords {
+  display: flex;
+  margin-left: 0.8rem;
+}
+.video_keywords li {
+  padding: 0 1.2rem;
+  background-color: rgba(30,17,105,0.07);
+  border-radius: 12px;
+}
+.video_keywords li:not(:first-of-type) {
+  margin-left: 1.6rem;
+}
+
+.video_infos {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.video_infos::after {
+  content: '';
+  display: block;
+  width: 12.8rem;
+  height: 1px;
+  margin-top: 4rem;
+  margin-bottom: 4.8rem;
+  background-color: var(--border-color);
+}
+
+.video_description {
+  width: 66.6666%;
+  padding-right: 2%;
+}
+
+.video_resources {
+  width: 33.3333%;
+  padding-left: 5%;
+  border-left: 1px solid var(--border-color);
+}
+.video_resources h3 {
+  margin-bottom: 1.6rem;
+  color: var(--primary-color);
+}
+
+.video_resources li:not(:last-of-type) {
+  margin-bottom: 1.2rem;
+}
+
+/* COMMENTS */
+.comment {
+  display: flex;
+}
+
+.comment_avatar {
+  display: block;
+  width: 10.4rem;
+  height: 10.4rem;
+}
+
+.comment_content {
+  width: calc(100% - 10.4rem)
+}
