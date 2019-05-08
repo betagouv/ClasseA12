@@ -92,14 +92,25 @@ body {
 
 /* HEADINGS */
 
+
 h1 {
+  font-family: "montserrat_regular", Arial, sans-serif;
   font-size: 2.8rem;
-  font-weight: normal;
 }
 
 h2 {
+  font-family: "montserrat_lightregular", Arial, sans-serif;
   font-size: 2.6rem;
-  font-weight: 300;
+}
+
+h3 {
+  font-family: "montserrat_bold", Arial, sans-serif;
+  font-size: 2.2rem;
+}
+h4 {
+  margin-bottom: 2.4rem;
+  font-family: "montserrat_bold", Arial, sans-serif;
+  font-size: 1.8rem;
 }
 
 /* LINKS & BUTTONS */
@@ -333,6 +344,10 @@ aside nav a img[src*="book.svg"] {
   height: 10.4rem;
   padding: 0.8rem 1.6rem;
 }
+.card_content h3 {
+  font-size: 1.5rem;
+}
+
 .card_date {
   font-size: 1.2rem;
   color: var(--font-color-secondary);
@@ -443,6 +458,29 @@ aside nav a img[src*="book.svg"] {
 .video_resources li:not(:last-of-type) {
   margin-bottom: 1.2rem;
 }
+
+.video_suggestion .card,
+.video_suggestion .card_img,
+.video_suggestion .card_content {
+  height: auto;
+}
+.video_suggestion .card {
+  display: flex;
+  box-shadow: 0 2px 6px 0 rgba(0,0,0,0.06);
+}
+.video_suggestion .card:not(:last-of-type) {
+  margin-bottom: 2.4rem;
+}
+.video_suggestion .card_img {
+  width: 12.8rem;
+}
+.video_suggestion .card_content {
+  width: calc(100% - 12.8rem);
+}
+.video_suggestion .card_content h3 {
+  font-size: 1.2rem;
+}
+
 
 /* COMMENTS */
 .comment_wrapper h2 {

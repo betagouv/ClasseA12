@@ -611,7 +611,7 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
 
         viewAttachments =
             H.div [ HA.class "video_resources" ]
-                [ H.h3 [] [ H.text "Ressources" ]
+                [ H.h4 [] [ H.text "Ressources" ]
                 , if attachmentList /= [] then
                     H.ul []
                         (attachmentList
@@ -827,7 +827,7 @@ viewRelatedVideos peerTubeURL relatedVideos =
     case relatedVideos of
         Data.PeerTube.Received videos ->
             if videos /= [] then
-                H.div []
+                H.div [ HA.class "video_suggestion" ]
                     [ H.h4 [] [ H.text "Suggestions" ]
                     , H.div []
                         (videos
