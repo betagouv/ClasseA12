@@ -4,7 +4,7 @@ import Browser exposing (Document)
 import Data.PeerTube
 import Data.Session exposing (Session, isLoggedIn)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, href, placeholder, src, title, type_, value)
+import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, title, type_, value)
 import Html.Events exposing (onInput, onSubmit)
 import Page.Common.Components
 import Route
@@ -87,7 +87,9 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
         [ div [ class "wrapper" ]
             [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "%PUBLIC_URL%/images/logos/marianne.svg" ]
                 []
-            , nav []
+
+            -- TODO: unhide this when we have the functionality
+            , nav [ style "visibility" "hidden" ]
                 [ a [ href "" ]
                     [ text "Découvrez" ]
                 , a [ href "" ]
@@ -103,14 +105,13 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
                         ]
                         []
                     , button [ class "search_button" ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg"][] ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
                     ]
                 ]
             , div []
-                [ a [ class "btn", href "" ]
+                [ a [ class "btn", Route.href Route.Participate ]
                     [ text "Partagez une vidéo" ]
-                , a [ class "account", Route.href Route.Participate ]
-                    [ loginProfileIcon ]
+                , loginProfileIcon
                 ]
             ]
         ]
