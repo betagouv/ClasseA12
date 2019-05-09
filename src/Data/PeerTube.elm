@@ -113,7 +113,7 @@ keywordList =
     , ( "Mathématiques", "numération / calcul / résolution de problème / mesure / géométrie / jeux" )
     , ( "Questionner le monde", "temps / espace" )
     , ( "Arts", "Education musicale / éducation artistique" )
-    , ( "Éducation physique et sportive", "" )
+    , ( "Numérique", "" )
     , ( "Enseignement moral et civique", "" )
     , ( "Gestion de classe", "différenciation / autonomie / concentration / coopération / aménagement de classe / affichage / gestion des élèves / plan de travail / atelier / sortie / cahier" )
     , ( "Le projet Classe à 12", "tutoriel / témoignage" )
