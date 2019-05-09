@@ -686,8 +686,11 @@ aside nav a img[src*="book.svg"] {
   /* width: 66.6666%; */
   width: 69%;
 }
-.upload_steps > div {
+.upload_steps .upload-step {
   margin-left: 6.5rem;
+}
+.upload_steps .file-input {
+  display: none;
 }
 
 .upload-step {
@@ -700,6 +703,12 @@ aside nav a img[src*="book.svg"] {
   height: 1px;
   margin-top: 4.8rem;
   background-color: var(--border-color);
+}
+.upload-step:last-child::after {
+  display: none;
+}
+.upload-step progress {
+  width: 100%;
 }
 
 .upload-step_title {

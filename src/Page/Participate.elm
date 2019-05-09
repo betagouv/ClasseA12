@@ -237,11 +237,11 @@ view { userInfo } model =
                     [ H.text "autorisation mineur" ]
                 ]
             ]
+        , if not <| Data.Session.isLoggedIn userInfo then
+            Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
 
-        -- , if not <| Data.Session.isLoggedIn userInfo then
-        --     Page.Common.Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
-        --   else
-        , displaySubmitVideoForm model
+          else
+            displaySubmitVideoForm model
         ]
     }
 
@@ -263,154 +263,205 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                 /= Nothing
     in
     H.form [ HE.onSubmit SubmitNewVideo, HA.class "upload_steps" ]
-        [ H.h2 [ HA.class "upload-step_title" ]
-            [ H.div [ HA.class "upload-step_icon" ]
-                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/download_purple.svg" ] []
-                ]
-            , H.text "Étape 1 : Télécharger votre vidéo"
-            ]
-        , displayVideo
-        , H.div
-            [ HA.class "upload-video"
-            ]
-            [ H.label
-                [ HA.style "display"
-                    (if videoSelected then
-                        "none"
-
-                     else
-                        "block"
-                    )
-                ]
-                [ H.input
-                    [ HA.class "file-input"
-                    , HA.type_ "file"
-                    , HA.id "video"
-                    , HA.accept "video/*"
-                    , Page.Common.Components.onFileSelected VideoSelected
-                    ]
-                    []
-                , H.span [ HA.class "btn" ]
-                    [ H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
-                    ]
-                ]
-            ]
-        , H.div [ HA.class "upload-step" ]
-            [ formInput
-                H.input
-                "title"
-                "Titre*"
-                "Titre de la video"
-                newVideo.title
-                (\title -> UpdateVideoForm { newVideo | title = title })
-                videoSelected
-            , H.div
-                [ HA.style "display"
-                    (if videoSelected then
-                        "block"
-
-                     else
-                        "none"
-                    )
-                ]
-                [ H.fieldset []
-                    [ H.legend []
-                        [ H.text "Niveau" ]
-                    , H.input
-                        [ HA.id "grade-all"
-                        , HA.type_ "radio"
-                        , HA.name "grade"
-                        , HA.checked <| newVideo.grade == ""
-                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "" })
-                        ]
-                        []
-                    , H.label [ HA.for "grade-all", HA.class "label-inline" ]
-                        [ H.text "Tous les niveaux" ]
-                    , H.input
-                        [ HA.id "grade-maternelle"
-                        , HA.type_ "radio"
-                        , HA.name "grade"
-                        , HA.checked <| newVideo.grade == "Maternelle"
-                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "Maternelle" })
-                        ]
-                        []
-                    , H.label [ HA.for "grade-maternelle", HA.class "label-inline" ]
-                        [ H.text "Maternelle" ]
-                    , H.input
-                        [ HA.id "grade-cp"
-                        , HA.type_ "radio"
-                        , HA.name "grade"
-                        , HA.checked <| newVideo.grade == "CP"
-                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CP" })
-                        ]
-                        []
-                    , H.label [ HA.for "grade-cp", HA.class "label-inline" ]
-                        [ H.text "CP" ]
-                    , H.input
-                        [ HA.id "grade-ce1"
-                        , HA.type_ "radio"
-                        , HA.name "grade"
-                        , HA.checked <| newVideo.grade == "CE1"
-                        , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CE1" })
-                        ]
-                        []
-                    , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
-                        [ H.text "CE1" ]
-                    ]
-                ]
-            , formInput
-                H.textarea
-                "description"
-                "Description"
-                "Description succincte, ville, académie (mise en forme possible avec Markdown)"
-                newVideo.description
-                (\description -> UpdateVideoForm { newVideo | description = description })
-                videoSelected
-            , H.div
-                [ HA.style "display"
-                    (if videoSelected then
-                        "block"
-
-                     else
-                        "none"
-                    )
-                ]
-                [ H.fieldset []
-                    ([ H.legend [] [ H.text "Mots Clés" ] ]
-                        ++ viewKeywords
-                            preSelectedKeywords
-                            UpdatePreSelectedKeywords
-                    )
-                ]
-            , formInput
-                H.input
-                "freeform-keyword"
-                "Préciser (parmi les mots clés grisés ci-dessus) ou ajouter des mots clés"
-                "Liste de mots clés séparés par des virgules"
-                freeformKeywords
-                UpdateFreeformKeywords
-                videoSelected
-            ]
-        , H.button
-            [ HA.type_ "submit"
-            , HA.class "button"
-            , HA.disabled (newVideo.title == "")
-            , HA.style "display"
-                (if videoSelected then
+        [ H.div
+            [ HA.style "display" <|
+                if newVideoData == Data.PeerTube.NotRequested then
                     "block"
 
-                 else
+                else
                     "none"
-                )
             ]
-            [ H.text "Soumettre cette vidéo" ]
-        , H.div
-            [ HA.classList
-                [ ( "modal__backdrop", True )
-                , ( "is-active", newVideoData == Data.PeerTube.Requested )
+            [ H.h2 [ HA.class "upload-step_title" ]
+                [ H.div [ HA.class "upload-step_icon" ]
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/download_purple.svg" ] []
+                    ]
+                , H.text "Étape 1 : Télécharger votre vidéo"
+                ]
+            , displayVideo
+            , H.div
+                [ HA.class "upload-step upload-video"
+                , HA.style "display"
+                    (if videoSelected then
+                        "none"
+
+                     else
+                        "block"
+                    )
+                ]
+                [ H.label []
+                    [ H.input
+                        [ HA.class "file-input"
+                        , HA.type_ "file"
+                        , HA.id "video"
+                        , HA.accept "video/*"
+                        , Page.Common.Components.onFileSelected VideoSelected
+                        ]
+                        []
+                    , H.span [ HA.class "btn" ]
+                        [ H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
+                        ]
+                    ]
+                ]
+            , H.h2
+                [ HA.class "upload-step_title"
+                , HA.style "display"
+                    (if videoSelected then
+                        "flex"
+
+                     else
+                        "none"
+                    )
+                ]
+                [ H.div [ HA.class "upload-step_icon" ]
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/info_purple.svg" ] []
+                    ]
+                , H.text "Étape 2 : À propos de votre vidéo"
+                ]
+            , H.div
+                [ HA.class "upload-step"
+                , HA.style "display"
+                    (if videoSelected then
+                        "block"
+
+                     else
+                        "none"
+                    )
+                ]
+                [ formInput
+                    H.input
+                    "title"
+                    "Titre*"
+                    "Titre de la video"
+                    newVideo.title
+                    (\title -> UpdateVideoForm { newVideo | title = title })
+                    videoSelected
+                , H.div
+                    [ HA.style "display"
+                        (if videoSelected then
+                            "block"
+
+                         else
+                            "none"
+                        )
+                    ]
+                    [ H.fieldset []
+                        [ H.legend []
+                            [ H.text "Niveau" ]
+                        , H.input
+                            [ HA.id "grade-all"
+                            , HA.type_ "radio"
+                            , HA.name "grade"
+                            , HA.checked <| newVideo.grade == ""
+                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "" })
+                            ]
+                            []
+                        , H.label [ HA.for "grade-all", HA.class "label-inline" ]
+                            [ H.text "Tous les niveaux" ]
+                        , H.input
+                            [ HA.id "grade-maternelle"
+                            , HA.type_ "radio"
+                            , HA.name "grade"
+                            , HA.checked <| newVideo.grade == "Maternelle"
+                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "Maternelle" })
+                            ]
+                            []
+                        , H.label [ HA.for "grade-maternelle", HA.class "label-inline" ]
+                            [ H.text "Maternelle" ]
+                        , H.input
+                            [ HA.id "grade-cp"
+                            , HA.type_ "radio"
+                            , HA.name "grade"
+                            , HA.checked <| newVideo.grade == "CP"
+                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CP" })
+                            ]
+                            []
+                        , H.label [ HA.for "grade-cp", HA.class "label-inline" ]
+                            [ H.text "CP" ]
+                        , H.input
+                            [ HA.id "grade-ce1"
+                            , HA.type_ "radio"
+                            , HA.name "grade"
+                            , HA.checked <| newVideo.grade == "CE1"
+                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CE1" })
+                            ]
+                            []
+                        , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
+                            [ H.text "CE1" ]
+                        ]
+                    ]
+                , formInput
+                    H.textarea
+                    "description"
+                    "Description"
+                    "Description succincte, ville, académie (mise en forme possible avec Markdown)"
+                    newVideo.description
+                    (\description -> UpdateVideoForm { newVideo | description = description })
+                    videoSelected
+                , H.div
+                    [ HA.style "display"
+                        (if videoSelected then
+                            "block"
+
+                         else
+                            "none"
+                        )
+                    ]
+                    [ H.fieldset []
+                        ([ H.legend [] [ H.text "Mots Clés" ] ]
+                            ++ viewKeywords
+                                preSelectedKeywords
+                                UpdatePreSelectedKeywords
+                        )
+                    ]
+                , formInput
+                    H.input
+                    "freeform-keyword"
+                    "Préciser (parmi les mots clés grisés ci-dessus) ou ajouter des mots clés"
+                    "Liste de mots clés séparés par des virgules"
+                    freeformKeywords
+                    UpdateFreeformKeywords
+                    videoSelected
+                ]
+            , H.h2
+                [ HA.class "upload-step_title"
+                , HA.style "display"
+                    (if videoSelected then
+                        "flex"
+
+                     else
+                        "none"
+                    )
+                ]
+                [ H.div [ HA.class "upload-step_icon" ]
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/rocket_purple.svg" ] []
+                    ]
+                , H.text "Étape 3 : Soumettez votre vidéo"
+                ]
+            , H.div [ HA.class "upload-step" ]
+                [ H.button
+                    [ HA.type_ "submit"
+                    , HA.class "button"
+                    , HA.disabled (newVideo.title == "")
+                    , HA.style "display"
+                        (if videoSelected then
+                            "block"
+
+                         else
+                            "none"
+                        )
+                    ]
+                    [ H.text "Soumettre cette vidéo" ]
                 ]
             ]
-            [ H.div [ HA.class "modal" ]
+        , H.div
+            [ HA.style "display" <|
+                if newVideoData == Data.PeerTube.Requested then
+                    "block"
+
+                else
+                    "none"
+            ]
+            [ H.div [ HA.class "upload-step" ]
                 [ H.h1 [] [ H.text "Envoi de la vidéo en cours, veuillez patienter..." ]
                 , H.p [] [ H.text progress.message ]
                 , H.progress
@@ -419,6 +470,20 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     , HA.max "100"
                     ]
                     [ H.text <| String.fromInt progress.percentage ++ "%" ]
+                ]
+            ]
+        , H.div
+            [ HA.style "display" <|
+                if newVideoData /= Data.PeerTube.NotRequested && newVideoData /= Data.PeerTube.Requested then
+                    "block"
+
+                else
+                    "none"
+            ]
+            [ H.div [ HA.class "upload-step" ]
+                [ H.h2 [] [ H.text "Merci pour la vidéo !" ]
+                , H.text "Vous pouvez en poster une autre ou "
+                , H.a [ Route.href Route.Home ] [ H.text "retourner à la liste de vidéos" ]
                 ]
             ]
         ]
@@ -432,7 +497,7 @@ displayVideo =
             , HA.id "uploaded-video"
             ]
             []
-        , H.p [] [ H.text "Aperçu de la miniature de la vidéo (déplacer le curseur de la vidéo ci-dessus)" ]
+        , H.p [] [ H.text "Déplacer le curseur de la vidéo ci-dessus pour changer la miniature de la vidéo." ]
         , H.canvas [ HA.id "thumbnail-preview", HA.style "display" "none" ] []
         ]
 
