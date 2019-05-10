@@ -629,9 +629,11 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                                             , HE.onClick <| CommentSelected attachment.commentID
                                             ]
                                             [ H.text attachment.filename ]
-                                        , H.span [ HA.class "file_info" ]
-                                            [ H.text " Type - n Ko"
-                                            ]
+
+                                        -- TODO : we don't have the mimetype or the file size yet.
+                                        -- , H.span [ HA.class "file_info" ]
+                                        --     [ H.text " Type - n Ko"
+                                        --     ]
                                         ]
                                 )
                         )
@@ -704,9 +706,11 @@ viewCommentDetails videoID attachmentList comment =
                                 ]
                                 []
                             , H.a [ HA.href <| attachment.url ] [ H.text attachment.filename ]
-                            , H.span [ HA.class "file_info" ]
-                                [ H.text " Type - n Ko"
-                                ]
+
+                            -- TODO : we don't have the mimetype or the file size yet.
+                            -- , H.span [ HA.class "file_info" ]
+                            --     [ H.text " Type - n Ko"
+                            --     ]
                             ]
                     )
     in
@@ -749,84 +753,85 @@ viewCommentForm :
     -> H.Html Msg
 viewCommentForm comment userInfo refreshing commentData attachmentData progress =
     if not <| Data.Session.isLoggedIn userInfo then
-        H.div [][
-            H.h2 [][
-                H.text "Contributions"
+        H.div []
+            [ H.h2 []
+                [ H.text "Contributions"
+                ]
+            , Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
             ]
-            ,Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
-        ]
+
     else
-    let
-        formComplete =
-            comment /= ""
+        let
+            formComplete =
+                comment /= ""
 
-        buttonState =
-            if formComplete then
-                case commentData of
-                    Data.PeerTube.Requested ->
-                        Components.Loading
-
-                    _ ->
-                        if refreshing then
+            buttonState =
+                if formComplete then
+                    case commentData of
+                        Data.PeerTube.Requested ->
                             Components.Loading
 
-                        else
-                            Components.NotLoading
+                        _ ->
+                            if refreshing then
+                                Components.Loading
 
-            else
-                Components.Disabled
+                            else
+                                Components.NotLoading
 
-        submitButton =
-            Components.submitButton "Ajouter cette contribution" buttonState
-    in
-    H.div []
-        [ H.h2 []
-            [ H.text "Contributions" ]
-        , H.p [] [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
-        , H.form
-            [ HE.onSubmit AddComment, HA.class "cols_seven-five" ]
-            [ H.div [ HA.class "form__group" ]
-                [ H.label [ HA.for "comment" ]
-                    [ H.text "Votre commentaire" ]
-                , H.textarea
-                    [ HA.id "comment"
-                    , HA.placeholder "Tapez ici votre commentaire"
-                    , HA.value comment
-                    , HE.onInput UpdateCommentForm
+                else
+                    Components.Disabled
+
+            submitButton =
+                Components.submitButton "Ajouter cette contribution" buttonState
+        in
+        H.div []
+            [ H.h2 []
+                [ H.text "Contributions" ]
+            , H.p [] [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
+            , H.form
+                [ HE.onSubmit AddComment, HA.class "cols_seven-five" ]
+                [ H.div [ HA.class "form__group" ]
+                    [ H.label [ HA.for "comment" ]
+                        [ H.text "Votre commentaire" ]
+                    , H.textarea
+                        [ HA.id "comment"
+                        , HA.placeholder "Tapez ici votre commentaire"
+                        , HA.value comment
+                        , HE.onInput UpdateCommentForm
+                        ]
+                        []
                     ]
-                    []
+                , H.div [ HA.class "form__group" ]
+                    [ H.label [ HA.for "attachment" ]
+                        [ H.text "Lier un fichier" ]
+                    , H.input
+                        [ HA.class "file-input"
+                        , HA.type_ "file"
+                        , HA.id "attachment"
+                        , Components.onFileSelected AttachmentSelected
+                        ]
+                        []
+                    , submitButton
+                    ]
                 ]
-            , H.div [ HA.class "form__group" ]
-                [ H.label [ HA.for "attachment" ]
-                    [ H.text "Lier un fichier" ]
-                , H.input
-                    [ HA.class "file-input"
-                    , HA.type_ "file"
-                    , HA.id "attachment"
-                    , Components.onFileSelected AttachmentSelected
+            , H.div
+                [ HA.classList
+                    [ ( "modal__backdrop", True )
+                    , ( "is-active", attachmentData == Data.PeerTube.Requested )
                     ]
-                    []
-                , submitButton
+                ]
+                [ H.div [ HA.class "modal" ]
+                    [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
+                    , H.p [] [ H.text progress.message ]
+                    , H.progress
+                        [ HA.class "is-large"
+                        , HA.value <| String.fromInt progress.percentage
+                        , HA.max "100"
+                        ]
+                        [ H.text <| String.fromInt progress.percentage ++ "%" ]
+                    ]
                 ]
             ]
-        , H.div
-            [ HA.classList
-                [ ( "modal__backdrop", True )
-                , ( "is-active", attachmentData == Data.PeerTube.Requested )
-                ]
-            ]
-            [ H.div [ HA.class "modal" ]
-                [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
-                , H.p [] [ H.text progress.message ]
-                , H.progress
-                    [ HA.class "is-large"
-                    , HA.value <| String.fromInt progress.percentage
-                    , HA.max "100"
-                    ]
-                    [ H.text <| String.fromInt progress.percentage ++ "%" ]
-                ]
-            ]
-        ]
 
 
 viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> H.Html Msg
