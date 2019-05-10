@@ -103,7 +103,59 @@ update session msg model =
 
 isRegisterFormComplete : RegisterForm -> Bool -> Bool
 isRegisterFormComplete registerForm approved =
-    approved && registerForm.username /= "" && registerForm.email /= "" && registerForm.password /= "" && String.length registerForm.password >= 6
+    approved
+        && (registerForm.username /= "")
+        && (registerForm.email /= "")
+        && (registerForm.password /= "")
+        && (String.length registerForm.password >= 6)
+        && isEmailValid registerForm.email
+
+
+isEmailValid : String -> Bool
+isEmailValid email =
+    let
+        validDomains =
+            [ "ac-lille.fr"
+            , "ac-rouen.fr"
+            , "ac-amiens.fr"
+            , "ac-caen.fr"
+            , "ac-versailles.fr"
+            , "ac-paris.fr"
+            , "ac-creteil.fr"
+            , "ac-reims.fr"
+            , "ac-nancy-metz.fr"
+            , "ac-strasbourg.fr"
+            , "ac-rennes.fr"
+            , "ac-nantes.fr"
+            , "ac-orleans-tours.fr"
+            , "ac-dijon.fr"
+            , "ac-besancon.fr"
+            , "ac-poitiers.fr"
+            , "ac-limoges.fr"
+            , "ac-clermont.fr"
+            , "ac-lyon.fr"
+            , "ac-grenoble.fr"
+            , "ac-bordeaux.fr"
+            , "ac-toulouse.fr"
+            , "ac-montpellier.fr"
+            , "ac-aix-marseille.fr"
+            , "ac-nice.fr"
+            , "ac-corse.fr"
+            , "ac-martinique.fr"
+            , "ac-guadeloupe.fr"
+            , "ac-reunion.fr"
+            , "ac-guyane.fr"
+            , "ac-mayotte.fr"
+            , "ac-noumea.nc"
+            , "ac-wf.wf"
+            , "ac-spm.fr"
+            , "ac-polynesie.pf"
+            ]
+    in
+    validDomains
+        |> List.filter (\domain -> String.endsWith ("@" ++ domain) email)
+        |> List.length
+        |> (==) 1
 
 
 registerAccount : String -> Model -> ( Model, Cmd Msg )
