@@ -213,7 +213,7 @@ viewRegisterForm registerForm registration approved =
                 , HE.onCheck OnApproved
                 ]
                 []
-            , H.label [ HA.for "approveCGU", HA.class "label-inline" ]
+            , H.label [ HA.for "approve_CGU", HA.class "label-inline" ]
                 [ H.text "J'ai lu et j'accepte d'adhérer à la charte de bonne conduite" ]
             ]
         , submitButton
