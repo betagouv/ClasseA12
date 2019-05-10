@@ -30,7 +30,7 @@ init session =
             Data.PeerTube.keywordList
                 |> List.map (\( keyword, _ ) -> keyword)
     in
-    ( { title = "Liste des vidéos"
+    ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
       , search = ""
       , recentVideoData = Data.PeerTube.Requested
       , videoData =

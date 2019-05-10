@@ -482,7 +482,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
             ]
             [ H.div [ HA.class "upload-step" ]
                 [ H.h2 [] [ H.text "Merci pour la vidéo !" ]
-                , H.text "Vous pouvez en poster une autre ou "
+                , H.text "Vous recevrez un email lors de sa publication. Vous pouvez en poster une autre ou "
                 , H.a [ Route.href Route.Home ] [ H.text "retourner à la liste de vidéos" ]
                 ]
             ]
