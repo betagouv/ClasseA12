@@ -238,6 +238,13 @@ video,
 canvas {
   width: 100%;
 }
+.form-errors li {
+  color: var(--secondary-color);
+  padding: 0.5em;
+}
+.form-errors li img {
+  vertical-align: text-top;
+}
 
 /* HEADER */
 header {

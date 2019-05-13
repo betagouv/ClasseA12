@@ -2,6 +2,7 @@ module Page.Register exposing (Model, Msg(..), init, update, view)
 
 import Data.PeerTube
 import Data.Session exposing (Session)
+import Dict
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -18,6 +19,7 @@ type alias Model =
     , notifications : Notifications.Model
     , registration : Data.PeerTube.RemoteData String
     , approved : Bool
+    , formErrors : Dict.Dict String (List String)
     }
 
 
@@ -39,6 +41,7 @@ type Msg
     | NotificationMsg Notifications.Msg
     | AccountRegistered (Result Http.Error String)
     | OnApproved Bool
+    | OnBlur String String
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -48,6 +51,7 @@ init _ =
       , notifications = Notifications.init
       , registration = Data.PeerTube.NotRequested
       , approved = False
+      , formErrors = Dict.empty
       }
     , Cmd.none
     )
@@ -99,6 +103,48 @@ update session msg model =
 
         OnApproved approved ->
             ( { model | approved = approved }, Cmd.none )
+
+        OnBlur fieldName fieldValue ->
+            ( { model
+                | formErrors =
+                    model.formErrors
+                        |> Dict.insert fieldName (validateField fieldName fieldValue)
+              }
+            , Cmd.none
+            )
+
+
+validateField : String -> String -> List String
+validateField fieldName fieldValue =
+    case fieldName of
+        "username" ->
+            if isUsernameValid fieldValue then
+                []
+
+            else
+                [ "Uniquement des caractères alphanumériques sans espace" ]
+
+        "email" ->
+            if isEmailValid fieldValue then
+                []
+
+            else
+                [ "L'adresse email doit terminer par un nom de domaine académique comme @ac-creteil.fr" ]
+
+        "password" ->
+            if String.length fieldValue < 6 then
+                [ "Le mot de passe doit faire au minimum 6 caractères" ]
+
+            else
+                []
+
+        _ ->
+            []
+
+
+isUsernameValid : String -> Bool
+isUsernameValid username =
+    username /= "" && String.all Char.isAlphaNum username
 
 
 isRegisterFormComplete : RegisterForm -> Bool -> Bool
@@ -170,7 +216,7 @@ registerAccount peerTubeURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view _ { title, notifications, registerForm, registration, approved } =
+view _ { title, notifications, registerForm, registration, approved, formErrors } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
@@ -185,15 +231,15 @@ view _ { title, notifications, registerForm, registration, approved } =
                             ]
 
                     _ ->
-                        viewRegisterForm registerForm registration approved
+                        viewRegisterForm registerForm registration approved formErrors
                 ]
             ]
         ]
     }
 
 
-viewRegisterForm : RegisterForm -> Data.PeerTube.RemoteData String -> Bool -> H.Html Msg
-viewRegisterForm registerForm registration approved =
+viewRegisterForm : RegisterForm -> Data.PeerTube.RemoteData String -> Bool -> Dict.Dict String (List String) -> H.Html Msg
+viewRegisterForm registerForm registration approved formErrors =
     let
         formComplete =
             isRegisterFormComplete registerForm approved
@@ -233,9 +279,12 @@ viewRegisterForm registerForm registration approved =
                 [ HA.type_ "text"
                 , HA.id "username"
                 , HA.value registerForm.username
+                , HA.pattern "[A-Za-z0-9]+"
                 , HE.onInput <| \username -> UpdateRegisterForm { registerForm | username = username }
+                , HE.onBlur <| OnBlur "username" registerForm.username
                 ]
                 []
+            , viewFormErrors "username" formErrors
             ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "email" ] [ H.text "Email (adresse académique uniquement)" ]
@@ -244,17 +293,22 @@ viewRegisterForm registerForm registration approved =
                 , HA.id "email"
                 , HA.value registerForm.email
                 , HE.onInput <| \email -> UpdateRegisterForm { registerForm | email = email }
+                , HE.onBlur <| OnBlur "email" registerForm.email
                 ]
                 []
+            , viewFormErrors "email" formErrors
             ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "password" ] [ H.text "Mot de passe (minimum 6 caractères)" ]
             , H.input
                 [ HA.type_ "password"
                 , HA.value registerForm.password
+                , HA.minlength 6
                 , HE.onInput <| \password -> UpdateRegisterForm { registerForm | password = password }
+                , HE.onBlur <| OnBlur "password" registerForm.password
                 ]
                 []
+            , viewFormErrors "password" formErrors
             ]
         , H.div
             [ HA.class "form__group" ]
@@ -270,3 +324,23 @@ viewRegisterForm registerForm registration approved =
             ]
         , submitButton
         ]
+
+
+viewFormErrors : String -> Dict.Dict String (List String) -> H.Html Msg
+viewFormErrors fieldName formErrors =
+    case Dict.get fieldName formErrors of
+        Just fieldErrors ->
+            H.ul [ HA.class "form-errors" ]
+                (fieldErrors
+                    |> List.map
+                        (\error ->
+                            H.li []
+                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/16x16/message_alert_16_red.svg" ] []
+                                , H.text " "
+                                , H.text error
+                                ]
+                        )
+                )
+
+        Nothing ->
+            H.text ""
