@@ -177,7 +177,11 @@ videoDescriptionRequest videoID serverURL =
             , headers = []
             , url = url
             , body = Http.emptyBody
-            , expect = Http.expectJson (Decode.field "description" Decode.string)
+            , expect =
+                Http.expectJson
+                    (Decode.field "description" (Decode.maybe Decode.string)
+                        |> Decode.map (Maybe.withDefault "")
+                    )
             , timeout = Nothing
             , withCredentials = False
             }
