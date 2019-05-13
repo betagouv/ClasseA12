@@ -671,6 +671,10 @@ aside nav a img[src*="book.svg"] {
   font-weight: 300;
 }
 
+progress {
+  width: 100%;
+}
+
 /* PARTICIPATE */
 .participate_intro {
   margin-bottom: 8.8rem;
@@ -707,9 +711,6 @@ aside nav a img[src*="book.svg"] {
 .upload-step:last-child::after {
   display: none;
 }
-.upload-step progress {
-  width: 100%;
-}
 
 .upload-step_title {
   display: flex;
@@ -741,4 +742,3 @@ aside nav a img[src*="book.svg"] {
 .upload-step_thumbnail video {
   margin-bottom: 1.8rem;
 }
-

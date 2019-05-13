@@ -815,21 +815,22 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
                     ]
                 ]
             , H.div
-                [ HA.classList
-                    [ ( "modal__backdrop", True )
-                    , ( "is-active", attachmentData == Data.PeerTube.Requested )
-                    ]
+                [ HA.style "display"
+                    (if attachmentData == Data.PeerTube.Requested then
+                        "block"
+
+                     else
+                        "none"
+                    )
                 ]
-                [ H.div [ HA.class "modal" ]
-                    [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
-                    , H.p [] [ H.text progress.message ]
-                    , H.progress
-                        [ HA.class "is-large"
-                        , HA.value <| String.fromInt progress.percentage
-                        , HA.max "100"
-                        ]
-                        [ H.text <| String.fromInt progress.percentage ++ "%" ]
+                [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
+                , H.p [] [ H.text progress.message ]
+                , H.progress
+                    [ HA.class "is-large"
+                    , HA.value <| String.fromInt progress.percentage
+                    , HA.max "100"
                     ]
+                    [ H.text <| String.fromInt progress.percentage ++ "%" ]
                 ]
             ]
 
