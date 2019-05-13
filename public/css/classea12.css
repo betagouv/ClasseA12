@@ -10,6 +10,9 @@
   --menu-hover-color: #28dcf0;
   --yellow: #ffd214;
   --default-font: "nunitoregular", Arial, sans-serif;
+  --notification-success-color: #0F8246;
+  --notification-info-color: #1E1169;
+  --notification-error-color: #D20019;
   --border-color: rgba(30, 17, 105, .1)
 }
 
@@ -773,4 +776,30 @@ progress {
 
 .upload-step_thumbnail video {
   margin-bottom: 1.8rem;
+}
+
+/* NOTIFICATIONS */
+.notification {
+  background-color: var(--notification-info-color);
+  border-radius: 8px;
+  color: var(--font-color-light);
+  line-height: 2rem;
+  margin-bottom: 1rem;
+  padding: 0 1em;
+  width: 100%;
+}
+.notification img {
+  padding: 1em 0.5em;
+}
+.notification .close {
+  background: none;
+  float: right;
+  padding-right: 0;
+  padding-top: 1.3em;
+}
+.notification.success {
+  background-color: var(--notification-success-color);
+}
+.notification.error {
+  background-color: var(--notification-error-color);
 }

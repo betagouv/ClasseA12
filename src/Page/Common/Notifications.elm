@@ -67,19 +67,22 @@ view notifications =
 viewNotification : Notification -> H.Html Msg
 viewNotification notification =
     let
-        ( message, status ) =
+        ( message, status, icon ) =
             case notification of
                 Error errorMessage ->
-                    ( errorMessage, "error" )
+                    ( errorMessage, "error", "%PUBLIC_URL%/images/icons/24x24/message_alert_24_white.svg" )
 
                 Success successMessage ->
-                    ( successMessage, "success" )
+                    ( successMessage, "success", "%PUBLIC_URL%/images/icons/24x24/message_valid_24_white.svg" )
 
                 Info infoMessage ->
-                    ( infoMessage, "" )
+                    ( infoMessage, "", "%PUBLIC_URL%/images/icons/24x24/message_info_24_white.svg" )
     in
     H.div [ HA.class <| "notification closable " ++ status ]
-        [ H.text message
+        [ H.img [ HA.src icon ]
+            []
+        , H.text " "
+        , H.text message
         , H.button
             [ HA.class "close"
             , HE.onClick <| Discard notification
