@@ -495,6 +495,11 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                             [ H.text "Erreur lors de l'ajout de la contribution"
                             ]
 
+                    Data.PeerTube.Received _ ->
+                        H.div []
+                            [ H.text "Merci pour votre contribution !"
+                            ]
+
                     _ ->
                         viewCommentForm comment userInfo refreshing commentData attachmentData progress
                 ]
@@ -784,7 +789,15 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
             submitButton =
                 Components.submitButton "Ajouter cette contribution" buttonState
         in
-        H.div []
+        H.div
+            [ HA.style "display"
+                (if commentData == Data.PeerTube.NotRequested then
+                    "block"
+
+                 else
+                    "none"
+                )
+            ]
             [ H.h2 []
                 [ H.text "Contributions" ]
             , H.p [] [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
@@ -816,7 +829,7 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
                 ]
             , H.div
                 [ HA.style "display"
-                    (if attachmentData == Data.PeerTube.Requested then
+                    (if attachmentData == Data.PeerTube.Requested || commentData == Data.PeerTube.Requested then
                         "block"
 
                      else
