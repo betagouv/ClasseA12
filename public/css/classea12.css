@@ -1,6 +1,7 @@
 :root {
   --primary-color: #1e1169;
   --secondary-color: #ff507d;
+  --error-color: #D20019;
   --font-color: #353555;
   --font-color-light: #f7f7fc;
   --font-color-secondary: #59598d;
@@ -239,7 +240,7 @@ canvas {
   width: 100%;
 }
 .form-errors li {
-  color: var(--secondary-color);
+  color: var(--error-color);
   padding: 0.5em;
 }
 .form-errors li img {
@@ -545,11 +546,35 @@ aside nav a img[src*="book.svg"] {
 .video_infos::after {
   content: '';
   display: block;
+  width: 3.2rem;
+  height: 1px;
+  margin-top: 1.6rem;
+  margin-bottom: 1.6rem;
+  background-color: var(--border-color);
+}
+
+.video_share {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+.video_share::after {
+  content: '';
+  display: block;
   width: 12.8rem;
   height: 1px;
-  margin-top: 4rem;
+  margin-top: 2rem;
   margin-bottom: 4.8rem;
   background-color: var(--border-color);
+}
+.video_share .social {
+  display: inline;
+}
+.video_share .social li {
+  display: inline-block;
+  line-height: 32px;
+}
+.video_share .social li img {
+  vertical-align: bottom;
 }
 
 .video_resources h3 {
