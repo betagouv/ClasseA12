@@ -57,7 +57,7 @@ frame config { title, pageTitle, pageSubTitle, body } =
 
 
 viewHeader : Config msg -> String -> String -> Html msg
-viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle =
+viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle pageSubTitle =
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
@@ -82,6 +82,15 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
 
             else
                 loginIcon
+
+        viewPublishVideoButton =
+            case activePage of
+                Participate ->
+                    text ""
+
+                _ ->
+                    a [ class "btn", Route.href Route.Participate ]
+                        [ text "Publier une vidéo" ]
     in
     header []
         [ div [ class "wrapper" ]
@@ -109,8 +118,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
                     ]
                 ]
             , div []
-                [ a [ class "btn", Route.href Route.Participate ]
-                    [ text "Publier une vidéo" ]
+                [ viewPublishVideoButton
                 , loginProfileIcon
                 ]
             ]
