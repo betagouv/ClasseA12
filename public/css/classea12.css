@@ -782,11 +782,14 @@ progress {
 .notification {
   background-color: var(--notification-info-color);
   border-radius: 8px;
+  bottom: 2em;
   color: var(--font-color-light);
   line-height: 2rem;
   margin-bottom: 1rem;
   padding: 0 1em;
-  width: 100%;
+  position: fixed;
+  right: 2em;
+  width: 50%;
 }
 .notification img {
   padding: 1em 0.5em;
