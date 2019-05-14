@@ -133,6 +133,7 @@ h4 {
 /* LINKS & BUTTONS */
 a {
   color: var(--font-color-thirdary);
+  text-decoration: underline;
 }
 
 button {
@@ -256,6 +257,9 @@ header {
   background-color: #fff;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
+header a {
+  text-decoration: none;
+}
 header .wrapper {
   display: flex;
 }
@@ -321,6 +325,7 @@ footer div:last-of-type {
 }
 footer nav a {
   display: block;
+  text-decoration: none;
 }
 
 /* MAIN */
@@ -339,6 +344,9 @@ aside {
   font-size: 1.4rem;
   color: #fff;
   background-color: var(--primary-color);
+}
+aside a {
+  text-decoration: none;
 }
 aside h3 {
   margin-bottom: 1rem;
@@ -431,6 +439,7 @@ aside nav a img[src*="book.svg"] {
   border-radius: .5rem;
   box-shadow: 0 2px 4px 0 rgba(0,0,0,0.06);
   overflow: hidden;
+  text-decoration: none;
 }
 .card_img {
   width: 100%;
@@ -471,6 +480,9 @@ aside nav a img[src*="book.svg"] {
   align-items: center;
   margin-bottom: 3.2rem;
   color: var(--primary-color);
+}
+.home-title_wrapper a {
+  text-decoration: none;
 }
 .home-title_wrapper a::after {
   content: ' >';
@@ -520,6 +532,7 @@ aside nav a img[src*="book.svg"] {
 .video_metadata a {
   font-weight: 600;
   color: var(--primary-color);
+  text-decoration: none;
 }
 .video_metadata a {
   border-bottom: 1px solid var(--secondary-color);
@@ -539,6 +552,9 @@ aside nav a img[src*="book.svg"] {
 }
 .video_keywords li:not(:first-of-type) {
   margin-left: 1.6rem;
+}
+.video_keywords a {
+  text-decoration: none;
 }
 
 .video_infos {
@@ -583,6 +599,9 @@ aside nav a img[src*="book.svg"] {
 .video_resources h3 {
   margin-bottom: 1.6rem;
   color: var(--primary-color);
+}
+.video_resources a {
+  text-decoration: none;
 }
 
 .video_resources li:not(:last-of-type) {
@@ -670,6 +689,11 @@ aside nav a img[src*="book.svg"] {
 .comment_link {
   margin-bottom: 0.8rem;
   color: #7F7F90;
+  text-decoration: none;
+}
+
+.comment_author {
+  text-decoration: none;
 }
 
 .comment_value p {
@@ -678,11 +702,14 @@ aside nav a img[src*="book.svg"] {
   line-height: 2;
 } 
 
-.comment_attachments {
+.comment_attachment {
   font-size: 1.2rem;
   font-weight: bold;
 }
-.comment_attachments .file_info {
+.comment_attachment a {
+  text-decoration: none;
+}
+.comment_attachment .file_info {
   margin-left: 0.5rem;
   font-size: 1rem;
 }
@@ -697,6 +724,7 @@ aside nav a img[src*="book.svg"] {
 .breadcrumbs a {
   color: var(--primary-color);
   border-bottom: 1px solid var(--primary-color);
+  text-decoration: none;
 }
 
 /* FILES */
