@@ -82,7 +82,8 @@ viewNotification notification =
         [ H.img [ HA.src icon ]
             []
         , H.text " "
-        , H.text message
+        , H.span []
+            [ H.text message ]
         , H.button
             [ HA.class "close"
             , HE.onClick <| Discard notification

@@ -780,10 +780,12 @@ progress {
 
 /* NOTIFICATIONS */
 .notification {
+  align-items: center;
   background-color: var(--notification-info-color);
   border-radius: 8px;
   bottom: 2em;
   color: var(--font-color-light);
+  display: flex;
   line-height: 2rem;
   margin-bottom: 1rem;
   padding: 0 1em;
@@ -794,11 +796,13 @@ progress {
 .notification img {
   padding: 1em 0.5em;
 }
+.notification span {
+  flex-grow: 1;
+}
 .notification .close {
   background: none;
   float: right;
   padding-right: 0;
-  padding-top: 1.3em;
 }
 .notification.success {
   background-color: var(--notification-success-color);
