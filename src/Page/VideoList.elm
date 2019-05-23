@@ -1,4 +1,4 @@
-module Page.Search exposing (Model, Msg(..), init, update, view)
+module Page.VideoList exposing (Model, Msg(..), init, update, view)
 
 import Data.PeerTube
 import Data.Session exposing (Session)
@@ -8,12 +8,13 @@ import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Page.Common.Video
 import Request.PeerTube
+import Route
 import Url
 
 
 type alias Model =
     { title : String
-    , keyword : String
+    , query : Route.VideoListQuery
     , videoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , videoListParams : Request.PeerTube.VideoListParams
     , loadMoreState : Page.Common.Components.ButtonState
@@ -27,8 +28,8 @@ type Msg
     | NotificationMsg Notifications.Msg
 
 
-init : Maybe String -> Session -> ( Model, Cmd Msg )
-init search session =
+init : Route.VideoListQuery -> Session -> ( Model, Cmd Msg )
+init query session =
     let
         emptyVideoListParams =
             Request.PeerTube.emptyVideoListParams
@@ -37,10 +38,10 @@ init search session =
         videoListParams =
             { emptyVideoListParams | count = 20 }
     in
-    case search of
-        Nothing ->
+    case query of
+        Route.Latest ->
             ( { title = "Liste des vidéos récentes"
-              , keyword = "Nouveautés"
+              , query = Route.Latest
               , videoListData = Data.PeerTube.Requested
               , videoListParams = videoListParams
               , loadMoreState = Page.Common.Components.Loading
@@ -49,7 +50,18 @@ init search session =
             , Request.PeerTube.getVideoList videoListParams session.peerTubeURL VideoListReceived
             )
 
-        Just keyword ->
+        Route.Playlist ->
+            ( { title = "Liste des vidéos de la playlist"
+              , query = Route.Playlist
+              , videoListData = Data.PeerTube.Requested
+              , videoListParams = videoListParams
+              , loadMoreState = Page.Common.Components.Loading
+              , notifications = Notifications.init
+              }
+            , Request.PeerTube.getPlaylistVideoList videoListParams session.peerTubeURL VideoListReceived
+            )
+
+        Route.Search keyword ->
             let
                 decoded =
                     keyword
@@ -60,7 +72,7 @@ init search session =
                     videoListParams |> Request.PeerTube.withKeyword keyword
             in
             ( { title = "Liste des vidéos dans la catégorie " ++ decoded
-              , keyword = decoded
+              , query = Route.Search decoded
               , videoListData = Data.PeerTube.Requested
               , videoListParams = paramsForKeyword
               , loadMoreState = Page.Common.Components.Loading
@@ -122,10 +134,19 @@ update session msg model =
                 | videoListParams = params
                 , loadMoreState = Page.Common.Components.Loading
               }
-            , Request.PeerTube.getVideoList
-                params
-                session.peerTubeURL
-                VideoListReceived
+            , case model.query of
+                Route.Playlist ->
+                    Request.PeerTube.getPlaylistVideoList
+                    params
+                    session.peerTubeURL
+                    VideoListReceived
+
+
+                _ ->
+                    Request.PeerTube.getVideoList
+                    params
+                    session.peerTubeURL
+                    VideoListReceived
             )
 
         NotificationMsg notificationMsg ->
@@ -135,23 +156,25 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, videoListData, keyword, notifications, loadMoreState } =
+view { peerTubeURL } { title, videoListData, query, notifications, loadMoreState } =
     { title = title
     , pageTitle =
-        if keyword == "Nouveautés" then
-            title
+        case query of
+            Route.Search _ ->
+                "Liste des vidéos"
 
-        else
-            "Liste des vidéos"
+            _ ->
+                title
     , pageSubTitle =
-        if keyword == "Nouveautés" then
-            ""
+        case query of
+            Route.Search keyword ->
+                "dans la catégorie " ++ keyword
 
-        else
-            "dans la catégorie " ++ keyword
+            _ ->
+                ""
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , Page.Common.Video.viewCategory videoListData peerTubeURL keyword
+        , Page.Common.Video.viewCategory videoListData peerTubeURL query
         , case loadMoreState of
             Page.Common.Components.Disabled ->
                 Page.Common.Components.button "Plus d'autres vidéos à afficher" loadMoreState Nothing

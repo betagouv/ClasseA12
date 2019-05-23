@@ -518,7 +518,7 @@ viewBreadCrumbs videoData =
                         |> List.concatMap
                             (\keyword ->
                                 [ H.text " / "
-                                , H.a [ Route.href (Route.Search <| Just keyword) ] [ H.text keyword ]
+                                , H.a [ Route.href (Route.VideoList <| Route.Search keyword) ] [ H.text keyword ]
                                 ]
                             )
             in

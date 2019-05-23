@@ -15,6 +15,7 @@ module Request.PeerTube exposing
     , getAccountForEdit
     , getBlacklistedVideoList
     , getCommentList
+    , getPlaylistVideoList
     , getUserInfo
     , getVideo
     , getVideoCommentList
@@ -130,6 +131,57 @@ videoListRequest videoListParams serverURL =
 getVideoList : VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
 getVideoList videoListParams serverURL message =
     Http.send message (videoListRequest videoListParams serverURL)
+
+
+latestPlaylistRequest : String -> Http.Request String
+latestPlaylistRequest serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/video-channels/classea12_channel/video-playlists"
+
+        playlistsDecoder =
+            Decode.field "data" <| Decode.list <| Decode.field "uuid" Decode.string
+
+        latestPlaylistDecoder =
+            playlistsDecoder
+                |> Decode.andThen
+                    (\playlists ->
+                        case playlists of
+                            [ first, _ ] ->
+                                Decode.succeed first
+
+                            _ ->
+                                Decode.fail "No latest playlist"
+                    )
+    in
+    Http.get url latestPlaylistDecoder
+
+
+playlistVideoListRequest : VideoListParams -> String -> String -> Http.Request (List Video)
+playlistVideoListRequest { count, offset } playlistID serverURL =
+    let
+        params =
+            "start="
+                ++ String.fromInt offset
+                ++ "&count="
+                ++ String.fromInt count
+
+        url =
+            serverURL ++ "/api/v1/video-playlists/" ++ playlistID ++ "/videos?" ++ params
+    in
+    Http.get url dataDecoder
+
+
+getPlaylistVideoList : VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getPlaylistVideoList videoListParams serverURL message =
+    latestPlaylistRequest serverURL
+        |> Http.toTask
+        |> Task.andThen
+            (\playlistID ->
+                playlistVideoListRequest videoListParams playlistID serverURL
+                    |> Http.toTask
+            )
+        |> Task.attempt message
 
 
 videoRequest : String -> String -> Request Video

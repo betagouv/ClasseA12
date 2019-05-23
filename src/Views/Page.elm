@@ -12,7 +12,7 @@ import Route
 
 type ActivePage
     = Home
-    | Search String
+    | VideoList Route.VideoListQuery
     | PeerTube
     | PeerTubeVideo
     | PeerTubeAccount
@@ -167,7 +167,8 @@ viewAside { activePage } =
             ]
         , nav []
             [ linkMaybeActive Home Route.Home "Accueil"
-            , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
+            , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
+            , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
             ]
         , div []
             [ h3 [] [ text "Catégories" ]
@@ -177,9 +178,9 @@ viewAside { activePage } =
                         (\( keyword, _ ) ->
                             let
                                 route =
-                                    Route.Search <| Just keyword
+                                    Route.VideoList <| Route.Search keyword
                             in
-                            linkMaybeActive (Search keyword) route keyword
+                            linkMaybeActive (VideoList <| Route.Search keyword) route keyword
                         )
                 )
             , h3 [] [ text "Le projet" ]

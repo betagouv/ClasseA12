@@ -118,7 +118,7 @@ keywords keywordList =
             |> List.map
                 (\keyword ->
                     H.li [ HA.class "label" ]
-                        [ H.a [ Route.href <| Route.Search (Just keyword) ]
+                        [ H.a [ Route.href <| Route.VideoList (Route.Search keyword) ]
                             [ H.text keyword ]
                         ]
                 )
@@ -128,23 +128,27 @@ keywords keywordList =
         H.text ""
 
 
-viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> String -> H.Html msg
-viewCategory data peerTubeURL keyword =
+viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> Route.VideoListQuery -> H.Html msg
+viewCategory data peerTubeURL query =
     let
-        ( displayedKeyword, route ) =
-            if keyword /= "Nouveautés" then
-                ( keyword, Route.Search <| Just keyword )
+        displayedKeyword =
+            case query of
+                Route.Latest ->
+                    "nouveautés"
 
-            else
-                ( "récentes", Route.Search Nothing )
+                Route.Playlist ->
+                    "playlist de la semaine"
+
+                Route.Search keyword ->
+                    keyword
     in
-    H.section [ HA.class "category", HA.id keyword ]
+    H.section [ HA.class "category", HA.id displayedKeyword ]
         [ H.div [ HA.class "home-title_wrapper" ]
             [ H.h3 [ HA.class "home-title" ]
                 [ H.text "Le coin "
-                , H.text keyword
+                , H.text displayedKeyword
                 ]
-            , H.a [ Route.href route ]
+            , H.a [ Route.href <| Route.VideoList query ]
                 [ H.text "Toutes les vidéos "
                 , H.text displayedKeyword
                 ]

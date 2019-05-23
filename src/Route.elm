@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, href, pushUrl, toString)
+module Route exposing (Route(..), VideoListQuery(..), fromUrl, href, pushUrl, toString)
 
 import Browser.Navigation as Nav
 import Html exposing (Attribute)
@@ -11,7 +11,7 @@ import Url.Parser.Query as Query
 
 type Route
     = Home
-    | Search (Maybe String)
+    | VideoList VideoListQuery
     | About
     | Participate
     | CGU
@@ -28,12 +28,19 @@ type Route
     | Comments
 
 
+type VideoListQuery
+    = Latest
+    | Playlist
+    | Search String
+
+
 parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
-        , Parser.map (Search Nothing) (Parser.s "videos")
-        , Parser.map (\search -> Search <| Just search) (Parser.s "videos" </> Parser.string)
+        , Parser.map (VideoList Latest) (Parser.s "videos-recentes")
+        , Parser.map (VideoList Playlist) (Parser.s "videos-playlist")
+        , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map CGU (Parser.s "CGU")
@@ -102,13 +109,16 @@ toString route =
                 Home ->
                     []
 
-                Search search ->
-                    search
-                        |> Maybe.map
-                            (\justSearch ->
-                                [ "videos", Url.percentEncode justSearch ]
-                            )
-                        |> Maybe.withDefault [ "videos" ]
+                VideoList query ->
+                    case query of
+                        Latest ->
+                            [ "videos-recentes" ]
+
+                        Playlist ->
+                            [ "videos-playlist" ]
+
+                        Search search ->
+                            [ "videos", Url.percentEncode search ]
 
                 About ->
                     [ "apropos" ]
