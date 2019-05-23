@@ -3,6 +3,8 @@ module Page.Home exposing (Model, Msg(..), init, update, view)
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Dict
+import Html as H
+import Html.Attributes as HA
 import Http
 import Page.Common.Components
 import Page.Common.Video
@@ -15,6 +17,7 @@ type alias Model =
     , search : String
     , recentVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , playlistVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+    , playlistTitle : String
     , videoData : Dict.Dict String (Data.PeerTube.RemoteData (List Data.PeerTube.Video))
     }
 
@@ -22,7 +25,7 @@ type alias Model =
 type Msg
     = UpdateSearch String
     | RecentVideoListReceived (Result Http.Error (List Data.PeerTube.Video))
-    | PlaylistVideoListReceived (Result Http.Error (List Data.PeerTube.Video))
+    | PlaylistVideoListReceived (Result Http.Error ( String, List Data.PeerTube.Video ))
     | VideoListReceived String (Result Http.Error (List Data.PeerTube.Video))
 
 
@@ -37,6 +40,7 @@ init session =
       , search = ""
       , recentVideoData = Data.PeerTube.Requested
       , playlistVideoData = Data.PeerTube.Requested
+      , playlistTitle = ""
       , videoData =
             keywordList
                 |> List.foldl
@@ -85,8 +89,11 @@ update _ msg model =
         RecentVideoListReceived (Err _) ->
             ( { model | recentVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos récentes" }, Cmd.none )
 
-        PlaylistVideoListReceived (Ok videoList) ->
-            ( { model | playlistVideoData = Data.PeerTube.Received videoList }
+        PlaylistVideoListReceived (Ok ( playlistTitle, videoList )) ->
+            ( { model
+                | playlistVideoData = Data.PeerTube.Received videoList
+                , playlistTitle = playlistTitle
+              }
             , Cmd.none
             )
 
@@ -117,13 +124,43 @@ update _ msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, recentVideoData, playlistVideoData, videoData } =
+view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle, videoData } =
     let
         viewRecentVideo =
-            [ Page.Common.Video.viewCategory recentVideoData peerTubeURL <| Route.Latest ]
+            [ H.section [ HA.class "category", HA.id "latest" ]
+                [ H.div [ HA.class "home-title_wrapper" ]
+                    [ H.h3 [ HA.class "home-title" ]
+                        [ H.text "Les nouveautés"
+                        ]
+                    , H.a [ Route.href <| Route.VideoList Route.Latest ]
+                        [ H.text "Toutes les vidéos récentes"
+                        ]
+                    ]
+                , Page.Common.Video.viewVideoListData recentVideoData peerTubeURL
+                ]
+            ]
 
         viewPlaylistVideo =
-            [ Page.Common.Video.viewCategory playlistVideoData peerTubeURL <| Route.Playlist ]
+            let
+                playlistName =
+                    if playlistTitle /= "" then
+                        " : " ++ playlistTitle
+
+                    else
+                        ""
+            in
+            [ H.section [ HA.class "category", HA.id "playlist" ]
+                [ H.div [ HA.class "home-title_wrapper" ]
+                    [ H.h3 [ HA.class "home-title" ]
+                        [ H.text <| "La playlist de la semaine" ++ playlistName
+                        ]
+                    , H.a [ Route.href <| Route.VideoList Route.Playlist ]
+                        [ H.text "Toutes les vidéos de la playlist"
+                        ]
+                    ]
+                , Page.Common.Video.viewVideoListData playlistVideoData peerTubeURL
+                ]
+            ]
 
         viewVideoCategories =
             Data.PeerTube.keywordList

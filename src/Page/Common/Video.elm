@@ -10,6 +10,7 @@ module Page.Common.Video exposing
     , title
     , viewCategory
     , viewVideo
+    , viewVideoListData
     )
 
 import Data.PeerTube
@@ -153,20 +154,25 @@ viewCategory data peerTubeURL query =
                 , H.text displayedKeyword
                 ]
             ]
-        , H.div []
-            [ case data of
-                Data.PeerTube.NotRequested ->
-                    H.text ""
+        , viewVideoListData data peerTubeURL
+        ]
 
-                Data.PeerTube.Requested ->
-                    H.text "Chargement des vidéos..."
 
-                Data.PeerTube.Received videoList ->
-                    viewList peerTubeURL videoList
+viewVideoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> H.Html msg
+viewVideoListData data peerTubeURL =
+    H.div []
+        [ case data of
+            Data.PeerTube.NotRequested ->
+                H.text ""
 
-                Data.PeerTube.Failed error ->
-                    H.text error
-            ]
+            Data.PeerTube.Requested ->
+                H.text "Chargement des vidéos..."
+
+            Data.PeerTube.Received videoList ->
+                viewList peerTubeURL videoList
+
+            Data.PeerTube.Failed error ->
+                H.text error
         ]
 
 

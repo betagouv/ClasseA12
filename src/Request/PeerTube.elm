@@ -35,6 +35,7 @@ import Data.PeerTube
     exposing
         ( Account
         , Comment
+        , Playlist
         , UserInfo
         , UserToken
         , Video
@@ -43,6 +44,7 @@ import Data.PeerTube
         , commentDecoder
         , commentListDecoder
         , dataDecoder
+        , playlistDecoder
         , userInfoDecoder
         , userTokenDecoder
         , videoDecoder
@@ -133,14 +135,14 @@ getVideoList videoListParams serverURL message =
     Http.send message (videoListRequest videoListParams serverURL)
 
 
-latestPlaylistRequest : String -> Http.Request String
+latestPlaylistRequest : String -> Http.Request Playlist
 latestPlaylistRequest serverURL =
     let
         url =
             serverURL ++ "/api/v1/video-channels/classea12_channel/video-playlists"
 
         playlistsDecoder =
-            Decode.field "data" <| Decode.list <| Decode.field "uuid" Decode.string
+            Decode.field "data" <| Decode.list playlistDecoder
 
         latestPlaylistDecoder =
             playlistsDecoder
@@ -172,14 +174,18 @@ playlistVideoListRequest { count, offset } playlistID serverURL =
     Http.get url dataDecoder
 
 
-getPlaylistVideoList : VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getPlaylistVideoList : VideoListParams -> String -> (Result Http.Error ( String, List Video ) -> msg) -> Cmd msg
 getPlaylistVideoList videoListParams serverURL message =
     latestPlaylistRequest serverURL
         |> Http.toTask
         |> Task.andThen
-            (\playlistID ->
-                playlistVideoListRequest videoListParams playlistID serverURL
+            (\playlist ->
+                playlistVideoListRequest videoListParams playlist.uuid serverURL
                     |> Http.toTask
+                    |> Task.map
+                        (\videoList ->
+                            ( playlist.displayName, videoList )
+                        )
             )
         |> Task.attempt message
 

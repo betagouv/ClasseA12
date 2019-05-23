@@ -3,6 +3,7 @@ module Page.VideoList exposing (Model, Msg(..), init, update, view)
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
+import Html.Attributes as HA
 import Http
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
@@ -17,6 +18,7 @@ type alias Model =
     , query : Route.VideoListQuery
     , videoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , videoListParams : Request.PeerTube.VideoListParams
+    , playlistTitle : String
     , loadMoreState : Page.Common.Components.ButtonState
     , notifications : Notifications.Model
     }
@@ -24,6 +26,7 @@ type alias Model =
 
 type Msg
     = VideoListReceived (Result Http.Error (List Data.PeerTube.Video))
+    | PlaylistVideoListReceived (Result Http.Error ( String, List Data.PeerTube.Video ))
     | LoadMore
     | NotificationMsg Notifications.Msg
 
@@ -44,6 +47,7 @@ init query session =
               , query = Route.Latest
               , videoListData = Data.PeerTube.Requested
               , videoListParams = videoListParams
+              , playlistTitle = ""
               , loadMoreState = Page.Common.Components.Loading
               , notifications = Notifications.init
               }
@@ -55,10 +59,11 @@ init query session =
               , query = Route.Playlist
               , videoListData = Data.PeerTube.Requested
               , videoListParams = videoListParams
+              , playlistTitle = ""
               , loadMoreState = Page.Common.Components.Loading
               , notifications = Notifications.init
               }
-            , Request.PeerTube.getPlaylistVideoList videoListParams session.peerTubeURL VideoListReceived
+            , Request.PeerTube.getPlaylistVideoList videoListParams session.peerTubeURL PlaylistVideoListReceived
             )
 
         Route.Search keyword ->
@@ -75,6 +80,7 @@ init query session =
               , query = Route.Search decoded
               , videoListData = Data.PeerTube.Requested
               , videoListParams = paramsForKeyword
+              , playlistTitle = ""
               , loadMoreState = Page.Common.Components.Loading
               , notifications = Notifications.init
               }
@@ -124,6 +130,43 @@ update session msg model =
             , Cmd.none
             )
 
+        PlaylistVideoListReceived (Ok ( title, videoList )) ->
+            let
+                videoListData =
+                    case model.videoListData of
+                        Data.PeerTube.Received previousList ->
+                            Data.PeerTube.Received (previousList ++ videoList)
+
+                        _ ->
+                            Data.PeerTube.Received videoList
+
+                maybeDisabled =
+                    if videoList == [] then
+                        -- We didn't receive anything back from the API, there's no more videos to load
+                        Page.Common.Components.Disabled
+
+                    else
+                        Page.Common.Components.NotLoading
+            in
+            ( { model
+                | videoListData = videoListData
+                , playlistTitle = title
+                , loadMoreState = maybeDisabled
+              }
+            , Cmd.none
+            )
+
+        PlaylistVideoListReceived (Err _) ->
+            ( { model
+                | videoListData = Data.PeerTube.Failed "Échec de la récupération des vidéos"
+                , notifications =
+                    "Échec de la récupération de la vidéo"
+                        |> Notifications.addError model.notifications
+                , loadMoreState = Page.Common.Components.NotLoading
+              }
+            , Cmd.none
+            )
+
         LoadMore ->
             let
                 params =
@@ -137,16 +180,15 @@ update session msg model =
             , case model.query of
                 Route.Playlist ->
                     Request.PeerTube.getPlaylistVideoList
-                    params
-                    session.peerTubeURL
-                    VideoListReceived
-
+                        params
+                        session.peerTubeURL
+                        PlaylistVideoListReceived
 
                 _ ->
                     Request.PeerTube.getVideoList
-                    params
-                    session.peerTubeURL
-                    VideoListReceived
+                        params
+                        session.peerTubeURL
+                        VideoListReceived
             )
 
         NotificationMsg notificationMsg ->
@@ -156,7 +198,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, videoListData, query, notifications, loadMoreState } =
+view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications, loadMoreState } =
     { title = title
     , pageTitle =
         case query of
@@ -174,7 +216,37 @@ view { peerTubeURL } { title, videoListData, query, notifications, loadMoreState
                 ""
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , Page.Common.Video.viewCategory videoListData peerTubeURL query
+        , case query of
+            Route.Latest ->
+                H.section [ HA.class "category", HA.id "latest" ]
+                    [ H.div [ HA.class "home-title_wrapper" ]
+                        [ H.h3 [ HA.class "home-title" ]
+                            [ H.text "Les nouveautés"
+                            ]
+                        ]
+                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    ]
+
+            Route.Playlist ->
+                let
+                    playlistName =
+                        if playlistTitle /= "" then
+                            " : " ++ playlistTitle
+
+                        else
+                            ""
+                in
+                H.section [ HA.class "category", HA.id "playlist" ]
+                    [ H.div [ HA.class "home-title_wrapper" ]
+                        [ H.h3 [ HA.class "home-title" ]
+                            [ H.text <| "La playlist de la semaine" ++ playlistName
+                            ]
+                        ]
+                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    ]
+
+            Route.Search _ ->
+                Page.Common.Video.viewCategory videoListData peerTubeURL query
         , case loadMoreState of
             Page.Common.Components.Disabled ->
                 Page.Common.Components.button "Plus d'autres vidéos à afficher" loadMoreState Nothing

@@ -2,6 +2,7 @@ module Data.PeerTube exposing
     ( Account
     , Comment
     , NewVideo
+    , Playlist
     , RemoteData(..)
     , UserInfo
     , UserToken
@@ -18,6 +19,7 @@ module Data.PeerTube exposing
     , encodeUserInfo
     , encodeUserToken
     , keywordList
+    , playlistDecoder
     , userInfoDecoder
     , userTokenDecoder
     , videoDecoder
@@ -97,6 +99,12 @@ type alias Comment =
     , createdAt : String
     , updatedAt : String
     , account : Account
+    }
+
+
+type alias Playlist =
+    { uuid : String
+    , displayName : String
     }
 
 
@@ -223,6 +231,13 @@ userInfoDecoder =
     Decode.succeed UserInfo
         |> Pipeline.required "username" Decode.string
         |> Pipeline.required "videoChannels" videoChannelIDDecoder
+
+
+playlistDecoder : Decode.Decoder Playlist
+playlistDecoder =
+    Decode.succeed Playlist
+        |> Pipeline.required "uuid" Decode.string
+        |> Pipeline.required "displayName" Decode.string
 
 
 commentDecoder : Decode.Decoder Comment
