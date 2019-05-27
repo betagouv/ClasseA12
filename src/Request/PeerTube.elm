@@ -149,7 +149,7 @@ latestPlaylistRequest serverURL =
                 |> Decode.andThen
                     (\playlists ->
                         case playlists of
-                            [ first, _ ] ->
+                            first :: _ ->
                                 Decode.succeed first
 
                             _ ->
