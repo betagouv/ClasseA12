@@ -75,6 +75,7 @@ type alias Request a =
 
 type alias VideoListParams =
     { keywords : List String
+    , search : String
     , count : Int
     , offset : Int
     }
@@ -83,6 +84,7 @@ type alias VideoListParams =
 emptyVideoListParams : VideoListParams
 emptyVideoListParams =
     { keywords = []
+    , search = ""
     , count = 8
     , offset = 0
     }
@@ -105,24 +107,37 @@ loadMoreVideos ({ offset, count } as videoListParams) =
 
 
 urlFromVideoListParams : VideoListParams -> String -> String
-urlFromVideoListParams { keywords, count, offset } serverURL =
+urlFromVideoListParams { keywords, count, offset, search } serverURL =
     let
-        url =
+        baseURL =
             serverURL
                 ++ "/api/v1/search/videos?start="
                 ++ String.fromInt offset
                 ++ "&count="
                 ++ String.fromInt count
                 ++ "&categoryOneOf=13&sort=-publishedAt"
-    in
-    if keywords /= [] then
-        keywords
-            |> String.join "&tagsAllOf="
-            |> (++) "&tagsAllOf="
-            |> (++) url
 
-    else
-        url
+        fullURL =
+            baseURL
+                |> (\url ->
+                        if keywords /= [] then
+                            keywords
+                                |> String.join "&tagsAllOf="
+                                |> (++) "&tagsAllOf="
+                                |> (++) url
+
+                        else
+                            url
+                   )
+                |> (\url ->
+                        if search /= "" then
+                            url ++ "&search=" ++ search
+
+                        else
+                            url
+                   )
+    in
+    fullURL
 
 
 videoListRequest : VideoListParams -> String -> Http.Request (List Video)

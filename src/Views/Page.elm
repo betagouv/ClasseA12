@@ -178,7 +178,7 @@ viewAside { activePage } =
                         (\( keyword, _ ) ->
                             let
                                 route =
-                                    Route.VideoList <| Route.Search keyword
+                                    Route.VideoList <| Route.Keyword keyword
                             in
                             linkMaybeActive (VideoList <| Route.Search keyword) route keyword
                         )

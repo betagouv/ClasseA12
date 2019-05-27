@@ -66,7 +66,7 @@ init query session =
             , Request.PeerTube.getPlaylistVideoList videoListParams session.peerTubeURL PlaylistVideoListReceived
             )
 
-        Route.Search keyword ->
+        Route.Keyword keyword ->
             let
                 decoded =
                     keyword
@@ -77,7 +77,7 @@ init query session =
                     videoListParams |> Request.PeerTube.withKeyword keyword
             in
             ( { title = "Liste des vidéos dans la catégorie " ++ decoded
-              , query = Route.Search decoded
+              , query = Route.Keyword decoded
               , videoListData = Data.PeerTube.Requested
               , videoListParams = paramsForKeyword
               , playlistTitle = ""
@@ -86,6 +86,30 @@ init query session =
               }
             , Request.PeerTube.getVideoList
                 paramsForKeyword
+                session.peerTubeURL
+                VideoListReceived
+            )
+
+        Route.Search search ->
+            let
+                decoded =
+                    search
+                        |> Url.percentDecode
+                        |> Maybe.withDefault ""
+
+                paramsForSearch =
+                    { videoListParams | search = search }
+            in
+            ( { title = "Liste des vidéos pour la recherche " ++ decoded
+              , query = Route.Search decoded
+              , videoListData = Data.PeerTube.Requested
+              , videoListParams = paramsForSearch
+              , playlistTitle = ""
+              , loadMoreState = Page.Common.Components.Loading
+              , notifications = Notifications.init
+              }
+            , Request.PeerTube.getVideoList
+                paramsForSearch
                 session.peerTubeURL
                 VideoListReceived
             )
@@ -245,8 +269,25 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                     , Page.Common.Video.viewVideoListData videoListData peerTubeURL
                     ]
 
-            Route.Search _ ->
-                Page.Common.Video.viewCategory videoListData peerTubeURL query
+            Route.Keyword keyword ->
+                H.section [ HA.class "category", HA.id "keyword" ]
+                    [ H.div [ HA.class "home-title_wrapper" ]
+                        [ H.h3 [ HA.class "home-title" ]
+                            [ H.text <| "Les vidéos dans la catégorie " ++ keyword
+                            ]
+                        ]
+                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    ]
+
+            Route.Search search ->
+                H.section [ HA.class "category", HA.id "search" ]
+                    [ H.div [ HA.class "home-title_wrapper" ]
+                        [ H.h3 [ HA.class "home-title" ]
+                            [ H.text <| "Les vidéos pour la recherche : " ++ search
+                            ]
+                        ]
+                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    ]
         , case loadMoreState of
             Page.Common.Components.Disabled ->
                 Page.Common.Components.button "Plus d'autres vidéos à afficher" loadMoreState Nothing

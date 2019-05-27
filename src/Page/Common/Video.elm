@@ -140,8 +140,11 @@ viewCategory data peerTubeURL query =
                 Route.Playlist ->
                     "playlist de la semaine"
 
-                Route.Search keyword ->
+                Route.Keyword keyword ->
                     keyword
+
+                Route.Search search ->
+                    search
     in
     H.section [ HA.class "category", HA.id displayedKeyword ]
         [ H.div [ HA.class "home-title_wrapper" ]
