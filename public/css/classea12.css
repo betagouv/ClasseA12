@@ -838,3 +838,44 @@ progress {
 .notification.error {
   background-color: var(--notification-error-color);
 }
+
+/* PAGE ADMIN */
+
+.admin .container {
+  display: flex;
+  min-height: 130px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #c6c6c6;
+}
+
+.admin video {
+  border-radius: 3px;
+  height: 122px;
+  margin-right: 1em;
+  width: 233px;
+}
+
+.admin .video-details {
+  flex-grow: 1;
+}
+
+.admin .video-details h1 {
+  font-size: inherit;
+}
+
+.admin .video_metadata,
+.admin .video_keywords {
+  margin-left: 0;
+}
+
+.admin .video_keywords,
+.admin .video_keywords li {
+  display: inline-block;
+}
+
+.admin button {
+  height: 40px;
+  min-width: 180px;
+  width: 180px;
+}

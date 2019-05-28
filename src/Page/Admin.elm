@@ -8,6 +8,7 @@ import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Page.Common.Video
 import Request.PeerTube
+import Route
 
 
 type alias Model =
@@ -238,31 +239,20 @@ viewVideo publishingVideos peerTubeURL video =
     in
     H.div []
         [ H.div
-            [ HA.class "section " ]
+            [ HA.class "section admin" ]
             [ H.div [ HA.class "container" ]
                 [ Page.Common.Video.playerForVideo video peerTubeURL
-                , H.div [ HA.class "video_details" ]
-                    [ Page.Common.Video.title video
-                    , H.div []
-                        [ H.img
-                            [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
-                            ]
-                            []
-                        , Page.Common.Video.metadata video
+                , H.div [ HA.class "video-details" ]
+                    [ H.a [ Route.href <| Route.Video video.uuid video.name ]
+                        [ Page.Common.Video.title video
+                        ]
+                    , H.div [ HA.class "video-metadata" ]
+                        [ Page.Common.Video.metadata video
                         , Page.Common.Video.keywords video.tags
                         ]
+                    , Page.Common.Video.description video
                     ]
-                , H.div [ HA.class "video_infos cols_height-four" ]
-                    [ Page.Common.Video.description video
-                    , H.div [ HA.class "video_resources" ]
-                        [ H.h4 [] [ H.text "Ressources" ]
-                        , H.p []
-                            [ H.text "Aucune ressource disponible"
-                            ]
-                        ]
-                    ]
-                , H.div [ HA.class "video_share" ]
-                    [ publishNode ]
+                , publishNode
                 ]
             ]
         , H.br [] []
