@@ -241,9 +241,28 @@ viewVideo publishingVideos peerTubeURL video =
             [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ Page.Common.Video.playerForVideo video peerTubeURL
-                , Page.Common.Video.details video
-                , Page.Common.Video.keywords video.tags
-                , publishNode
+                , H.div [ HA.class "video_details" ]
+                    [ Page.Common.Video.title video
+                    , H.div []
+                        [ H.img
+                            [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
+                            ]
+                            []
+                        , Page.Common.Video.metadata video
+                        , Page.Common.Video.keywords video.tags
+                        ]
+                    ]
+                , H.div [ HA.class "video_infos cols_height-four" ]
+                    [ Page.Common.Video.description video
+                    , H.div [ HA.class "video_resources" ]
+                        [ H.h4 [] [ H.text "Ressources" ]
+                        , H.p []
+                            [ H.text "Aucune ressource disponible"
+                            ]
+                        ]
+                    ]
+                , H.div [ HA.class "video_share" ]
+                    [ publishNode ]
                 ]
             ]
         , H.br [] []
