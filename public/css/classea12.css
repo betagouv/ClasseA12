@@ -889,3 +889,11 @@ progress {
   min-width: 180px;
   width: 180px;
 }
+
+/* PAGE CONVENTION/CHARTE */
+.convention ul {
+  list-style-type: disc;
+}
+.convention li {
+  padding: 0 1.2rem;
+}
