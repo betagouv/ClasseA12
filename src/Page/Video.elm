@@ -474,21 +474,9 @@ scrollToComment maybeCommentID model =
 
 view : Session -> Model -> Components.Document Msg
 view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
-    { title = title
-    , pageTitle = "Vidéo"
-    , pageSubTitle = videoTitle
-    , body =
-        [ H.map NotificationMsg (Notifications.view notifications)
-        , viewBreadCrumbs videoData
-        , H.section []
-            [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
-            , H.div [ HA.class "cols_height-four" ]
-                [ viewComments videoID comments attachmentList
-                , H.div []
-                    [ viewRelatedVideos peerTubeURL relatedVideos
-                    ]
-                ]
-            , H.div [ HA.class "video_contribution" ]
+    let
+        commentFormNode =
+            H.div [ HA.class "video_contribution" ]
                 [ case commentData of
                     Data.PeerTube.Failed _ ->
                         H.div []
@@ -502,6 +490,21 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
 
                     _ ->
                         viewCommentForm comment userInfo refreshing commentData attachmentData progress
+                ]
+    in
+    { title = title
+    , pageTitle = "Vidéo"
+    , pageSubTitle = videoTitle
+    , body =
+        [ H.map NotificationMsg (Notifications.view notifications)
+        , viewBreadCrumbs videoData
+        , H.section []
+            [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
+            , H.div [ HA.class "cols_height-four" ]
+                [ viewComments videoID comments attachmentList commentFormNode
+                , H.div []
+                    [ viewRelatedVideos peerTubeURL relatedVideos
+                    ]
                 ]
             ]
         ]
@@ -667,8 +670,13 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
         ]
 
 
-viewComments : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> List Attachment -> H.Html Msg
-viewComments videoID commentsData attachmentList =
+viewComments :
+    String
+    -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
+    -> List Attachment
+    -> H.Html Msg
+    -> H.Html Msg
+viewComments videoID commentsData attachmentList commentFormNode =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.PeerTube.Received comments ->
@@ -685,6 +693,7 @@ viewComments videoID commentsData attachmentList =
 
             _ ->
                 H.p [] [ H.text "Aucune contribution pour le moment" ]
+        , commentFormNode
         ]
 
 
@@ -755,7 +764,7 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
     if not <| Data.Session.isLoggedIn userInfo then
         H.div []
             [ H.h2 []
-                [ H.text "Contributions"
+                [ H.text "Apporter une contribution"
                 ]
             , Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
             ]
@@ -794,7 +803,7 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
                 )
             ]
             [ H.h2 []
-                [ H.text "Contributions" ]
+                [ H.text "Apporter une contribution" ]
             , H.p [] [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
             , H.form
                 [ HE.onSubmit AddComment, HA.class "cols_seven-five" ]

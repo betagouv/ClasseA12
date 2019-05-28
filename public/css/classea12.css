@@ -640,7 +640,13 @@ aside nav a img[src*="book.svg"] {
   color: #7F7F90;
 }
 .video_contribution form {
+  display: block;
   margin-top: 3.2rem;
+}
+
+.video_contribution form .form__group {
+  padding-left: 0;
+  width: 100%;
 }
 
 .video_contribution button {
