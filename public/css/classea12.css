@@ -608,6 +608,10 @@ aside nav a img[src*="book.svg"] {
   margin-bottom: 1.2rem;
 }
 
+.video_suggestion {
+  max-height: 600px;
+  overflow-y: scroll;
+}
 .video_suggestion .card,
 .video_suggestion .card_img,
 .video_suggestion .card_content {
