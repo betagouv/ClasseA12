@@ -197,9 +197,12 @@ isEmailValid email =
             , "ac-spm.fr"
             , "ac-polynesie.pf"
             ]
+
+        normalizedEmail =
+            String.toLower email
     in
     validDomains
-        |> List.filter (\domain -> String.endsWith ("@" ++ domain) email)
+        |> List.filter (\domain -> String.endsWith ("@" ++ domain) normalizedEmail)
         |> List.length
         |> (==) 1
 

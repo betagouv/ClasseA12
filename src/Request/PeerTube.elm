@@ -461,7 +461,11 @@ registerRequest username email password serverURL =
 
         body =
             [ ( "username", username |> Encode.string )
-            , ( "email", email |> Encode.string )
+            , ( "email"
+              , email
+                    |> String.toLower
+                    |> Encode.string
+              )
             , ( "password", password |> Encode.string )
             ]
                 |> Encode.object
@@ -525,7 +529,12 @@ askPasswordResetRequest email serverURL =
             serverURL ++ "/api/v1/users/ask-reset-password"
 
         body =
-            [ ( "email", email |> Encode.string ) ]
+            [ ( "email"
+              , email
+                    |> String.toLower
+                    |> Encode.string
+              )
+            ]
                 |> Encode.object
                 |> Http.jsonBody
 
@@ -646,13 +655,17 @@ clientRequest serverURL =
 
 
 loginRequest : String -> String -> String -> String -> String -> Http.Request UserToken
-loginRequest client_id client_secret username password serverURL =
+loginRequest client_id client_secret email password serverURL =
     let
         url =
             serverURL ++ "/api/v1/users/token"
 
         data =
-            [ ( "username", username |> Url.percentEncode )
+            [ ( "username"
+              , email
+                    |> String.toLower
+                    |> Url.percentEncode
+              )
             , ( "password", password |> Url.percentEncode )
             , ( "client_id", client_id )
             , ( "client_secret", client_secret )
@@ -671,11 +684,11 @@ loginRequest client_id client_secret username password serverURL =
 
 
 login : String -> String -> String -> (Result Http.Error UserToken -> msg) -> Cmd msg
-login username password serverURL message =
+login email password serverURL message =
     Http.toTask (clientRequest serverURL)
         |> Task.andThen
             (\{ client_id, client_secret } ->
-                Http.toTask (loginRequest client_id client_secret username password serverURL)
+                Http.toTask (loginRequest client_id client_secret email password serverURL)
             )
         |> Task.attempt message
 
