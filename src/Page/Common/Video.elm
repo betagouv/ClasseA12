@@ -45,7 +45,7 @@ rawPlayer video =
     let
         videoURL =
             video.files
-                |> List.head
+                |> Maybe.map .fileUrl
                 -- If the video is blacklisted and there's no file url there's no way to view the video anyway
                 |> Maybe.withDefault ""
     in

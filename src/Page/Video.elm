@@ -648,6 +648,16 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
     H.div
         []
         [ Page.Common.Video.playerForVideo video peerTubeURL
+        , case video.files of
+            Just files ->
+                H.div []
+                    [ H.a
+                        [ HA.href files.fileDownloadUrl ]
+                        [ H.text "Télécharger cette vidéo" ]
+                    ]
+
+            Nothing ->
+                H.text ""
         , H.div [ HA.class "video_details" ]
             [ Page.Common.Video.title video
             , H.div []

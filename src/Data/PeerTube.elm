@@ -65,7 +65,13 @@ type alias Video =
     , originallyPublishedAt : String
     , tags : List String
     , blacklisted : Bool
-    , files : List String
+    , files : Maybe Files
+    }
+
+
+type alias Files =
+    { fileUrl : String
+    , fileDownloadUrl : String
     }
 
 
@@ -175,7 +181,17 @@ videoDecoder =
         |> Pipeline.optional "originallyPublishedAt" Decode.string ""
         |> Pipeline.optional "tags" (Decode.list Decode.string) []
         |> Pipeline.optional "blacklisted" Decode.bool False
-        |> Pipeline.optional "files" (Decode.list (Decode.field "fileUrl" Decode.string)) []
+        |> Pipeline.optional "files" videoFilesDecoder Nothing
+
+
+videoFilesDecoder : Decode.Decoder (Maybe Files)
+videoFilesDecoder =
+    Decode.list
+        (Decode.succeed Files
+            |> Pipeline.required "fileUrl" Decode.string
+            |> Pipeline.required "fileDownloadUrl" Decode.string
+        )
+        |> Decode.map List.head
 
 
 userTokenDecoder : Decode.Decoder UserToken
