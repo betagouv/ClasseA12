@@ -500,7 +500,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
         , viewBreadCrumbs videoData
         , H.section []
             [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
-            , H.div [ HA.class "cols_height-four" ]
+            , H.div [ HA.class "cols_height-four mobile-tabs" ]
                 [ viewComments videoID comments attachmentList commentFormNode
                 , H.div []
                     [ viewRelatedVideos peerTubeURL relatedVideos
