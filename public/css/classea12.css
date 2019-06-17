@@ -1082,8 +1082,6 @@ progress {
     background-color: #1E1169;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,0.06);
     z-index: 1;
-
-    /* display: none; */
   }
   header .logo img {
     position: relative;
@@ -1094,6 +1092,17 @@ progress {
   }
   .menu-opener {
     display: flex;
+  }
+
+  main {
+    padding-top: 4rem;
+  }
+  
+  footer {
+    font-size: 1rem;
+  }
+  footer img {
+    width: 11rem;
   }
 
   .grid {
