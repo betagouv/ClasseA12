@@ -8,6 +8,7 @@ import Html.Attributes exposing (alt, class, classList, href, placeholder, src, 
 import Html.Events exposing (onInput, onSubmit)
 import Page.Common.Components
 import Route
+import String.Normalize
 
 
 type ActivePage
@@ -159,7 +160,9 @@ viewAside { activePage } =
                     [ ( "active", page == activePage )
                     ]
                 ]
-                [ text caption ]
+                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ (String.Normalize.slug caption) ++ "_32_white.svg") ] []
+                , text caption
+                ]
     in
     aside [ class "side-menu" ]
         [ a [ href "/" ]
@@ -187,10 +190,16 @@ viewAside { activePage } =
             , nav []
                 [ linkMaybeActive About Route.About "Classe à 12 ?"
                 , linkMaybeActive Participate Route.Participate "Je participe"
-                , a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ]
+                , a [ href "mailto:classea12@education.gouv.fr" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                    , text "Contactez-nous"
+                    ]
 
                 -- Link to the Mailchimp signup form.
-                , a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ]
+                , a [ href "http://eepurl.com/gnJbYz" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                    , text "Inscrivez-vous à notre infolettre"
+                    ]
                 ]
             ]
         ]
