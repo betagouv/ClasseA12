@@ -397,7 +397,8 @@ aside > div nav:first-of-type::after {
   background-color: rgba(255, 255, 255, 0.6);
 }
 aside nav a {
-  display: block;
+  display: flex;
+  align-items: center;
   margin-bottom: 0.5rem;
   padding-left: 2.4rem;
   font-weight: 500;
