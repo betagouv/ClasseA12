@@ -104,7 +104,7 @@ setRoute url oldModel =
 
         model =
             -- Save the current URL.
-            { oldModel | session = { session | prevUrl = session.url, url = url } }
+            { oldModel | session = { session | prevUrl = session.url, url = url, isMenuOpened = False } }
 
         toPage page subInit subMsg =
             let
