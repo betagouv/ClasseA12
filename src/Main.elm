@@ -89,6 +89,8 @@ type Msg
     | AdjustTimeZone Time.Zone
     | UpdateSearch String
     | SubmitSearch
+    | OpenMenu
+    | CloseMenu
 
 
 setRoute : Url -> Model -> ( Model, Cmd Msg )
@@ -222,6 +224,7 @@ init flags url navKey =
             , userToken = userToken
             , userInfo = userInfo
             , search = ""
+            , isMenuOpened = False
             }
 
         ( routeModel, routeCmd ) =
@@ -357,6 +360,20 @@ update msg ({ page, session } as model) =
         ( SubmitSearch, _ ) ->
             ( model, Route.pushUrl model.navKey (Route.VideoList <| Route.Search model.session.search) )
 
+        ( OpenMenu, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | isMenuOpened = True } }, Cmd.none )
+
+        ( CloseMenu, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | isMenuOpened = False } }, Cmd.none )
+
         ( _, NotFound ) ->
             ( { model | page = NotFound }
             , Cmd.none
@@ -448,7 +465,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session UpdateSearch SubmitSearch
+            Page.Config model.session UpdateSearch SubmitSearch OpenMenu CloseMenu
 
         mapMsg : (msg -> Msg) -> Page.Common.Components.Document msg -> Page.Common.Components.Document Msg
         mapMsg msg { title, pageTitle, pageSubTitle, body } =
