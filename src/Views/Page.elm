@@ -64,15 +64,23 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
-                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg") ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
                 , text " Se connecter"
                 ]
+
+        icon =
+            if session.isMenuOpened then
+                -- This should never be the case on desktop, so display the mobile icon which is white
+                "%PUBLIC_URL%/images/icons/32x32/profile_32_white.svg"
+
+            else
+                "%PUBLIC_URL%/images/icons/32x32/profile_32_purple.svg"
 
         profileIcon =
             case session.userInfo of
                 Just userInfo ->
                     a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
-                        [  img [ src ("%PUBLIC_URL%/images/icons/32x32/profile_32_purple.svg") ] []
+                        [ img [ src icon ] []
                         , text <| " " ++ userInfo.username
                         ]
 
