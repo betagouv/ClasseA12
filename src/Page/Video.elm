@@ -41,7 +41,13 @@ type alias Model =
     , attachmentList : List Attachment
     , relatedVideos : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , notifications : Notifications.Model
+    , activeTab : Tab
     }
+
+
+type Tab
+    = ContributionTab
+    | RelatedVideosTab
 
 
 type alias Attachment =
@@ -65,6 +71,7 @@ type Msg
     | ProgressUpdated Decode.Value
     | AttachmentListReceived (Result Http.Error (List String))
     | RelatedVideosReceived (List String) (Result Http.Error (List Data.PeerTube.Video))
+    | ActivateTab Tab
     | NotificationMsg Notifications.Msg
     | NoOp
 
@@ -94,6 +101,7 @@ init videoID videoTitle session =
       , attachmentList = []
       , relatedVideos = Data.PeerTube.NotRequested
       , notifications = Notifications.init
+      , activeTab = ContributionTab
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
@@ -404,6 +412,12 @@ update session msg model =
             , Nothing
             )
 
+        ActivateTab tab ->
+            ( { model | activeTab = tab }
+            , Cmd.none
+            , Nothing
+            )
+
         NotificationMsg notificationMsg ->
             ( { model | notifications = Notifications.update notificationMsg model.notifications }
             , Cmd.none
@@ -473,7 +487,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -491,6 +505,19 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                     _ ->
                         viewCommentForm comment userInfo refreshing commentData attachmentData progress
                 ]
+
+        displayTab tab tabTitle =
+            H.a
+                [ HA.href "#"
+                , HA.class <|
+                    if activeTab == tab then
+                        "active"
+
+                    else
+                        ""
+                , HE.onClick <| ActivateTab tab
+                ]
+                [ H.text tabTitle ]
     in
     { title = title
     , pageTitle = "Vidéo"
@@ -501,8 +528,15 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
         , H.section []
             [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
             , H.div [ HA.class "cols_height-four mobile-tabs" ]
-                [ viewComments videoID comments attachmentList commentFormNode
-                , H.div []
+                [ H.div [ HA.class "mobile-only tab-headers" ]
+                    [ displayTab ContributionTab "Contributions"
+                    , displayTab RelatedVideosTab "Suggestions"
+                    ]
+                , H.div [ HA.class <| if activeTab == ContributionTab then "active" else ""]
+                [
+                    viewComments videoID comments attachmentList commentFormNode
+                ]
+                , H.div [ HA.class <| if activeTab == RelatedVideosTab then "active" else ""]
                     [ viewRelatedVideos peerTubeURL relatedVideos
                     ]
                 ]
