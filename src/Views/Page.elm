@@ -80,11 +80,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
             case session.userInfo of
                 Just userInfo ->
                     a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
-<<<<<<< HEAD
-                        [  img [ src ("%PUBLIC_URL%/images/icons/32x32/profil_purple.svg") ] []
-=======
                         [ img [ src icon ] []
->>>>>>> 81ea3992018644bd969e0c23fafc0a36b16a234d
                         , text <| " " ++ userInfo.username
                         ]
 
