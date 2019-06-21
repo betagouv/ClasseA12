@@ -249,7 +249,8 @@ input {
 }
 
 video,
-canvas {
+canvas,
+embed {
   width: 100%;
 }
 .form-errors li {
@@ -1127,9 +1128,6 @@ progress {
 
   .breadcrumbs {
     font-size: 1.2rem;
-  }
-  embed {
-    width: 100%;
   }
   .video_details > div {
     flex-wrap: wrap;
