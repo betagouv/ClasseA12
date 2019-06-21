@@ -1131,10 +1131,18 @@ progress {
 
   .breadcrumbs {
     font-size: 1.2rem;
+    margin-bottom: 1.6rem;
+  }
+  .video_details {
+    margin-top: 2rem;
+    margin-bottom: 2.4rem;
   }
   .video_details > div {
     flex-wrap: wrap;
     font-size: 1.2rem;
+  }
+  .video_resources {
+    margin-top: 2.4rem; 
   }
   .video_keywords {
     width: 100%;
