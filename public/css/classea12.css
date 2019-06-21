@@ -1185,4 +1185,9 @@ progress {
   .comment_link {
     font-size: 1.2rem;
   }
+
+  .video_suggestion {
+    overflow: unset;
+    max-height: 100%;
+  }
 }
