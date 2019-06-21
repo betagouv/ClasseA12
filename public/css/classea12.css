@@ -325,12 +325,14 @@ header div a:last-of-type {
   right: 0;
   bottom: 0;
   left: 0;
-  /* display: flex; */
   flex-direction: column;
   width: 100%;
   background: var(--primary-color);
   z-index: 3;
   overflow-y: scroll;
+}
+.mobile-menu.opened {
+  display: flex;
 }
 .mobile-menu nav,
 .mobile-menu > div {
