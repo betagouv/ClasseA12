@@ -5,7 +5,7 @@ import Data.PeerTube
 import Data.Session exposing (Session, isLoggedIn)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, title, type_, value)
-import Html.Events exposing (onInput, onSubmit)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Page.Common.Components
 import Route
 import String.Normalize
@@ -39,6 +39,8 @@ type alias Config msg =
     { session : Session
     , updateSearchMsg : String -> msg
     , submitSearchMsg : msg
+    , openMenuMsg : msg
+    , closeMenuMsg : msg
     , activePage : ActivePage
     }
 
@@ -58,7 +60,7 @@ frame config { title, pageTitle, pageSubTitle, body } =
 
 
 viewHeader : Config msg -> String -> String -> Html msg
-viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle pageSubTitle =
+viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMsg, activePage } pageTitle pageSubTitle =
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
@@ -136,16 +138,31 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle p
                 [ viewPublishVideoButton
                 , loginProfileIcon
                 ]
-            , button [ class "mobile-only menu-opener" ]
+            , button
+                [ class "mobile-only menu-opener"
+                , onClick openMenuMsg
+                ]
                 [ text "Menu"
-                , div [][
-                    span [][]
+                , div []
+                    [ span [] []
+                    ]
                 ]
+            , aside
+                [ class <|
+                    "mobile-menu"
+                        ++ (if session.isMenuOpened then
+                                " opened"
+
+                            else
+                                ""
+                           )
                 ]
-            , aside [ class "mobile-menu" ]
                 [ div []
                     [ viewPublishVideoButton
-                    , button [ class "close-mobile-menu" ]
+                    , button
+                        [ class "close-mobile-menu"
+                        , onClick closeMenuMsg
+                        ]
                         [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
                         ]
                     ]
