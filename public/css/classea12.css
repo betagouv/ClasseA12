@@ -1099,6 +1099,7 @@ progress {
 
   main {
     padding-top: 4rem;
+    padding-bottom: 4.8rem;
   }
   
   footer {
@@ -1148,5 +1149,40 @@ progress {
   }
   .video_suggestion h4 {
     font-weight: normal;
+  }
+
+  label {
+    font-size: 1.2rem;
+    text-align: left;
+  }
+
+  .video_contribution {
+    margin-top: 2.3rem;
+  }
+  .video_contribution form .form__group + .form__group {
+    margin-top: 2.4rem;
+    text-align: center;
+  }
+  .video_contribution button {
+    margin-top: 2.4rem;
+  }
+
+  .comment_wrapper h2 {
+    margin-bottom: 3.2rem;
+  }
+  .comment::after {
+    width: 50%;
+    margin-top: 2.4rem;
+  }
+  .comment_avatar {
+    width: 5.6rem;
+    height: 5.6rem;
+    margin-right: 3.2rem;
+  }
+  .comment_content h3 {
+    font-size: 1.6rem;
+  }
+  .comment_link {
+    font-size: 1.2rem;
   }
 }
