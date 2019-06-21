@@ -62,7 +62,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle p
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
-                [ i [ class "fas fa-sign-in-alt" ] []
+                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg") ] []
                 , text " Se connecter"
                 ]
 
@@ -70,7 +70,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle p
             case session.userInfo of
                 Just userInfo ->
                     a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
-                        [ i [ class "far fa-user-circle" ] []
+                        [  img [ src ("%PUBLIC_URL%/images/icons/32x32/profile_32_purple.svg") ] []
                         , text <| " " ++ userInfo.username
                         ]
 
