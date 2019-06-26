@@ -557,6 +557,7 @@ aside nav a img[src*="book.svg"] {
   display: block;
   width: 14.4rem;
   height: 14.1rem;
+  margin-left: -1rem;
 }
 
 /* CARD */

@@ -256,8 +256,8 @@ viewAside { activePage } =
                 ]
     in
     aside [ class "side-menu desktop-only" ]
-        [ a [ href "/" ]
-            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
+        [ a [ href "/", class "logo"]
+            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
             ]
         , nav []
             [ linkMaybeActive Home Route.Home "Accueil"
