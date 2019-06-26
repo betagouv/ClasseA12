@@ -119,13 +119,13 @@ h2,
 h3,
 h4 {
   font-family: "montserrat", Arial, sans-serif;
+  color: var(--primary-color);
 }
 
 h1 {
   font-family: "montserrat", Arial, sans-serif;
   font-weight: normal;
   font-size: 2.8rem;
-  color: var(--primary-color);
 }
 
 h2 {
@@ -661,7 +661,6 @@ aside nav a img[src*="book.svg"] {
 
 .video_title {
   margin-bottom: 0.8rem;
-  color: var(--primary-color);
 }
 
 .video_metadata {
@@ -751,13 +750,13 @@ aside nav a img[src*="book.svg"] {
   max-height: 600px;
   overflow-y: scroll;
 }
-.video_suggestion .card,
 .video_suggestion .card_img,
 .video_suggestion .card_content {
   height: auto;
 }
 .video_suggestion .card {
   display: flex;
+  height: 10rem;;
   box-shadow: 0 2px 6px 0 rgba(0,0,0,0.06);
 }
 .video_suggestion .card:not(:last-of-type) {
@@ -765,6 +764,14 @@ aside nav a img[src*="book.svg"] {
 }
 .video_suggestion .card_img {
   width: 12.8rem;
+  overflow: hidden;
+  text-align: center;
+}
+.video_suggestion .card_img img {
+   height: 100%;
+   width: auto;
+   transform: translateX(-50%);
+   margin-left: 50%;
 }
 .video_suggestion .card_content {
   width: calc(100% - 12.8rem);
@@ -788,8 +795,13 @@ aside nav a img[src*="book.svg"] {
 }
 
 .video_contribution form .form__group {
-  padding-left: 0;
   width: 100%;
+  margin-bottom: 2rem;
+  padding-left: 0;
+}
+
+.form__group {
+  margin-bottom: 3.2rem;
 }
 
 .video_contribution button {
@@ -899,18 +911,26 @@ progress {
 }
 
 .upload_steps {
-  /* width: 66.6666%; */
   width: 69%;
 }
 .upload_steps .upload-step {
+  position: relative;
   margin-left: 6.5rem;
 }
+.upload_steps .upload-step:before {
+  content: '';
+  position: absolute;
+  left: -3.3rem;
+  height: 100%;
+  border-left: 1px dashed #E6E6F0;
+}
+
 .upload_steps .file-input {
   display: none;
 }
 
 .upload-step {
-  margin-bottom: 4rem;
+  padding-bottom: 4rem;
 }
 .upload-step::after {
   content: '';
@@ -922,6 +942,10 @@ progress {
 }
 .upload-step:last-child::after {
   display: none;
+}
+
+.upload-step > div:not(:last-of-type) {
+  margin-bottom: 4.8rem;
 }
 
 .upload-step_title {
@@ -953,6 +977,13 @@ progress {
 
 .upload-step_thumbnail video {
   margin-bottom: 1.8rem;
+}
+
+.keywords {
+  display: inline-block;
+}
+.keywords:not(:first-of-type) {
+  margin-left: .8rem;
 }
 
 /* NOTIFICATIONS */
