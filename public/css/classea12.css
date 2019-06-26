@@ -84,7 +84,7 @@ body {
   display: flex;
   flex-wrap: wrap;
 }
-.cols_height-four > div:first-child {
+.cols_height-four > .active {
   width: 66.6666%;
   padding-right: 3.2rem;
 }
@@ -1128,7 +1128,7 @@ progress {
   .grid {
     grid-template-columns: 100%;
   }
-  .cols_height-four > div:first-child,
+  .cols_height-four > .active,
   .cols_height-four > div:last-of-type {
     width: 100%;
     padding: 0;
