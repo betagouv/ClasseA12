@@ -107,6 +107,11 @@ body {
   width: 100%;
 }
 
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 /* HEADINGS */
 
 h1,
@@ -1030,6 +1035,11 @@ progress {
 }
 .convention li {
   padding: 0 1.2rem;
+}
+
+/* PAGE CATEGORIES  */
+.category + .center-wrapper {
+  margin-top: 3.2rem;
 }
 
 /* RESPONSIVE */
