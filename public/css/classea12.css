@@ -258,9 +258,6 @@ canvas,
 embed {
   width: 100%;
 }
-embed {
-  height: 100%;
-}
 .form-errors li {
   color: var(--error-color);
   padding: 0.5em;
@@ -1324,5 +1321,8 @@ progress {
   }
   .upload-step > div:not(:last-of-type) {
     margin-bottom: 2.4rem;
+  }
+  embed {
+    height: 100%;
   }
 }
