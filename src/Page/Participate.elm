@@ -229,7 +229,7 @@ view { userInfo } model =
             , H.p []
                 [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
                 , H.br [] []
-                , H.text "Des demandes d’autorisation son disponible ici : "
+                , H.text "Des demandes d’autorisation sont disponibles ici : "
                 , H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-majeur_2017.pdf" ]
                     [ H.text "autorisation adulte" ]
                 , H.text " - "
