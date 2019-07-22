@@ -8,6 +8,7 @@ import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Page.Common.Video
 import Request.PeerTube
+import Route
 
 
 type alias Model =
@@ -200,13 +201,13 @@ view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData,
                             ]
 
                     _ ->
-                        H.div [ HA.class "section section-white" ]
+                        H.div [ HA.class "section " ]
                             [ H.div [ HA.class "container" ]
                                 [ H.text "Chargement des vidéos en cours..." ]
                             ]
 
             else
-                H.div [ HA.class "section section-white" ]
+                H.div [ HA.class "section " ]
                     [ H.div [ HA.class "container" ]
                         [ H.text "Cette page est réservée aux administrateurs" ]
                     ]
@@ -238,11 +239,19 @@ viewVideo publishingVideos peerTubeURL video =
     in
     H.div []
         [ H.div
-            [ HA.class "section section-white" ]
+            [ HA.class "section admin" ]
             [ H.div [ HA.class "container" ]
                 [ Page.Common.Video.playerForVideo video peerTubeURL
-                , Page.Common.Video.details video
-                , Page.Common.Video.keywords video.tags
+                , H.div [ HA.class "video-details" ]
+                    [ H.a [ Route.href <| Route.Video video.uuid video.name ]
+                        [ Page.Common.Video.title video
+                        ]
+                    , H.div [ HA.class "video-metadata" ]
+                        [ Page.Common.Video.metadata video
+                        , Page.Common.Video.keywords video.tags
+                        ]
+                    , Page.Common.Video.description video
+                    ]
                 , publishNode
                 ]
             ]

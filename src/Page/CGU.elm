@@ -32,7 +32,7 @@ view _ { title } =
     , pageTitle = title
     , pageSubTitle = ""
     , body =
-        [ H.div [ HA.class "section section-white" ]
+        [ H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ H.p [] [ H.text "Le site «\u{00A0}Classe à 12\u{00A0}» est un projet en construction édité dans le cadre d’une Startup d’État portée par le laboratoire d’innovation du Ministère (Lab110bis), la Direction interministérielle des systèmes d'information et de communication de l'État (DINSIC)." ]
                 , H.p [] [ H.text "Ce projet actuellement hébergé par les services de beta.gouv.fr, est en lien avec le réseau des incubateurs de Startup d’État." ]
@@ -69,6 +69,20 @@ view _ { title } =
                 , H.p [] [ H.text "La consultation des contenus mis à disposition ne nécessite aucune inscription préalable." ]
                 , H.p [] [ H.text "Le dépôt de vidéo nécessite une inscription préalable à l’aide d’une adresse professionnelle académique." ]
                 , H.p [] [ H.text "Les médias sont conservés pour une durée déterminée définie dans les conditions préalables d’inscription." ]
+                , H.p [] [ H.text "Toutes les vidéos sont protégées et publiées selon les conditions définies par les mentions suivantes :" ]
+                , H.p []
+                    [ H.a
+                        [ HA.rel "license"
+                        , HA.href "http://creativecommons.org/licenses/by/4.0/deed.fr"
+                        ]
+                        [ H.img
+                            [ HA.alt "Licence Creative Commons"
+                            , HA.style "border-width" "0"
+                            , HA.src "https://i.creativecommons.org/l/by/4.0/88x31.png"
+                            ]
+                            []
+                        ]
+                    ]
                 , H.h2 [] [ H.text "Inscription sur le site et fonctionnalités liées" ]
                 , H.p [] [ H.text "Tout Utilisateur peut contribuer et poster des vidéos, en publiant des jeux de données, des réutilisations de ceux-ci, ressources et commentaires relatifs aux Jeux de données." ]
                 , H.p [] [ H.text "Pour ce faire, l'Utilisateur s'inscrit sur le site. Cette inscription est propre à sa personne et non à l'entité ou personne morale qu'il représente." ]

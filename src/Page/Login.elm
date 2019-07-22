@@ -134,7 +134,7 @@ view _ { title, notifications, loginForm, userInfoData } =
                 H.div [] [ H.text "Vous êtes maintenant connecté" ]
 
             _ ->
-                H.div [ HA.class "section section-white" ]
+                H.div [ HA.class "section " ]
                     [ H.div [ HA.class "container" ]
                         [ viewLoginForm loginForm userInfoData
                         ]

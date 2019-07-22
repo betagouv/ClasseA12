@@ -15,6 +15,7 @@ module Request.PeerTube exposing
     , getAccountForEdit
     , getBlacklistedVideoList
     , getCommentList
+    , getPlaylistVideoList
     , getUserInfo
     , getVideo
     , getVideoCommentList
@@ -34,6 +35,7 @@ import Data.PeerTube
     exposing
         ( Account
         , Comment
+        , Playlist
         , UserInfo
         , UserToken
         , Video
@@ -42,6 +44,7 @@ import Data.PeerTube
         , commentDecoder
         , commentListDecoder
         , dataDecoder
+        , playlistDecoder
         , userInfoDecoder
         , userTokenDecoder
         , videoDecoder
@@ -72,6 +75,7 @@ type alias Request a =
 
 type alias VideoListParams =
     { keywords : List String
+    , search : String
     , count : Int
     , offset : Int
     }
@@ -80,6 +84,7 @@ type alias VideoListParams =
 emptyVideoListParams : VideoListParams
 emptyVideoListParams =
     { keywords = []
+    , search = ""
     , count = 8
     , offset = 0
     }
@@ -102,24 +107,37 @@ loadMoreVideos ({ offset, count } as videoListParams) =
 
 
 urlFromVideoListParams : VideoListParams -> String -> String
-urlFromVideoListParams { keywords, count, offset } serverURL =
+urlFromVideoListParams { keywords, count, offset, search } serverURL =
     let
-        url =
+        baseURL =
             serverURL
                 ++ "/api/v1/search/videos?start="
                 ++ String.fromInt offset
                 ++ "&count="
                 ++ String.fromInt count
                 ++ "&categoryOneOf=13&sort=-publishedAt"
-    in
-    if keywords /= [] then
-        keywords
-            |> String.join "&tagsAllOf="
-            |> (++) "&tagsAllOf="
-            |> (++) url
 
-    else
-        url
+        fullURL =
+            baseURL
+                |> (\url ->
+                        if keywords /= [] then
+                            keywords
+                                |> String.join "&tagsAllOf="
+                                |> (++) "&tagsAllOf="
+                                |> (++) url
+
+                        else
+                            url
+                   )
+                |> (\url ->
+                        if search /= "" then
+                            url ++ "&search=" ++ search
+
+                        else
+                            url
+                   )
+    in
+    fullURL
 
 
 videoListRequest : VideoListParams -> String -> Http.Request (List Video)
@@ -130,6 +148,61 @@ videoListRequest videoListParams serverURL =
 getVideoList : VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
 getVideoList videoListParams serverURL message =
     Http.send message (videoListRequest videoListParams serverURL)
+
+
+latestPlaylistRequest : String -> Http.Request Playlist
+latestPlaylistRequest serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/video-channels/classea12_channel/video-playlists"
+
+        playlistsDecoder =
+            Decode.field "data" <| Decode.list playlistDecoder
+
+        latestPlaylistDecoder =
+            playlistsDecoder
+                |> Decode.andThen
+                    (\playlists ->
+                        case playlists of
+                            first :: _ ->
+                                Decode.succeed first
+
+                            _ ->
+                                Decode.fail "No latest playlist"
+                    )
+    in
+    Http.get url latestPlaylistDecoder
+
+
+playlistVideoListRequest : VideoListParams -> String -> String -> Http.Request (List Video)
+playlistVideoListRequest { count, offset } playlistID serverURL =
+    let
+        params =
+            "start="
+                ++ String.fromInt offset
+                ++ "&count="
+                ++ String.fromInt count
+
+        url =
+            serverURL ++ "/api/v1/video-playlists/" ++ playlistID ++ "/videos?" ++ params
+    in
+    Http.get url dataDecoder
+
+
+getPlaylistVideoList : VideoListParams -> String -> (Result Http.Error ( String, List Video ) -> msg) -> Cmd msg
+getPlaylistVideoList videoListParams serverURL message =
+    latestPlaylistRequest serverURL
+        |> Http.toTask
+        |> Task.andThen
+            (\playlist ->
+                playlistVideoListRequest videoListParams playlist.uuid serverURL
+                    |> Http.toTask
+                    |> Task.map
+                        (\videoList ->
+                            ( playlist.displayName, videoList )
+                        )
+            )
+        |> Task.attempt message
 
 
 videoRequest : String -> String -> Request Video
@@ -177,7 +250,11 @@ videoDescriptionRequest videoID serverURL =
             , headers = []
             , url = url
             , body = Http.emptyBody
-            , expect = Http.expectJson (Decode.field "description" Decode.string)
+            , expect =
+                Http.expectJson
+                    (Decode.field "description" (Decode.maybe Decode.string)
+                        |> Decode.map (Maybe.withDefault "")
+                    )
             , timeout = Nothing
             , withCredentials = False
             }
@@ -384,7 +461,11 @@ registerRequest username email password serverURL =
 
         body =
             [ ( "username", username |> Encode.string )
-            , ( "email", email |> Encode.string )
+            , ( "email"
+              , email
+                    |> String.toLower
+                    |> Encode.string
+              )
             , ( "password", password |> Encode.string )
             ]
                 |> Encode.object
@@ -448,7 +529,12 @@ askPasswordResetRequest email serverURL =
             serverURL ++ "/api/v1/users/ask-reset-password"
 
         body =
-            [ ( "email", email |> Encode.string ) ]
+            [ ( "email"
+              , email
+                    |> String.toLower
+                    |> Encode.string
+              )
+            ]
                 |> Encode.object
                 |> Http.jsonBody
 
@@ -569,13 +655,17 @@ clientRequest serverURL =
 
 
 loginRequest : String -> String -> String -> String -> String -> Http.Request UserToken
-loginRequest client_id client_secret username password serverURL =
+loginRequest client_id client_secret email password serverURL =
     let
         url =
             serverURL ++ "/api/v1/users/token"
 
         data =
-            [ ( "username", username |> Url.percentEncode )
+            [ ( "username"
+              , email
+                    |> String.toLower
+                    |> Url.percentEncode
+              )
             , ( "password", password |> Url.percentEncode )
             , ( "client_id", client_id )
             , ( "client_secret", client_secret )
@@ -594,11 +684,11 @@ loginRequest client_id client_secret username password serverURL =
 
 
 login : String -> String -> String -> (Result Http.Error UserToken -> msg) -> Cmd msg
-login username password serverURL message =
+login email password serverURL message =
     Http.toTask (clientRequest serverURL)
         |> Task.andThen
             (\{ client_id, client_secret } ->
-                Http.toTask (loginRequest client_id client_secret username password serverURL)
+                Http.toTask (loginRequest client_id client_secret email password serverURL)
             )
         |> Task.attempt message
 

@@ -1,12 +1,16 @@
 module Page.Common.Video exposing
-    ( details
+    ( description
+    , details
     , embedPlayer
     , keywords
+    , metadata
     , playerForVideo
     , rawPlayer
     , shortDetails
+    , title
     , viewCategory
     , viewVideo
+    , viewVideoListData
     )
 
 import Data.PeerTube
@@ -41,7 +45,7 @@ rawPlayer video =
     let
         videoURL =
             video.files
-                |> List.head
+                |> Maybe.map .fileUrl
                 -- If the video is blacklisted and there's no file url there's no way to view the video anyway
                 |> Maybe.withDefault ""
     in
@@ -66,25 +70,45 @@ playerForVideo video peerTubeURL =
 details : Data.PeerTube.Video -> H.Html msg
 details video =
     H.div
-        [ HA.class "video-details" ]
-        [ H.h3 [] [ H.text video.name ]
-        , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
-            , H.text " "
+        [ HA.class "video_details" ]
+        [ H.h1 [ HA.class "video_title" ] [ H.text video.name ]
+        , H.div [ HA.class "video_metadata" ]
+            [ H.text "Par "
             , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
+            , H.text " le "
+            , H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
             ]
-        , Markdown.toHtml [] video.description
         ]
+
+
+title : Data.PeerTube.Video -> H.Html msg
+title video =
+    H.h1 [ HA.class "video_title" ] [ H.text video.name ]
+
+
+metadata : Data.PeerTube.Video -> H.Html msg
+metadata video =
+    H.div [ HA.class "video_metadata" ]
+        [ H.text "Par "
+        , H.a [ Route.href <| Route.Profile video.account.name ] [ H.text video.account.displayName ]
+        , H.text " le "
+        , H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
+        ]
+
+
+description : Data.PeerTube.Video -> H.Html msg
+description video =
+    H.div
+        [ HA.class "video_description" ]
+        [ Markdown.toHtml [] video.description ]
 
 
 shortDetails : Data.PeerTube.Video -> H.Html msg
 shortDetails video =
     H.div
-        [ HA.class "video-details" ]
+        [ HA.class "card_content" ]
         [ H.h3 [] [ H.text video.name ]
-        , H.div []
-            [ H.time [] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
-            ]
+        , H.time [ HA.class "card_date" ] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
         ]
 
 
@@ -94,43 +118,64 @@ keywords keywordList =
         keywordList
             |> List.map
                 (\keyword ->
-                    H.div [ HA.class "label" ]
-                        [ H.a [ Route.href <| Route.Search (Just keyword) ]
+                    H.li [ HA.class "label" ]
+                        [ H.a [ Route.href <| Route.VideoList (Route.Search keyword) ]
                             [ H.text keyword ]
                         ]
                 )
-            |> H.div [ HA.class "video-keywords" ]
+            |> H.ul [ HA.class "video_keywords" ]
 
     else
         H.text ""
 
 
-viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> String -> H.Html msg
-viewCategory data peerTubeURL keyword =
-    H.div [ HA.class "panel", HA.id keyword ]
-        [ H.div [ HA.class "panel__header" ]
-            [ H.h3 []
-                [ H.text keyword
-                , H.text " "
-                , H.a [ Route.href <| Route.Search <| Just keyword ]
-                    [ H.i [ HA.class "fas fa-angle-right" ] []
-                    ]
+viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> Route.VideoListQuery -> H.Html msg
+viewCategory data peerTubeURL query =
+    let
+        displayedKeyword =
+            case query of
+                Route.Latest ->
+                    "nouveautés"
+
+                Route.Playlist ->
+                    "playlist de la semaine"
+
+                Route.Keyword keyword ->
+                    keyword
+
+                Route.Search search ->
+                    search
+    in
+    H.section [ HA.class "category", HA.id displayedKeyword ]
+        [ H.div [ HA.class "home-title_wrapper" ]
+            [ H.h3 [ HA.class "home-title" ]
+                [ H.text "Le coin "
+                , H.text displayedKeyword
+                ]
+            , H.a [ Route.href <| Route.VideoList query ]
+                [ H.text "Toutes les vidéos "
+                , H.text displayedKeyword
                 ]
             ]
-        , H.div []
-            [ case data of
-                Data.PeerTube.NotRequested ->
-                    H.text ""
+        , viewVideoListData data peerTubeURL
+        ]
 
-                Data.PeerTube.Requested ->
-                    H.text "Chargement des vidéos..."
 
-                Data.PeerTube.Received videoList ->
-                    viewList peerTubeURL videoList
+viewVideoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> H.Html msg
+viewVideoListData data peerTubeURL =
+    H.div []
+        [ case data of
+            Data.PeerTube.NotRequested ->
+                H.text ""
 
-                Data.PeerTube.Failed error ->
-                    H.text error
-            ]
+            Data.PeerTube.Requested ->
+                H.text "Chargement des vidéos..."
+
+            Data.PeerTube.Received videoList ->
+                viewList peerTubeURL videoList
+
+            Data.PeerTube.Failed error ->
+                H.text error
         ]
 
 
@@ -145,7 +190,7 @@ viewList peerTubeURL videoList =
             else
                 [ H.text "Aucune vidéo pour le moment" ]
     in
-    H.div [ HA.class "row" ]
+    H.div [ HA.class "grid" ]
         videoCards
 
 
@@ -156,7 +201,7 @@ viewVideo peerTubeURL video =
         , Route.href <| Route.Video video.uuid video.name
         ]
         [ H.div
-            [ HA.class "card__cover" ]
+            [ HA.class "card_img" ]
             [ H.img
                 [ HA.alt video.name
                 , HA.src (peerTubeURL ++ video.previewPath)

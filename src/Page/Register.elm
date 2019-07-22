@@ -2,6 +2,7 @@ module Page.Register exposing (Model, Msg(..), init, update, view)
 
 import Data.PeerTube
 import Data.Session exposing (Session)
+import Dict
 import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
@@ -18,6 +19,7 @@ type alias Model =
     , notifications : Notifications.Model
     , registration : Data.PeerTube.RemoteData String
     , approved : Bool
+    , formErrors : Dict.Dict String (List String)
     }
 
 
@@ -39,6 +41,7 @@ type Msg
     | NotificationMsg Notifications.Msg
     | AccountRegistered (Result Http.Error String)
     | OnApproved Bool
+    | OnBlur String String
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -48,6 +51,7 @@ init _ =
       , notifications = Notifications.init
       , registration = Data.PeerTube.NotRequested
       , approved = False
+      , formErrors = Dict.empty
       }
     , Cmd.none
     )
@@ -100,10 +104,107 @@ update session msg model =
         OnApproved approved ->
             ( { model | approved = approved }, Cmd.none )
 
+        OnBlur fieldName fieldValue ->
+            ( { model
+                | formErrors =
+                    model.formErrors
+                        |> Dict.insert fieldName (validateField fieldName fieldValue)
+              }
+            , Cmd.none
+            )
+
+
+validateField : String -> String -> List String
+validateField fieldName fieldValue =
+    case fieldName of
+        "username" ->
+            if isUsernameValid fieldValue then
+                []
+
+            else
+                [ "Uniquement des caractères alphanumériques sans espace" ]
+
+        "email" ->
+            if isEmailValid fieldValue then
+                []
+
+            else
+                [ "L'adresse email doit terminer par un nom de domaine académique comme @ac-creteil.fr" ]
+
+        "password" ->
+            if String.length fieldValue < 6 then
+                [ "Le mot de passe doit faire au minimum 6 caractères" ]
+
+            else
+                []
+
+        _ ->
+            []
+
+
+isUsernameValid : String -> Bool
+isUsernameValid username =
+    username /= "" && String.all Char.isAlphaNum username
+
 
 isRegisterFormComplete : RegisterForm -> Bool -> Bool
 isRegisterFormComplete registerForm approved =
-    approved && registerForm.username /= "" && registerForm.email /= "" && registerForm.password /= "" && String.length registerForm.password >= 6
+    approved
+        && (registerForm.username /= "")
+        && (registerForm.email /= "")
+        && (registerForm.password /= "")
+        && (String.length registerForm.password >= 6)
+        && isEmailValid registerForm.email
+
+
+isEmailValid : String -> Bool
+isEmailValid email =
+    let
+        validDomains =
+            [ "ac-lille.fr"
+            , "ac-rouen.fr"
+            , "ac-amiens.fr"
+            , "ac-caen.fr"
+            , "ac-versailles.fr"
+            , "ac-paris.fr"
+            , "ac-creteil.fr"
+            , "ac-reims.fr"
+            , "ac-nancy-metz.fr"
+            , "ac-strasbourg.fr"
+            , "ac-rennes.fr"
+            , "ac-nantes.fr"
+            , "ac-orleans-tours.fr"
+            , "ac-dijon.fr"
+            , "ac-besancon.fr"
+            , "ac-poitiers.fr"
+            , "ac-limoges.fr"
+            , "ac-clermont.fr"
+            , "ac-lyon.fr"
+            , "ac-grenoble.fr"
+            , "ac-bordeaux.fr"
+            , "ac-toulouse.fr"
+            , "ac-montpellier.fr"
+            , "ac-aix-marseille.fr"
+            , "ac-nice.fr"
+            , "ac-corse.fr"
+            , "ac-martinique.fr"
+            , "ac-guadeloupe.fr"
+            , "ac-reunion.fr"
+            , "ac-guyane.fr"
+            , "ac-mayotte.fr"
+            , "ac-noumea.nc"
+            , "ac-wf.wf"
+            , "ac-spm.fr"
+            , "ac-polynesie.pf"
+            ]
+
+        normalizedEmail =
+            String.toLower email
+    in
+    validDomains
+        |> List.filter (\domain -> String.endsWith ("@" ++ domain) normalizedEmail)
+        |> List.length
+        |> (==) 1
 
 
 registerAccount : String -> Model -> ( Model, Cmd Msg )
@@ -118,13 +219,13 @@ registerAccount peerTubeURL model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view _ { title, notifications, registerForm, registration, approved } =
+view _ { title, notifications, registerForm, registration, approved, formErrors } =
     { title = title
     , pageTitle = title
     , pageSubTitle = ""
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , H.div [ HA.class "section section-white" ]
+        , H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ case registration of
                     Data.PeerTube.Received message ->
@@ -133,15 +234,15 @@ view _ { title, notifications, registerForm, registration, approved } =
                             ]
 
                     _ ->
-                        viewRegisterForm registerForm registration approved
+                        viewRegisterForm registerForm registration approved formErrors
                 ]
             ]
         ]
     }
 
 
-viewRegisterForm : RegisterForm -> Data.PeerTube.RemoteData String -> Bool -> H.Html Msg
-viewRegisterForm registerForm registration approved =
+viewRegisterForm : RegisterForm -> Data.PeerTube.RemoteData String -> Bool -> Dict.Dict String (List String) -> H.Html Msg
+viewRegisterForm registerForm registration approved formErrors =
     let
         formComplete =
             isRegisterFormComplete registerForm approved
@@ -181,9 +282,12 @@ viewRegisterForm registerForm registration approved =
                 [ HA.type_ "text"
                 , HA.id "username"
                 , HA.value registerForm.username
+                , HA.pattern "[A-Za-z0-9]+"
                 , HE.onInput <| \username -> UpdateRegisterForm { registerForm | username = username }
+                , HE.onBlur <| OnBlur "username" registerForm.username
                 ]
                 []
+            , viewFormErrors "username" formErrors
             ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "email" ] [ H.text "Email (adresse académique uniquement)" ]
@@ -192,17 +296,22 @@ viewRegisterForm registerForm registration approved =
                 , HA.id "email"
                 , HA.value registerForm.email
                 , HE.onInput <| \email -> UpdateRegisterForm { registerForm | email = email }
+                , HE.onBlur <| OnBlur "email" registerForm.email
                 ]
                 []
+            , viewFormErrors "email" formErrors
             ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "password" ] [ H.text "Mot de passe (minimum 6 caractères)" ]
             , H.input
                 [ HA.type_ "password"
                 , HA.value registerForm.password
+                , HA.minlength 6
                 , HE.onInput <| \password -> UpdateRegisterForm { registerForm | password = password }
+                , HE.onBlur <| OnBlur "password" registerForm.password
                 ]
                 []
+            , viewFormErrors "password" formErrors
             ]
         , H.div
             [ HA.class "form__group" ]
@@ -213,8 +322,28 @@ viewRegisterForm registerForm registration approved =
                 , HE.onCheck OnApproved
                 ]
                 []
-            , H.label [ HA.for "approveCGU", HA.class "label-inline" ]
+            , H.label [ HA.for "approve_CGU", HA.class "label-inline" ]
                 [ H.text "J'ai lu et j'accepte d'adhérer à la charte de bonne conduite" ]
             ]
         , submitButton
         ]
+
+
+viewFormErrors : String -> Dict.Dict String (List String) -> H.Html Msg
+viewFormErrors fieldName formErrors =
+    case Dict.get fieldName formErrors of
+        Just fieldErrors ->
+            H.ul [ HA.class "form-errors" ]
+                (fieldErrors
+                    |> List.map
+                        (\error ->
+                            H.li []
+                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/16x16/message_alert_16_red.svg" ] []
+                                , H.text " "
+                                , H.text error
+                                ]
+                        )
+                )
+
+        Nothing ->
+            H.text ""

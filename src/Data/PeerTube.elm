@@ -2,6 +2,7 @@ module Data.PeerTube exposing
     ( Account
     , Comment
     , NewVideo
+    , Playlist
     , RemoteData(..)
     , UserInfo
     , UserToken
@@ -18,6 +19,7 @@ module Data.PeerTube exposing
     , encodeUserInfo
     , encodeUserToken
     , keywordList
+    , playlistDecoder
     , userInfoDecoder
     , userTokenDecoder
     , videoDecoder
@@ -63,7 +65,13 @@ type alias Video =
     , originallyPublishedAt : String
     , tags : List String
     , blacklisted : Bool
-    , files : List String
+    , files : Maybe Files
+    }
+
+
+type alias Files =
+    { fileUrl : String
+    , fileDownloadUrl : String
     }
 
 
@@ -100,6 +108,12 @@ type alias Comment =
     }
 
 
+type alias Playlist =
+    { uuid : String
+    , displayName : String
+    }
+
+
 type RemoteData a
     = NotRequested
     | Requested
@@ -113,7 +127,7 @@ keywordList =
     , ( "Mathématiques", "numération / calcul / résolution de problème / mesure / géométrie / jeux" )
     , ( "Questionner le monde", "temps / espace" )
     , ( "Arts", "Education musicale / éducation artistique" )
-    , ( "Éducation physique et sportive", "" )
+    , ( "Numérique", "" )
     , ( "Enseignement moral et civique", "" )
     , ( "Gestion de classe", "différenciation / autonomie / concentration / coopération / aménagement de classe / affichage / gestion des élèves / plan de travail / atelier / sortie / cahier" )
     , ( "Le projet Classe à 12", "tutoriel / témoignage" )
@@ -167,7 +181,17 @@ videoDecoder =
         |> Pipeline.optional "originallyPublishedAt" Decode.string ""
         |> Pipeline.optional "tags" (Decode.list Decode.string) []
         |> Pipeline.optional "blacklisted" Decode.bool False
-        |> Pipeline.optional "files" (Decode.list (Decode.field "fileUrl" Decode.string)) []
+        |> Pipeline.optional "files" videoFilesDecoder Nothing
+
+
+videoFilesDecoder : Decode.Decoder (Maybe Files)
+videoFilesDecoder =
+    Decode.list
+        (Decode.succeed Files
+            |> Pipeline.required "fileUrl" Decode.string
+            |> Pipeline.required "fileDownloadUrl" Decode.string
+        )
+        |> Decode.map List.head
 
 
 userTokenDecoder : Decode.Decoder UserToken
@@ -223,6 +247,13 @@ userInfoDecoder =
     Decode.succeed UserInfo
         |> Pipeline.required "username" Decode.string
         |> Pipeline.required "videoChannels" videoChannelIDDecoder
+
+
+playlistDecoder : Decode.Decoder Playlist
+playlistDecoder =
+    Decode.succeed Playlist
+        |> Pipeline.required "uuid" Decode.string
+        |> Pipeline.required "displayName" Decode.string
 
 
 commentDecoder : Decode.Decoder Comment

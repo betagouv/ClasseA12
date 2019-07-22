@@ -32,7 +32,7 @@ view _ { title } =
     , pageTitle = "Politique de confidentialité"
     , pageSubTitle = "suivi d'audience et vie privée"
     , body =
-        [ H.div [ HA.class "section section-white" ]
+        [ H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
                 [ H.h2 []
                     [ H.text "Cookies déposés et opt-out" ]

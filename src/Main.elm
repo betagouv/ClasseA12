@@ -21,9 +21,9 @@ import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
 import Page.Register as Register
 import Page.ResetPassword as ResetPassword
-import Page.Search as Search
 import Page.SetNewPassword as SetNewPassword
 import Page.Video as Video
+import Page.VideoList as VideoList
 import Platform.Sub
 import Ports
 import Route exposing (Route)
@@ -39,7 +39,7 @@ type alias Flags =
 
 type Page
     = HomePage Home.Model
-    | SearchPage Search.Model
+    | VideoListPage VideoList.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
     | CGUPage CGU.Model
@@ -69,7 +69,7 @@ type alias Model =
 
 type Msg
     = HomeMsg Home.Msg
-    | SearchMsg Search.Msg
+    | VideoListMsg VideoList.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
     | CGUMsg CGU.Msg
@@ -89,6 +89,8 @@ type Msg
     | AdjustTimeZone Time.Zone
     | UpdateSearch String
     | SubmitSearch
+    | OpenMenu
+    | CloseMenu
 
 
 setRoute : Url -> Model -> ( Model, Cmd Msg )
@@ -102,7 +104,7 @@ setRoute url oldModel =
 
         model =
             -- Save the current URL.
-            { oldModel | session = { session | prevUrl = session.url, url = url } }
+            { oldModel | session = { session | prevUrl = session.url, url = url, isMenuOpened = False } }
 
         toPage page subInit subMsg =
             let
@@ -112,7 +114,7 @@ setRoute url oldModel =
             ( { model | page = page subModel }
             , Cmd.batch
                 [ Cmd.map subMsg subCmds
-                , Ports.newURL <| ( Url.toString url, subModel.title )
+                , Ports.newURL <| ( Url.toString url, subModel.title ++ " | Classe à 12" )
                 ]
             )
     in
@@ -125,8 +127,8 @@ setRoute url oldModel =
         Just Route.Home ->
             toPage HomePage Home.init HomeMsg
 
-        Just (Route.Search search) ->
-            toPage SearchPage (Search.init search) SearchMsg
+        Just (Route.VideoList query) ->
+            toPage VideoListPage (VideoList.init query) VideoListMsg
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -222,6 +224,7 @@ init flags url navKey =
             , userToken = userToken
             , userInfo = userInfo
             , search = ""
+            , isMenuOpened = False
             }
 
         ( routeModel, routeCmd ) =
@@ -266,8 +269,8 @@ update msg ({ page, session } as model) =
         ( HomeMsg homeMsg, HomePage homeModel ) ->
             toPage HomePage HomeMsg (Home.update session) homeMsg homeModel
 
-        ( SearchMsg searchMsg, SearchPage searchModel ) ->
-            toPage SearchPage SearchMsg (Search.update session) searchMsg searchModel
+        ( VideoListMsg videoListMsg, VideoListPage videoListModel ) ->
+            toPage VideoListPage VideoListMsg (VideoList.update session) videoListMsg videoListModel
 
         ( AboutMsg aboutMsg, AboutPage aboutModel ) ->
             toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
@@ -355,7 +358,21 @@ update msg ({ page, session } as model) =
             ( { model | session = { modelSession | search = search } }, Cmd.none )
 
         ( SubmitSearch, _ ) ->
-            ( model, Route.pushUrl model.navKey (Route.Search <| Just model.session.search) )
+            ( model, Route.pushUrl model.navKey (Route.VideoList <| Route.Search model.session.search) )
+
+        ( OpenMenu, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | isMenuOpened = True } }, Cmd.none )
+
+        ( CloseMenu, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | isMenuOpened = False } }, Cmd.none )
 
         ( _, NotFound ) ->
             ( { model | page = NotFound }
@@ -379,7 +396,7 @@ subscriptions model =
             HomePage _ ->
                 Sub.none
 
-            SearchPage _ ->
+            VideoListPage _ ->
                 Sub.none
 
             AboutPage _ ->
@@ -448,7 +465,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session UpdateSearch SubmitSearch
+            Page.Config model.session UpdateSearch SubmitSearch OpenMenu CloseMenu
 
         mapMsg : (msg -> Msg) -> Page.Common.Components.Document msg -> Page.Common.Components.Document Msg
         mapMsg msg { title, pageTitle, pageSubTitle, body } =
@@ -464,10 +481,10 @@ view model =
                 |> mapMsg HomeMsg
                 |> Page.frame (pageConfig Page.Home)
 
-        SearchPage searchModel ->
-            Search.view model.session searchModel
-                |> mapMsg SearchMsg
-                |> Page.frame (pageConfig <| Page.Search searchModel.keyword)
+        VideoListPage videoListModel ->
+            VideoList.view model.session videoListModel
+                |> mapMsg VideoListMsg
+                |> Page.frame (pageConfig <| Page.VideoList videoListModel.query)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel

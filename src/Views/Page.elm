@@ -4,15 +4,16 @@ import Browser exposing (Document)
 import Data.PeerTube
 import Data.Session exposing (Session, isLoggedIn)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, href, placeholder, src, title, type_, value)
-import Html.Events exposing (onInput, onSubmit)
+import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, title, type_, value)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Page.Common.Components
 import Route
+import String.Normalize
 
 
 type ActivePage
     = Home
-    | Search String
+    | VideoList Route.VideoListQuery
     | PeerTube
     | PeerTubeVideo
     | PeerTubeAccount
@@ -38,6 +39,8 @@ type alias Config msg =
     { session : Session
     , updateSearchMsg : String -> msg
     , submitSearchMsg : msg
+    , openMenuMsg : msg
+    , closeMenuMsg : msg
     , activePage : ActivePage
     }
 
@@ -46,26 +49,38 @@ frame : Config msg -> Page.Common.Components.Document msg -> Document msg
 frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        viewHeader config pageTitle pageSubTitle
-            ++ viewContent config body
-            ++ [ viewFooter config.session ]
+        [ div [ class "content" ]
+            [ viewHeader config pageTitle pageSubTitle
+            , viewContent body
+            , viewFooter config.session
+            ]
+        , viewAside config
+        ]
     }
 
 
-viewHeader : Config msg -> String -> String -> List (Html msg)
-viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle =
+viewHeader : Config msg -> String -> String -> Html msg
+viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMsg, activePage } pageTitle pageSubTitle =
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
-                [ i [ class "fas fa-sign-in-alt" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
                 , text " Se connecter"
                 ]
+
+        icon =
+            if session.isMenuOpened then
+                -- This should never be the case on desktop, so display the mobile icon which is white
+                "%PUBLIC_URL%/images/icons/32x32/profil_white.svg"
+
+            else
+                "%PUBLIC_URL%/images/icons/32x32/profil_purple.svg"
 
         profileIcon =
             case session.userInfo of
                 Just userInfo ->
                     a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
-                        [ i [ class "far fa-user-circle" ] []
+                        [ img [ src icon ] []
                         , text <| " " ++ userInfo.username
                         ]
 
@@ -78,149 +93,204 @@ viewHeader { session, updateSearchMsg, submitSearchMsg } pageTitle pageSubTitle 
 
             else
                 loginIcon
-    in
-    [ header [ class "navbar" ]
-        [ div
-            [ class "navbar__container" ]
-            [ a
-                [ class "navbar__home"
-                , Route.href Route.Home
-                ]
-                [ img
-                    [ src "%PUBLIC_URL%/logo.png"
-                    , alt "logo"
-                    , class "navbar__logo"
+
+        viewPublishVideoButton =
+            case activePage of
+                Participate ->
+                    text ""
+
+                _ ->
+                    a [ class "btn", Route.href Route.Participate ]
+                        [ text "Publier une vidéo" ]
+
+        linkMaybeActive page route caption =
+            a
+                [ Route.href route
+                , classList
+                    [ ( "active", page == activePage )
                     ]
-                    []
-                , text "classe-a-12.beta.gouv.fr"
                 ]
-            , nav
+                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_white.svg") ] []
+                , text caption
+                ]
+    in
+    header []
+        [ div [ class "wrapper" ]
+            [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "%PUBLIC_URL%/images/logos/marianne.svg" ]
                 []
-                [ ul [ class "nav__links" ]
-                    [ li [ class "nav__item" ]
-                        [ form [ onSubmit submitSearchMsg ]
-                            [ div [ class "search__group" ]
-                                [ input
-                                    [ type_ "search"
-                                    , value session.search
-                                    , onInput updateSearchMsg
-                                    , placeholder "Exemple : Français"
-                                    ]
-                                    []
-                                , button [ class "overlay-button" ]
-                                    [ i [ class "fas fa-search" ] [] ]
-                                ]
+
+            -- TODO: unhide this when we have the functionality
+            , nav [ style "visibility" "hidden", class "desktop-only" ]
+                [ a [ href "" ]
+                    [ text "Découvrez" ]
+                , a [ href "" ]
+                    [ text "Vos favoris" ]
+                ]
+            , form [ onSubmit submitSearchMsg, class "desktop-only" ]
+                [ div [ class "search__group" ]
+                    [ input
+                        [ type_ "search"
+                        , value session.search
+                        , onInput updateSearchMsg
+                        , placeholder "Exemple : Français"
+                        ]
+                        []
+                    , button [ class "search_button" ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
+                    ]
+                ]
+            , a [ href "/", class "mobile-only logo" ]
+                [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
+                ]
+            , div [ class "desktop-only" ]
+                [ viewPublishVideoButton
+                , loginProfileIcon
+                ]
+            , button
+                [ class "mobile-only menu-opener"
+                , onClick openMenuMsg
+                ]
+                [ text "Menu"
+                , div []
+                    [ span [] []
+                    ]
+                ]
+            , aside
+                [ class <|
+                    "mobile-menu"
+                        ++ (if session.isMenuOpened then
+                                " opened"
+
+                            else
+                                ""
+                           )
+                ]
+                [ div []
+                    [ viewPublishVideoButton
+                    , button
+                        [ class "close-mobile-menu"
+                        , onClick closeMenuMsg
+                        ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
+                        ]
+                    ]
+                , nav
+                    []
+                    [ loginProfileIcon
+                    , a [ href "" ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_white.svg" ] []
+                        , text "Recherche"
+                        ]
+                    , linkMaybeActive Home Route.Home "Accueil"
+                    ]
+                , div []
+                    [ h3 [] [ text "Catégories" ]
+                    , nav []
+                        (Data.PeerTube.keywordList
+                            |> List.map
+                                (\( keyword, _ ) ->
+                                    let
+                                        route =
+                                            Route.VideoList <| Route.Keyword keyword
+                                    in
+                                    linkMaybeActive (VideoList <| Route.Search keyword) route keyword
+                                )
+                        )
+                    , h3 [] [ text "Le projet" ]
+                    , nav []
+                        [ linkMaybeActive About Route.About "Classe à 12 ?"
+                        , linkMaybeActive Participate Route.Participate "Je participe"
+                        , a [ href "mailto:classea12@education.gouv.fr" ]
+                            [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                            , text "Contactez-nous"
+                            ]
+
+                        -- Link to the Mailchimp signup form.
+                        , a [ href "http://eepurl.com/gnJbYz" ]
+                            [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                            , text "Inscrivez-vous à notre infolettre"
                             ]
                         ]
-                    , li [ class "nav__item" ] [ loginProfileIcon ]
                     ]
                 ]
             ]
         ]
-    , div [ class "hero" ]
-        [ div [ class "hero__banner" ] []
-        , div [ class "hero__container" ]
-            [ img
-                [ src "%PUBLIC_URL%/logo_ca12.png"
-                , class "hero__logo"
-                ]
+
+
+viewContent : List (Html msg) -> Html msg
+viewContent body =
+    main_ [ class "wrapper" ]
+        body
+
+
+viewFooter : Session -> Html msg
+viewFooter session =
+    footer [ class "wrapper" ]
+        [ a [ href "" ]
+            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
                 []
-            , h1 []
-                [ text pageTitle ]
-            , p []
-                [ text pageSubTitle ]
+            ]
+        , div []
+            [ nav []
+                [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ]
+                , a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ]
+                , a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ]
+                ]
+            , span [] [ text <| "Version : " ++ session.version ]
             ]
         ]
-    ]
 
 
-viewContent : Config msg -> List (Html msg) -> List (Html msg)
-viewContent { activePage } body =
+viewAside : Config msg -> Html msg
+viewAside { activePage } =
     let
         linkMaybeActive page route caption =
-            li []
-                [ a
-                    [ Route.href route
-                    , classList
-                        [ ( "active", page == activePage )
-                        ]
+            a
+                [ Route.href route
+                , classList
+                    [ ( "active", page == activePage )
                     ]
-                    [ text caption ]
+                ]
+                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_white.svg") ] []
+                , text caption
                 ]
     in
-    [ div [ class "dashboard" ]
-        [ aside [ class "side-menu" ]
-            [ ul []
-                [ linkMaybeActive Home Route.Home "Accueil"
-                , linkMaybeActive (Search "Nouveautés") (Route.Search Nothing) "Nouveautés"
-                ]
-            , h5 [] [ text "Catégories" ]
-            , ul []
+    aside [ class "side-menu desktop-only" ]
+        [ a [ href "/", class "logo"]
+            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
+            ]
+        , nav []
+            [ linkMaybeActive Home Route.Home "Accueil"
+            , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
+            , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
+            ]
+        , div []
+            [ h3 [] [ text "Catégories" ]
+            , nav []
                 (Data.PeerTube.keywordList
                     |> List.map
                         (\( keyword, _ ) ->
                             let
                                 route =
-                                    Route.Search <| Just keyword
+                                    Route.VideoList <| Route.Keyword keyword
                             in
-                            linkMaybeActive (Search keyword) route keyword
+                            linkMaybeActive (VideoList <| Route.Search keyword) route keyword
                         )
                 )
-            , h5 [] [ text "Le projet" ]
-            , ul []
+            , h3 [] [ text "Le projet" ]
+            , nav []
                 [ linkMaybeActive About Route.About "Classe à 12 ?"
                 , linkMaybeActive Participate Route.Participate "Je participe"
-                , li [] [ a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ] ]
+                , a [ href "mailto:classea12@education.gouv.fr" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                    , text "Contactez-nous"
+                    ]
 
                 -- Link to the Mailchimp signup form.
-                , li [] [ a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ] ]
-                ]
-            ]
-        , div [ class "main" ]
-            body
-        ]
-    ]
-
-
-viewFooter : Session -> Html msg
-viewFooter session =
-    footer [ class "footer" ]
-        [ div [ class "container" ]
-            [ div [ class "footer__logo" ]
-                [ img
-                    [ src "//res.cloudinary.com/hrscywv4p/image/upload/c_limit,fl_lossy,h_300,w_300,f_auto,q_auto/v1/1436014/r7mrgstb76x8onkugzno.jpg"
-                    , alt "Logo du Lab 110bis"
+                , a [ href "http://eepurl.com/gnJbYz" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                    , text "Inscrivez-vous à notre infolettre"
                     ]
-                    []
-                , ul [ class "footer__social" ]
-                    [ li []
-                        [ a [ href "https://twitter.com/startupC12", class "icon icon-twitter" ]
-                            [ i [ class "fab fa-twitter fa-2x" ] []
-                            ]
-                        ]
-                    , li []
-                        [ a [ href "https://github.com/betagouv/ClasseA12", class "icon icon-github" ]
-                            [ i [ class "fab fa-github fa-2x" ] []
-                            ]
-                        ]
-                    , li []
-                        [ a [ href "mailto:classea12@education.gouv.fr?subject=Classes à 12 sur beta.gouv.fr", class "icon icon-mail" ]
-                            [ i [ class "fas fa-envelope fa-2x" ] []
-                            ]
-                        ]
-                    ]
-                ]
-            , ul [ class "footer__links" ]
-                [ li []
-                    [ h2 [] [ text "classe-a-12.beta.gouv.fr" ] ]
-                , li []
-                    [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ] ]
-                , li []
-                    [ a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ] ]
-                , li []
-                    [ a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ] ]
-                , li []
-                    [ text <| "Version : " ++ session.version ]
                 ]
             ]
         ]

@@ -41,7 +41,13 @@ type alias Model =
     , attachmentList : List Attachment
     , relatedVideos : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , notifications : Notifications.Model
+    , activeTab : Tab
     }
+
+
+type Tab
+    = ContributionTab
+    | RelatedVideosTab
 
 
 type alias Attachment =
@@ -65,6 +71,7 @@ type Msg
     | ProgressUpdated Decode.Value
     | AttachmentListReceived (Result Http.Error (List String))
     | RelatedVideosReceived (List String) (Result Http.Error (List Data.PeerTube.Video))
+    | ActivateTab Tab
     | NotificationMsg Notifications.Msg
     | NoOp
 
@@ -94,6 +101,7 @@ init videoID videoTitle session =
       , attachmentList = []
       , relatedVideos = Data.PeerTube.NotRequested
       , notifications = Notifications.init
+      , activeTab = ContributionTab
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
@@ -404,6 +412,12 @@ update session msg model =
             , Nothing
             )
 
+        ActivateTab tab ->
+            ( { model | activeTab = tab }
+            , Cmd.none
+            , Nothing
+            )
+
         NotificationMsg notificationMsg ->
             ( { model | notifications = Notifications.update notificationMsg model.notifications }
             , Cmd.none
@@ -473,30 +487,58 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab } =
+    let
+        commentFormNode =
+            H.div [ HA.class "video_contribution" ]
+                [ case commentData of
+                    Data.PeerTube.Failed _ ->
+                        H.div []
+                            [ H.text "Erreur lors de l'ajout de la contribution"
+                            ]
+
+                    Data.PeerTube.Received _ ->
+                        H.div []
+                            [ H.text "Merci pour votre contribution !"
+                            ]
+
+                    _ ->
+                        viewCommentForm comment userInfo refreshing commentData attachmentData progress
+                ]
+
+        displayTab tab tabTitle =
+            H.a
+                [ HA.href "#"
+                , HA.class <|
+                    if activeTab == tab then
+                        "active"
+
+                    else
+                        ""
+                , HE.onClick <| ActivateTab tab
+                ]
+                [ H.text tabTitle ]
+    in
     { title = title
     , pageTitle = "Vidéo"
     , pageSubTitle = videoTitle
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
         , viewBreadCrumbs videoData
-        , H.div [ HA.class "section section-white" ]
-            [ H.div [ HA.class "container" ]
-                [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
+        , H.section []
+            [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
+            , H.div [ HA.class "cols_height-four mobile-tabs" ]
+                [ H.div [ HA.class "mobile-only tab-headers" ]
+                    [ displayTab ContributionTab "Contributions"
+                    , displayTab RelatedVideosTab "Suggestions"
+                    ]
+                , H.div [ HA.class <| if activeTab == ContributionTab then "active" else ""]
+                [
+                    viewComments videoID comments attachmentList commentFormNode
                 ]
-            , H.div [ HA.class "container" ]
-                [ viewComments videoID comments attachmentList
-                , case commentData of
-                    Data.PeerTube.Failed _ ->
-                        H.div []
-                            [ H.text "Erreur lors de l'ajout de la contribution"
-                            ]
-
-                    _ ->
-                        viewCommentForm comment userInfo refreshing commentData attachmentData progress
-                ]
-            , H.div [ HA.class "container" ]
-                [ viewRelatedVideos peerTubeURL relatedVideos
+                , H.div [ HA.class <| if activeTab == RelatedVideosTab then "active" else ""]
+                    [ viewRelatedVideos peerTubeURL relatedVideos
+                    ]
                 ]
             ]
         ]
@@ -513,7 +555,7 @@ viewBreadCrumbs videoData =
                         |> List.concatMap
                             (\keyword ->
                                 [ H.text " / "
-                                , H.a [ Route.href (Route.Search <| Just keyword) ] [ H.text keyword ]
+                                , H.a [ Route.href (Route.VideoList <| Route.Search keyword) ] [ H.text keyword ]
                                 ]
                             )
             in
@@ -571,17 +613,17 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
             H.ul [ HA.class "social" ]
                 ([ H.li []
                     [ H.a
-                        [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
-                        , HA.title "Partager la vidéo par email"
+                        [ HA.href "https://www.facebook.com/sharer/sharer.php"
+                        , HA.title "Partager la vidéo par facebook"
                         ]
-                        [ H.i [ HA.class "fas fa-envelope fa-2x" ] [] ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] [] ]
                     ]
                  , H.li []
                     [ H.a
                         [ HA.href <| "http://twitter.com/share?text=" ++ shareText
                         , HA.title "Partager la vidéo par twitter"
                         ]
-                        [ H.i [ HA.class "fab fa-twitter fa-2x" ] [] ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/twitter_32_white_purple.svg" ] [] ]
                     ]
                  , H.li []
                     [ H.a
@@ -589,67 +631,102 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                         , HA.property "data-action" (Encode.string "share/whatsapp/share")
                         , HA.title "Partager la vidéo par whatsapp"
                         ]
-                        [ H.i [ HA.class "fab fa-whatsapp fa-2x" ] [] ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/whatsapp_32_purple.svg" ] [] ]
                     ]
                  , H.li []
                     [ H.a
-                        [ HA.href "https://www.facebook.com/sharer/sharer.php"
-                        , HA.title "Partager la vidéo par facebook"
+                        [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
+                        , HA.title "Partager la vidéo par email"
                         ]
-                        [ H.i [ HA.class "fab fa-facebook-f fa-2x" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href "fb-messenger://share/"
-                        , HA.title "Partager la vidéo par facebook messenger"
-                        ]
-                        [ H.i [ HA.class "fab fa-facebook-messenger fa-2x" ] [] ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] [] ]
                     ]
                  ]
                     ++ navigatorShareButton
                 )
 
         viewAttachments =
-            if attachmentList /= [] then
-                H.div []
-                    [ H.h5 [] [ H.text "Ressources" ]
-                    , H.ul []
+            H.div [ HA.class "video_resources" ]
+                [ H.h4 [] [ H.text "Ressources" ]
+                , if attachmentList /= [] then
+                    H.ul []
                         (attachmentList
                             |> List.map
                                 (\attachment ->
                                     H.li []
-                                        [ H.a
+                                        [ H.img
+                                            [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_purple.svg"
+                                            , HA.title ""
+                                            ]
+                                            []
+                                        , H.a
                                             [ HA.href <| "#" ++ attachment.commentID
                                             , HA.class "comment-link"
                                             , HE.onClick <| CommentSelected attachment.commentID
                                             ]
                                             [ H.text attachment.filename ]
+
+                                        -- TODO : we don't have the mimetype or the file size yet.
+                                        -- , H.span [ HA.class "file_info" ]
+                                        --     [ H.text " Type - n Ko"
+                                        --     ]
                                         ]
                                 )
                         )
-                    ]
 
-            else
-                H.div [] []
+                  else
+                    H.p []
+                        [ H.text "Aucune ressource disponible"
+                        ]
+                ]
     in
     H.div
         []
         [ Page.Common.Video.playerForVideo video peerTubeURL
-        , Page.Common.Video.details video
-        , Page.Common.Video.keywords video.tags
-        , viewAttachments
-        , shareButtons
+        , case video.files of
+            Just files ->
+                H.div []
+                    [ H.a
+                        [ HA.href files.fileDownloadUrl ]
+                        [ H.text "Télécharger cette vidéo" ]
+                    ]
+
+            Nothing ->
+                H.text ""
+        , H.div [ HA.class "video_details" ]
+            [ Page.Common.Video.title video
+            , H.div []
+                [ H.img
+                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
+                    ]
+                    []
+                , Page.Common.Video.metadata video
+                , Page.Common.Video.keywords video.tags
+                ]
+            ]
+        , H.div [ HA.class "video_infos cols_height-four" ]
+            [ Page.Common.Video.description video
+            , viewAttachments
+            ]
+        , H.div [ HA.class "video_share" ]
+            [ H.text "Partager cette vidéo : "
+            , shareButtons
+            ]
         ]
 
 
-viewComments : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> List Attachment -> H.Html Msg
-viewComments videoID commentsData attachmentList =
+viewComments :
+    String
+    -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
+    -> List Attachment
+    -> H.Html Msg
+    -> H.Html Msg
+viewComments videoID commentsData attachmentList commentFormNode =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.PeerTube.Received comments ->
-                H.div [ HA.class "comment-wrapper" ]
-                    [ H.h3 [] [ H.text "Contributions" ]
-                    , H.ul [ HA.class "comment-list" ]
+                H.div [ HA.class "comment_wrapper" ]
+                    [ H.h2 [] [ H.text "Contributions" ]
+                    , H.ul [ HA.class "comment_list" ]
                         (comments
                             |> List.map (viewCommentDetails videoID attachmentList)
                         )
@@ -660,6 +737,7 @@ viewComments videoID commentsData attachmentList =
 
             _ ->
                 H.p [] [ H.text "Aucune contribution pour le moment" ]
+        , commentFormNode
         ]
 
 
@@ -674,30 +752,47 @@ viewCommentDetails videoID attachmentList comment =
                 |> List.filter (\attachment -> attachment.videoID == videoID && attachment.commentID == commentID)
                 |> List.map
                     (\attachment ->
-                        H.div []
-                            [ H.text "Pièce jointe : "
+                        H.li []
+                            [ H.img
+                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_purple.svg"
+                                , HA.title ""
+                                ]
+                                []
                             , H.a [ HA.href <| attachment.url ] [ H.text attachment.filename ]
+
+                            -- TODO : we don't have the mimetype or the file size yet.
+                            -- , H.span [ HA.class "file_info" ]
+                            --     [ H.text " Type - n Ko"
+                            --     ]
                             ]
                     )
     in
     H.li
-        [ HA.class "comment panel"
+        [ HA.class "comment"
         , HA.id <| String.fromInt comment.id
         ]
-        [ H.a
-            [ HA.href <| "#" ++ commentID
-            , HA.class "comment-link"
-            , HE.onClick <| CommentSelected commentID
+        [ H.div [ HA.class "comment_avatar" ]
+            [ H.img [] []
             ]
-            [ H.time [] [ H.text <| Dates.formatStringDatetime comment.createdAt ]
+        , H.div [ HA.class "comment_content" ]
+            [ H.a
+                [ Route.href <| Route.Profile comment.account.name
+                , HA.class "comment_author"
+                ]
+                [ H.h3 []
+                    [ H.text comment.account.displayName
+                    ]
+                ]
+            , H.a
+                [ HA.href <| "#" ++ commentID
+                , HA.class "comment_link"
+                , HE.onClick <| CommentSelected commentID
+                ]
+                [ H.time [] [ H.text <| Dates.formatStringDatetime comment.createdAt ]
+                ]
+            , Markdown.toHtml [ HA.class "comment_value" ] comment.text
+            , H.ul [ HA.class "comment_attachment" ] attachmentNodes
             ]
-        , H.a
-            [ Route.href <| Route.Profile comment.account.name
-            , HA.class "comment-author"
-            ]
-            [ H.text comment.account.displayName ]
-        , Markdown.toHtml [] comment.text
-        , H.div [] attachmentNodes
         ]
 
 
@@ -711,7 +806,12 @@ viewCommentForm :
     -> H.Html Msg
 viewCommentForm comment userInfo refreshing commentData attachmentData progress =
     if not <| Data.Session.isLoggedIn userInfo then
-        Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+        H.div []
+            [ H.h2 []
+                [ H.text "Apporter une contribution"
+                ]
+            , Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
+            ]
 
     else
         let
@@ -737,15 +837,26 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
             submitButton =
                 Components.submitButton "Ajouter cette contribution" buttonState
         in
-        H.div []
-            [ H.form
-                [ HE.onSubmit AddComment ]
-                [ H.h3 [] [ H.text "Ajouter une contribution" ]
-                , H.div [ HA.class "form__group" ]
+        H.div
+            [ HA.style "display"
+                (if commentData == Data.PeerTube.NotRequested then
+                    "block"
+
+                 else
+                    "none"
+                )
+            ]
+            [ H.h2 []
+                [ H.text "Apporter une contribution" ]
+            , H.p [] [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
+            , H.form
+                [ HE.onSubmit AddComment, HA.class "cols_seven-five" ]
+                [ H.div [ HA.class "form__group" ]
                     [ H.label [ HA.for "comment" ]
-                        [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
+                        [ H.text "Votre commentaire" ]
                     , H.textarea
                         [ HA.id "comment"
+                        , HA.placeholder "Tapez ici votre commentaire"
                         , HA.value comment
                         , HE.onInput UpdateCommentForm
                         ]
@@ -753,7 +864,7 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
                     ]
                 , H.div [ HA.class "form__group" ]
                     [ H.label [ HA.for "attachment" ]
-                        [ H.text "Envoyer un fichier image, doc..." ]
+                        [ H.text "Lier un fichier" ]
                     , H.input
                         [ HA.class "file-input"
                         , HA.type_ "file"
@@ -761,25 +872,26 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
                         , Components.onFileSelected AttachmentSelected
                         ]
                         []
+                    , submitButton
                     ]
-                , submitButton
                 ]
             , H.div
-                [ HA.classList
-                    [ ( "modal__backdrop", True )
-                    , ( "is-active", attachmentData == Data.PeerTube.Requested )
-                    ]
+                [ HA.style "display"
+                    (if attachmentData == Data.PeerTube.Requested || commentData == Data.PeerTube.Requested then
+                        "block"
+
+                     else
+                        "none"
+                    )
                 ]
-                [ H.div [ HA.class "modal" ]
-                    [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
-                    , H.p [] [ H.text progress.message ]
-                    , H.progress
-                        [ HA.class "is-large"
-                        , HA.value <| String.fromInt progress.percentage
-                        , HA.max "100"
-                        ]
-                        [ H.text <| String.fromInt progress.percentage ++ "%" ]
+                [ H.h1 [] [ H.text "Envoi du fichier en cours, veuillez patienter..." ]
+                , H.p [] [ H.text progress.message ]
+                , H.progress
+                    [ HA.class "is-large"
+                    , HA.value <| String.fromInt progress.percentage
+                    , HA.max "100"
                     ]
+                    [ H.text <| String.fromInt progress.percentage ++ "%" ]
                 ]
             ]
 
@@ -789,9 +901,9 @@ viewRelatedVideos peerTubeURL relatedVideos =
     case relatedVideos of
         Data.PeerTube.Received videos ->
             if videos /= [] then
-                H.div []
-                    [ H.h5 [] [ H.text "Ces vidéos pourraient vous intéresser" ]
-                    , H.div [ HA.class "row" ]
+                H.div [ HA.class "video_suggestion" ]
+                    [ H.h4 [] [ H.text "Suggestions" ]
+                    , H.div []
                         (videos
                             |> List.map (Page.Common.Video.viewVideo peerTubeURL)
                         )
