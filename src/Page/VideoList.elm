@@ -290,9 +290,13 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                     ]
         , case loadMoreState of
             Page.Common.Components.Disabled ->
-                Page.Common.Components.button "Plus d'autres vidéos à afficher" loadMoreState Nothing
+                H.div [HA.class "center-wrapper"]
+                    [ Page.Common.Components.button "Plus d'autres vidéos à afficher" loadMoreState Nothing
+                    ]
 
             _ ->
-                Page.Common.Components.button "Afficher plus de vidéos" loadMoreState (Just LoadMore)
+                H.div [HA.class "center-wrapper"]
+                    [ Page.Common.Components.button "Afficher plus de vidéos" loadMoreState (Just LoadMore)
+                    ]
         ]
     }

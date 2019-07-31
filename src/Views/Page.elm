@@ -5,9 +5,10 @@ import Data.PeerTube
 import Data.Session exposing (Session, isLoggedIn)
 import Html exposing (..)
 import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, title, type_, value)
-import Html.Events exposing (onInput, onSubmit)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import Page.Common.Components
 import Route
+import String.Normalize
 
 
 type ActivePage
@@ -38,6 +39,8 @@ type alias Config msg =
     { session : Session
     , updateSearchMsg : String -> msg
     , submitSearchMsg : msg
+    , openMenuMsg : msg
+    , closeMenuMsg : msg
     , activePage : ActivePage
     }
 
@@ -57,19 +60,27 @@ frame config { title, pageTitle, pageSubTitle, body } =
 
 
 viewHeader : Config msg -> String -> String -> Html msg
-viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle pageSubTitle =
+viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMsg, activePage } pageTitle pageSubTitle =
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
-                [ i [ class "fas fa-sign-in-alt" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
                 , text " Se connecter"
                 ]
+
+        icon =
+            if session.isMenuOpened then
+                -- This should never be the case on desktop, so display the mobile icon which is white
+                "%PUBLIC_URL%/images/icons/32x32/profil_white.svg"
+
+            else
+                "%PUBLIC_URL%/images/icons/32x32/profil_purple.svg"
 
         profileIcon =
             case session.userInfo of
                 Just userInfo ->
                     a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
-                        [ i [ class "far fa-user-circle" ] []
+                        [ img [ src icon ] []
                         , text <| " " ++ userInfo.username
                         ]
 
@@ -91,6 +102,17 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle p
                 _ ->
                     a [ class "btn", Route.href Route.Participate ]
                         [ text "Publier une vidéo" ]
+
+        linkMaybeActive page route caption =
+            a
+                [ Route.href route
+                , classList
+                    [ ( "active", page == activePage )
+                    ]
+                ]
+                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_white.svg") ] []
+                , text caption
+                ]
     in
     header []
         [ div [ class "wrapper" ]
@@ -98,13 +120,13 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle p
                 []
 
             -- TODO: unhide this when we have the functionality
-            , nav [ style "visibility" "hidden" ]
+            , nav [ style "visibility" "hidden", class "desktop-only" ]
                 [ a [ href "" ]
                     [ text "Découvrez" ]
                 , a [ href "" ]
                     [ text "Vos favoris" ]
                 ]
-            , form [ onSubmit submitSearchMsg ]
+            , form [ onSubmit submitSearchMsg, class "desktop-only" ]
                 [ div [ class "search__group" ]
                     [ input
                         [ type_ "search"
@@ -117,9 +139,79 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, activePage } pageTitle p
                         [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
                     ]
                 ]
-            , div []
+            , a [ href "/", class "mobile-only logo" ]
+                [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
+                ]
+            , div [ class "desktop-only" ]
                 [ viewPublishVideoButton
                 , loginProfileIcon
+                ]
+            , button
+                [ class "mobile-only menu-opener"
+                , onClick openMenuMsg
+                ]
+                [ text "Menu"
+                , div []
+                    [ span [] []
+                    ]
+                ]
+            , aside
+                [ class <|
+                    "mobile-menu"
+                        ++ (if session.isMenuOpened then
+                                " opened"
+
+                            else
+                                ""
+                           )
+                ]
+                [ div []
+                    [ viewPublishVideoButton
+                    , button
+                        [ class "close-mobile-menu"
+                        , onClick closeMenuMsg
+                        ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
+                        ]
+                    ]
+                , nav
+                    []
+                    [ loginProfileIcon
+                    , a [ href "" ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_white.svg" ] []
+                        , text "Recherche"
+                        ]
+                    , linkMaybeActive Home Route.Home "Accueil"
+                    ]
+                , div []
+                    [ h3 [] [ text "Catégories" ]
+                    , nav []
+                        (Data.PeerTube.keywordList
+                            |> List.map
+                                (\( keyword, _ ) ->
+                                    let
+                                        route =
+                                            Route.VideoList <| Route.Keyword keyword
+                                    in
+                                    linkMaybeActive (VideoList <| Route.Search keyword) route keyword
+                                )
+                        )
+                    , h3 [] [ text "Le projet" ]
+                    , nav []
+                        [ linkMaybeActive About Route.About "Classe à 12 ?"
+                        , linkMaybeActive Participate Route.Participate "Je participe"
+                        , a [ href "mailto:classea12@education.gouv.fr" ]
+                            [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                            , text "Contactez-nous"
+                            ]
+
+                        -- Link to the Mailchimp signup form.
+                        , a [ href "http://eepurl.com/gnJbYz" ]
+                            [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                            , text "Inscrivez-vous à notre infolettre"
+                            ]
+                        ]
+                    ]
                 ]
             ]
         ]
@@ -159,11 +251,13 @@ viewAside { activePage } =
                     [ ( "active", page == activePage )
                     ]
                 ]
-                [ text caption ]
+                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_white.svg") ] []
+                , text caption
+                ]
     in
-    aside [ class "side-menu" ]
-        [ a [ href "/" ]
-            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
+    aside [ class "side-menu desktop-only" ]
+        [ a [ href "/", class "logo"]
+            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
             ]
         , nav []
             [ linkMaybeActive Home Route.Home "Accueil"
@@ -187,10 +281,16 @@ viewAside { activePage } =
             , nav []
                 [ linkMaybeActive About Route.About "Classe à 12 ?"
                 , linkMaybeActive Participate Route.Participate "Je participe"
-                , a [ href "mailto:classea12@education.gouv.fr" ] [ text "Contactez-nous" ]
+                , a [ href "mailto:classea12@education.gouv.fr" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                    , text "Contactez-nous"
+                    ]
 
                 -- Link to the Mailchimp signup form.
-                , a [ href "http://eepurl.com/gnJbYz" ] [ text "Inscrivez-vous à notre infolettre" ]
+                , a [ href "http://eepurl.com/gnJbYz" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                    , text "Inscrivez-vous à notre infolettre"
+                    ]
                 ]
             ]
         ]
