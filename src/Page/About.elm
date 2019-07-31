@@ -35,7 +35,7 @@ view _ { title } =
                 [ H.div [ HA.class "container" ]
                     [ H.div [ HA.class "article__image" ]
                         [ H.img
-                            [ HA.src "http://res.cloudinary.com/hrscywv4p/image/upload/c_limit,fl_lossy,h_1440,w_720,f_auto,q_auto/v1/1436014/aaa54f1f-f314-4d46-9fa5-f3b48835db45_htkbm2.jpg"
+                            [ HA.src "%PUBLIC_URL%/images/photos/Malika_Nicolas.jpg"
                             , HA.alt "Photo de Malika Alouani et Nicolas Leyri"
                             ]
                             []
@@ -51,7 +51,7 @@ view _ { title } =
                 , H.div [ HA.class "container" ]
                     [ H.div [ HA.class "article__image" ]
                         [ H.img
-                            [ HA.src "http://res.cloudinary.com/hrscywv4p/image/upload/c_limit,fl_lossy,h_1440,w_720,f_auto,q_auto/v1/1436014/IMG_5702_nv6pjl.png"
+                            [ HA.src "%PUBLIC_URL%/images/photos/photo_de_classe.jpg"
                             , HA.alt "Photo d'élèves dans une classe"
                             ]
                             []
@@ -66,7 +66,7 @@ view _ { title } =
                 , H.div [ HA.class "container" ]
                     [ H.div [ HA.class "article__image" ]
                         [ H.img
-                            [ HA.src "http://res.cloudinary.com/hrscywv4p/image/upload/c_limit,fl_lossy,h_1440,w_720,f_auto,q_auto/v1/1436014/2eaa8893-502a-439f-90ba-e0842eb72284_h4p2cg.jpg"
+                            [ HA.src "%PUBLIC_URL%/images/photos/Nicolas_smartphone.jpg"
                             , HA.alt "Photo de Nicolas Leyri en train de se filmer sur son smartphone"
                             ]
                             []
@@ -84,7 +84,7 @@ view _ { title } =
                 , H.div [ HA.class "container" ]
                     [ H.div [ HA.class "article__image" ]
                         [ H.img
-                            [ HA.src "http://res.cloudinary.com/hrscywv4p/image/upload/c_limit,fl_lossy,h_1440,w_720,f_auto,q_auto/v1/1436014/9ba429e2-d343-4e7e-a6de-fc0918beff54_rskzrf.png"
+                            [ HA.src "%PUBLIC_URL%/images/photos/Casier_rangement_feutres.jpg"
                             , HA.alt "Photo d'un casier de rangements de feutres de couleur"
                             ]
                             []
