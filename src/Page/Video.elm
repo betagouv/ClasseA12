@@ -42,6 +42,7 @@ type alias Model =
     , relatedVideos : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , notifications : Notifications.Model
     , activeTab : Tab
+    , deletedVideo : Data.PeerTube.RemoteData ()
     }
 
 
@@ -73,6 +74,8 @@ type Msg
     | RelatedVideosReceived (List String) (Result Http.Error (List Data.PeerTube.Video))
     | ActivateTab Tab
     | NotificationMsg Notifications.Msg
+    | DeleteVideo Data.PeerTube.Video
+    | VideoDeleted (Request.PeerTube.PeerTubeResult String)
     | NoOp
 
 
@@ -102,6 +105,7 @@ init videoID videoTitle session =
       , relatedVideos = Data.PeerTube.NotRequested
       , notifications = Notifications.init
       , activeTab = ContributionTab
+      , deletedVideo = Data.PeerTube.NotRequested
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
@@ -424,6 +428,43 @@ update session msg model =
             , Nothing
             )
 
+        DeleteVideo video ->
+            case session.userToken of
+                Just userToken ->
+                    ( { model | deletedVideo = Data.PeerTube.Requested }
+                    , Request.PeerTube.deleteVideo
+                        video
+                        userToken
+                        session.peerTubeURL
+                        VideoDeleted
+                    , Nothing
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none, Nothing )
+
+        VideoDeleted (Ok _) ->
+            ( { model
+                | deletedVideo = Data.PeerTube.Received ()
+                , notifications =
+                    "Vidéo supprimée avec succès"
+                        |> Notifications.addSuccess model.notifications
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        VideoDeleted (Err err) ->
+            ( { model
+                | deletedVideo = Data.PeerTube.Failed "Échec de la suppression de la vidéo"
+                , notifications =
+                    "Échec de la suppression de la vidéo"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            , Nothing
+            )
+
 
 dedupVideos : List Data.PeerTube.Video -> List Data.PeerTube.Video
 dedupVideos videos =
@@ -487,7 +528,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -526,21 +567,43 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
         [ H.map NotificationMsg (Notifications.view notifications)
         , viewBreadCrumbs videoData
         , H.section []
-            [ viewVideo peerTubeURL url navigatorShare videoData attachmentList
-            , H.div [ HA.class "cols_height-four mobile-tabs" ]
-                [ H.div [ HA.class "mobile-only tab-headers" ]
-                    [ displayTab ContributionTab "Contributions"
-                    , displayTab RelatedVideosTab "Suggestions"
+            (case deletedVideo of
+                Data.PeerTube.Received _ ->
+                    [ H.h2 [] [ H.text "Vidéo supprimée" ]
+                    , H.text "Vous pouvez "
+                    , H.a [ Route.href Route.Home ] [ H.text "retourner à la liste de vidéos" ]
                     ]
-                , H.div [ HA.class <| if activeTab == ContributionTab then "active" else ""]
-                [
-                    viewComments videoID comments attachmentList commentFormNode
-                ]
-                , H.div [ HA.class <| if activeTab == RelatedVideosTab then "active" else ""]
-                    [ viewRelatedVideos peerTubeURL relatedVideos
+
+                _ ->
+                    [ viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo
+                    , H.div [ HA.class "cols_height-four mobile-tabs" ]
+                        [ H.div [ HA.class "mobile-only tab-headers" ]
+                            [ displayTab ContributionTab "Contributions"
+                            , displayTab RelatedVideosTab "Suggestions"
+                            ]
+                        , H.div
+                            [ HA.class <|
+                                if activeTab == ContributionTab then
+                                    "active"
+
+                                else
+                                    ""
+                            ]
+                            [ viewComments videoID comments attachmentList commentFormNode
+                            ]
+                        , H.div
+                            [ HA.class <|
+                                if activeTab == RelatedVideosTab then
+                                    "active"
+
+                                else
+                                    ""
+                            ]
+                            [ viewRelatedVideos peerTubeURL relatedVideos
+                            ]
+                        ]
                     ]
-                ]
-            ]
+            )
         ]
     }
 
@@ -572,11 +635,11 @@ viewBreadCrumbs videoData =
             H.text ""
 
 
-viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> List Attachment -> H.Html Msg
-viewVideo peerTubeURL url navigatorShare videoData attachmentList =
+viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> List Attachment -> Maybe Data.PeerTube.UserInfo -> Data.PeerTube.RemoteData () -> H.Html Msg
+viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo =
     case videoData of
         Data.PeerTube.Received video ->
-            viewVideoDetails peerTubeURL url navigatorShare video attachmentList
+            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo
 
         Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -585,8 +648,8 @@ viewVideo peerTubeURL url navigatorShare videoData attachmentList =
             H.p [] [ H.text "Vidéo non trouvée" ]
 
 
-viewVideoDetails : String -> Url -> Bool -> Data.PeerTube.Video -> List Attachment -> H.Html Msg
-viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
+viewVideoDetails : String -> Url -> Bool -> Data.PeerTube.Video -> List Attachment -> Maybe Data.PeerTube.UserInfo -> Data.PeerTube.RemoteData () -> H.Html Msg
+viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo =
     let
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
@@ -678,6 +741,27 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                         [ H.text "Aucune ressource disponible"
                         ]
                 ]
+
+        deleteVideoNode =
+            case userInfo of
+                Just info ->
+                    let
+                        buttonState =
+                            case deletedVideo of
+                                Data.PeerTube.Requested ->
+                                    Components.Loading
+
+                                _ ->
+                                    Components.NotLoading
+                    in
+                    if info.username == video.account.name then
+                        Components.button "Supprimer cette vidéo" buttonState (Just <| DeleteVideo video)
+
+                    else
+                        H.text ""
+
+                Nothing ->
+                    H.text ""
     in
     H.div
         []
@@ -688,6 +772,7 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList =
                     [ H.a
                         [ HA.href files.fileDownloadUrl ]
                         [ H.text "Télécharger cette vidéo" ]
+                    , deleteVideoNode
                     ]
 
             Nothing ->

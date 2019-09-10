@@ -6,6 +6,7 @@ module Request.PeerTube exposing
     , activate
     , askPasswordReset
     , changePassword
+    , deleteVideo
     , emptyVideoListParams
     , extractError
     , extractResult
@@ -375,6 +376,35 @@ publishVideoRequest video access_token serverURL =
 publishVideo : Video -> UserToken -> String -> (Result AuthError (AuthResult String) -> msg) -> Cmd msg
 publishVideo video userToken serverURL message =
     publishVideoRequest video
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+deleteVideoRequest : Video -> String -> String -> Http.Request String
+deleteVideoRequest video access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/" ++ String.fromInt video.id
+
+        request : Http.Request String
+        request =
+            { method = "DELETE"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectString
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+deleteVideo : Video -> UserToken -> String -> (Result AuthError (AuthResult String) -> msg) -> Cmd msg
+deleteVideo video userToken serverURL message =
+    deleteVideoRequest video
         |> authRequestWrapper userToken serverURL
         |> Task.attempt message
 
