@@ -43,6 +43,7 @@ type alias Model =
     , notifications : Notifications.Model
     , activeTab : Tab
     , deletedVideo : Data.PeerTube.RemoteData ()
+    , displayDeleteModal : Bool
     }
 
 
@@ -74,6 +75,8 @@ type Msg
     | RelatedVideosReceived (List String) (Result Http.Error (List Data.PeerTube.Video))
     | ActivateTab Tab
     | NotificationMsg Notifications.Msg
+    | AskDeleteConfirmation
+    | DiscardDeleteConfirmation
     | DeleteVideo Data.PeerTube.Video
     | VideoDeleted (Request.PeerTube.PeerTubeResult String)
     | NoOp
@@ -106,6 +109,7 @@ init videoID videoTitle session =
       , notifications = Notifications.init
       , activeTab = ContributionTab
       , deletedVideo = Data.PeerTube.NotRequested
+      , displayDeleteModal = False
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
@@ -428,6 +432,18 @@ update session msg model =
             , Nothing
             )
 
+        AskDeleteConfirmation ->
+            ( { model | displayDeleteModal = True }
+            , Cmd.none
+            , Nothing
+            )
+
+        DiscardDeleteConfirmation ->
+            ( { model | displayDeleteModal = False }
+            , Cmd.none
+            , Nothing
+            )
+
         DeleteVideo video ->
             case session.userToken of
                 Just userToken ->
@@ -528,7 +544,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo, displayDeleteModal } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -575,7 +591,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                     ]
 
                 _ ->
-                    [ viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo
+                    [ viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal
                     , H.div [ HA.class "cols_height-four mobile-tabs" ]
                         [ H.div [ HA.class "mobile-only tab-headers" ]
                             [ displayTab ContributionTab "Contributions"
@@ -635,11 +651,20 @@ viewBreadCrumbs videoData =
             H.text ""
 
 
-viewVideo : String -> Url -> Bool -> Data.PeerTube.RemoteData Data.PeerTube.Video -> List Attachment -> Maybe Data.PeerTube.UserInfo -> Data.PeerTube.RemoteData () -> H.Html Msg
-viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo =
+viewVideo :
+    String
+    -> Url
+    -> Bool
+    -> Data.PeerTube.RemoteData Data.PeerTube.Video
+    -> List Attachment
+    -> Maybe Data.PeerTube.UserInfo
+    -> Data.PeerTube.RemoteData ()
+    -> Bool
+    -> H.Html Msg
+viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal =
     case videoData of
         Data.PeerTube.Received video ->
-            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo
+            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal
 
         Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -648,8 +673,17 @@ viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo delet
             H.p [] [ H.text "Vidéo non trouvée" ]
 
 
-viewVideoDetails : String -> Url -> Bool -> Data.PeerTube.Video -> List Attachment -> Maybe Data.PeerTube.UserInfo -> Data.PeerTube.RemoteData () -> H.Html Msg
-viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo =
+viewVideoDetails :
+    String
+    -> Url
+    -> Bool
+    -> Data.PeerTube.Video
+    -> List Attachment
+    -> Maybe Data.PeerTube.UserInfo
+    -> Data.PeerTube.RemoteData ()
+    -> Bool
+    -> H.Html Msg
+viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal =
     let
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
@@ -755,7 +789,34 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo de
                                     Components.NotLoading
                     in
                     if info.username == video.account.name then
-                        Components.button "Supprimer cette vidéo" buttonState (Just <| DeleteVideo video)
+                        H.div [ HA.id "delete-video" ]
+                            [ H.button
+                                [ HE.onClick AskDeleteConfirmation
+                                ]
+                                [ H.text "Supprimer cette vidéo" ]
+                            , H.div
+                                [ HA.class "modal__backdrop"
+                                , HA.class <|
+                                    if displayDeleteModal then
+                                        "active"
+
+                                    else
+                                        ""
+                                ]
+                                [ H.div [ HA.class "modal" ]
+                                    [ H.h2 []
+                                        [ H.text "Êtes-vous sûr de vouloir supprimer cette vidéo ? Cette action est irréversible."
+                                        ]
+                                    , Components.button "Oui je confirme, supprimer cette vidéo" buttonState (Just <| DeleteVideo video)
+                                    , H.br [] []
+                                    , H.a
+                                        [ HA.href "#"
+                                        , HE.onClick DiscardDeleteConfirmation
+                                        ]
+                                        [ H.text "Non, ne pas supprimer cette vidéo" ]
+                                    ]
+                                ]
+                            ]
 
                     else
                         H.text ""

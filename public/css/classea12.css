@@ -1326,3 +1326,41 @@ progress {
     height: 100%;
   }
 }
+
+/* MODALS */
+
+.modal__backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0, 0, 0, .5);
+  height: 100%;
+  width: 100%;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: none;
+  z-index: 10;
+}
+
+.modal__backdrop.active {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.modal {
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 2px rgba(201, 211, 223, .2);
+          box-shadow: 0 1px 2px rgba(201, 211, 223, .2);
+  background: #fff;
+  padding: 2em;
+  max-width: 32em;
+}
+
+.modal > :first-child {
+  margin-top: 0;
+}
