@@ -37,6 +37,7 @@ import Data.PeerTube
     exposing
         ( Account
         , Comment
+        , PartialUserInfo
         , Playlist
         , UserInfo
         , UserToken
@@ -455,6 +456,79 @@ getFavoriteStatus videoID userToken serverURL message =
         |> Task.attempt message
 
 
+getUserPlaylistRequest : String -> String -> Http.Request (Maybe Int)
+getUserPlaylistRequest username serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/accounts/" ++ username ++ "/video-playlists"
+
+        playlistIdDecoder =
+            Decode.field "id" Decode.int
+
+        decoder =
+            Decode.field "data"
+                (Decode.list playlistIdDecoder
+                    |> Decode.map List.head
+                )
+
+        request : Http.Request (Maybe Int)
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> Http.request
+    in
+    request
+
+
+getUserPlaylist : String -> String -> (Result Http.Error (Maybe Int) -> msg) -> Cmd msg
+getUserPlaylist username serverURL message =
+    Http.send message (getUserPlaylistRequest username serverURL)
+
+
+createUserPlaylistRequest : Int -> String -> String -> Http.Request Int
+createUserPlaylistRequest channelID userToken serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/video-playlists/"
+
+        decoder =
+            Decode.field "videoPlaylist"
+                (Decode.field "id" Decode.int)
+
+        data =
+            -- For some reason the API doesn't accept anything else than multipart
+            -- ... no json, no form-urlencoded.
+            [ Http.stringPart "displayName" "favoris"
+            , Http.stringPart "privacy" "1" -- Privacy: public
+            , Http.stringPart "videoChannelId" <| String.fromInt channelID
+            ]
+
+        body =
+            data
+                |> Http.multipartBody
+
+        request : Http.Request Int
+        request =
+            { method = "POST"
+            , headers = []
+            , url = url
+            , body = body
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ userToken)
+                |> Http.request
+    in
+    request
+
+
 
 ---- COMMENTS ----
 
@@ -792,13 +866,13 @@ refreshTokenRequest client_id client_secret refresh_token serverURL =
     Http.post url body userTokenDecoder
 
 
-getUserInfoRequest : String -> String -> Http.Request UserInfo
+getUserInfoRequest : String -> String -> Http.Request PartialUserInfo
 getUserInfoRequest access_token serverURL =
     let
         url =
             serverURL ++ "/api/v1/users/me"
 
-        request : Http.Request UserInfo
+        request : Http.Request PartialUserInfo
         request =
             { method = "GET"
             , headers = []
@@ -816,7 +890,46 @@ getUserInfoRequest access_token serverURL =
 
 getUserInfo : String -> String -> (Result Http.Error UserInfo -> msg) -> Cmd msg
 getUserInfo access_token serverURL message =
-    Http.send message (getUserInfoRequest access_token serverURL)
+    let
+        getUserInfoTask =
+            Http.toTask (getUserInfoRequest access_token serverURL)
+
+        getUserPlaylistTask username =
+            Http.toTask (getUserPlaylistRequest username serverURL)
+
+        createUserPlaylistTask channelID =
+            Http.toTask (createUserPlaylistRequest channelID access_token serverURL)
+    in
+    -- First get the partial user info lacking the playlist ID
+    getUserInfoTask
+        |> Task.andThen
+            (\partialUserInfo ->
+                -- Then get the playlist ID
+                getUserPlaylistTask partialUserInfo.username
+                    |> Task.andThen
+                        (\maybePlaylistID ->
+                            case maybePlaylistID of
+                                Just playlistID ->
+                                    -- If there was already a "favoris" playlist use it
+                                    Task.succeed
+                                        { username = partialUserInfo.username
+                                        , channelID = partialUserInfo.channelID
+                                        , playlistID = playlistID
+                                        }
+
+                                Nothing ->
+                                    -- Otherwise create this "favoris" playlist
+                                    createUserPlaylistTask partialUserInfo.channelID
+                                        |> Task.map
+                                            (\playlistID ->
+                                                { username = partialUserInfo.username
+                                                , channelID = partialUserInfo.channelID
+                                                , playlistID = playlistID
+                                                }
+                                            )
+                        )
+            )
+        |> Task.attempt message
 
 
 updateUserAccountRequest : String -> String -> String -> String -> Http.Request Account

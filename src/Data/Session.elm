@@ -49,6 +49,7 @@ userInfoDecoder =
     Decode.succeed Data.PeerTube.UserInfo
         |> Pipeline.required "username" Decode.string
         |> Pipeline.required "channelID" Decode.int
+        |> Pipeline.required "playlistID" Decode.int
 
 
 interpretMsg :

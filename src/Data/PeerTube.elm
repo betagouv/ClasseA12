@@ -2,6 +2,7 @@ module Data.PeerTube exposing
     ( Account
     , Comment
     , NewVideo
+    , PartialUserInfo
     , Playlist
     , RemoteData(..)
     , UserInfo
@@ -39,9 +40,16 @@ type alias UserToken =
     }
 
 
+type alias PartialUserInfo =
+    { username : String
+    , channelID : Int
+    }
+
+
 type alias UserInfo =
     { username : String
     , channelID : Int
+    , playlistID : Int
     }
 
 
@@ -242,9 +250,9 @@ videoChannelIDDecoder =
             )
 
 
-userInfoDecoder : Decode.Decoder UserInfo
+userInfoDecoder : Decode.Decoder PartialUserInfo
 userInfoDecoder =
-    Decode.succeed UserInfo
+    Decode.succeed PartialUserInfo
         |> Pipeline.required "username" Decode.string
         |> Pipeline.required "videoChannels" videoChannelIDDecoder
 
@@ -297,6 +305,7 @@ encodeUserInfo userInfo =
     Encode.object
         [ ( "username", Encode.string userInfo.username )
         , ( "channelID", Encode.int userInfo.channelID )
+        , ( "playlistID", Encode.int userInfo.playlistID )
         ]
 
 
