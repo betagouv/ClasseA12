@@ -16,6 +16,7 @@ module Request.PeerTube exposing
     , getAccountForEdit
     , getBlacklistedVideoList
     , getCommentList
+    , getFavoriteStatus
     , getPlaylistVideoList
     , getUserInfo
     , getVideo
@@ -405,6 +406,51 @@ deleteVideoRequest video access_token serverURL =
 deleteVideo : Video -> UserToken -> String -> (Result AuthError (AuthResult String) -> msg) -> Cmd msg
 deleteVideo video userToken serverURL message =
     deleteVideoRequest video
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+
+---- PLAYLISTS ----
+
+
+getFavoriteStatusRequest : Int -> String -> String -> Http.Request (Maybe Int)
+getFavoriteStatusRequest videoID access_token serverURL =
+    let
+        idAsString =
+            String.fromInt videoID
+
+        url =
+            serverURL ++ "/api/v1/users/me/video-playlists/videos-exist?videoIds=" ++ idAsString
+
+        playlistIdDecoder =
+            Decode.field "playlistId" Decode.int
+
+        decoder =
+            Decode.field idAsString
+                (Decode.list playlistIdDecoder
+                    |> Decode.map List.head
+                )
+
+        request : Http.Request (Maybe Int)
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+getFavoriteStatus : Int -> UserToken -> String -> (Result AuthError (AuthResult (Maybe Int)) -> msg) -> Cmd msg
+getFavoriteStatus videoID userToken serverURL message =
+    getFavoriteStatusRequest videoID
         |> authRequestWrapper userToken serverURL
         |> Task.attempt message
 

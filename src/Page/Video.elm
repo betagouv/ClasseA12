@@ -44,6 +44,7 @@ type alias Model =
     , activeTab : Tab
     , deletedVideo : Data.PeerTube.RemoteData ()
     , displayDeleteModal : Bool
+    , favoriteStatus : FavoriteStatus
     }
 
 
@@ -58,6 +59,12 @@ type alias Attachment =
     , filename : String
     , url : String
     }
+
+
+type FavoriteStatus
+    = Unknown
+    | Favorite Int
+    | NotFavorite
 
 
 type Msg
@@ -79,6 +86,7 @@ type Msg
     | DiscardDeleteConfirmation
     | DeleteVideo Data.PeerTube.Video
     | VideoDeleted (Request.PeerTube.PeerTubeResult String)
+    | FavoriteStatusReceived (Request.PeerTube.PeerTubeResult (Maybe Int))
     | NoOp
 
 
@@ -110,6 +118,7 @@ init videoID videoTitle session =
       , activeTab = ContributionTab
       , deletedVideo = Data.PeerTube.NotRequested
       , displayDeleteModal = False
+      , favoriteStatus = Unknown
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
@@ -151,6 +160,14 @@ update session msg model =
                                 in
                                 Request.PeerTube.getVideoList params session.peerTubeURL (RelatedVideosReceived keywords)
                             )
+
+                favoriteStatusCommand =
+                    case session.userToken of
+                        Just token ->
+                            [ Request.PeerTube.getFavoriteStatus video.id token session.peerTubeURL FavoriteStatusReceived ]
+
+                        Nothing ->
+                            []
             in
             ( { model
                 | videoData = Data.PeerTube.Received video
@@ -160,6 +177,7 @@ update session msg model =
                 ([ scrollToComment session.url.fragment model
                  ]
                     ++ relatedVideosCommands
+                    ++ favoriteStatusCommand
                 )
             , Request.PeerTube.extractSessionMsg authResult
             )
@@ -481,6 +499,27 @@ update session msg model =
             , Nothing
             )
 
+        FavoriteStatusReceived (Ok authResult) ->
+            let
+                maybePlaylistID =
+                    Request.PeerTube.extractResult authResult
+
+                favoriteStatus =
+                    maybePlaylistID
+                        |> Maybe.map Favorite
+                        |> Maybe.withDefault NotFavorite
+            in
+            ( { model | favoriteStatus = favoriteStatus }
+            , Cmd.none
+            , Nothing
+            )
+
+        FavoriteStatusReceived (Err _) ->
+            ( { model | favoriteStatus = Unknown }
+            , Cmd.none
+            , Nothing
+            )
+
 
 dedupVideos : List Data.PeerTube.Video -> List Data.PeerTube.Video
 dedupVideos videos =
@@ -544,7 +583,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo, displayDeleteModal } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo, displayDeleteModal, favoriteStatus } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -591,7 +630,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                     ]
 
                 _ ->
-                    [ viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal
+                    [ viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus
                     , H.div [ HA.class "cols_height-four mobile-tabs" ]
                         [ H.div [ HA.class "mobile-only tab-headers" ]
                             [ displayTab ContributionTab "Contributions"
@@ -660,11 +699,12 @@ viewVideo :
     -> Maybe Data.PeerTube.UserInfo
     -> Data.PeerTube.RemoteData ()
     -> Bool
+    -> FavoriteStatus
     -> H.Html Msg
-viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal =
+viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus =
     case videoData of
         Data.PeerTube.Received video ->
-            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal
+            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus
 
         Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -682,8 +722,9 @@ viewVideoDetails :
     -> Maybe Data.PeerTube.UserInfo
     -> Data.PeerTube.RemoteData ()
     -> Bool
+    -> FavoriteStatus
     -> H.Html Msg
-viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal =
+viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus =
     let
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
@@ -823,6 +864,17 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo de
 
                 Nothing ->
                     H.text ""
+
+        favoriteVideoNode =
+            case favoriteStatus of
+                Unknown ->
+                    H.text ""
+
+                Favorite playlistID ->
+                    H.text "Cette vidéo est dans vos favoris"
+
+                NotFavorite ->
+                    H.text "Cette vidéo n'est pas dans vos favoris"
     in
     H.div
         []
@@ -834,6 +886,7 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo de
                         [ HA.href files.fileDownloadUrl ]
                         [ H.text "Télécharger cette vidéo" ]
                     , deleteVideoNode
+                    , favoriteVideoNode
                     ]
 
             Nothing ->
