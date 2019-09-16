@@ -66,7 +66,11 @@ button label buttonState maybeOnClick =
     H.button
         (loadingAttrs ++ onClickAttr)
         [ if buttonState == Loading then
-            H.i [ HA.class "fas fa-spinner fa-spin" ] []
+            H.span []
+                [ H.text label
+                , H.text " "
+                , H.i [ HA.class "fas fa-spinner fa-spin" ] []
+                ]
 
           else
             H.text label
@@ -90,9 +94,9 @@ optgroup label nodes =
 viewConnectNow : String -> String -> H.Html msg
 viewConnectNow label linkLabel =
     H.p []
-            [ H.text label
-            , H.a [ Route.href Route.Login ] [ H.text linkLabel ]
-            ]
+        [ H.text label
+        , H.a [ Route.href Route.Login ] [ H.text linkLabel ]
+        ]
 
 
 onFileSelected : msg -> H.Attribute msg

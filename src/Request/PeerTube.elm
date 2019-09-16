@@ -4,6 +4,7 @@ module Request.PeerTube exposing
     , PeerTubeResult
     , VideoListParams
     , activate
+    , addToFavorite
     , askPasswordReset
     , changePassword
     , deleteVideo
@@ -26,6 +27,7 @@ module Request.PeerTube exposing
     , login
     , publishVideo
     , register
+    , removeFromFavorite
     , submitComment
     , updateUserAccount
     , urlFromVideoListParams
@@ -415,7 +417,7 @@ deleteVideo video userToken serverURL message =
 ---- PLAYLISTS ----
 
 
-getFavoriteStatusRequest : Int -> String -> String -> Http.Request (Maybe Int)
+getFavoriteStatusRequest : Int -> String -> String -> Http.Request (Maybe Data.PeerTube.FavoriteData)
 getFavoriteStatusRequest videoID access_token serverURL =
     let
         idAsString =
@@ -424,16 +426,18 @@ getFavoriteStatusRequest videoID access_token serverURL =
         url =
             serverURL ++ "/api/v1/users/me/video-playlists/videos-exist?videoIds=" ++ idAsString
 
-        playlistIdDecoder =
-            Decode.field "playlistId" Decode.int
+        favoriteDataDecoder =
+            Decode.map2 Data.PeerTube.FavoriteData
+                (Decode.field "playlistId" Decode.int)
+                (Decode.field "playlistElementId" Decode.int)
 
         decoder =
             Decode.field idAsString
-                (Decode.list playlistIdDecoder
+                (Decode.list favoriteDataDecoder
                     |> Decode.map List.head
                 )
 
-        request : Http.Request (Maybe Int)
+        request : Http.Request (Maybe Data.PeerTube.FavoriteData)
         request =
             { method = "GET"
             , headers = []
@@ -449,7 +453,7 @@ getFavoriteStatusRequest videoID access_token serverURL =
     request
 
 
-getFavoriteStatus : Int -> UserToken -> String -> (Result AuthError (AuthResult (Maybe Int)) -> msg) -> Cmd msg
+getFavoriteStatus : Int -> UserToken -> String -> (Result AuthError (AuthResult (Maybe Data.PeerTube.FavoriteData)) -> msg) -> Cmd msg
 getFavoriteStatus videoID userToken serverURL message =
     getFavoriteStatusRequest videoID
         |> authRequestWrapper userToken serverURL
@@ -527,6 +531,83 @@ createUserPlaylistRequest channelID userToken serverURL =
                 |> Http.request
     in
     request
+
+
+addToFavoriteRequest : Int -> Int -> String -> String -> Http.Request Data.PeerTube.FavoriteData
+addToFavoriteRequest videoID playlistID access_token serverURL =
+    let
+        idAsString =
+            String.fromInt playlistID
+
+        url =
+            serverURL ++ "/api/v1/video-playlists/" ++ idAsString ++ "/videos"
+
+        body =
+            Encode.object
+                [ ( "videoId", Encode.string <| String.fromInt videoID )
+                ]
+                |> Http.jsonBody
+
+        decoder =
+            Decode.map (Data.PeerTube.FavoriteData playlistID)
+                (Decode.at [ "videoPlaylistElement", "id" ] Decode.int)
+
+        request : Http.Request Data.PeerTube.FavoriteData
+        request =
+            { method = "POST"
+            , headers = []
+            , url = url
+            , body = body
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+addToFavorite : Int -> Int -> UserToken -> String -> (Result AuthError (AuthResult Data.PeerTube.FavoriteData) -> msg) -> Cmd msg
+addToFavorite videoID playlistID userToken serverURL message =
+    addToFavoriteRequest videoID playlistID
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+removeFromFavoriteRequest : Int -> Int -> String -> String -> Http.Request String
+removeFromFavoriteRequest playlistItemID playlistID access_token serverURL =
+    let
+        playlistIDAsString =
+            String.fromInt playlistID
+
+        itemIDAsString =
+            String.fromInt playlistItemID
+
+        url =
+            serverURL ++ "/api/v1/video-playlists/" ++ playlistIDAsString ++ "/videos/" ++ itemIDAsString
+
+        request : Http.Request String
+        request =
+            { method = "DELETE"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectString
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+removeFromFavorite : Data.PeerTube.FavoriteData -> UserToken -> String -> (Result AuthError (AuthResult String) -> msg) -> Cmd msg
+removeFromFavorite { playlistID, playlistItemID } userToken serverURL message =
+    removeFromFavoriteRequest playlistItemID playlistID
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
 
 
 

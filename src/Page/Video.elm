@@ -45,6 +45,7 @@ type alias Model =
     , deletedVideo : Data.PeerTube.RemoteData ()
     , displayDeleteModal : Bool
     , favoriteStatus : FavoriteStatus
+    , togglingFavoriteStatus : Data.PeerTube.RemoteData ()
     }
 
 
@@ -63,7 +64,7 @@ type alias Attachment =
 
 type FavoriteStatus
     = Unknown
-    | Favorite Int
+    | Favorite Data.PeerTube.FavoriteData
     | NotFavorite
 
 
@@ -86,7 +87,11 @@ type Msg
     | DiscardDeleteConfirmation
     | DeleteVideo Data.PeerTube.Video
     | VideoDeleted (Request.PeerTube.PeerTubeResult String)
-    | FavoriteStatusReceived (Request.PeerTube.PeerTubeResult (Maybe Int))
+    | FavoriteStatusReceived (Request.PeerTube.PeerTubeResult (Maybe Data.PeerTube.FavoriteData))
+    | RemoveFromFavorite Data.PeerTube.FavoriteData
+    | RemovedFromFavoriteReceived (Request.PeerTube.PeerTubeResult String)
+    | AddToFavorite
+    | AddedToFavoriteReceived (Request.PeerTube.PeerTubeResult Data.PeerTube.FavoriteData)
     | NoOp
 
 
@@ -119,6 +124,7 @@ init videoID videoTitle session =
       , deletedVideo = Data.PeerTube.NotRequested
       , displayDeleteModal = False
       , favoriteStatus = Unknown
+      , togglingFavoriteStatus = Data.PeerTube.NotRequested
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
@@ -501,21 +507,89 @@ update session msg model =
 
         FavoriteStatusReceived (Ok authResult) ->
             let
-                maybePlaylistID =
+                maybeFavoriteData =
                     Request.PeerTube.extractResult authResult
 
                 favoriteStatus =
-                    maybePlaylistID
-                        |> Maybe.map Favorite
-                        |> Maybe.withDefault NotFavorite
+                    case maybeFavoriteData of
+                        Just favoriteData ->
+                            Favorite favoriteData
+
+                        Nothing ->
+                            NotFavorite
             in
             ( { model | favoriteStatus = favoriteStatus }
             , Cmd.none
-            , Nothing
+            , Request.PeerTube.extractSessionMsg authResult
             )
 
         FavoriteStatusReceived (Err _) ->
             ( { model | favoriteStatus = Unknown }
+            , Cmd.none
+            , Nothing
+            )
+
+        RemoveFromFavorite favoriteData ->
+            case session.userToken of
+                Just userToken ->
+                    ( { model | togglingFavoriteStatus = Data.PeerTube.Requested }
+                    , Request.PeerTube.removeFromFavorite
+                        favoriteData
+                        userToken
+                        session.peerTubeURL
+                        RemovedFromFavoriteReceived
+                    , Nothing
+                    )
+
+                _ ->
+                    ( model, Cmd.none, Nothing )
+
+        RemovedFromFavoriteReceived (Ok _) ->
+            ( { model
+                | togglingFavoriteStatus = Data.PeerTube.Received ()
+                , favoriteStatus = NotFavorite
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        RemovedFromFavoriteReceived (Err _) ->
+            ( { model | togglingFavoriteStatus = Data.PeerTube.Failed "Échec du changement de statut de favori de la vidéo" }
+            , Cmd.none
+            , Nothing
+            )
+
+        AddToFavorite ->
+            case ( model.videoData, session.userToken, session.userInfo ) of
+                ( Data.PeerTube.Received videoData, Just userToken, Just userInfo ) ->
+                    ( { model | togglingFavoriteStatus = Data.PeerTube.Requested }
+                    , Request.PeerTube.addToFavorite
+                        videoData.id
+                        userInfo.playlistID
+                        userToken
+                        session.peerTubeURL
+                        AddedToFavoriteReceived
+                    , Nothing
+                    )
+
+                _ ->
+                    ( model, Cmd.none, Nothing )
+
+        AddedToFavoriteReceived (Ok authResult) ->
+            let
+                favoriteData =
+                    Request.PeerTube.extractResult authResult
+            in
+            ( { model
+                | togglingFavoriteStatus = Data.PeerTube.Received ()
+                , favoriteStatus = Favorite favoriteData
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        AddedToFavoriteReceived (Err _) ->
+            ( { model | togglingFavoriteStatus = Data.PeerTube.Failed "Échec du changement de statut de favori de la vidéo" }
             , Cmd.none
             , Nothing
             )
@@ -583,7 +657,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo, displayDeleteModal, favoriteStatus } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -630,7 +704,17 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                     ]
 
                 _ ->
-                    [ viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus
+                    [ viewVideo
+                        peerTubeURL
+                        url
+                        navigatorShare
+                        videoData
+                        attachmentList
+                        userInfo
+                        deletedVideo
+                        displayDeleteModal
+                        favoriteStatus
+                        togglingFavoriteStatus
                     , H.div [ HA.class "cols_height-four mobile-tabs" ]
                         [ H.div [ HA.class "mobile-only tab-headers" ]
                             [ displayTab ContributionTab "Contributions"
@@ -700,11 +784,12 @@ viewVideo :
     -> Data.PeerTube.RemoteData ()
     -> Bool
     -> FavoriteStatus
+    -> Data.PeerTube.RemoteData ()
     -> H.Html Msg
-viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus =
+viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus =
     case videoData of
         Data.PeerTube.Received video ->
-            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus
+            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus
 
         Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -723,8 +808,9 @@ viewVideoDetails :
     -> Data.PeerTube.RemoteData ()
     -> Bool
     -> FavoriteStatus
+    -> Data.PeerTube.RemoteData ()
     -> H.Html Msg
-viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus =
+viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus =
     let
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
@@ -866,15 +952,24 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo de
                     H.text ""
 
         favoriteVideoNode =
+            let
+                buttonState =
+                    case togglingFavoriteStatus of
+                        Data.PeerTube.Requested ->
+                            Components.Loading
+
+                        _ ->
+                            Components.NotLoading
+            in
             case favoriteStatus of
                 Unknown ->
                     H.text ""
 
-                Favorite playlistID ->
-                    H.text "Cette vidéo est dans vos favoris"
+                Favorite favoriteData ->
+                    Components.button "Retirer cette vidéo des favoris" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    H.text "Cette vidéo n'est pas dans vos favoris"
+                    Components.button "Ajouter cette vidéo aux favoris" buttonState (Just <| AddToFavorite)
     in
     H.div
         []

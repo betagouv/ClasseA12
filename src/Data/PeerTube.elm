@@ -1,6 +1,7 @@
 module Data.PeerTube exposing
     ( Account
     , Comment
+    , FavoriteData
     , NewVideo
     , PartialUserInfo
     , Playlist
@@ -119,6 +120,12 @@ type alias Comment =
 type alias Playlist =
     { uuid : String
     , displayName : String
+    }
+
+
+type alias FavoriteData =
+    { playlistID : Int
+    , playlistItemID : Int
     }
 
 
