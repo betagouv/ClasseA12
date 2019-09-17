@@ -48,11 +48,12 @@ import Data.PeerTube
         , alternateCommentListDecoder
         , commentDecoder
         , commentListDecoder
-        , dataDecoder
         , playlistDecoder
+        , playlistVideoListDataDecoder
         , userInfoDecoder
         , userTokenDecoder
         , videoDecoder
+        , videoListDataDecoder
         )
 import Data.Session
 import Http
@@ -147,7 +148,7 @@ urlFromVideoListParams { keywords, count, offset, search } serverURL =
 
 videoListRequest : VideoListParams -> String -> Http.Request (List Video)
 videoListRequest videoListParams serverURL =
-    Http.get (urlFromVideoListParams videoListParams serverURL) dataDecoder
+    Http.get (urlFromVideoListParams videoListParams serverURL) videoListDataDecoder
 
 
 getVideoList : VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
@@ -155,11 +156,11 @@ getVideoList videoListParams serverURL message =
     Http.send message (videoListRequest videoListParams serverURL)
 
 
-latestPlaylistRequest : String -> Http.Request Playlist
-latestPlaylistRequest serverURL =
+latestPlaylistRequest : String -> String -> Http.Request Playlist
+latestPlaylistRequest username serverURL =
     let
         url =
-            serverURL ++ "/api/v1/video-channels/classea12_channel/video-playlists"
+            serverURL ++ "/api/v1/accounts/" ++ username ++ "/video-playlists"
 
         playlistsDecoder =
             Decode.field "data" <| Decode.list playlistDecoder
@@ -191,12 +192,12 @@ playlistVideoListRequest { count, offset } playlistID serverURL =
         url =
             serverURL ++ "/api/v1/video-playlists/" ++ playlistID ++ "/videos?" ++ params
     in
-    Http.get url dataDecoder
+    Http.get url playlistVideoListDataDecoder
 
 
-getPlaylistVideoList : VideoListParams -> String -> (Result Http.Error ( String, List Video ) -> msg) -> Cmd msg
-getPlaylistVideoList videoListParams serverURL message =
-    latestPlaylistRequest serverURL
+getPlaylistVideoList : String -> VideoListParams -> String -> (Result Http.Error ( String, List Video ) -> msg) -> Cmd msg
+getPlaylistVideoList username videoListParams serverURL message =
+    latestPlaylistRequest username serverURL
         |> Http.toTask
         |> Task.andThen
             (\playlist ->
@@ -206,6 +207,12 @@ getPlaylistVideoList videoListParams serverURL message =
                         (\videoList ->
                             ( playlist.displayName, videoList )
                         )
+            )
+        |> Task.onError
+            -- In case the playlist wasn't created yet return an empty video
+            -- list with no title
+            (\_ ->
+                Task.succeed ( "", [] )
             )
         |> Task.attempt message
 
@@ -414,7 +421,7 @@ deleteVideo video userToken serverURL message =
 
 
 
----- PLAYLISTS ----
+---- FAVORITES ----
 
 
 getFavoriteStatusRequest : Int -> String -> String -> Http.Request (Maybe Data.PeerTube.FavoriteData)
@@ -458,41 +465,6 @@ getFavoriteStatus videoID userToken serverURL message =
     getFavoriteStatusRequest videoID
         |> authRequestWrapper userToken serverURL
         |> Task.attempt message
-
-
-getUserPlaylistRequest : String -> String -> Http.Request (Maybe Int)
-getUserPlaylistRequest username serverURL =
-    let
-        url =
-            serverURL ++ "/api/v1/accounts/" ++ username ++ "/video-playlists"
-
-        playlistIdDecoder =
-            Decode.field "id" Decode.int
-
-        decoder =
-            Decode.field "data"
-                (Decode.list playlistIdDecoder
-                    |> Decode.map List.head
-                )
-
-        request : Http.Request (Maybe Int)
-        request =
-            { method = "GET"
-            , headers = []
-            , url = url
-            , body = Http.emptyBody
-            , expect = Http.expectJson decoder
-            , timeout = Nothing
-            , withCredentials = False
-            }
-                |> Http.request
-    in
-    request
-
-
-getUserPlaylist : String -> String -> (Result Http.Error (Maybe Int) -> msg) -> Cmd msg
-getUserPlaylist username serverURL message =
-    Http.send message (getUserPlaylistRequest username serverURL)
 
 
 createUserPlaylistRequest : Int -> String -> String -> Http.Request Int
@@ -976,7 +948,7 @@ getUserInfo access_token serverURL message =
             Http.toTask (getUserInfoRequest access_token serverURL)
 
         getUserPlaylistTask username =
-            Http.toTask (getUserPlaylistRequest username serverURL)
+            Http.toTask (latestPlaylistRequest username serverURL)
 
         createUserPlaylistTask channelID =
             Http.toTask (createUserPlaylistRequest channelID access_token serverURL)
@@ -987,27 +959,25 @@ getUserInfo access_token serverURL message =
             (\partialUserInfo ->
                 -- Then get the playlist ID
                 getUserPlaylistTask partialUserInfo.username
-                    |> Task.andThen
-                        (\maybePlaylistID ->
-                            case maybePlaylistID of
-                                Just playlistID ->
-                                    -- If there was already a "favoris" playlist use it
-                                    Task.succeed
+                    |> Task.map
+                        -- If there was already a "favoris" playlist use it
+                        (\playlist ->
+                            { username = partialUserInfo.username
+                            , channelID = partialUserInfo.channelID
+                            , playlistID = playlist.id
+                            }
+                        )
+                    |> Task.onError
+                        -- Otherwise create this "favoris" playlist
+                        (\_ ->
+                            createUserPlaylistTask partialUserInfo.channelID
+                                |> Task.map
+                                    (\playlistID ->
                                         { username = partialUserInfo.username
                                         , channelID = partialUserInfo.channelID
                                         , playlistID = playlistID
                                         }
-
-                                Nothing ->
-                                    -- Otherwise create this "favoris" playlist
-                                    createUserPlaylistTask partialUserInfo.channelID
-                                        |> Task.map
-                                            (\playlistID ->
-                                                { username = partialUserInfo.username
-                                                , channelID = partialUserInfo.channelID
-                                                , playlistID = playlistID
-                                                }
-                                            )
+                                    )
                         )
             )
         |> Task.attempt message

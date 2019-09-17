@@ -14,7 +14,6 @@ module Data.PeerTube exposing
     , alternateCommentListDecoder
     , commentDecoder
     , commentListDecoder
-    , dataDecoder
     , emptyNewVideo
     , encodeComment
     , encodeNewVideoData
@@ -22,9 +21,11 @@ module Data.PeerTube exposing
     , encodeUserToken
     , keywordList
     , playlistDecoder
+    , playlistVideoListDataDecoder
     , userInfoDecoder
     , userTokenDecoder
     , videoDecoder
+    , videoListDataDecoder
     , videoUploadedDecoder
     )
 
@@ -118,7 +119,8 @@ type alias Comment =
 
 
 type alias Playlist =
-    { uuid : String
+    { id : Int
+    , uuid : String
     , displayName : String
     }
 
@@ -153,14 +155,24 @@ keywordList =
 ---- DECODERS ----
 
 
-dataDecoder : Decode.Decoder (List Video)
-dataDecoder =
+videoListDataDecoder : Decode.Decoder (List Video)
+videoListDataDecoder =
     Decode.field "data" videoListDecoder
 
 
 videoListDecoder : Decode.Decoder (List Video)
 videoListDecoder =
     Decode.list videoDecoder
+
+
+playlistVideoListDataDecoder : Decode.Decoder (List Video)
+playlistVideoListDataDecoder =
+    Decode.field "data" playlistVideoListDecoder
+
+
+playlistVideoListDecoder : Decode.Decoder (List Video)
+playlistVideoListDecoder =
+    Decode.list (Decode.field "video" videoDecoder)
 
 
 accountDecoder : Decode.Decoder Account
@@ -267,6 +279,7 @@ userInfoDecoder =
 playlistDecoder : Decode.Decoder Playlist
 playlistDecoder =
     Decode.succeed Playlist
+        |> Pipeline.required "id" Decode.int
         |> Pipeline.required "uuid" Decode.string
         |> Pipeline.required "displayName" Decode.string
 

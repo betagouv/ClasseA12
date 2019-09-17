@@ -63,7 +63,7 @@ init query session =
               , loadMoreState = Page.Common.Components.Loading
               , notifications = Notifications.init
               }
-            , Request.PeerTube.getPlaylistVideoList videoListParams session.peerTubeURL PlaylistVideoListReceived
+            , Request.PeerTube.getPlaylistVideoList "classea12" videoListParams session.peerTubeURL PlaylistVideoListReceived
             )
 
         Route.Keyword keyword ->
@@ -112,6 +112,28 @@ init query session =
                 paramsForSearch
                 session.peerTubeURL
                 VideoListReceived
+            )
+
+        Route.Favorites profile ->
+            let
+                decoded =
+                    profile
+                        |> Url.percentDecode
+                        |> Maybe.withDefault ""
+            in
+            ( { title = "Les vidéos favorites de " ++ decoded
+              , query = Route.Favorites decoded
+              , videoListData = Data.PeerTube.Requested
+              , videoListParams = videoListParams
+              , playlistTitle = ""
+              , loadMoreState = Page.Common.Components.Loading
+              , notifications = Notifications.init
+              }
+            , Request.PeerTube.getPlaylistVideoList
+                profile
+                videoListParams
+                session.peerTubeURL
+                PlaylistVideoListReceived
             )
 
 
@@ -204,6 +226,14 @@ update session msg model =
             , case model.query of
                 Route.Playlist ->
                     Request.PeerTube.getPlaylistVideoList
+                        "classea12"
+                        params
+                        session.peerTubeURL
+                        PlaylistVideoListReceived
+
+                Route.Favorites profile ->
+                    Request.PeerTube.getPlaylistVideoList
+                        profile
                         params
                         session.peerTubeURL
                         PlaylistVideoListReceived
@@ -288,14 +318,24 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                         ]
                     , Page.Common.Video.viewVideoListData videoListData peerTubeURL
                     ]
+
+            Route.Favorites profile ->
+                H.section [ HA.class "category", HA.id "playlist" ]
+                    [ H.div [ HA.class "home-title_wrapper" ]
+                        [ H.h3 [ HA.class "home-title" ]
+                            [ H.text <| "Les vidéos favorites de " ++ profile
+                            ]
+                        ]
+                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    ]
         , case loadMoreState of
             Page.Common.Components.Disabled ->
-                H.div [HA.class "center-wrapper"]
+                H.div [ HA.class "center-wrapper" ]
                     [ Page.Common.Components.button "Plus d'autres vidéos à afficher" loadMoreState Nothing
                     ]
 
             _ ->
-                H.div [HA.class "center-wrapper"]
+                H.div [ HA.class "center-wrapper" ]
                     [ Page.Common.Components.button "Afficher plus de vidéos" loadMoreState (Just LoadMore)
                     ]
         ]

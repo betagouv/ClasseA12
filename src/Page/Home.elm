@@ -56,6 +56,7 @@ init session =
             session.peerTubeURL
             RecentVideoListReceived
          , Request.PeerTube.getPlaylistVideoList
+            "classea12"
             Request.PeerTube.emptyVideoListParams
             session.peerTubeURL
             PlaylistVideoListReceived

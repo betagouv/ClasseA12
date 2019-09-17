@@ -10,6 +10,7 @@ import Markdown
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Request.PeerTube
+import Route
 
 
 type alias Model =
@@ -227,6 +228,16 @@ view _ { title, pageState, profileForm, profileData, ownProfile, notifications }
 
             else
                 []
+
+        favoriteVideosLink =
+            case profileData of
+                Data.PeerTube.Received data ->
+                    [ H.hr [] []
+                    , H.a [ Route.href (Route.VideoList <| Route.Favorites data.name) ] [ H.text "Vidéos favorites" ]
+                    ]
+
+                _ ->
+                    []
     in
     { title = title
     , pageTitle = title
@@ -248,6 +259,7 @@ view _ { title, pageState, profileForm, profileData, ownProfile, notifications }
             ]
         ]
             ++ logoutButton
+            ++ favoriteVideosLink
     }
 
 
