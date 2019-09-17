@@ -31,6 +31,7 @@ module Request.PeerTube exposing
     , submitComment
     , updateUserAccount
     , urlFromVideoListParams
+    , userPublishedVideoList
     , withKeyword
     , withKeywords
     )
@@ -214,6 +215,28 @@ getPlaylistVideoList username videoListParams serverURL message =
             (\_ ->
                 Task.succeed ( "", [] )
             )
+        |> Task.attempt message
+
+
+userPublishedVideoListRequest : String -> VideoListParams -> String -> Http.Request (List Video)
+userPublishedVideoListRequest username { count, offset } serverURL =
+    let
+        params =
+            "start="
+                ++ String.fromInt offset
+                ++ "&count="
+                ++ String.fromInt count
+
+        url =
+            serverURL ++ "/api/v1/accounts/" ++ username ++ "/videos?" ++ params
+    in
+    Http.get url videoListDataDecoder
+
+
+userPublishedVideoList : String -> VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+userPublishedVideoList username videoListParams serverURL message =
+    userPublishedVideoListRequest username videoListParams serverURL
+        |> Http.toTask
         |> Task.attempt message
 
 

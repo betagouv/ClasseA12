@@ -234,6 +234,8 @@ view _ { title, pageState, profileForm, profileData, ownProfile, notifications }
                 Data.PeerTube.Received data ->
                     [ H.hr [] []
                     , H.a [ Route.href (Route.VideoList <| Route.Favorites data.name) ] [ H.text "Vidéos favorites" ]
+                    , H.br [] []
+                    , H.a [ Route.href (Route.VideoList <| Route.Published data.name) ] [ H.text "Vidéos publiées" ]
                     ]
 
                 _ ->

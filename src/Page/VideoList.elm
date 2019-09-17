@@ -136,6 +136,28 @@ init query session =
                 PlaylistVideoListReceived
             )
 
+        Route.Published profile ->
+            let
+                decoded =
+                    profile
+                        |> Url.percentDecode
+                        |> Maybe.withDefault ""
+            in
+            ( { title = "Les vidéos publiées par " ++ decoded
+              , query = Route.Published decoded
+              , videoListData = Data.PeerTube.Requested
+              , videoListParams = videoListParams
+              , playlistTitle = ""
+              , loadMoreState = Page.Common.Components.Loading
+              , notifications = Notifications.init
+              }
+            , Request.PeerTube.userPublishedVideoList
+                profile
+                videoListParams
+                session.peerTubeURL
+                VideoListReceived
+            )
+
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update session msg model =
@@ -324,6 +346,16 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                     [ H.div [ HA.class "home-title_wrapper" ]
                         [ H.h3 [ HA.class "home-title" ]
                             [ H.text <| "Les vidéos favorites de " ++ profile
+                            ]
+                        ]
+                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    ]
+
+            Route.Published profile ->
+                H.section [ HA.class "category", HA.id "playlist" ]
+                    [ H.div [ HA.class "home-title_wrapper" ]
+                        [ H.h3 [ HA.class "home-title" ]
+                            [ H.text <| "Les vidéos publiées par " ++ profile
                             ]
                         ]
                     , Page.Common.Video.viewVideoListData videoListData peerTubeURL

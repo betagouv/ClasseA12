@@ -148,6 +148,9 @@ viewCategory data peerTubeURL query =
 
                 Route.Favorites profile ->
                     "vidéos favorites de " ++ profile
+
+                Route.Published profile ->
+                    "vidéos publiées par " ++ profile
     in
     H.section [ HA.class "category", HA.id displayedKeyword ]
         [ H.div [ HA.class "home-title_wrapper" ]

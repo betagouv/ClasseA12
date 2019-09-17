@@ -26,7 +26,6 @@ type Route
     | Activate String String
     | Profile String
     | Comments
-    
 
 
 type VideoListQuery
@@ -35,6 +34,7 @@ type VideoListQuery
     | Keyword String
     | Search String
     | Favorites String
+    | Published String
 
 
 parser : Parser (Route -> a) a
@@ -60,6 +60,7 @@ parser =
         , Parser.map Profile (Parser.s "profil" </> Parser.string)
         , Parser.map Comments (Parser.s "commentaires")
         , Parser.map (\profile -> VideoList <| Favorites profile) (Parser.s "profil" </> Parser.string </> Parser.s "favoris")
+        , Parser.map (\profile -> VideoList <| Published profile) (Parser.s "profil" </> Parser.string </> Parser.s "publiees")
 
         -- PeerTube URL translations
         , Parser.map
@@ -130,6 +131,9 @@ toString route =
 
                         Favorites profile ->
                             [ "profil", Url.percentEncode profile, "favoris" ]
+
+                        Published profile ->
+                            [ "profil", Url.percentEncode profile, "publiees" ]
 
                 About ->
                     [ "apropos" ]
