@@ -260,6 +260,13 @@ update session msg model =
                         session.peerTubeURL
                         PlaylistVideoListReceived
 
+                Route.Published profile ->
+                    Request.PeerTube.userPublishedVideoList
+                        profile
+                        params
+                        session.peerTubeURL
+                        VideoListReceived
+
                 _ ->
                     Request.PeerTube.getVideoList
                         params
