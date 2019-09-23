@@ -182,6 +182,8 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
                         , text "Recherche"
                         ]
                     , linkMaybeActive Home Route.Home "Accueil"
+                    , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
+                    , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
                     ]
                 , div []
                     [ h3 [] [ text "Catégories" ]
