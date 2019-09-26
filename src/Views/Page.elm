@@ -63,10 +63,18 @@ viewHeader : Config msg -> String -> String -> Html msg
 viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMsg, activePage } pageTitle pageSubTitle =
     let
         loginIcon =
-            a [ Route.href Route.Login, title "Se connecter" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
-                , text " Se connecter"
-                ]
+            if session.isMenuOpened then
+                -- This should never be the case on desktop, so display the mobile icon which is white
+                a [ Route.href Route.Login, title "Se connecter" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_white.svg" ] []
+                    , text " Se connecter"
+                    ]
+
+            else
+                a [ Route.href Route.Login, title "Se connecter" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
+                    , text " Se connecter"
+                    ]
 
         icon =
             if session.isMenuOpened then
