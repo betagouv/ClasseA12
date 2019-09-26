@@ -407,6 +407,18 @@ header .mobile-menu a:last-of-type {
 .mobile-menu nav a::after {
   display: none;
 }
+.mobile-menu form {
+  border-left: 0.4rem solid transparent;
+}
+.mobile-menu .search_button {
+  margin-right: 0.8rem;
+  padding-right: 0;
+  padding-left: 2.4rem;
+}
+.mobile-menu .search__group input {
+  margin-bottom: 1rem;
+  margin-right: 1rem;
+}
 
 .menu-opener {
   align-items: center;

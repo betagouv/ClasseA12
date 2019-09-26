@@ -60,7 +60,7 @@ frame config { title, pageTitle, pageSubTitle, body } =
 
 
 viewHeader : Config msg -> String -> String -> Html msg
-viewHeader ({ session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMsg, activePage } as config) pageTitle pageSubTitle =
+viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTitle pageSubTitle =
     let
         loginIcon =
             if session.isMenuOpened then
@@ -123,19 +123,7 @@ viewHeader ({ session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuM
                 , a [ href "" ]
                     [ text "Vos favoris" ]
                 ]
-            , form [ onSubmit submitSearchMsg, class "desktop-only" ]
-                [ div [ class "search__group" ]
-                    [ input
-                        [ type_ "search"
-                        , value session.search
-                        , onInput updateSearchMsg
-                        , placeholder "Exemple : Français"
-                        ]
-                        []
-                    , button [ class "search_button" ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
-                    ]
-                ]
+            , searchForm config DesktopSearchForm
             , a [ href "/", class "mobile-only logo" ]
                 [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
                 ]
@@ -174,10 +162,7 @@ viewHeader ({ session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuM
                  , nav
                     []
                     [ loginProfileIcon
-                    , a [ href "" ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_white.svg" ] []
-                        , text "Recherche"
-                        ]
+                    , searchForm config MobileSearchForm
                     ]
                  ]
                     ++ menuNodes config
@@ -270,3 +255,40 @@ menuNodes { activePage } =
             ]
         ]
     ]
+
+
+type SearchForm
+    = MobileSearchForm
+    | DesktopSearchForm
+
+
+searchForm : Config msg -> SearchForm -> Html.Html msg
+searchForm { session, submitSearchMsg, updateSearchMsg } searchFormType =
+    let
+        searchInput =
+            input
+                [ type_ "search"
+                , value session.search
+                , onInput updateSearchMsg
+                , placeholder "Exemple : Français"
+                ]
+                []
+    in
+    case searchFormType of
+        MobileSearchForm ->
+            form [ onSubmit submitSearchMsg ]
+                [ div [ class "search__group" ]
+                    [ button [ class "search_button" ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_white.svg" ] [] ]
+                    , searchInput
+                    ]
+                ]
+
+        DesktopSearchForm ->
+            form [ onSubmit submitSearchMsg, class "desktop-only" ]
+                [ div [ class "search__group" ]
+                    [ searchInput
+                    , button [ class "search_button" ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
+                    ]
+                ]
