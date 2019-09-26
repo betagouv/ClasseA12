@@ -60,7 +60,7 @@ frame config { title, pageTitle, pageSubTitle, body } =
 
 
 viewHeader : Config msg -> String -> String -> Html msg
-viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMsg, activePage } pageTitle pageSubTitle =
+viewHeader ({ session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMsg, activePage } as config) pageTitle pageSubTitle =
     let
         loginIcon =
             if session.isMenuOpened then
@@ -110,17 +110,6 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
                 _ ->
                     a [ class "btn", Route.href Route.Participate ]
                         [ text "Publier une vidéo" ]
-
-        linkMaybeActive page route caption =
-            a
-                [ Route.href route
-                , classList
-                    [ ( "active", page == activePage )
-                    ]
-                ]
-                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_white.svg") ] []
-                , text caption
-                ]
     in
     header []
         [ div [ class "wrapper" ]
@@ -173,7 +162,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
                                 ""
                            )
                 ]
-                [ div []
+                ([ div []
                     [ viewPublishVideoButton
                     , button
                         [ class "close-mobile-menu"
@@ -182,7 +171,7 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
                         [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
                         ]
                     ]
-                , nav
+                 , nav
                     []
                     [ loginProfileIcon
                     , a [ href "" ]
@@ -190,42 +179,9 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
                         , text "Recherche"
                         ]
                     ]
-                , nav
-                    []
-                    [ linkMaybeActive Home Route.Home "Accueil"
-                    , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
-                    , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
-                    ]
-                , div []
-                    [ h3 [] [ text "Catégories" ]
-                    , nav []
-                        (Data.PeerTube.keywordList
-                            |> List.map
-                                (\( keyword, _ ) ->
-                                    let
-                                        route =
-                                            Route.VideoList <| Route.Keyword keyword
-                                    in
-                                    linkMaybeActive (VideoList <| Route.Search keyword) route keyword
-                                )
-                        )
-                    , h3 [] [ text "Le projet" ]
-                    , nav []
-                        [ linkMaybeActive About Route.About "Classe à 12 ?"
-                        , linkMaybeActive Participate Route.Participate "Je participe"
-                        , a [ href "mailto:classea12@education.gouv.fr" ]
-                            [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
-                            , text "Contactez-nous"
-                            ]
-
-                        -- Link to the Mailchimp signup form.
-                        , a [ href "http://eepurl.com/gnJbYz" ]
-                            [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
-                            , text "Inscrivez-vous à notre infolettre"
-                            ]
-                        ]
-                    ]
-                ]
+                 ]
+                    ++ menuNodes config
+                )
             ]
         ]
 
@@ -255,7 +211,18 @@ viewFooter session =
 
 
 viewAside : Config msg -> Html msg
-viewAside { activePage } =
+viewAside config =
+    aside [ class "side-menu desktop-only" ]
+        ([ a [ href "/", class "logo" ]
+            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
+            ]
+         ]
+            ++ menuNodes config
+        )
+
+
+menuNodes : Config msg -> List (Html msg)
+menuNodes { activePage } =
     let
         linkMaybeActive page route caption =
             a
@@ -268,42 +235,38 @@ viewAside { activePage } =
                 , text caption
                 ]
     in
-    aside [ class "side-menu desktop-only" ]
-        [ a [ href "/", class "logo" ]
-            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
-            ]
+    [ nav []
+        [ linkMaybeActive Home Route.Home "Accueil"
+        , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
+        , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
+        ]
+    , div []
+        [ h3 [] [ text "Catégories" ]
         , nav []
-            [ linkMaybeActive Home Route.Home "Accueil"
-            , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
-            , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
-            ]
-        , div []
-            [ h3 [] [ text "Catégories" ]
-            , nav []
-                (Data.PeerTube.keywordList
-                    |> List.map
-                        (\( keyword, _ ) ->
-                            let
-                                route =
-                                    Route.VideoList <| Route.Keyword keyword
-                            in
-                            linkMaybeActive (VideoList <| Route.Search keyword) route keyword
-                        )
-                )
-            , h3 [] [ text "Le projet" ]
-            , nav []
-                [ linkMaybeActive About Route.About "Classe à 12 ?"
-                , linkMaybeActive Participate Route.Participate "Je participe"
-                , a [ href "mailto:classea12@education.gouv.fr" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
-                    , text "Contactez-nous"
-                    ]
+            (Data.PeerTube.keywordList
+                |> List.map
+                    (\( keyword, _ ) ->
+                        let
+                            route =
+                                Route.VideoList <| Route.Keyword keyword
+                        in
+                        linkMaybeActive (VideoList <| Route.Search keyword) route keyword
+                    )
+            )
+        , h3 [] [ text "Le projet" ]
+        , nav []
+            [ linkMaybeActive About Route.About "Classe à 12 ?"
+            , linkMaybeActive Participate Route.Participate "Je participe"
+            , a [ href "mailto:classea12@education.gouv.fr" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                , text "Contactez-nous"
+                ]
 
-                -- Link to the Mailchimp signup form.
-                , a [ href "http://eepurl.com/gnJbYz" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
-                    , text "Inscrivez-vous à notre infolettre"
-                    ]
+            -- Link to the Mailchimp signup form.
+            , a [ href "http://eepurl.com/gnJbYz" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                , text "Inscrivez-vous à notre infolettre"
                 ]
             ]
         ]
+    ]
