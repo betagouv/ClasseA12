@@ -189,7 +189,10 @@ viewHeader { session, updateSearchMsg, submitSearchMsg, openMenuMsg, closeMenuMs
                         [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_white.svg" ] []
                         , text "Recherche"
                         ]
-                    , linkMaybeActive Home Route.Home "Accueil"
+                    ]
+                , nav
+                    []
+                    [ linkMaybeActive Home Route.Home "Accueil"
                     , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
                     , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
                     ]
@@ -266,7 +269,7 @@ viewAside { activePage } =
                 ]
     in
     aside [ class "side-menu desktop-only" ]
-        [ a [ href "/", class "logo"]
+        [ a [ href "/", class "logo" ]
             [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
             ]
         , nav []
