@@ -1015,7 +1015,14 @@ updateUserAccountRequest displayName description access_token serverURL =
         body =
             Encode.object
                 [ ( "displayName", Encode.string displayName )
-                , ( "description", Encode.string description )
+                , ( "description"
+                  , if String.length description < 3 then
+                        -- A description must be at least 3 chars on peertube
+                        Encode.null
+
+                    else
+                        Encode.string description
+                  )
                 ]
                 |> Http.jsonBody
 
