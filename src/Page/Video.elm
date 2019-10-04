@@ -897,7 +897,7 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo de
                                 (\attachment ->
                                     H.li []
                                         [ H.img
-                                            [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_purple.svg"
+                                            [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
                                             , HA.title ""
                                             ]
                                             []
@@ -1067,7 +1067,7 @@ viewCommentDetails videoID attachmentList comment =
                     (\attachment ->
                         H.li []
                             [ H.img
-                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_purple.svg"
+                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
                                 , HA.title ""
                                 ]
                                 []
