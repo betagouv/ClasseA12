@@ -682,13 +682,23 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
-                [ case commentData of
-                    Data.PeerTube.Failed _ ->
+                [ case ( commentData, attachmentData ) of
+                    ( Data.PeerTube.Failed _, _ ) ->
                         H.div []
                             [ H.text "Erreur lors de l'ajout de la contribution"
                             ]
 
-                    Data.PeerTube.Received _ ->
+                    ( _, Data.PeerTube.Failed _ ) ->
+                        H.div []
+                            [ H.text "Erreur lors de l'envoi de la pièce jointe"
+                            ]
+
+                    ( Data.PeerTube.Received _, Data.PeerTube.Received _ ) ->
+                        H.div []
+                            [ H.text "Merci pour votre contribution !"
+                            ]
+
+                    ( Data.PeerTube.Received _, Data.PeerTube.NotRequested ) ->
                         H.div []
                             [ H.text "Merci pour votre contribution !"
                             ]
@@ -1152,42 +1162,44 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
             submitButton =
                 Components.submitButton "Ajouter cette contribution" buttonState
         in
-        H.div
-            [ HA.style "display"
-                (if commentData == Data.PeerTube.NotRequested then
-                    "block"
+        H.div []
+            [ H.div
+                [ HA.style "display"
+                    (if commentData == Data.PeerTube.NotRequested then
+                        "block"
 
-                 else
-                    "none"
-                )
-            ]
-            [ H.h2 []
-                [ H.text "Apporter une contribution" ]
-            , H.p [] [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
-            , H.form
-                [ HE.onSubmit AddComment, HA.class "cols_seven-five" ]
-                [ H.div [ HA.class "form__group" ]
-                    [ H.label [ HA.for "comment" ]
-                        [ H.text "Votre commentaire" ]
-                    , H.textarea
-                        [ HA.id "comment"
-                        , HA.placeholder "Tapez ici votre commentaire"
-                        , HA.value comment
-                        , HE.onInput UpdateCommentForm
+                     else
+                        "none"
+                    )
+                ]
+                [ H.h2 []
+                    [ H.text "Apporter une contribution" ]
+                , H.p [] [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..." ]
+                , H.form
+                    [ HE.onSubmit AddComment, HA.class "cols_seven-five" ]
+                    [ H.div [ HA.class "form__group" ]
+                        [ H.label [ HA.for "comment" ]
+                            [ H.text "Votre commentaire" ]
+                        , H.textarea
+                            [ HA.id "comment"
+                            , HA.placeholder "Tapez ici votre commentaire"
+                            , HA.value comment
+                            , HE.onInput UpdateCommentForm
+                            ]
+                            []
                         ]
-                        []
-                    ]
-                , H.div [ HA.class "form__group" ]
-                    [ H.label [ HA.for "attachment" ]
-                        [ H.text "Lier un fichier" ]
-                    , H.input
-                        [ HA.class "file-input"
-                        , HA.type_ "file"
-                        , HA.id "attachment"
-                        , Components.onFileSelected AttachmentSelected
+                    , H.div [ HA.class "form__group" ]
+                        [ H.label [ HA.for "attachment" ]
+                            [ H.text "Lier un fichier" ]
+                        , H.input
+                            [ HA.class "file-input"
+                            , HA.type_ "file"
+                            , HA.id "attachment"
+                            , Components.onFileSelected AttachmentSelected
+                            ]
+                            []
+                        , submitButton
                         ]
-                        []
-                    , submitButton
                     ]
                 ]
             , H.div
