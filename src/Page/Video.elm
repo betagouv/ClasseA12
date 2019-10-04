@@ -304,7 +304,18 @@ update session msg model =
             )
 
         AttachmentSelected ->
-            ( { model | attachmentSelected = True }
+            let
+                comment =
+                    if model.comment /= "" then
+                        model.comment
+
+                    else
+                        "Pièce jointe"
+            in
+            ( { model
+                | attachmentSelected = True
+                , comment = comment
+              }
             , Cmd.none
             , Nothing
             )
