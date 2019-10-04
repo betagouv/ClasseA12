@@ -565,11 +565,12 @@ update session msg model =
             )
 
         RemovedFromFavoriteReceived (Err _) ->
-            ( { model | togglingFavoriteStatus = Data.PeerTube.Failed "Échec du changement de statut de favori de la vidéo"
+            ( { model
+                | togglingFavoriteStatus = Data.PeerTube.Failed "Échec du changement de statut de favori de la vidéo"
                 , notifications =
                     "Échec de la suppression de la vidéo des favoris"
                         |> Notifications.addError model.notifications
-             }
+              }
             , Cmd.none
             , Nothing
             )
@@ -604,11 +605,12 @@ update session msg model =
             )
 
         AddedToFavoriteReceived (Err _) ->
-            ( { model | togglingFavoriteStatus = Data.PeerTube.Failed "Échec du changement de statut de favori de la vidéo"
+            ( { model
+                | togglingFavoriteStatus = Data.PeerTube.Failed "Échec du changement de statut de favori de la vidéo"
                 , notifications =
                     "Échec de l'ajout de la vidéo aux favoris"
                         |> Notifications.addError model.notifications
-             }
+              }
             , Cmd.none
             , Nothing
             )
