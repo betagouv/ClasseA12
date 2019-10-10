@@ -242,7 +242,7 @@ menuNodes { activePage } =
         , nav []
             [ linkMaybeActive About Route.About "Classe à 12 ?"
             , linkMaybeActive Participate Route.Participate "Je participe"
-            , a [ href "mailto:classea12@education.gouv.fr" ]
+            , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
                 , text "Contactez-nous"
                 ]
