@@ -31,6 +31,7 @@ type Route
 type VideoListQuery
     = Latest
     | Playlist
+    | FAQFlash
     | Keyword String
     | Search String
     | Favorites String
@@ -53,6 +54,7 @@ parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
         , Parser.map (VideoList Latest) (Parser.s "videos-recentes")
+        , Parser.map (VideoList FAQFlash) (Parser.s "videos-faq-flash")
         , Parser.map (VideoList Playlist) (Parser.s "videos-playlist")
         , Parser.map (\search -> VideoList <| Keyword search) (Parser.s "videos" </> Parser.string)
         , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos-recherche" </> Parser.string)
@@ -133,6 +135,9 @@ toString route =
 
                         Playlist ->
                             [ "videos-playlist" ]
+
+                        FAQFlash ->
+                            [ "videos-faq-flash" ]
 
                         Keyword search ->
                             [ "videos", Url.percentEncode search ]

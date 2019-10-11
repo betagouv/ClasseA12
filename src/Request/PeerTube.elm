@@ -19,6 +19,7 @@ module Request.PeerTube exposing
     , getCommentList
     , getFavoriteStatus
     , getPlaylistVideoList
+    , getSpecificPlaylistVideoList
     , getUserInfo
     , getVideo
     , getVideoCommentList
@@ -214,6 +215,50 @@ getPlaylistVideoList username videoListParams serverURL message =
             -- list with no title
             (\_ ->
                 Task.succeed ( "", [] )
+            )
+        |> Task.attempt message
+
+
+specificPlaylistRequest : String -> String -> String -> Http.Request Playlist
+specificPlaylistRequest playlistName username serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/accounts/" ++ username ++ "/video-playlists"
+
+        playlistsDecoder =
+            Decode.field "data" <| Decode.list playlistDecoder
+
+        latestPlaylistDecoder =
+            playlistsDecoder
+                |> Decode.andThen
+                    (\playlists ->
+                        playlists
+                            |> List.filter
+                                (\playlist ->
+                                    playlist.displayName == playlistName
+                                )
+                            |> List.head
+                            |> Maybe.map Decode.succeed
+                            |> Maybe.withDefault (Decode.fail <| "No playlist named " ++ playlistName)
+                    )
+    in
+    Http.get url latestPlaylistDecoder
+
+
+getSpecificPlaylistVideoList : String -> String -> VideoListParams -> String -> (Result Http.Error (List Video) -> msg) -> Cmd msg
+getSpecificPlaylistVideoList playlistName username videoListParams serverURL message =
+    specificPlaylistRequest playlistName username serverURL
+        |> Http.toTask
+        |> Task.andThen
+            (\playlist ->
+                playlistVideoListRequest videoListParams playlist.uuid serverURL
+                    |> Http.toTask
+            )
+        |> Task.onError
+            -- In case the playlist wasn't created yet return an empty video
+            -- list with no title
+            (\_ ->
+                Task.succeed []
             )
         |> Task.attempt message
 

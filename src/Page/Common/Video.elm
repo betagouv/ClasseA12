@@ -140,6 +140,9 @@ viewCategory data peerTubeURL query =
                 Route.Playlist ->
                     "playlist de la semaine"
 
+                Route.FAQFlash ->
+                    "FAQ Flash"
+
                 Route.Keyword keyword ->
                     keyword
 

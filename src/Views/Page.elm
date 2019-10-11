@@ -224,6 +224,7 @@ menuNodes { activePage } =
         [ linkMaybeActive Home Route.Home "Accueil"
         , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
         , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
+        , linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash"
         ]
     , div []
         [ h3 [] [ text "Catégories" ]
