@@ -37,6 +37,17 @@ type VideoListQuery
     | Published String
 
 
+videoIDWithMaybeCommentIDParser : Parser (String -> a) a
+videoIDWithMaybeCommentIDParser =
+    -- If there's a comment ID in the URL (coming from a peertube email
+    -- following a received comment) then drop it entirely.
+    Parser.custom "VIDEO_ID" <|
+        \segment ->
+            segment
+                |> String.split ";threadId="
+                |> List.head
+
+
 parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
@@ -86,7 +97,7 @@ parser =
             )
         , Parser.map
             (\videoID -> Video videoID "lien vidéo d'un email")
-            (Parser.s "videos" </> Parser.s "watch" </> Parser.string)
+            (Parser.s "videos" </> Parser.s "watch" </> videoIDWithMaybeCommentIDParser)
         , Parser.map Admin
             (Parser.s "admin" </> Parser.s "moderation" </> Parser.s "video-auto-blacklist" </> Parser.s "list")
         ]
