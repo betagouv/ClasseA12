@@ -147,7 +147,7 @@ keywordList =
     , "Numérique"
     , "Enseignement moral et civique"
     , "Gestion de classe"
-    , "Le projet Classe à 12"
+    , "Outils"
     ]
 
 
