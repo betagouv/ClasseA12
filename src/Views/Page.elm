@@ -231,7 +231,7 @@ menuNodes { activePage } =
         , nav []
             (Data.PeerTube.keywordList
                 |> List.map
-                    (\( keyword, _ ) ->
+                    (\keyword ->
                         let
                             route =
                                 Route.VideoList <| Route.Keyword keyword

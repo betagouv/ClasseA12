@@ -33,11 +33,6 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    let
-        keywordList =
-            Data.PeerTube.keywordList
-                |> List.map (\( keyword, _ ) -> keyword)
-    in
     ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
       , search = ""
       , recentVideoData = Data.PeerTube.Requested
@@ -45,7 +40,7 @@ init session =
       , faqFlashVideoData = Data.PeerTube.Requested
       , playlistTitle = ""
       , videoData =
-            keywordList
+            Data.PeerTube.keywordList
                 |> List.foldl
                     (\keyword videoData ->
                         videoData
@@ -70,7 +65,7 @@ init session =
             session.peerTubeURL
             FAQFlashVideoListReceived
          ]
-            ++ (keywordList
+            ++ (Data.PeerTube.keywordList
                     |> List.map
                         (\keyword ->
                             let
@@ -199,7 +194,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
         viewVideoCategories =
             Data.PeerTube.keywordList
                 |> List.map
-                    (\( keyword, _ ) ->
+                    (\keyword ->
                         let
                             videoListData =
                                 Dict.get keyword videoData
