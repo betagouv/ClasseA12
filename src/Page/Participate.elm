@@ -34,7 +34,7 @@ type alias Keywords =
 noKeywords : Dict.Dict String Bool
 noKeywords =
     Data.PeerTube.keywordList
-        |> List.map (\( keyword, _ ) -> ( keyword, False ))
+        |> List.map (\keyword -> ( keyword, False ))
         |> Dict.fromList
 
 
@@ -562,30 +562,17 @@ checkbox msg ( key, value ) =
     let
         id =
             "keyword-" ++ key
-
-        includedKeywords =
-            -- Some keywords "include" other sub-keywords, display those to the user to help them choose
-            Data.PeerTube.keywordList
-                |> List.filter (\( keyword, included ) -> keyword == key && included /= "")
-                |> List.head
-                |> Maybe.map
-                    (\( _, included ) ->
-                        [ H.span [ HA.class "included-keywords" ] [ H.text <| " (" ++ included ++ ")" ] ]
-                    )
-                |> Maybe.withDefault []
     in
     H.div [ HA.class "keywords" ]
-        ([ H.input
+        [ H.input
             [ HA.type_ "checkbox"
             , HA.id id
             , HA.checked value
             , HE.onClick <| msg key
             ]
             []
-         , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
-         ]
-         -- ++ includedKeywords
-        )
+        , H.label [ HA.for id, HA.class "label-inline" ] [ H.text key ]
+        ]
 
 
 viewKeywords : Keywords -> (String -> Msg) -> List (H.Html Msg)
