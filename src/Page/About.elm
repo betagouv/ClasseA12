@@ -35,22 +35,6 @@ view _ { title } =
                 [ H.div [ HA.class "container" ]
                     [ H.div [ HA.class "article__image" ]
                         [ H.img
-                            [ HA.src "%PUBLIC_URL%/images/photos/Malika_Nicolas.jpg"
-                            , HA.alt "Photo de Malika Alouani et Nicolas Leyri"
-                            ]
-                            []
-                        ]
-                    , H.div [ HA.class "richtext" ]
-                        [ H.h3 [ HA.class "title is-3" ] [ H.text "Qui sommes-nous ?" ]
-                        , H.em [] [ H.text "« Ne vous laissez pas arrêter par ceux qui, devant l’imperfection de ce que vous réalisez, ne manqueront pas de prôner les méthodes du passé qu’ils voudraient empêcher de mourir définitivement » (Célestin Freinet)." ]
-                        , H.p [] [ H.text "Malika : enseignante formatrice, conseillère au numérique à la Direction du numérique éducatif et à la délégation académique au numérique de Versailles, j’ai accepté de quitter la classe pour accompagner les nouveaux usages pédagogiques avec le numérique." ]
-                        , H.p [] [ H.text "Nicolas : coordonnateur REP à Fontenay-sous-Bois, je suis passionné par les problématiques de l’éducation prioritaire, l’innovation, les nouvelles technologies et la vidéo." ]
-                        , H.em [] [ H.text "« Rien n’est plus fort en ce monde qu’une idée dont l’heure est arrivée » (Victor Hugo)." ]
-                        ]
-                    ]
-                , H.div [ HA.class "container" ]
-                    [ H.div [ HA.class "article__image" ]
-                        [ H.img
                             [ HA.src "%PUBLIC_URL%/images/photos/photo_de_classe.jpg"
                             , HA.alt "Photo d'élèves dans une classe"
                             ]
