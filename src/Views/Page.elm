@@ -248,8 +248,8 @@ menuNodes { activePage } =
                 , text "Contactez-nous"
                 ]
 
-            -- Link to the Mailchimp signup form.
-            , a [ href "http://eepurl.com/gnJbYz" ]
+            -- Link to the Sendinblue signup form.
+            , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
                 , text "Inscrivez-vous à notre infolettre"
                 ]
