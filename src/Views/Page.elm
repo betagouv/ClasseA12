@@ -190,6 +190,7 @@ viewFooter session =
                 , a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ]
                 , a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ]
                 ]
+            , div [] [ text "Accessibilité : non conforme" ]
             , span [] [ text <| "Version : " ++ session.version ]
             ]
         ]
