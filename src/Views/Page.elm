@@ -49,12 +49,28 @@ frame : Config msg -> Page.Common.Components.Document msg -> Document msg
 frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        [ div [ class "content" ]
-            [ viewHeader config pageTitle pageSubTitle
-            , viewContent body
-            , viewFooter config.session
+        [ header [ class "rf-header" ]
+            [ div [ class "rf-container" ]
+                [ div [ class "rf-header__body" ]
+                    [ a []
+                        [ img
+                            [ class "rf-logo__image--custom"
+                            , alt "Ministère de l'éducation nationale et de la jeunesse. - Retour à l'accueil"
+                            , src "%PUBLIC_URL%/images/logos/marianne.svg"
+                            ]
+                            []
+                        ]
+                    ]
+                ]
             ]
-        , viewAside config
+        , div [ class "main" ]
+            [ div [ class "content" ]
+                [ viewHeader config pageTitle pageSubTitle
+                , viewContent body
+                , viewFooter config.session
+                ]
+            , viewAside config
+            ]
         ]
     }
 
@@ -113,11 +129,8 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
     in
     header []
         [ div [ class "wrapper" ]
-            [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "%PUBLIC_URL%/images/logos/marianne.svg" ]
-                []
-
-            -- TODO: unhide this when we have the functionality
-            , nav [ style "visibility" "hidden", class "desktop-only" ]
+            [ -- TODO: unhide this when we have the functionality
+              nav [ style "visibility" "hidden", class "desktop-only" ]
                 [ a [ href "" ]
                     [ text "Découvrez" ]
                 , a [ href "" ]

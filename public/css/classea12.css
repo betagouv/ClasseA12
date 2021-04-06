@@ -60,7 +60,7 @@ html {
   font-size: 62.5%; /* 10px */
 }
 
-body {
+.main {
   display: flex;
   min-height: 100vh;
   font-family: var(--default-font);
@@ -264,6 +264,51 @@ embed {
 }
 .form-errors li img {
   vertical-align: text-top;
+}
+
+/* RF-HEADER */
+[class*=" rf-"], [class^="rf-"] {
+  box-sizing: border-box;
+  font-family: "Marianne",arial,sans-serif;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+[class*=" rf-"] * :not([class^="rf-"]):not([class*=" rf-"]),
+[class^="rf-"] * :not([class^="rf-"]):not([class*=" rf-"]) {
+  box-sizing: inherit;
+}
+.rf-header {
+  width: 100%;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,.1),0 8px 16px -16px rgba(0,0,0,.32);
+  background-color: var(--w-g750);
+  padding: 0;
+  position: relative;
+}
+.rf-container {
+  /* max-width: 1136px; */
+  padding-right: 0;
+  padding-left: 20px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.rf-header__body {
+  margin: 0;
+  padding: 0;
+  flex-wrap: nowrap;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+.rf-header a {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+.rf-logo__image--custom {
+  height: 158px;
+  margin: 30px 30px 26px 0;
 }
 
 /* HEADER */
