@@ -8,6 +8,8 @@
     "debug": "elm-app start",
     "deploy": "NODE_ENV=development npm run build && gh-pages -d build/ -o deploy",
     "deploy-prod": "npm run build && gh-pages -d build/ -o deploy-prod",
+    "deploydf": "NODE_ENV=development npm run build && gh-pages -d build/ -o deploydf",
+    "deploydf-prod": "npm run build && gh-pages -d build/ -o deploydf-prod",
     "install": "elm make src/Main.elm",
     "start": "npm run debug",
     "test": "elm-test"
