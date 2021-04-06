@@ -1283,9 +1283,26 @@ progress {
 
   footer {
     font-size: 1rem;
+    padding: 0;
   }
   footer img {
     width: 11rem;
+  }
+  .rf-logo__image--custom {
+    margin: 0;
+  }
+  .rf-footer__brand,
+  .rf-footer__content {
+    flex-basis: 100%;
+  }
+  .rf-footer__bottom {
+    flex-wrap: wrap;
+  }
+  .rf-footer__bottom-list {
+    padding: 0.5rem 0;
+  }
+  .rf-footer__bottom-copy {
+    margin: 1rem 0 0;
   }
 
   .grid {
