@@ -313,9 +313,8 @@ embed {
 
 /* HEADER */
 header {
+  margin-top: 40px;
   padding: 2.1rem 0;
-  background-color: #fff;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 header a {
   text-decoration: none;
@@ -524,7 +523,7 @@ footer nav a {
 
 /* MAIN */
 main {
-  padding-top: 8rem;
+  padding-top: 5rem;
   padding-bottom: 10rem;
 }
 
