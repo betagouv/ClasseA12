@@ -54,10 +54,10 @@ frame config { title, pageTitle, pageSubTitle, body } =
             [ div [ class "content" ]
                 [ viewHeader config pageTitle pageSubTitle
                 , viewContent body
-                , viewFooter config.session
                 ]
             , viewAside config
             ]
+        , viewFooter config.session
         ]
     }
 
@@ -190,18 +190,76 @@ viewContent body =
 
 viewFooter : Session -> Html msg
 viewFooter session =
-    footer [ class "wrapper" ]
-        [ a [ href "" ]
-            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                []
-            ]
-        , div []
-            [ nav []
-                [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ]
-                , a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ]
-                , a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ]
+    footer [ class "rf-footer" ]
+        [ div [ class "rf-container" ]
+            [ div [ class "rf-footer__body" ]
+                [ div [ class "rf-footer__brand" ]
+                    [ a []
+                        [ img
+                            [ class "rf-logo__image--custom"
+                            , alt "Ministère de l'éducation nationale et de la jeunesse. - Retour à l'accueil"
+                            , src "%PUBLIC_URL%/images/logos/marianne.svg"
+                            ]
+                            []
+                        ]
+                    , a
+                        [ class "rf-footer__brand-link"
+                        , href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+                        , title "Retour à l'accueil"
+                        ]
+                        [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                            []
+                        ]
+                    ]
+                , div [ class "rf-footer__content" ]
+                    [ ul [ class "rf-footer__content-links" ]
+                        [ li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://legifrance.gouv.fr" ]
+                                [ text "legifrance.gouv.fr" ]
+                            ]
+                        , li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://gouvernement.fr" ]
+                                [ text "gouvernement.fr" ]
+                            ]
+                        , li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://service-public.fr" ]
+                                [ text "service-public.fr" ]
+                            ]
+                        , li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://data.gouv.fr" ]
+                                [ text "data.gouv.fr" ]
+                            ]
+                        ]
+                    ]
                 ]
-            , span [] [ text <| "Version : " ++ session.version ]
+            , div [ class "rf-footer__bottom" ]
+                [ ul [ class "rf-footer__bottom-list" ]
+                    [ li [ class "rf-footer__bottom-item" ]
+                        [ a [ class "rf-footer__bottom-link", Route.href Route.CGU ]
+                            [ text "Conditions générales d'utilisation" ]
+                        ]
+                    , li [ class "rf-footer__bottom-item" ]
+                        [ a [ class "rf-footer__bottom-link", Route.href Route.Convention ]
+                            [ text "Charte de bonne conduite" ]
+                        ]
+                    , li [ class "rf-footer__bottom-item" ]
+                        [ a [ class "rf-footer__bottom-link", Route.href Route.PrivacyPolicy ]
+                            [ text "Politique de confidentialité" ]
+                        ]
+                    , li [ class "rf-footer__bottom-item" ]
+                        [ a [ class "rf-footer__bottom-link", href "#" ]
+                            [ text "Accessibilité: non conforme" ]
+                        ]
+                    , li [ class "rf-footer__bottom-item" ]
+                        [ span [] [ text <| "Version : " ++ session.version ]
+                        ]
+                    ]
+                , div [ class "rf-footer__bottom-copy" ]
+                    [ text "Sauf mention contraire, tous les textes de ce site sont sous "
+                    , a [ href "https://github.com/etalab/licence-ouverte/blob/master/LO.md" ]
+                        [ text "licence etalab-2.0" ]
+                    ]
+                ]
             ]
         ]
 
