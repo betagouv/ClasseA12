@@ -49,20 +49,7 @@ frame : Config msg -> Page.Common.Components.Document msg -> Document msg
 frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        [ header [ class "rf-header" ]
-            [ div [ class "rf-container" ]
-                [ div [ class "rf-header__body" ]
-                    [ a []
-                        [ img
-                            [ class "rf-logo__image--custom"
-                            , alt "Ministère de l'éducation nationale et de la jeunesse. - Retour à l'accueil"
-                            , src "%PUBLIC_URL%/images/logos/marianne.svg"
-                            ]
-                            []
-                        ]
-                    ]
-                ]
-            ]
+        [ viewRFHeader
         , div [ class "main" ]
             [ div [ class "content" ]
                 [ viewHeader config pageTitle pageSubTitle
@@ -73,6 +60,24 @@ frame config { title, pageTitle, pageSubTitle, body } =
             ]
         ]
     }
+
+
+viewRFHeader : Html msg
+viewRFHeader =
+    div [ class "rf-header" ]
+        [ div [ class "rf-container" ]
+            [ div [ class "rf-header__body" ]
+                [ a []
+                    [ img
+                        [ class "rf-logo__image--custom"
+                        , alt "Ministère de l'éducation nationale et de la jeunesse. - Retour à l'accueil"
+                        , src "%PUBLIC_URL%/images/logos/marianne.svg"
+                        ]
+                        []
+                    ]
+                ]
+            ]
+        ]
 
 
 viewHeader : Config msg -> String -> String -> Html msg
@@ -129,14 +134,7 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
     in
     header []
         [ div [ class "wrapper" ]
-            [ -- TODO: unhide this when we have the functionality
-              nav [ style "visibility" "hidden", class "desktop-only" ]
-                [ a [ href "" ]
-                    [ text "Découvrez" ]
-                , a [ href "" ]
-                    [ text "Vos favoris" ]
-                ]
-            , searchForm config DesktopSearchForm
+            [ searchForm config DesktopSearchForm
             , a [ href "/", class "mobile-only logo" ]
                 [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
                 ]
