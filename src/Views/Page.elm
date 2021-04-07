@@ -47,7 +47,7 @@ type alias Config msg =
 
 frame : Config msg -> Page.Common.Components.Document msg -> Document msg
 frame config { title, pageTitle, pageSubTitle, body } =
-    { title = title ++ " | Classe à 12"
+    { title = title ++ " | Devoirs Faits"
     , body =
         [ viewRFHeader
         , div [ class "main" ]
@@ -306,7 +306,7 @@ menuNodes { activePage } =
             )
         , h3 [] [ text "Le projet" ]
         , nav []
-            [ linkMaybeActive About Route.About "Classe à 12 ?"
+            [ linkMaybeActive About Route.About "Devoirs Faits ?"
             , linkMaybeActive Participate Route.Participate "Je participe"
             , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
