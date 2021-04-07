@@ -136,7 +136,7 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
         [ div [ class "wrapper" ]
             [ searchForm config DesktopSearchForm
             , a [ href "/", class "mobile-only logo" ]
-                [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
+                [ img [ src "%PUBLIC_URL%/images/logos/devoirs-faits.svg", class "logo" ] []
                 ]
             , div [ class "desktop-only" ]
                 [ viewPublishVideoButton
