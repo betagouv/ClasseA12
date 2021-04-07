@@ -6,14 +6,24 @@
   --font-color-light: #f7f7fc;
   --font-color-secondary: #59598d;
   --font-color-thirdary: #05005a;
-  --placeholder-color: #c8c8cd;
+  --font-color-inverted: #fff;
+  --placeholder-color: #6e6e78;
+  --input-border-color: #c8c8cd;
   --menu-hover-color: #28dcf0;
   --yellow: #ffd214;
   --default-font: "nunitoregular", Arial, sans-serif;
   --notification-success-color: #0f8246;
-  --notification-info-color: #1e1169;
   --notification-error-color: #d20019;
   --border-color: rgba(30, 17, 105, 0.1);
+  --highlight: rgba(255, 255, 255, 0.6);
+  --default-background: #fff;
+  --light-background: rgba(30, 17, 105, 0.07);
+  --breadcrumbs: rgba(30, 17, 105, 0.5);
+  --shadow: rgba(0, 0, 0, 0.06);
+  --tabs-border: #e6e6f0;
+  --tabs-background: rgba(230, 240, 240, 0.5);
+  --modal-backdrop: rgba(0, 0, 0, .5);
+  --modal-shadow: rgba(201, 211, 223, .2);
 
   /* République Française styling */
   --rf-default-font: "Marianne",arial,sans-serif;
@@ -21,6 +31,7 @@
   --g700: #383838;
   --g600: #6a6a6a;
   --g400: #cecece;
+  --bf500: #000091;
 }
 
 @font-face {
@@ -171,13 +182,13 @@ button {
   font-weight: normal;
   font-size: 1.4rem;
   line-height: 1;
-  color: #fff;
+  color: var(--font-color-inverted);
   background-color: var(--secondary-color);
   border-radius: 2.5rem;
 }
 .btn:hover,
 button:hover {
-  color: #fff;
+  color: var(--font-color-inverted);
   text-decoration: none;
 }
 
@@ -207,8 +218,8 @@ label {
 textarea,
 input {
   width: 100%;
-  background-color: #fff;
-  border: 1px solid #c8c8cd;
+  background-color: var(--default-background);
+  border: 1px solid var(--input-border-color);
   border-radius: 2px;
 }
 textarea {
@@ -222,7 +233,7 @@ input {
 ::placeholder {
   font-size: 1.8rem;
   font-weight: 200;
-  color: #6e6e78;
+  color: var(--placeholder-color);
 }
 
 [type="radio"]:not(:checked),
@@ -252,11 +263,11 @@ input {
 }
 [type="radio"]:not(:checked) + label,
 [type="checkbox"]:not(:checked) + label {
-  background-color: rgba(30, 17, 105, 0.07);
+  background-color: var(--light-background);
 }
 [type="radio"]:checked + label,
 [type="checkbox"]:checked + label {
-  color: #fff;
+  color: var(--font-color-inverted);
   background-color: var(--primary-color);
 }
 
@@ -410,7 +421,7 @@ header div a:last-of-type {
   display: block;
   width: 50%;
   height: 1px;
-  background-color: #fff;
+  background-color: var(--default-background);
 }
 .mobile-menu > nav::after {
   position: relative;
@@ -437,7 +448,7 @@ header div a:last-of-type {
   height: 4.4rem;
   margin-left: auto;
   padding: 0;
-  background-color: #fff;
+  background-color: var(--default-background);
 }
 .mobile-menu h3 {
   font-weight: bold;
@@ -515,11 +526,10 @@ header .mobile-menu a:last-of-type {
 /* FOOTER */
 footer {
   font-size: 1.4rem;
-  color: #26353f;
   padding: 2em 0;
   width: 100%;
-  border-top: 2px solid #000091;
-  border-bottom: 1px solid #cecece;
+  border-top: 2px solid var(--bf500);
+  border-bottom: 1px solid var(--g400);
   padding-top: 2.5rem;
   line-height: 1.5;
 }
@@ -616,7 +626,7 @@ aside {
   padding: 1.6rem 0;
   font-family: "montserratbold", Arial, Helvetica, sans-serif;
   font-size: 1.4rem;
-  color: #fff;
+  color: var(--font-color-inverted);
   background-color: var(--primary-color);
 }
 aside a {
@@ -629,7 +639,7 @@ aside h3 {
   line-height: 2.15;
   font-weight: 600;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--font-color-inverted);
 }
 aside nav {
   margin-bottom: 1.4rem;
@@ -638,7 +648,7 @@ aside > nav {
   position: relative;
   margin-right: 4.6rem;
   padding-bottom: 0.9rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+  border-bottom: 1px solid var(--highlight);
 }
 aside > nav::before,
 aside > nav::after {
@@ -669,7 +679,7 @@ aside > div nav:first-of-type::after {
   display: block;
   width: 3.2rem;
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: var(--highlight);
 }
 aside nav a {
   display: flex;
@@ -677,12 +687,12 @@ aside nav a {
   margin-bottom: 0.5rem;
   padding-left: 2.4rem;
   font-weight: 500;
-  color: #fff;
+  color: var(--font-color-inverted);
   border-left: 0.4rem solid transparent;
 }
 aside nav a:hover,
 aside nav a.active {
-  color: #fff;
+  color: var(--font-color-inverted);
   text-decoration: none;
   border-color: var(--menu-hover-color);
 }
@@ -711,9 +721,9 @@ aside nav a img[src*="book.svg"] {
 /* CARD */
 .card {
   display: block;
-  background-color: #fff;
+  background-color: var(--default-background);
   border-radius: 0.5rem;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 4px 0 var(--shadow);
   overflow: hidden;
   text-decoration: none;
 }
@@ -732,7 +742,7 @@ aside nav a img[src*="book.svg"] {
   height: auto;
 }
 .card_tag {
-  color: #fff;
+  color: var(--font-color-inverted);
 }
 .card_content {
   display: flex;
@@ -826,7 +836,7 @@ aside nav a img[src*="book.svg"] {
 }
 .video_keywords li {
   padding: 0 1.2rem;
-  background-color: rgba(30, 17, 105, 0.07);
+  background-color: var(--light-background);
   border-radius: 12px;
 }
 .video_keywords li:not(:first-of-type) {
@@ -897,7 +907,7 @@ aside nav a img[src*="book.svg"] {
 .video_suggestion .card {
   display: flex;
   height: 10rem;
-  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 6px 0 var(--shadow);
 }
 .video_suggestion .card:not(:last-of-type) {
   margin-bottom: 2.4rem;
@@ -927,7 +937,7 @@ aside nav a img[src*="book.svg"] {
   margin-bottom: 0;
 }
 .video_contribution p {
-  color: #7f7f90;
+  color: var(--font-color-light);
 }
 .video_contribution form {
   display: block;
@@ -988,7 +998,7 @@ aside nav a img[src*="book.svg"] {
 
 .comment_link {
   margin-bottom: 0.8rem;
-  color: #7f7f90;
+  color: var(--font-color-light);
   text-decoration: none;
 }
 
@@ -1018,7 +1028,7 @@ aside nav a img[src*="book.svg"] {
 .breadcrumbs {
   margin-bottom: 3.2rem;
   font-size: 1.4rem;
-  color: rgba(30, 17, 105, 0.5);
+  color: var(--breadcrumbs);
 }
 
 .breadcrumbs a {
@@ -1061,7 +1071,7 @@ progress {
   position: absolute;
   left: -3.3rem;
   height: 100%;
-  border-left: 1px dashed #e6e6f0;
+  border-left: 1px dashed var(--tabs-border);
 }
 
 .upload_steps .file-input {
@@ -1102,7 +1112,7 @@ progress {
   width: 5.7rem;
   height: 5.7rem;
   margin-right: 0.8rem;
-  border: 1px solid rgba(30, 17, 105, 0.1);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
 }
 .upload-step_icon::after {
@@ -1110,7 +1120,7 @@ progress {
   position: absolute;
   width: 4rem;
   height: 4rem;
-  background-color: rgba(30, 17, 105, 0.1);
+  background-color: var(--border-color);
   border-radius: 50%;
 }
 
@@ -1128,7 +1138,7 @@ progress {
 /* NOTIFICATIONS */
 .notification {
   align-items: center;
-  background-color: var(--notification-info-color);
+  background-color: var(--primary-color);
   border-radius: 8px;
   bottom: 2em;
   color: var(--font-color-light);
@@ -1271,8 +1281,8 @@ progress {
     height: 10.4rem;
     width: 8.8rem;
     border-radius: 0 0 7.3rem 7.3rem;
-    background-color: #1e1169;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    background-color: var(--primary-color);
+    box-shadow: 0 2px 4px 0 var(--shadow);
     z-index: 1;
   }
   header .logo img {
@@ -1428,16 +1438,16 @@ progress {
     font-size: 1.6rem;
     padding-top: 0.7rem;
     padding-bottom: 0.7rem;
-    color: var(--notification-info-color);
+    color: var(--primary-color);
     font-weight: 500;
     text-decoration: none;
     text-align: center;
-    background-color: rgba(230, 240, 240, 0.5);
-    border-top: 1px solid #e6e6f0;
-    border-bottom: 1px solid #e6e6f0;
+    background-color: var(--tabs-background);
+    border-top: 1px solid var(--tabs-border);
+    border-bottom: 1px solid var(--tabs-border);
   }
   .mobile-tabs .tab-headers a:not(:first-of-type) {
-    border-left: 1px solid #e6e6f0;
+    border-left: 1px solid var(--tabs-border);
   }
   .mobile-tabs .tab-headers a.active {
     background-color: var(--font-color-light);
@@ -1491,7 +1501,7 @@ progress {
   position: fixed;
   top: 0;
   left: 0;
-  background: rgba(0, 0, 0, .5);
+  background: var(--modal-backdrop);
   height: 100%;
   width: 100%;
   -webkit-box-pack: center;
@@ -1512,9 +1522,9 @@ progress {
 
 .modal {
   border-radius: 3px;
-  -webkit-box-shadow: 0 1px 2px rgba(201, 211, 223, .2);
-          box-shadow: 0 1px 2px rgba(201, 211, 223, .2);
-  background: #fff;
+  -webkit-box-shadow: 0 1px 2px var(--modal-shadow);
+          box-shadow: 0 1px 2px var(--modal-shadow);
+  background: var(--default-background);
   padding: 2em;
   max-width: 32em;
 }
