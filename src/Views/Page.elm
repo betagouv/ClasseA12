@@ -264,7 +264,7 @@ viewAside : Config msg -> Html msg
 viewAside config =
     aside [ class "side-menu desktop-only" ]
         ([ a [ href "/", class "logo" ]
-            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
+            [ img [ src "%PUBLIC_URL%/images/logos/devoirs-faits.svg" ] []
             ]
          ]
             ++ menuNodes config

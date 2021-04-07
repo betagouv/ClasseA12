@@ -692,18 +692,6 @@ aside nav a img[src*="book.svg"] {
   width: 23px;
 }
 
-.logo {
-  display: block;
-  width: 14.4rem;
-  margin: 0 auto 1.8rem;
-}
-.logo img {
-  display: block;
-  width: 14.4rem;
-  height: 14.1rem;
-  margin-left: -1rem;
-}
-
 /* CARD */
 .card {
   display: block;
