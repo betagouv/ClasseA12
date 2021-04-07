@@ -1,12 +1,12 @@
 :root {
-  --primary-color: #1e1169;
+  --primary-color: #156064;
   --background-primary-color: #156064;
-  --secondary-color: #ff507d;
+  --secondary-color: #f8e16c;
   --error-color: #d20019;
-  --font-color: #353555;
-  --font-color-light: #f7f7fc;
-  --font-color-secondary: #59598d;
-  --font-color-thirdary: #05005a;
+  --font-color: #156064;
+  --font-color-light: #edf4f4;
+  --font-color-secondary: #156064;
+  --font-color-thirdary: #156064;
   --font-color-inverted: #fff;
   --placeholder-color: #6e6e78;
   --input-border-color: #c8c8cd;
@@ -167,7 +167,7 @@ button {
   font-weight: normal;
   font-size: 1.4rem;
   line-height: 1;
-  color: var(--font-color-inverted);
+  color: var(--primary-color);
   background-color: var(--secondary-color);
   border-radius: 2.5rem;
 }
