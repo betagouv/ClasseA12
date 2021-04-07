@@ -847,7 +847,7 @@ viewVideoDetails :
 viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus =
     let
         shareText =
-            "Vidéo sur Classe à 12 : " ++ video.name
+            "Vidéo sur Devoirs Faits : " ++ video.name
 
         shareUrl =
             Url.toString url
