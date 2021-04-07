@@ -150,13 +150,21 @@ view _ { title } =
                     , H.br [] []
                     , H.text "Malika Alouani - Intrapreneur Startup d’État Classe à 12"
                     ]
-                , H.h3 [] [ H.text "Prestataire d'hébergement" ]
+                , H.h3 [] [ H.text "Prestataire d'hébergement frontend" ]
                 , H.p []
                     [ H.text "ALWAYSDATA, SARL"
                     , H.br [] []
                     , H.text "RCS de Paris sous le numéro 492 893 490"
                     , H.br [] []
                     , H.text "Siège social : 62 rue Tiquetonne – 75002 Paris"
+                    ]
+                , H.h3 [] [ H.text "Prestataire d'hébergement backend" ]
+                , H.p []
+                    [ H.text "ENIX"
+                    , H.br [] []
+                    , H.text "RCS de Paris sous le numéro 481 912 970"
+                    , H.br [] []
+                    , H.text "Siège social : 275 rue Saint Denis – 75002 Paris"
                     ]
                 ]
             ]
