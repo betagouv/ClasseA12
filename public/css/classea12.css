@@ -1235,6 +1235,9 @@ progress {
     margin-top: 0;
     padding: 0;
   }
+  .rf-header__body {
+    padding: 32px 0;
+  }
   header .wrapper {
     display: flex;
     justify-content: space-between;
