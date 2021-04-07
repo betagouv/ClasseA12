@@ -1,5 +1,6 @@
 :root {
   --primary-color: #1e1169;
+  --background-primary-color: #156064;
   --secondary-color: #ff507d;
   --error-color: #d20019;
   --font-color: #353555;
@@ -613,7 +614,7 @@ aside {
   font-family: "Marianne", Arial, Helvetica, sans-serif;
   font-size: 1.4rem;
   color: var(--font-color-inverted);
-  background-color: var(--primary-color);
+  background-color: var(--background-primary-color);
 }
 aside a {
   text-decoration: none;
@@ -643,7 +644,7 @@ aside > nav::after {
   bottom: -1px;
   display: block;
   height: 1px;
-  background-color: var(--primary-color);
+  background-color: var(--background-primary-color);
 }
 aside > nav::before {
   right: 4.1rem;
