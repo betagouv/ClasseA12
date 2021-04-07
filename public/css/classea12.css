@@ -16,7 +16,7 @@
   --notification-success-color: #0f8246;
   --notification-error-color: #d20019;
   --border-color: rgba(30, 17, 105, 0.1);
-  --highlight: rgba(255, 255, 255, 0.6);
+  --highlight: #f8e16c;
   --default-background: #fff;
   --light-background: rgba(30, 17, 105, 0.07);
   --breadcrumbs: rgba(30, 17, 105, 0.5);
@@ -615,6 +615,12 @@ aside {
   font-size: 1.4rem;
   color: var(--font-color-inverted);
   background-color: var(--background-primary-color);
+}
+aside .logo {
+  display: block;
+  text-align: center;
+  background-color: var(--highlight);
+  margin-bottom: 3rem;
 }
 aside a {
   text-decoration: none;
@@ -1244,8 +1250,7 @@ progress {
     left: 0;
     right: 0;
     width: 8.8rem;
-    margin-left: auto !important;
-    margin-bottom: 0;
+    margin: 0 auto !important;
   }
   header .logo::after {
     content: "";
@@ -1256,13 +1261,12 @@ progress {
     height: 10.4rem;
     width: 8.8rem;
     border-radius: 0 0 7.3rem 7.3rem;
-    background-color: var(--primary-color);
+    background-color: var(--highlight);
     box-shadow: 0 2px 4px 0 var(--shadow);
     z-index: 1;
   }
   header .logo img {
     position: relative;
-    width: 7.2rem;
     height: auto;
     margin: 0 auto;
     z-index: 2;
