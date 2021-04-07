@@ -11,7 +11,7 @@
   --input-border-color: #c8c8cd;
   --menu-hover-color: #28dcf0;
   --yellow: #ffd214;
-  --default-font: "nunitoregular", Arial, sans-serif;
+  --default-font: "Marianne", Arial, sans-serif;
   --notification-success-color: #0f8246;
   --notification-error-color: #d20019;
   --border-color: rgba(30, 17, 105, 0.1);
@@ -35,42 +35,26 @@
 }
 
 @font-face {
-  font-family: "nunitobold";
-  src: url("../fonts/nunito-bold-webfont.woff2") format("woff2"),
-    url("../fonts/nunito-bold-webfont.woff") format("woff");
+  font-family: "Marianne";
+  src: url("../fonts/Marianne-Regular.woff2") format("woff2"),
+    url("../fonts/Marianne-Regular.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "nunitoregular";
-  src: url("../fonts/nunito-regular-webfont.woff2") format("woff2"),
-    url("../fonts/nunito-regular-webfont.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "montserrat_lightregular";
-  src: url("../fonts/montserrat-light-webfont.woff2") format("woff2"),
-    url("../fonts/montserrat-light-webfont.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "montserrat";
-  src: url("../fonts/montserrat-regular-webfont.woff2") format("woff2"),
-    url("../fonts/montserrat-regular-webfont.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "montserrat";
-  src: url("../fonts/montserrat-bold-webfont.woff2") format("woff2"),
-    url("../fonts/montserrat-bold-webfont.woff") format("woff");
+  font-family: "Marianne";
+  src: url("../fonts/Marianne-Bold.woff2") format("woff2"),
+    url("../fonts/Marianne-Bold.woff") format("woff");
   font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Marianne-Light";
+  src: url("../fonts/Marianne-Light.woff2") format("woff2"),
+    url("../fonts/Marianne-Light.woff") format("woff");
+  font-weight: normal;
   font-style: normal;
 }
 
@@ -138,18 +122,18 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: "montserrat", Arial, sans-serif;
+  font-family: "Marianne", Arial, sans-serif;
   color: var(--primary-color);
 }
 
 h1 {
-  font-family: "montserrat", Arial, sans-serif;
+  font-family: "Marianne", Arial, sans-serif;
   font-weight: normal;
   font-size: 2.8rem;
 }
 
 h2 {
-  font-family: "montserrat_lightregular", Arial, sans-serif;
+  font-family: "Marianne-Light", Arial, sans-serif;
   font-size: 2.6rem;
 }
 
@@ -178,7 +162,7 @@ button {
 button {
   display: inline-block;
   padding: 1.3rem 2rem;
-  font-family: "montserrat", Arial, sans-serif;
+  font-family: "Marianne", Arial, sans-serif;
   font-weight: normal;
   font-size: 1.4rem;
   line-height: 1;
@@ -345,7 +329,7 @@ header nav {
   display: flex;
   margin-right: 4rem;
   margin-left: 4rem;
-  font-family: "montserrat", Arial, sans-serif;
+  font-family: "Marianne", Arial, sans-serif;
   font-size: 1.7rem;
 }
 header nav a {
@@ -626,7 +610,7 @@ aside {
   order: 1;
   width: 28.8rem;
   padding: 1.6rem 0;
-  font-family: "montserratbold", Arial, Helvetica, sans-serif;
+  font-family: "Marianne", Arial, Helvetica, sans-serif;
   font-size: 1.4rem;
   color: var(--font-color-inverted);
   background-color: var(--primary-color);
