@@ -288,8 +288,6 @@ menuNodes { activePage } =
     [ nav []
         [ linkMaybeActive Home Route.Home "Accueil"
         , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
-        , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
-        , linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash"
         ]
     , div []
         [ h3 [] [ text "Catégories" ]
@@ -306,7 +304,7 @@ menuNodes { activePage } =
             )
         , h3 [] [ text "Le projet" ]
         , nav []
-            [ linkMaybeActive About Route.About "Devoirs Faits ?"
+            [ linkMaybeActive About Route.About "À propos"
             , linkMaybeActive Participate Route.Participate "Je participe"
             , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
