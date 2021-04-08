@@ -379,7 +379,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     )
                 ]
                 [ H.div [ HA.class "upload-step_icon" ]
-                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/rocket_32_purple.svg" ] []
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/submit_32_purple.svg" ] []
                     ]
                 , H.text "Étape 3 : Soumettez votre vidéo"
                 ]

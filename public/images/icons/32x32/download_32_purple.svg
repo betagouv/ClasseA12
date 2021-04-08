@@ -1,1 +1,15 @@
-<svg height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd" stroke="#1e1169" stroke-linecap="round" stroke-width="1.5" transform="translate(5 7)"><path d="m6.871 13.667 3.883 3.884 3.884-3.884"/><path d="m10.7544304 8.81265823v8.73797467m8.6214683-2.8252785c1.7321927-1.2180778 2.4749458-3.4184357 1.835359-5.4371318-.6395869-2.01869607-2.5139173-3.38987902-4.6315109-3.3882226h-1.2233164c-.7997048-3.11659897-3.4382125-5.41746009-6.63464444-5.78561716-3.19643195-.36815708-6.28892787 1.27262133-7.77621791 4.12580993-1.48729003 2.85318861-1.06141261 6.32799983 1.07088765 8.73756673"/></g></svg>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="32px" height="32px" viewBox="0 0 32 32" enable-background="new 0 0 32 32" xml:space="preserve">
+<path stroke="#1D1D1B" stroke-miterlimit="10" d="M3.613,28.337"/>
+<g>
+	<g>
+		<rect x="15.5" y="5.343" fill="#156064" width="1" height="16.636"/>
+		<polygon fill="#156064" points="16,23.023 9.636,16.659 10.343,15.952 16,21.609 21.657,15.952 22.363,16.659 		"/>
+	</g>
+	<path fill="#156064" d="M25.583,27.834H6.416c-1.378,0-2.5-1.121-2.5-2.5V21.75h1v3.584c0,0.827,0.673,1.5,1.5,1.5h19.167
+		c0.827,0,1.5-0.673,1.5-1.5V21.75h1v3.584C28.083,26.713,26.962,27.834,25.583,27.834z"/>
+</g>
+</svg>
