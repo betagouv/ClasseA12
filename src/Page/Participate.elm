@@ -335,60 +335,6 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     newVideo.title
                     (\title -> UpdateVideoForm { newVideo | title = title })
                     videoSelected
-                , H.div
-                    [ HA.style "display"
-                        (if videoSelected then
-                            "block"
-
-                         else
-                            "none"
-                        )
-                    ]
-                    [ H.fieldset []
-                        [ H.legend []
-                            [ H.text "Niveau" ]
-                        , H.input
-                            [ HA.id "grade-all"
-                            , HA.type_ "radio"
-                            , HA.name "grade"
-                            , HA.checked <| newVideo.grade == ""
-                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "" })
-                            ]
-                            []
-                        , H.label [ HA.for "grade-all", HA.class "label-inline" ]
-                            [ H.text "Tous les niveaux" ]
-                        , H.input
-                            [ HA.id "grade-maternelle"
-                            , HA.type_ "radio"
-                            , HA.name "grade"
-                            , HA.checked <| newVideo.grade == "Maternelle"
-                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "Maternelle" })
-                            ]
-                            []
-                        , H.label [ HA.for "grade-maternelle", HA.class "label-inline" ]
-                            [ H.text "Maternelle" ]
-                        , H.input
-                            [ HA.id "grade-cp"
-                            , HA.type_ "radio"
-                            , HA.name "grade"
-                            , HA.checked <| newVideo.grade == "CP"
-                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CP" })
-                            ]
-                            []
-                        , H.label [ HA.for "grade-cp", HA.class "label-inline" ]
-                            [ H.text "CP" ]
-                        , H.input
-                            [ HA.id "grade-ce1"
-                            , HA.type_ "radio"
-                            , HA.name "grade"
-                            , HA.checked <| newVideo.grade == "CE1"
-                            , HE.onInput (\_ -> UpdateVideoForm { newVideo | grade = "CE1" })
-                            ]
-                            []
-                        , H.label [ HA.for "grade-ce1", HA.class "label-inline" ]
-                            [ H.text "CE1" ]
-                        ]
-                    ]
                 , formInput
                     H.textarea
                     "description"

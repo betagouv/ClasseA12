@@ -103,7 +103,7 @@ emptyNewVideo : NewVideo
 emptyNewVideo =
     { description = ""
     , title = ""
-    , grade = "CP"
+    , grade = ""
     , keywords = []
     }
 
