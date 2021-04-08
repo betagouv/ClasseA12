@@ -145,7 +145,7 @@ keywordList =
     , "Co-intervention"
     , "Communication"
     , "Devoirs faits à distance"
-    , "Boite à outils"
+    , "Ressources"
     , "Coordonnateur devoirs faits"
     ]
 
