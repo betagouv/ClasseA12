@@ -1037,7 +1037,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
             [ Page.Common.Video.title video
             , H.div []
                 [ H.img
-                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
+                    [ HA.src "%PUBLIC_URL%/images/icons/32x32/contributeur_32_purple.svg"
                     ]
                     []
                 , Page.Common.Video.metadata video
@@ -1113,7 +1113,11 @@ viewCommentDetails videoID attachmentList comment =
         , HA.id <| String.fromInt comment.id
         ]
         [ H.div [ HA.class "comment_avatar" ]
-            [ H.img [] []
+            [ H.img
+                [ HA.src "%PUBLIC_URL%/images/icons/32x32/contributeur_32_purple.svg"
+                , HA.title ""
+                ]
+                []
             ]
         , H.div [ HA.class "comment_content" ]
             [ H.a

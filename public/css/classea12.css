@@ -965,8 +965,10 @@ aside nav a img[src*="book.svg"] {
   width: 10.4rem;
   height: 10.4rem;
   margin-right: 6.4rem;
-  background-color: var(--font-color-secondary);
   border-radius: 50%;
+}
+.comment_avatar img {
+  width: 100%;
 }
 
 .comment_content {
