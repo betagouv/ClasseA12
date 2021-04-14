@@ -306,7 +306,7 @@ menuNodes { activePage } =
         , nav []
             [ linkMaybeActive About Route.About "À propos"
             , linkMaybeActive Participate Route.Participate "Je participe"
-            , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
+            , a [ href "mailto:devoirsfaits.lesite@gmail.com" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
                 , text "Contactez-nous"
                 ]
