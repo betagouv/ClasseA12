@@ -312,7 +312,7 @@ menuNodes { activePage } =
                 ]
 
             -- Link to the Sendinblue signup form.
-            , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
+            , a [ href "https://2a48eb1e.sibforms.com/serve/MUIEAN1np-yvNRN4ZsQUXKVtIeWCxVKaPfQmSebruLFfs9KqjCB2RJJ7AJbGQYx0Np-Zs_ago8VuU7_zh1MFRwyOwNHa-w1ss9TS6WQBIm-KdakW03BShMk9lYlKIFCOz2JKMJ3sncij1STyCVT-FHUi8wPEb_eOaQuX62C3A-LkAH-pYVEtuURLk05OTQHOdTBz90wKFyDoTRpV" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
                 , text "Inscrivez-vous à notre infolettre"
                 ]
