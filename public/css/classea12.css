@@ -290,7 +290,6 @@ embed {
 }
 .rf-logo__image--custom {
   height: 158px;
-  margin: 30px 30px 26px 0;
 }
 
 /* RF-HEADER */
@@ -1235,9 +1234,6 @@ progress {
   header {
     margin-top: 0;
     padding: 0;
-  }
-  .rf-header__body {
-    padding: 32px 0;
   }
   header .wrapper {
     display: flex;
