@@ -256,6 +256,10 @@ input {
   background-color: var(--primary-color);
 }
 
+[type=search] {
+  width: 300px;
+}
+
 video,
 canvas,
 embed {

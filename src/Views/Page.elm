@@ -347,7 +347,7 @@ searchForm { session, submitSearchMsg, updateSearchMsg } searchFormType =
                 [ type_ "search"
                 , value session.search
                 , onInput updateSearchMsg
-                , placeholder "Exemple : Français"
+                , placeholder "Exemple : Communication"
                 ]
                 []
     in
