@@ -618,9 +618,10 @@ aside {
 }
 aside .logo {
   display: block;
+  height: 130px;
   text-align: center;
   background-color: var(--highlight);
-  margin-bottom: 3rem;
+  margin-bottom: 6rem;
 }
 aside a {
   text-decoration: none;
