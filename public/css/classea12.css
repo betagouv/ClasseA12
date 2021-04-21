@@ -1,12 +1,12 @@
 :root {
-  --primary-color: #156064;
-  --background-primary-color: #156064;
-  --secondary-color: #f8e16c;
+  --primary-color: #466964;
+  --background-primary-color: #466964;
+  --secondary-color: #ffeb69;
   --error-color: #d20019;
-  --font-color: #156064;
-  --font-color-light: #edf4f4;
-  --font-color-secondary: #156064;
-  --font-color-thirdary: #156064;
+  --font-color: #466964;
+  --font-color-light: #edf0f0;
+  --font-color-secondary: #466964;
+  --font-color-thirdary: #466964;
   --font-color-inverted: #fff;
   --placeholder-color: #6e6e78;
   --input-border-color: #c8c8cd;
@@ -16,7 +16,7 @@
   --notification-success-color: #0f8246;
   --notification-error-color: #d20019;
   --border-color: rgba(30, 17, 105, 0.1);
-  --highlight: #f8e16c;
+  --highlight: #ffeb69;
   --default-background: #fff;
   --light-background: rgba(30, 17, 105, 0.07);
   --breadcrumbs: rgba(30, 17, 105, 0.5);
