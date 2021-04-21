@@ -698,6 +698,9 @@ aside nav a img {
 aside nav a img[src*="book.svg"] {
   width: 23px;
 }
+aside img.label-devoirs-faits {
+  margin: 0 auto;
+}
 
 /* CARD */
 .card {
