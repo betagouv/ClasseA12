@@ -1121,6 +1121,16 @@ progress {
   margin-left: 0.8rem;
 }
 
+/* ABOUT */
+
+.article__content .container {
+  display: flex;
+  margin-bottom: 6rem;
+}
+.article__content .container .article__image {
+  margin-right: 6rem;
+}
+
 /* NOTIFICATIONS */
 .notification {
   align-items: center;
@@ -1474,6 +1484,13 @@ progress {
   }
   embed {
     height: 100%;
+  }
+  .article__content .container {
+    display: block;
+    margin-bottom: 6rem;
+  }
+  .article__content .container .article__image {
+    margin-bottom: 3rem;
   }
 }
 
