@@ -1249,7 +1249,7 @@ progress {
   }
   header .logo {
     position: absolute;
-    top: 0;
+    top: -15px;
     left: 0;
     right: 0;
     width: 8.8rem;
@@ -1272,6 +1272,7 @@ progress {
     position: relative;
     height: auto;
     margin: 0 auto;
+    top: 15px;
     z-index: 2;
   }
   .menu-opener {
