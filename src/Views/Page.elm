@@ -317,6 +317,11 @@ menuNodes { activePage } =
                 , text "Inscrivez-vous à notre infolettre"
                 ]
             ]
+        , img
+            [ class "label-devoirs-faits"
+            , src "%PUBLIC_URL%/images/logos/label-devoirs-faits.svg"
+            ]
+            []
         , a
             [ class "rf-footer__brand-link"
             , href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
