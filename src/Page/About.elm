@@ -16,7 +16,7 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init _ =
-    ( { title = "Classe à 12 ?" }, Cmd.none )
+    ( { title = "Devoirs faits" }, Cmd.none )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
