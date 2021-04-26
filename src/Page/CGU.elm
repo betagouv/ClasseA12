@@ -34,9 +34,9 @@ view _ { title } =
     , body =
         [ H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
-                [ H.p [] [ H.text "Le site «\u{00A0}Devoirs Faits\u{00A0}» est un projet en construction édité dans le cadre d’une Startup d’État portée par le laboratoire d’innovation du Ministère (Lab110bis), la Direction interministérielle des systèmes d'information et de communication de l'État (DINSIC)." ]
+                [ H.p [] [ H.text "Le site «\u{00A0}Devoirs Faits\u{00A0}» est un projet en construction édité dans le cadre d’une Startup d’État portée par le laboratoire d’innovation du Ministère (Lab110bis), la direction interministérielle du numérique (DINUM)." ]
                 , H.p [] [ H.text "Ce projet actuellement hébergé par les services de beta.gouv.fr, est en lien avec le réseau des incubateurs de Startup d’État." ]
-                , H.p [] [ H.text "Le site est édité et développé par la Direction interministérielle du numérique et du système d'information et de communication de l'Etat (DINSIC) au sein du Secrétariat général pour la modernisation de l'action publique (SGMAP)." ]
+                , H.p [] [ H.text "Le site est édité et développé par la direction interministérielle du numérique (DINUM) au sein du Secrétariat général pour la modernisation de l'action publique (SGMAP)." ]
                 , H.p [] [ H.text "Toute utilisation du site «\u{00A0}Devoirs Faits\u{00A0}»  est subordonnée au respect des présentes conditions générales d'utilisation (CGU)." ]
                 , H.h2 [] [ H.text "Est défini comme :" ]
                 , H.p []
@@ -135,7 +135,7 @@ view _ { title } =
                 , H.h2 [] [ H.text "Mentions légales" ]
                 , H.h3 [] [ H.text "Editeurs" ]
                 , H.p []
-                    [ H.text "Incubateur de services numériques de la Direction interministérielle du numérique et du système d'information et de communication de l'État (DINSIC)."
+                    [ H.text "Incubateur de services numériques de la direction interministérielle du numérique (DINUM)."
                     , H.br [] []
                     , H.text "20, avenue de Ségur – 75007 Paris."
                     ]
@@ -144,11 +144,9 @@ view _ { title } =
                     , H.br [] []
                     , H.text "110, rue de Grenelle – 75007 Paris"
                     ]
-                , H.h3 [] [ H.text "Responsables de la publication" ]
+                , H.h3 [] [ H.text "Responsable de la publication" ]
                 , H.p []
-                    [ H.text "Nicolas Leyri - Intrapreneur Startup d’État Devoirs Faits"
-                    , H.br [] []
-                    , H.text "Camille Martinelli - Intrapreneur Startup d’État Devoirs Faits"
+                    [ H.text "Camille Martinelli - Intrapreneur Startup d’État Devoirs Faits"
                     ]
                 , H.h3 [] [ H.text "Prestataire d'hébergement frontend" ]
                 , H.p []
