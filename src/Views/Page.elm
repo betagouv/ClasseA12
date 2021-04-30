@@ -133,7 +133,8 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
                         [ text "Publier une vidéo" ]
     in
     header []
-        [ div [ class "wrapper" ]
+        [ p [ class "site-en-construction" ] [ text "Ce site est en construction" ]
+        , div [ class "wrapper" ]
             [ searchForm config DesktopSearchForm
             , a [ href "/", class "mobile-only logo" ]
                 [ img [ src "%PUBLIC_URL%/images/logos/devoirs-faits_mobile.svg", class "logo" ] []
