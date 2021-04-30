@@ -34,10 +34,10 @@ view _ { title } =
     , body =
         [ H.div [ HA.class "section " ]
             [ H.div [ HA.class "container" ]
-                [ H.p [] [ H.text "Le site «\u{00A0}Devoirs Faits\u{00A0}» est un projet en construction édité dans le cadre d’une Startup d’État portée par le laboratoire d’innovation du Ministère (Lab110bis), la direction interministérielle du numérique (DINUM)." ]
+                [ H.p [] [ H.text "Le site «\u{00A0}Devoirs Faits la communauté\u{00A0}» est un projet en construction édité dans le cadre d’une Startup d’État portée par le laboratoire d’innovation du Ministère (Lab110bis), la direction interministérielle du numérique (DINUM)." ]
                 , H.p [] [ H.text "Ce projet actuellement hébergé par les services de beta.gouv.fr, est en lien avec le réseau des incubateurs de Startup d’État." ]
                 , H.p [] [ H.text "Le site est édité et développé par la direction interministérielle du numérique (DINUM) au sein du Secrétariat général pour la modernisation de l'action publique (SGMAP)." ]
-                , H.p [] [ H.text "Toute utilisation du site «\u{00A0}Devoirs Faits\u{00A0}»  est subordonnée au respect des présentes conditions générales d'utilisation (CGU)." ]
+                , H.p [] [ H.text "Toute utilisation du site «\u{00A0}Devoirs Fait la communautés\u{00A0}»  est subordonnée au respect des présentes conditions générales d'utilisation (CGU)." ]
                 , H.h2 [] [ H.text "Est défini comme :" ]
                 , H.p []
                     [ H.strong [] [ H.text "API (web) : " ]
@@ -53,13 +53,13 @@ view _ { title } =
                     ]
                 , H.p []
                     [ H.strong [] [ H.text "Utilisateur : " ]
-                    , H.text "Ensemble des professeurs de CP et CE1 des classes dédoublées de l’éducation nationale accédant au site afin de consulter ou poster des médias."
+                    , H.text "Ensemble des acteurs du dispositif “devoirs faits” de l’éducation nationale accédant au site afin de consulter ou poster des médias."
                     ]
                 , H.h2 [] [ H.text "Objet" ]
                 , H.p [] [ H.text "Le site répond à un objectif d’accompagnement du dispositif de classe dédoublée en éducation prioritaire lancée par le ministre de l’Éducation nationale et de la jeunesse." ]
                 , H.p [] [ H.text "Il permet :" ]
                 , H.ul []
-                    [ H.li [] [ H.text "la publication par des professeurs de vidéos concernant des pratiques pédagogiques," ]
+                    [ H.li [] [ H.text "la publication par des professeurs, A.E.D., C.P.E., étudiants, personnels de direction, de vidéos concernant des pratiques autour du dispositif," ]
                     , H.li [] [ H.text "la consultation de ces données par tout Utilisateur," ]
                     , H.li [] [ H.text "une discussion autour des données, ainsi que la diffusion de Jeux de données enrichis ou de réutilisations." ]
                     ]
@@ -98,16 +98,16 @@ view _ { title } =
                 , H.p [] [ H.text "La consultation du site n'est pas affectée lorsque les Utilisateurs utilisent des navigateurs désactivant les cookies." ]
                 , H.h3 [] [ H.text "Données à caractère personnel" ]
                 , H.p [] [ H.text "La consultation des jeux de données (y compris leur téléchargement) ne nécessite pas de s'inscrire, ni de s'authentifier." ]
-                , H.p [] [ H.text "L'inscription sur le site nécessite que l'Utilisateur communique ses prénom et nom, ainsi que son courriel professionnel. «\u{00A0}Devoirs Faits\u{00A0}» s'engage à prendre toutes les mesures nécessaires permettant de garantir la sécurité et la confidentialité du courriel de l'Utilisateur. Celui-ci n'est jamais communiqué à des tiers, en dehors des cas prévus par la loi." ]
+                , H.p [] [ H.text "L'inscription sur le site nécessite que l'Utilisateur communique ses prénom et nom, ainsi que son courriel professionnel. «\u{00A0}Devoirs Faits la communauté\u{00A0}» s'engage à prendre toutes les mesures nécessaires permettant de garantir la sécurité et la confidentialité du courriel de l'Utilisateur. Celui-ci n'est jamais communiqué à des tiers, en dehors des cas prévus par la loi." ]
                 , H.p [] [ H.text "La page de profil de l'Utilisateur comprend ses prénom et nom et des éléments sur son activité (niveau de classe, profil professeur ou formateur). Cette page n'est pas référencée par le moteur de recherche du site." ]
                 , H.p [] [ H.text "L'historique de consultation de l'Utilisateur n'est jamais rendu public, ni communiqué à des tiers, en dehors des cas prévus par la loi." ]
                 , H.p []
-                    [ H.text "En application de la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés, l'Utilisateur dispose d'un droit d'accès, de rectification et d'opposition auprès de «\u{00A0}Devoirs Faits\u{00A0}». Ce droit s'exerce par courriel adressé à "
+                    [ H.text "En application de la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés, l'Utilisateur dispose d'un droit d'accès, de rectification et d'opposition auprès de «\u{00A0}Devoirs Faits la communauté\u{00A0}». Ce droit s'exerce par courriel adressé à "
                     , H.a [ HA.href "mailto:110bis@education.gouv.fr?subject=droit d'accès, rectification ou opposition" ] [ H.text "110bis@education.gouv.fr" ]
                     , H.text "."
                     ]
                 , H.p []
-                    [ H.text "Conformément à la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés, toute personne dont les données nominatives figurent dans «\u{00A0}Devoirs Faits\u{00A0}» ou sont utilisées de toute autre manière dans le cadre du présent site, dispose des droits suivants qu’elle peut exercer en prenant contact auprès du délégué à la protection des données (DPO) à l’adresse suivante : "
+                    [ H.text "Conformément à la loi n° 78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés, toute personne dont les données nominatives figurent dans «\u{00A0}Devoirs Faits la communauté\u{00A0}» ou sont utilisées de toute autre manière dans le cadre du présent site, dispose des droits suivants qu’elle peut exercer en prenant contact auprès du délégué à la protection des données (DPO) à l’adresse suivante : "
                     , H.a [ HA.href "mailto:110bis@education.gouv.fr" ] [ H.text "110bis@education.gouv.fr" ]
                     , H.text "."
                     ]
