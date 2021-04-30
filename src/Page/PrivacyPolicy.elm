@@ -56,7 +56,7 @@ view _ { title } =
                 , H.h2 [] [ H.text "Je contribue à enrichir vos données, puis-je y accéder ?" ]
                 , H.p []
                     [ H.text "Bien sûr ! Les statistiques d’usage sont disponibles en accès libre sur "
-                    , H.a [ HA.href "https://stats.data.gouv.fr/index.php?idSite=72" ] [ H.text "stats.data.gouv.fr" ]
+                    , H.a [ HA.href "https://stats.data.gouv.fr/index.php?idSite=174" ] [ H.text "stats.data.gouv.fr" ]
                     , H.text "."
                     ]
                 ]
