@@ -323,6 +323,11 @@ header {
   margin-top: 40px;
   padding: 2.1rem 0;
 }
+header .site-en-construction {
+  font-size: 2rem;
+  margin-top: -4rem;
+  text-align: center;
+}
 header a {
   text-decoration: none;
 }
