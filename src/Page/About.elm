@@ -61,9 +61,9 @@ view _ { title } =
                         , H.p [] [ H.text "Vous avez envie d'échanger et de partager des outils, des pratiques, des gestes professionnels avec vos collègues ? Rien de plus simple avec le site Devoirs Faits : la communauté ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti !" ]
                         , H.p []
                             [ H.text "N'oubliez pas de remplir et de nous envoyer un formulaire de droit à l'image pour vos élèves, les parents ou vous-mêmes, selon la situation, que vous pouvez trouver ici : "
-                            , H.a [ HA.href "http://devoirs-faits.beta.gouv.fr/documents/Autorisation-captation-image-majeur_2017.pdf" ] [ H.text "autorisation adulte" ]
+                            , H.a [ HA.href "https://devoirs-faits-communaute.beta.gouv.fr/documents/Autorisation-captation-image-majeur_2017.pdf" ] [ H.text "autorisation adulte" ]
                             , H.text " - "
-                            , H.a [ HA.href "http://devoirs-faits.beta.gouv.fr/documents/Autorisation-captation-image-mineur_2017.pdf" ] [ H.text "autorisation mineur" ]
+                            , H.a [ HA.href "https://devoirs-faits-communaute.beta.gouv.fr/documents/Autorisation-captation-image-mineur_2017.pdf" ] [ H.text "autorisation mineur" ]
                             ]
                         ]
                     ]
