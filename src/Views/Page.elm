@@ -307,7 +307,7 @@ menuNodes { activePage } =
         , nav []
             [ linkMaybeActive About Route.About "À propos"
             , linkMaybeActive Participate Route.Participate "Je participe"
-            , a [ href "mailto:camille.martinelli@ac-creteil.fr" ]
+            , a [ href "mailto:devoirsfaits-communaute@education.gouv.fr" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
                 , text "Contactez-nous"
                 ]
