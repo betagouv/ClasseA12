@@ -551,14 +551,16 @@ footer a {
 }
 .rf-footer__brand-link {
   align-items: flex-start;
+  background-color: white;
   flex-basis: calc(100%/3);
-  padding-right: 1rem;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   height: 100%;
   justify-content: center;
 }
 .rf-footer__brand-link img {
+  margin: 0 auto;
   width: 200px;
 }
 .rf-footer__content {

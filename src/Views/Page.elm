@@ -202,14 +202,6 @@ viewFooter session =
                             ]
                             []
                         ]
-                    , a
-                        [ class "rf-footer__brand-link"
-                        , href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
-                        , title "Retour à l'accueil"
-                        ]
-                        [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                            []
-                        ]
                     ]
                 , div [ class "rf-footer__content" ]
                     [ ul [ class "rf-footer__content-links" ]
@@ -322,6 +314,14 @@ menuNodes { activePage } =
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
                 , text "Inscrivez-vous à notre infolettre"
                 ]
+            ]
+        , a
+            [ class "rf-footer__brand-link"
+            , href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+            , title "Retour à l'accueil"
+            ]
+            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                []
             ]
         ]
     ]
