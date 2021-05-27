@@ -49,14 +49,35 @@ frame : Config msg -> Page.Common.Components.Document msg -> Document msg
 frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        [ div [ class "content" ]
-            [ viewHeader config pageTitle pageSubTitle
-            , viewContent body
-            , viewFooter config.session
+        [ viewRFHeader
+        , div [ class "main" ]
+            [ div [ class "content" ]
+                [ viewHeader config pageTitle pageSubTitle
+                , viewContent body
+                ]
+            , viewAside config
             ]
-        , viewAside config
+        , viewFooter config.session
         ]
     }
+
+
+viewRFHeader : Html msg
+viewRFHeader =
+    div [ class "rf-header" ]
+        [ div [ class "rf-container" ]
+            [ div [ class "rf-header__body" ]
+                [ a []
+                    [ img
+                        [ class "rf-logo__image--custom"
+                        , alt "Ministère de l'éducation nationale et de la jeunesse. - Retour à l'accueil"
+                        , src "%PUBLIC_URL%/images/logos/marianne.svg"
+                        ]
+                        []
+                    ]
+                ]
+            ]
+        ]
 
 
 viewHeader : Config msg -> String -> String -> Html msg
@@ -113,17 +134,7 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
     in
     header []
         [ div [ class "wrapper" ]
-            [ img [ alt "Ministère de l'éducation nationale et de la jeunesse", src "%PUBLIC_URL%/images/logos/marianne.svg" ]
-                []
-
-            -- TODO: unhide this when we have the functionality
-            , nav [ style "visibility" "hidden", class "desktop-only" ]
-                [ a [ href "" ]
-                    [ text "Découvrez" ]
-                , a [ href "" ]
-                    [ text "Vos favoris" ]
-                ]
-            , searchForm config DesktopSearchForm
+            [ searchForm config DesktopSearchForm
             , a [ href "/", class "mobile-only logo" ]
                 [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
                 ]
@@ -179,18 +190,68 @@ viewContent body =
 
 viewFooter : Session -> Html msg
 viewFooter session =
-    footer [ class "wrapper" ]
-        [ a [ href "" ]
-            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                []
-            ]
-        , div []
-            [ nav []
-                [ a [ Route.href Route.CGU ] [ text "Conditions générales d'utilisation" ]
-                , a [ Route.href Route.Convention ] [ text "Charte de bonne conduite" ]
-                , a [ Route.href Route.PrivacyPolicy ] [ text "Politique de confidentialité" ]
+    footer [ class "rf-footer" ]
+        [ div [ class "rf-container" ]
+            [ div [ class "rf-footer__body" ]
+                [ div [ class "rf-footer__brand" ]
+                    [ a []
+                        [ img
+                            [ class "rf-logo__image--custom"
+                            , alt "Ministère de l'éducation nationale et de la jeunesse. - Retour à l'accueil"
+                            , src "%PUBLIC_URL%/images/logos/marianne.svg"
+                            ]
+                            []
+                        ]
+                    ]
+                , div [ class "rf-footer__content" ]
+                    [ ul [ class "rf-footer__content-links" ]
+                        [ li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://legifrance.gouv.fr" ]
+                                [ text "legifrance.gouv.fr" ]
+                            ]
+                        , li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://gouvernement.fr" ]
+                                [ text "gouvernement.fr" ]
+                            ]
+                        , li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://service-public.fr" ]
+                                [ text "service-public.fr" ]
+                            ]
+                        , li [ class "rf-footer__content-item" ]
+                            [ a [ class "rf-footer__content-link", href "https://data.gouv.fr" ]
+                                [ text "data.gouv.fr" ]
+                            ]
+                        ]
+                    ]
                 ]
-            , span [] [ text <| "Version : " ++ session.version ]
+            , div [ class "rf-footer__bottom" ]
+                [ ul [ class "rf-footer__bottom-list" ]
+                    [ li []
+                        [ a [ class "rf-footer__bottom-link", Route.href Route.CGU ]
+                            [ text "Conditions générales d'utilisation" ]
+                        ]
+                    , li []
+                        [ a [ class "rf-footer__bottom-link", Route.href Route.Convention ]
+                            [ text "Charte de bonne conduite" ]
+                        ]
+                    , li []
+                        [ a [ class "rf-footer__bottom-link", Route.href Route.PrivacyPolicy ]
+                            [ text "Politique de confidentialité" ]
+                        ]
+                    , li []
+                        [ a [ class "rf-footer__bottom-link", href "#" ]
+                            [ text "Accessibilité: non conforme" ]
+                        ]
+                    , li []
+                        [ span [] [ text <| "Version : " ++ session.version ]
+                        ]
+                    ]
+                , div [ class "rf-footer__bottom-copy" ]
+                    [ text "Sauf mention contraire, tous les textes de ce site sont sous "
+                    , a [ href "https://github.com/etalab/licence-ouverte/blob/master/LO.md" ]
+                        [ text "licence etalab-2.0" ]
+                    ]
+                ]
             ]
         ]
 
@@ -253,6 +314,14 @@ menuNodes { activePage } =
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
                 , text "Inscrivez-vous à notre infolettre"
                 ]
+            ]
+        , a
+            [ class "rf-footer__brand-link"
+            , href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+            , title "Retour à l'accueil"
+            ]
+            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                []
             ]
         ]
     ]
