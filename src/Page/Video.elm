@@ -740,6 +740,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                         url
                         navigatorShare
                         videoData
+                        comments
                         attachmentList
                         userInfo
                         deletedVideo
@@ -810,6 +811,7 @@ viewVideo :
     -> Url
     -> Bool
     -> Data.PeerTube.RemoteData Data.PeerTube.Video
+    -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
     -> List Attachment
     -> Maybe Data.PeerTube.UserInfo
     -> Data.PeerTube.RemoteData ()
@@ -817,10 +819,10 @@ viewVideo :
     -> FavoriteStatus
     -> Data.PeerTube.RemoteData ()
     -> H.Html Msg
-viewVideo peerTubeURL url navigatorShare videoData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus =
+viewVideo peerTubeURL url navigatorShare videoData commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus =
     case videoData of
         Data.PeerTube.Received video ->
-            viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus
+            viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus
 
         Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -834,6 +836,7 @@ viewVideoDetails :
     -> Url
     -> Bool
     -> Data.PeerTube.Video
+    -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
     -> List Attachment
     -> Maybe Data.PeerTube.UserInfo
     -> Data.PeerTube.RemoteData ()
@@ -841,7 +844,7 @@ viewVideoDetails :
     -> FavoriteStatus
     -> Data.PeerTube.RemoteData ()
     -> H.Html Msg
-viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus =
+viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus =
     let
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
@@ -899,12 +902,25 @@ viewVideoDetails peerTubeURL url navigatorShare video attachmentList userInfo de
                     ++ navigatorShareButton
                 )
 
+        hasComment : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> Attachment -> Bool
+        hasComment commentsData_ attachment =
+            case commentsData_ of
+                Data.PeerTube.Received comments ->
+                    comments
+                    |> List.any (\comment -> String.fromInt comment.id == attachment.commentID)
+                _ ->
+                    False
+
+        activeAttachmentList =
+            attachmentList
+                |> List.filter (hasComment commentsData)
+
         viewAttachments =
             H.div [ HA.class "video_resources" ]
                 [ H.h4 [] [ H.text "Ressources" ]
-                , if attachmentList /= [] then
+                , if activeAttachmentList /= [] then
                     H.ul []
-                        (attachmentList
+                        (activeAttachmentList
                             |> List.map
                                 (\attachment ->
                                     H.li []
