@@ -67,13 +67,31 @@ viewRFHeader =
     div [ class "rf-header" ]
         [ div [ class "rf-container" ]
             [ div [ class "rf-header__body" ]
-                [ a []
-                    [ img
-                        [ class "rf-logo__image--custom"
-                        , alt "Ministère de l'éducation nationale et de la jeunesse. - Retour à l'accueil"
-                        , src "%PUBLIC_URL%/images/logos/marianne.svg"
-                        ]
-                        []
+                [ img
+                    [ class "rf-logo__image--custom"
+                    , alt "Ministère de l'éducation nationale et de la jeunesse"
+                    , src "%PUBLIC_URL%/images/logos/marianne.svg"
+                    ]
+                    []
+                , a
+                    [ href "/", class "logo" ]
+                    [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
+                    ]
+                , nav []
+                    [ a [ href "/" ]
+                        [ text "Les vidéos" ]
+                    , a [ href "/" ]
+                        [ text "Actualités" ]
+                    , a [ href "/" ]
+                        [ text "À propos" ]
+                    , a [ href "/" ]
+                        [ text "Contact" ]
+                    ]
+                , button []
+                    [ text "Search" ]
+                , div []
+                    [ text "Publier"
+                    , text "Se connecter"
                     ]
                 ]
             ]
@@ -263,12 +281,7 @@ viewFooter session =
 viewAside : Config msg -> Html msg
 viewAside config =
     aside [ class "side-menu desktop-only" ]
-        ([ a [ href "/", class "logo" ]
-            [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
-            ]
-         ]
-            ++ menuNodes config
-        )
+        (menuNodes config)
 
 
 menuNodes : Config msg -> List (Html msg)
