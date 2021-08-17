@@ -10,7 +10,7 @@
     "deploy-prod": "npm run build && gh-pages -d build/ -o deploy-prod",
     "deploydf": "NODE_ENV=development npm run build && gh-pages -d build/ -o deploydf",
     "deploydf-prod": "npm run build && gh-pages -d build/ -o deploydf-prod",
-    "install": "elm make src/Main.elm",
+    "install": "elm make src/Main.elm && rm index.html",
     "start": "npm run debug",
     "test": "elm-test"
   },
@@ -23,7 +23,7 @@
     "gh-pages": "^1.1.0",
     "node-elm-compiler": "^5.0.3",
     "npm-run-all": "^4.1.2",
-    "create-elm-app": "^3.0.6",
+    "create-elm-app": "^5.22.0",
     "rimraf": "^2.6.1",
     "acorn": "^6.0.0"
   }

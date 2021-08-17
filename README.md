@@ -4,13 +4,13 @@ Source code for the project [Classe à 12](https://beta.gouv.fr/startup/classes1
 This has been bootstraped with [elm-kitchen](https://allo-media.github.io/elm-kitchen/), see after the separator for more information.
 The project is bundled using [create-elm-app](https://github.com/halfzebra/create-elm-app).
 
-To install and tinker:
+To install and tinker (we use yarn because depency resolution seems to work better in our case):
 
 ```shell
 $ git clone https://github.com/betagouv/ClasseA12
 $ cd ClasseA12
-$ npm install
-$ npm start
+$ yarn install
+$ yarn start
 ```
 
 Check out https://classea12.beta.gouv.fr/
@@ -18,7 +18,7 @@ Check out https://classea12.beta.gouv.fr/
 
 # Deployment
 
-The frontend static files are pushed to a git repository using [gh-pages](https://www.npmjs.com/package/gh-pages) with `npm run deploy`
+The frontend static files are pushed to a git repository using [gh-pages](https://www.npmjs.com/package/gh-pages) with `yarn run deploy`
 
 For this second part to work, here's the recipe:
 
@@ -54,10 +54,10 @@ $ git remote add deploy-prod classea12@ssh-classea12.alwaysdata.net:~/git/Classe
 Then, to deploy, run
 
 ```shell
-$ npm run deploy-prod
+$ yarn run deploy-prod
 ```
 
-Additionnally you may add a different `deploy` remote, and use the `npm run deploy` command, for example to deploy to a different staging server.
+Additionnally you may add a different `deploy` remote, and use the `yarn run deploy` command, for example to deploy to a different staging server.
 
 ## Web server configuration
 
@@ -127,10 +127,10 @@ Richard Feldman explains this organization in a [dedicated blog post](https://de
 ## Installation
 
 ```
-$ npm install -g elm-kitchen
+$ yarn install -g elm-kitchen
 $ elm-kitchen my-app
 $ cd my-app
-$ npm install
+$ yarn install
 ```
 
 ## Usage
@@ -138,7 +138,7 @@ $ npm install
 To start the development server:
 
 ```
-$ npm start
+$ yarn start
 ```
 
 This will serve and recompile Elm code when source files change. Served application is available at [localhost:3000](http://localhost:3000/).
@@ -146,7 +146,7 @@ This will serve and recompile Elm code when source files change. Served applicat
 ## Tests
 
 ```
-$ npm test
+$ yarn test
 ```
 
 Tests are located in the `tests` folder and are powered by [elm-test](https://github.com/elm-community/elm-test).
@@ -154,7 +154,7 @@ Tests are located in the `tests` folder and are powered by [elm-test](https://gi
 ## Build
 
 ```
-$ npm run build
+$ yarn run build
 ```
 
 The resulting build is available in the `build` folder.
@@ -164,7 +164,7 @@ The resulting build is available in the `build` folder.
 A convenient `deploy` command is provided to publish code on [Github Pages](https://pages.github.com/).
 
 ```
-$ npm run deploy
+$ yarn run deploy
 ```
 
 ## License
