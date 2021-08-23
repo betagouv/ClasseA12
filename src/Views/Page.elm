@@ -388,13 +388,25 @@ viewOtherAside { activePage } =
             [ linkMaybeActive About Route.About "À propos de Classe à 12"
             , linkMaybeActive Participate Route.Participate "Participer"
             , linkMaybeActive Register Route.Register "S'inscrire"
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/faq-flash_32_purple.svg" ] []
+                , text "Comment participer"
+                ]
             , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] []
                 , text "Nous contacter"
                 ]
             , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_purple.svg" ] []
                 , text "Newsletter"
+                ]
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] []
+                , text "Facebook"
+                ]
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/twitter_32_purple.svg" ] []
+                , text "Twitter"
                 ]
             ]
         ]
@@ -421,7 +433,7 @@ menuNodes { activePage } =
     in
     [ nav []
         [ ul []
-            [ li [] [ linkMaybeActive Home Route.AllVideos "Accueil videos" ]
+            [ li [] [ linkMaybeActive AllVideos Route.AllVideos "Accueil videos" ]
             , li [] [ linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés" ]
             , li [] [ linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
             , li [] [ linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
@@ -438,23 +450,6 @@ menuNodes { activePage } =
                         li [] [ linkMaybeActive (VideoList <| Route.Search keyword) route keyword ]
                     )
             )
-        , h3 [] [ text "Le projet" ]
-        , ul []
-            [ li [] [ linkMaybeActive Participate Route.Participate "Je participe" ]
-            , li []
-                [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
-                    , text "Contactez-nous"
-                    ]
-                ]
-            , li []
-                [ -- Link to the Sendinblue signup form.
-                  a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
-                    , text "Inscrivez-vous à notre infolettre"
-                    ]
-                ]
-            ]
         ]
     , div []
         [ a []

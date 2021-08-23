@@ -650,13 +650,10 @@ aside h3 {
   text-transform: uppercase;
 }
 aside nav {
-  margin-bottom: 1.4rem;
-  color: var(--primary-color);
-}
-aside > nav {
   position: relative;
   margin-right: 4.6rem;
   padding: 2.4rem 0;
+  color: var(--primary-color);
   border-bottom: 1px solid var(--highlight);
 }
 aside nav a {
@@ -685,6 +682,17 @@ aside nav a img {
 }
 aside nav a img[src*="book.svg"] {
   width: 23px;
+}
+aside nav h3 {
+  margin: 1.6rem 0 0.8rem;
+}
+aside nav ul:not(:last-of-type)::after {
+  content: "";
+  display: block;
+  width: 3.2rem;
+  height: 1px;
+  margin: 1.6rem 0 0 1.6rem;
+  background-color: var(--nav-separator);
 }
 
 aside > div {
