@@ -1,4 +1,4 @@
-module Views.Page exposing (ActivePage(..), Config, homeFrame, videoFrame)
+module Views.Page exposing (ActivePage(..), Config, homeFrame, otherFrame, videoFrame)
 
 import Browser exposing (Document)
 import Data.PeerTube
@@ -72,7 +72,24 @@ videoFrame config { title, pageTitle, pageSubTitle, body } =
                 [ viewHeader config pageTitle pageSubTitle
                 , viewContent body
                 ]
-            , viewAside config
+            , viewVideoAside config
+            ]
+        , viewFooter config.session
+        ]
+    }
+
+
+otherFrame : Config msg -> Page.Common.Components.Document msg -> Document msg
+otherFrame config { title, pageTitle, pageSubTitle, body } =
+    { title = title ++ " | Classe à 12"
+    , body =
+        [ viewRFHeader config pageTitle pageSubTitle
+        , Html.main_ [ class "main" ]
+            [ div [ class "content" ]
+                [ viewHeader config pageTitle pageSubTitle
+                , viewContent body
+                ]
+            , viewOtherAside config
             ]
         , viewFooter config.session
         ]
@@ -354,25 +371,53 @@ viewFooter session =
         ]
 
 
-viewAside : Config msg -> Html msg
-viewAside config =
+viewVideoAside : Config msg -> Html msg
+viewVideoAside config =
     aside [ class "side-menu desktop-only" ]
         (menuNodes config)
+
+
+viewOtherAside : Config msg -> Html msg
+viewOtherAside { activePage } =
+    let
+        linkMaybeActive =
+            linkMaybeActiveAside activePage
+    in
+    aside [ class "side-menu desktop-only" ]
+        [ nav []
+            [ linkMaybeActive About Route.About "À propos de Classe à 12"
+            , linkMaybeActive Participate Route.Participate "Participer"
+            , linkMaybeActive Register Route.Register "S'inscrire"
+            , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                , text "Nous contacter"
+                ]
+            , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                , text "Newsletter"
+                ]
+            ]
+        ]
+
+
+linkMaybeActiveAside : ActivePage -> ActivePage -> Route.Route -> String -> Html msg
+linkMaybeActiveAside activePage page route caption =
+    a
+        [ Route.href route
+        , classList
+            [ ( "active", page == activePage )
+            ]
+        ]
+        [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_purple.svg") ] []
+        , text caption
+        ]
 
 
 menuNodes : Config msg -> List (Html msg)
 menuNodes { activePage } =
     let
-        linkMaybeActive page route caption =
-            a
-                [ Route.href route
-                , classList
-                    [ ( "active", page == activePage )
-                    ]
-                ]
-                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_purple.svg") ] []
-                , text caption
-                ]
+        linkMaybeActive =
+            linkMaybeActiveAside activePage
     in
     [ nav []
         [ ul []

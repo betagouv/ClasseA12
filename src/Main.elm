@@ -506,27 +506,27 @@ view model =
         AboutPage aboutModel ->
             About.view model.session aboutModel
                 |> mapMsg AboutMsg
-                |> Page.videoFrame (pageConfig Page.About)
+                |> Page.otherFrame (pageConfig Page.About)
 
         ParticipatePage participateModel ->
             Participate.view model.session participateModel
                 |> mapMsg ParticipateMsg
-                |> Page.videoFrame (pageConfig Page.Participate)
+                |> Page.otherFrame (pageConfig Page.Participate)
 
         CGUPage cguModel ->
             CGU.view model.session cguModel
                 |> mapMsg CGUMsg
-                |> Page.videoFrame (pageConfig Page.CGU)
+                |> Page.otherFrame (pageConfig Page.CGU)
 
         ConventionPage conventionModel ->
             Convention.view model.session conventionModel
                 |> mapMsg ConventionMsg
-                |> Page.videoFrame (pageConfig Page.Convention)
+                |> Page.otherFrame (pageConfig Page.Convention)
 
         PrivacyPolicyPage privacyPolicyModel ->
             PrivacyPolicy.view model.session privacyPolicyModel
                 |> mapMsg PrivacyPolicyMsg
-                |> Page.videoFrame (pageConfig Page.PrivacyPolicy)
+                |> Page.otherFrame (pageConfig Page.PrivacyPolicy)
 
         AdminPage adminModel ->
             Admin.view model.session adminModel
@@ -541,32 +541,32 @@ view model =
         LoginPage loginModel ->
             Login.view model.session loginModel
                 |> mapMsg LoginMsg
-                |> Page.videoFrame (pageConfig Page.Login)
+                |> Page.otherFrame (pageConfig Page.Login)
 
         RegisterPage registerModel ->
             Register.view model.session registerModel
                 |> mapMsg RegisterMsg
-                |> Page.videoFrame (pageConfig Page.Register)
+                |> Page.otherFrame (pageConfig Page.Register)
 
         ResetPasswordPage resetPasswordModel ->
             ResetPassword.view model.session resetPasswordModel
                 |> mapMsg ResetPasswordMsg
-                |> Page.videoFrame (pageConfig Page.ResetPassword)
+                |> Page.otherFrame (pageConfig Page.ResetPassword)
 
         SetNewPasswordPage setNewPasswordModel ->
             SetNewPassword.view model.session setNewPasswordModel
                 |> mapMsg SetNewPasswordMsg
-                |> Page.videoFrame (pageConfig Page.SetNewPassword)
+                |> Page.otherFrame (pageConfig Page.SetNewPassword)
 
         ActivatePage activateModel ->
             Activate.view model.session activateModel
                 |> mapMsg ActivateMsg
-                |> Page.videoFrame (pageConfig Page.Activate)
+                |> Page.otherFrame (pageConfig Page.Activate)
 
         ProfilePage profileModel ->
             Profile.view model.session profileModel
                 |> mapMsg ProfileMsg
-                |> Page.videoFrame (pageConfig Page.Profile)
+                |> Page.otherFrame (pageConfig Page.Profile)
 
         CommentsPage commentsModel ->
             Comments.view model.session commentsModel
@@ -583,7 +583,7 @@ view model =
             , pageSubTitle = title
             , body = [ Html.text title ]
             }
-                |> Page.videoFrame (pageConfig Page.NotFound)
+                |> Page.otherFrame (pageConfig Page.NotFound)
 
 
 
