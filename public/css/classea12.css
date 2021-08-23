@@ -677,8 +677,8 @@ main {
 /* ASIDE */
 aside {
   order: 1;
-  width: 28.8rem;
-  padding: 1.6rem 0;
+  width: 30.4rem;
+  padding: 2.4rem 0 0;
   font-family: "montserratbold", Arial, Helvetica, sans-serif;
   font-size: 1.4rem;
   color: var(--primary-color);
