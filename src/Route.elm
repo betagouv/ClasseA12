@@ -136,7 +136,7 @@ toString route =
                     []
 
                 AllVideos ->
-                    []
+                    [ "videos" ]
 
                 VideoList query ->
                     case query of
