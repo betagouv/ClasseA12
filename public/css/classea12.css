@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #231478;
+  --primary-color: #1e1169;
   --secondary-color: #ff507d;
   --error-color: #d20019;
   --font-color: #353555;
@@ -670,7 +670,8 @@ footer a {
 
 /* MAIN */
 main {
-  padding-bottom: 10rem;
+  padding-top: 6.4rem;
+  padding-bottom: 12.8rem;
 }
 
 /* ASIDE */
@@ -680,8 +681,8 @@ aside {
   padding: 1.6rem 0;
   font-family: "montserratbold", Arial, Helvetica, sans-serif;
   font-size: 1.4rem;
-  color: var(--font-color-inverted);
-  background-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: var(--w-g750);
 }
 aside a {
   text-decoration: none;
@@ -741,12 +742,12 @@ aside nav a {
   margin-bottom: 0.5rem;
   padding-left: 2.4rem;
   font-weight: 500;
-  color: var(--font-color-inverted);
+  color: var(--primary-color);
   border-left: 0.4rem solid transparent;
 }
 aside nav a:hover,
 aside nav a.active {
-  color: var(--font-color-inverted);
+  color: var(--primary-color);
   text-decoration: none;
   border-color: var(--menu-hover-color);
 }

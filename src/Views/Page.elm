@@ -358,7 +358,7 @@ menuNodes { activePage } =
                     [ ( "active", page == activePage )
                     ]
                 ]
-                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_white.svg") ] []
+                [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_purple.svg") ] []
                 , text caption
                 ]
     in
