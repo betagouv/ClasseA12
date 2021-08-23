@@ -11,6 +11,7 @@ import Url.Parser.Query as Query
 
 type Route
     = Home
+    | AllVideos
     | VideoList VideoListQuery
     | About
     | Participate
@@ -53,6 +54,7 @@ parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
+        , Parser.map AllVideos (Parser.s "videos")
         , Parser.map (VideoList Latest) (Parser.s "videos-recentes")
         , Parser.map (VideoList FAQFlash) (Parser.s "videos-faq-flash")
         , Parser.map (VideoList Playlist) (Parser.s "videos-playlist")
@@ -131,6 +133,9 @@ toString route =
         pieces =
             case route of
                 Home ->
+                    []
+
+                AllVideos ->
                     []
 
                 VideoList query ->

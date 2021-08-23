@@ -10,6 +10,7 @@ import Json.Encode as Encode
 import Page.About as About
 import Page.Activate as Activate
 import Page.Admin as Admin
+import Page.AllVideos as AllVideos
 import Page.CGU as CGU
 import Page.Comments as Comments
 import Page.Common.Components
@@ -39,6 +40,7 @@ type alias Flags =
 
 type Page
     = HomePage Home.Model
+    | AllVideosPage AllVideos.Model
     | VideoListPage VideoList.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
@@ -69,6 +71,7 @@ type alias Model =
 
 type Msg
     = HomeMsg Home.Msg
+    | AllVideosMsg AllVideos.Msg
     | VideoListMsg VideoList.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
@@ -126,6 +129,9 @@ setRoute url oldModel =
 
         Just Route.Home ->
             toPage HomePage Home.init HomeMsg
+
+        Just Route.AllVideos ->
+            toPage AllVideosPage AllVideos.init AllVideosMsg
 
         Just (Route.VideoList query) ->
             toPage VideoListPage (VideoList.init query) VideoListMsg
@@ -396,6 +402,9 @@ subscriptions model =
             HomePage _ ->
                 Sub.none
 
+            AllVideosPage _ ->
+                Sub.none
+
             VideoListPage _ ->
                 Sub.none
 
@@ -480,6 +489,11 @@ view model =
             Home.view model.session homeModel
                 |> mapMsg HomeMsg
                 |> Page.frame (pageConfig Page.Home)
+
+        AllVideosPage allVideosModel ->
+            AllVideos.view model.session allVideosModel
+                |> mapMsg AllVideosMsg
+                |> Page.frame (pageConfig Page.AllVideos)
 
         VideoListPage videoListModel ->
             VideoList.view model.session videoListModel

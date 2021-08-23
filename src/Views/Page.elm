@@ -13,6 +13,7 @@ import String.Normalize
 
 type ActivePage
     = Home
+    | AllVideos
     | VideoList Route.VideoListQuery
     | PeerTube
     | PeerTubeVideo
