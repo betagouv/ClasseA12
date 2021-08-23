@@ -275,6 +275,9 @@ update msg ({ page, session } as model) =
         ( HomeMsg homeMsg, HomePage homeModel ) ->
             toPage HomePage HomeMsg (Home.update session) homeMsg homeModel
 
+        ( AllVideosMsg allVideosMsg, AllVideosPage allVideosModel ) ->
+            toPage AllVideosPage AllVideosMsg (AllVideos.update session) allVideosMsg allVideosModel
+
         ( VideoListMsg videoListMsg, VideoListPage videoListModel ) ->
             toPage VideoListPage VideoListMsg (VideoList.update session) videoListMsg videoListModel
 
