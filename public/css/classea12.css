@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #1e1169;
+  --primary-color: #231478;
   --secondary-color: #ff507d;
   --error-color: #d20019;
   --font-color: #353555;
@@ -22,11 +22,11 @@
   --shadow: rgba(0, 0, 0, 0.06);
   --tabs-border: #e6e6f0;
   --tabs-background: rgba(230, 240, 240, 0.5);
-  --modal-backdrop: rgba(0, 0, 0, .5);
-  --modal-shadow: rgba(201, 211, 223, .2);
+  --modal-backdrop: rgba(0, 0, 0, 0.5);
+  --modal-shadow: rgba(201, 211, 223, 0.2);
 
   /* République Française styling */
-  --rf-default-font: "Marianne",arial,sans-serif;
+  --rf-default-font: "Marianne", arial, sans-serif;
   --w-g750: #fff;
   --g700: #383838;
   --g600: #6a6a6a;
@@ -174,8 +174,7 @@ button {
   border: none;
 }
 
-.btn,
-button {
+.btn {
   display: inline-block;
   padding: 1.3rem 2rem;
   font-family: "montserrat", Arial, sans-serif;
@@ -285,7 +284,8 @@ embed {
 }
 
 /* RF */
-[class*=" rf-"], [class^="rf-"] {
+[class*=" rf-"],
+[class^="rf-"] {
   box-sizing: border-box;
   font-family: var(--rf-default-font);
   text-rendering: optimizeSpeed;
@@ -304,30 +304,49 @@ embed {
   margin-right: auto;
 }
 .rf-logo__image--custom {
-  height: 158px;
-  margin: 30px 30px 26px 0;
+  height: 10.2rem;
 }
 
 /* RF-HEADER */
 .rf-header {
-  width: 100%;
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,.1),0 8px 16px -16px rgba(0,0,0,.32);
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.1),
+    0 8px 16px -16px rgba(0, 0, 0, 0.32);
   background-color: var(--w-g750);
   padding: 0;
   position: relative;
 }
-.rf-header__body {
-  margin: 0;
-  padding: 0;
-  flex-wrap: nowrap;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-}
 .rf-header a {
+  color: var(--primary-color);
   -webkit-box-shadow: none;
   box-shadow: none;
+}
+.rf-header__body {
+  margin: 0;
+  padding: 2.4rem 0 4.2rem;
+  display: flex;
+  align-items: center;
+  font-size: 1.6rem;
+}
+.rf-header__logo {
+  display: block;
+  width: 10.4rem;
+  margin-left: 3.2rem;
+}
+.rf-header__nav {
+  margin-left: 3.2rem;
+}
+.rf-header__nav a {
+  font-weight: 500;
+  text-decoration: none;
+}
+.rf-header__nav a:not(:first-of-type) {
+  margin-left: 3.2rem;
+}
+.rf-header__actions {
+  margin-left: auto;
+}
+.rf-header__actions button {
+  margin-left: 3.2rem;
 }
 
 /* HEADER */
@@ -543,7 +562,7 @@ footer a {
 }
 .rf-footer__brand {
   align-items: flex-start;
-  flex-basis: calc(100%/3);
+  flex-basis: calc(100% / 3);
   padding-right: 1rem;
   display: flex;
   flex-direction: row;
@@ -552,7 +571,7 @@ footer a {
 .rf-footer__brand-link {
   align-items: flex-start;
   background-color: white;
-  flex-basis: calc(100%/3);
+  flex-basis: calc(100% / 3);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -565,7 +584,7 @@ footer a {
 }
 .rf-footer__content {
   margin-top: 0;
-  flex-basis: calc(100% - (100%/3));
+  flex-basis: calc(100% - (100% / 3));
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -602,7 +621,7 @@ footer a {
 .rf-footer__bottom-list li {
   display: inline;
   padding: 0 1.5em 0 0;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 .rf-footer__bottom-list li a {
   -webkit-box-shadow: none;
@@ -617,7 +636,6 @@ footer a {
 
 /* MAIN */
 main {
-  padding-top: 5rem;
   padding-bottom: 10rem;
 }
 
@@ -706,18 +724,6 @@ aside nav a img {
 }
 aside nav a img[src*="book.svg"] {
   width: 23px;
-}
-
-.logo {
-  display: block;
-  width: 14.4rem;
-  margin: 0 auto 1.8rem;
-}
-.logo img {
-  display: block;
-  width: 14.4rem;
-  height: 14.1rem;
-  margin-left: -1rem;
 }
 
 /* CARD */
@@ -1254,9 +1260,6 @@ progress {
     margin-top: 0;
     padding: 0;
   }
-  .rf-header__body {
-    padding: 32px 0;
-  }
   header .wrapper {
     display: flex;
     justify-content: space-between;
@@ -1507,11 +1510,11 @@ progress {
   height: 100%;
   width: 100%;
   -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
   -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
   display: none;
   z-index: 10;
 }
@@ -1525,7 +1528,7 @@ progress {
 .modal {
   border-radius: 3px;
   -webkit-box-shadow: 0 1px 2px var(--modal-shadow);
-          box-shadow: 0 1px 2px var(--modal-shadow);
+  box-shadow: 0 1px 2px var(--modal-shadow);
   background: var(--default-background);
   padding: 2em;
   max-width: 32em;

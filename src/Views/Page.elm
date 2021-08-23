@@ -75,10 +75,10 @@ viewRFHeader =
                     ]
                     []
                 , a
-                    [ href "/", class "logo" ]
-                    [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg" ] []
+                    [ href "/", class "rf-header__logo" ]
+                    [ img [ src "%PUBLIC_URL%/images/logos/classea12-dark.svg" ] []
                     ]
-                , nav []
+                , nav [ class "rf-header__nav" ]
                     [ a [ href "/" ]
                         [ text "Les vidéos" ]
                     , a [ href "/" ]
@@ -89,10 +89,10 @@ viewRFHeader =
                         [ text "Contact" ]
                     ]
                 , button []
-                    [ text "Search" ]
-                , div []
-                    [ text "Publier"
-                    , text "Se connecter"
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
+                , div [ class "rf-header__actions" ]
+                    [ button [ class "btn" ] [ text "Publier une vidéo" ]
+                    , button [] [ text "Se connecter" ]
                     ]
                 ]
             ]
