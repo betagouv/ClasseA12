@@ -298,8 +298,7 @@ embed {
   box-sizing: inherit;
 }
 .rf-container {
-  /* max-width: 1136px; */
-  padding: 0 32px;
+  padding: 0 4rem;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -382,59 +381,9 @@ embed {
 .rf-header__actions a {
   margin-left: 2.4rem;
 }
-
-/* HEADER */
-header {
-  margin-top: 40px;
-  padding: 2.1rem 0;
+.search__group input {
+  display: none;
 }
-header a {
-  text-decoration: none;
-}
-header .wrapper {
-  display: flex;
-}
-header nav {
-  display: flex;
-  margin-right: 4rem;
-  margin-left: 4rem;
-  font-family: "montserrat", Arial, sans-serif;
-  font-size: 1.7rem;
-}
-header nav a {
-  position: relative;
-}
-header nav a::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: -1.2rem;
-  left: 0;
-  display: block;
-  width: 0.6rem;
-  height: 0.6rem;
-  margin: auto;
-  background-color: transparent;
-  border-radius: 50%;
-}
-header nav a:hover {
-  color: var(--font-color);
-  font-weight: bold;
-  text-decoration: none;
-}
-header nav a:hover::after {
-  background-color: var(--menu-hover-color);
-}
-
-header div {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-}
-header div a:last-of-type {
-  margin-left: 1.6rem;
-}
-
 .search_button {
   background: none;
 }
@@ -678,12 +627,17 @@ main {
 aside {
   order: 1;
   width: 30.4rem;
+  margin-left: 4rem;
   padding: 2.4rem 0 0;
   font-family: "montserratbold", Arial, Helvetica, sans-serif;
   font-size: 1.4rem;
   color: var(--primary-color);
+}
+aside nav {
+  width: 100%;
   background-color: var(--w-g750);
 }
+
 aside a {
   text-decoration: none;
 }
@@ -694,47 +648,16 @@ aside h3 {
   line-height: 2.15;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--font-color-inverted);
 }
 aside nav {
   margin-bottom: 1.4rem;
+  color: var(--primary-color);
 }
 aside > nav {
   position: relative;
   margin-right: 4.6rem;
-  padding-bottom: 0.9rem;
+  padding: 2.4rem 0;
   border-bottom: 1px solid var(--highlight);
-}
-aside > nav::before,
-aside > nav::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  display: block;
-  height: 1px;
-  background-color: var(--primary-color);
-}
-aside > nav::before {
-  right: 4.1rem;
-  width: 0.8rem;
-}
-aside > nav::after {
-  right: 1rem;
-  width: 1.5rem;
-}
-aside > div nav:first-of-type {
-  position: relative;
-  padding-bottom: 1.5rem;
-}
-aside > div nav:first-of-type::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 1.6rem;
-  display: block;
-  width: 3.2rem;
-  height: 1px;
-  background-color: var(--highlight);
 }
 aside nav a {
   display: flex;
@@ -751,6 +674,9 @@ aside nav a.active {
   text-decoration: none;
   border-color: var(--menu-hover-color);
 }
+aside nav a.active {
+  font-weight: bold;
+}
 aside nav a img {
   display: inline-block;
   width: 3.2rem;
@@ -759,6 +685,13 @@ aside nav a img {
 }
 aside nav a img[src*="book.svg"] {
   width: 23px;
+}
+
+aside > div {
+  text-align: center;
+}
+aside > div img {
+  margin-top: 3.2rem;
 }
 
 /* CARD */
@@ -1289,11 +1222,6 @@ progress {
   }
   .desktop-only {
     display: none;
-  }
-
-  header {
-    margin-top: 0;
-    padding: 0;
   }
   header .wrapper {
     display: flex;

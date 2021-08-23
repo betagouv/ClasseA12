@@ -141,7 +141,7 @@ viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) page
                 [ text caption
                 ]
     in
-    div [ class "rf-header" ]
+    header [ class "rf-header" ]
         [ div [ class "rf-container" ]
             [ div [ class "rf-header__body" ]
                 [ img
@@ -375,14 +375,14 @@ menuNodes { activePage } =
                 ]
     in
     [ nav []
-        [ linkMaybeActive Home Route.Home "Accueil"
-        , linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés"
-        , linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine"
-        , linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash"
-        ]
-    , div []
-        [ h3 [] [ text "Catégories" ]
-        , nav []
+        [ ul []
+            [ li [] [ linkMaybeActive Home Route.AllVideos "Accueil videos" ]
+            , li [] [ linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés" ]
+            , li [] [ linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
+            , li [] [ linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
+            ]
+        , h3 [] [ text "Catégories" ]
+        , ul []
             (Data.PeerTube.keywordList
                 |> List.map
                     (\keyword ->
@@ -390,27 +390,34 @@ menuNodes { activePage } =
                             route =
                                 Route.VideoList <| Route.Keyword keyword
                         in
-                        linkMaybeActive (VideoList <| Route.Search keyword) route keyword
+                        li [] [ linkMaybeActive (VideoList <| Route.Search keyword) route keyword ]
                     )
             )
         , h3 [] [ text "Le projet" ]
-        , nav []
-            [ linkMaybeActive Participate Route.Participate "Je participe"
-            , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
-                , text "Contactez-nous"
+        , ul []
+            [ li [] [ linkMaybeActive Participate Route.Participate "Je participe" ]
+            , li []
+                [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
+                    , text "Contactez-nous"
+                    ]
                 ]
-
-            -- Link to the Sendinblue signup form.
-            , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
-                , text "Inscrivez-vous à notre infolettre"
+            , li []
+                [ -- Link to the Sendinblue signup form.
+                  a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_white.svg" ] []
+                    , text "Inscrivez-vous à notre infolettre"
+                    ]
                 ]
             ]
+        ]
+    , div []
+        [ a []
+            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                []
+            ]
         , a
-            [ class "rf-footer__brand-link"
-            , href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
-            , title "Retour à l'accueil"
+            [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
             ]
             [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
                 []
