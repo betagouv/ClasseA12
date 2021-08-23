@@ -24,6 +24,7 @@
   --tabs-background: rgba(230, 240, 240, 0.5);
   --modal-backdrop: rgba(0, 0, 0, 0.5);
   --modal-shadow: rgba(201, 211, 223, 0.2);
+  --nav-separator: #d8d8d8;
 
   /* République Française styling */
   --rf-default-font: "Marianne", arial, sans-serif;
@@ -331,20 +332,37 @@ embed {
   width: 10.4rem;
   margin-left: 3.2rem;
 }
-.rf-header__nav {
+.rf-header__nav ul {
   display: flex;
   margin-left: 3.2rem;
 }
+.rf-header__nav li {
+  display: flex;
+}
+.rf-header__nav li:not(:first-of-type) {
+  margin-left: 1.6rem;
+}
+.rf-header__nav li::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 100%;
+  margin-left: 1.6rem;
+  background-color: var(--nav-separator);
+}
 .rf-header__nav a {
+  position: relative;
   color: var(--primary-color);
   font-weight: 500;
+  line-height: 1;
   text-decoration: none;
-}
-.rf-header__nav a:not(:first-of-type) {
-  margin-left: 3.2rem;
 }
 .rf-header__nav a::after {
   content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1.2rem;
+  left: 0;
   display: block;
   width: 0.8rem;
   height: 0.8rem;
@@ -361,8 +379,8 @@ embed {
 .rf-header__actions {
   margin-left: auto;
 }
-.rf-header__actions button {
-  margin-left: 3.2rem;
+.rf-header__actions a {
+  margin-left: 2.4rem;
 }
 
 /* HEADER */
