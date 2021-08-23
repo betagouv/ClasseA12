@@ -50,7 +50,7 @@ frame : Config msg -> Page.Common.Components.Document msg -> Document msg
 frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        [ viewRFHeader
+        [ viewRFHeader config pageTitle pageSubTitle
         , Html.main_ [ class "main" ]
             [ div [ class "content" ]
                 [ viewHeader config pageTitle pageSubTitle
@@ -63,8 +63,58 @@ frame config { title, pageTitle, pageSubTitle, body } =
     }
 
 
-viewRFHeader : Html msg
-viewRFHeader =
+viewRFHeader : Config msg -> String -> String -> Html msg
+viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTitle pageSubTitle =
+    let
+        loginIcon =
+            if session.isMenuOpened then
+                -- This should never be the case on desktop, so display the mobile icon which is white
+                a [ Route.href Route.Login, title "Se connecter" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_white.svg" ] []
+                    , text " Se connecter"
+                    ]
+
+            else
+                a [ Route.href Route.Login, title "Se connecter" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
+                    , text " Se connecter"
+                    ]
+
+        icon =
+            if session.isMenuOpened then
+                -- This should never be the case on desktop, so display the mobile icon which is white
+                "%PUBLIC_URL%/images/icons/32x32/profil_white.svg"
+
+            else
+                "%PUBLIC_URL%/images/icons/32x32/profil_purple.svg"
+
+        profileIcon =
+            case session.userInfo of
+                Just userInfo ->
+                    a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
+                        [ img [ src icon ] []
+                        , text <| " " ++ userInfo.username
+                        ]
+
+                Nothing ->
+                    text ""
+
+        loginProfileIcon =
+            if isLoggedIn session.userInfo then
+                profileIcon
+
+            else
+                loginIcon
+
+        viewPublishVideoButton =
+            case activePage of
+                Participate ->
+                    text ""
+
+                _ ->
+                    a [ class "btn", Route.href Route.Participate ]
+                        [ text "Publier une vidéo" ]
+    in
     div [ class "rf-header" ]
         [ div [ class "rf-container" ]
             [ div [ class "rf-header__body" ]
@@ -91,8 +141,8 @@ viewRFHeader =
                 , button []
                     [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
                 , div [ class "rf-header__actions" ]
-                    [ button [ class "btn" ] [ text "Publier une vidéo" ]
-                    , button [] [ text "Se connecter" ]
+                    [ viewPublishVideoButton
+                    , loginProfileIcon
                     ]
                 ]
             ]
@@ -156,10 +206,6 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
             [ searchForm config DesktopSearchForm
             , a [ href "/", class "mobile-only logo" ]
                 [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
-                ]
-            , div [ class "desktop-only" ]
-                [ viewPublishVideoButton
-                , loginProfileIcon
                 ]
             , button
                 [ class "mobile-only menu-opener"
