@@ -141,22 +141,19 @@ viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) page
                 , nav [ class "rf-header__nav" ]
                     [ ul []
                         [ li []
-                            [ a [ href "/" ]
-                                [ text "Les vidéos" ]
-                            ]
+                            [ linkMaybeActive AllVideos Route.AllVideos "Les vidéos" ]
                         , li []
                             [ a [ href "/" ]
                                 [ text "Actualités" ]
                             ]
                         , li [] [ linkMaybeActive About Route.About "À propos" ]
                         , li []
-                            [ a [ href "/" ]
+                            [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
                                 [ text "Contact" ]
                             ]
                         ]
                     ]
-                , button []
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
+                , searchForm config DesktopSearchForm
                 , div [ class "rf-header__actions" ]
                     [ viewPublishVideoButton
                     , loginProfileIcon
@@ -220,8 +217,7 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
     in
     header []
         [ div [ class "wrapper" ]
-            [ searchForm config DesktopSearchForm
-            , a [ href "/", class "mobile-only logo" ]
+            [ a [ href "/", class "mobile-only logo" ]
                 [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
                 ]
             , button
