@@ -51,7 +51,7 @@ frame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
         [ viewRFHeader
-        , div [ class "main" ]
+        , Html.main_ [ class "main" ]
             [ div [ class "content" ]
                 [ viewHeader config pageTitle pageSubTitle
                 , viewContent body
