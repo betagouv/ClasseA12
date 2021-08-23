@@ -178,15 +178,15 @@ button {
   display: inline-block;
   padding: 1.3rem 2rem;
   font-family: "montserrat", Arial, sans-serif;
-  font-weight: normal;
+  font-weight: 500;
   font-size: 1.4rem;
   line-height: 1;
+  text-decoration: none;
   color: var(--font-color-inverted);
-  background-color: var(--secondary-color);
+  background-color: var(--primary-color);
   border-radius: 2.5rem;
 }
-.btn:hover,
-button:hover {
+.btn:hover {
   color: var(--font-color-inverted);
   text-decoration: none;
 }
@@ -316,8 +316,7 @@ embed {
   position: relative;
 }
 .rf-header a {
-  color: var(--primary-color);
-  -webkit-box-shadow: none;
+  text-decoration: none;
   box-shadow: none;
 }
 .rf-header__body {
@@ -333,14 +332,31 @@ embed {
   margin-left: 3.2rem;
 }
 .rf-header__nav {
+  display: flex;
   margin-left: 3.2rem;
 }
 .rf-header__nav a {
+  color: var(--primary-color);
   font-weight: 500;
   text-decoration: none;
 }
 .rf-header__nav a:not(:first-of-type) {
   margin-left: 3.2rem;
+}
+.rf-header__nav a::after {
+  content: "";
+  display: block;
+  width: 0.8rem;
+  height: 0.8rem;
+  margin: 0.8rem auto 0;
+  background-color: transparent;
+  border-radius: 50%;
+}
+.rf-header__nav a.active {
+  font-weight: bold;
+}
+.rf-header__nav a.active::after {
+  background-color: var(--menu-hover-color);
 }
 .rf-header__actions {
   margin-left: auto;

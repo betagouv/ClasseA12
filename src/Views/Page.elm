@@ -114,6 +114,16 @@ viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) page
                 _ ->
                     a [ class "btn", Route.href Route.Participate ]
                         [ text "Publier une vidéo" ]
+
+        linkMaybeActive page route caption =
+            a
+                [ Route.href route
+                , classList
+                    [ ( "active", page == activePage )
+                    ]
+                ]
+                [ text caption
+                ]
     in
     div [ class "rf-header" ]
         [ div [ class "rf-container" ]
@@ -133,8 +143,7 @@ viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) page
                         [ text "Les vidéos" ]
                     , a [ href "/" ]
                         [ text "Actualités" ]
-                    , a [ href "/" ]
-                        [ text "À propos" ]
+                    , linkMaybeActive About Route.About "À propos"
                     , a [ href "/" ]
                         [ text "Contact" ]
                     ]
@@ -366,8 +375,7 @@ menuNodes { activePage } =
             )
         , h3 [] [ text "Le projet" ]
         , nav []
-            [ linkMaybeActive About Route.About "Classe à 12 ?"
-            , linkMaybeActive Participate Route.Participate "Je participe"
+            [ linkMaybeActive Participate Route.Participate "Je participe"
             , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_white.svg" ] []
                 , text "Contactez-nous"
