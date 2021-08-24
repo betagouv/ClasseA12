@@ -527,12 +527,9 @@ header .mobile-menu a:last-of-type {
 
 /* FOOTER */
 footer {
-  font-size: 1.4rem;
-  padding: 2em 0;
   width: 100%;
-  border-top: 2px solid var(--bf500);
-  border-bottom: 1px solid var(--g400);
-  padding-top: 2.5rem;
+  font-size: 1.2rem;
+  padding: 3.2rem 0 2.4rem;
   line-height: 1.5;
 }
 footer a {
@@ -540,8 +537,8 @@ footer a {
 }
 .rf-footer__body {
   display: flex;
-  flex-direction: row;
   flex-wrap: wrap;
+  margin-bottom: 5rem;
 }
 .rf-footer__brand {
   align-items: flex-start;
@@ -572,30 +569,30 @@ footer a {
   flex-wrap: wrap;
   justify-content: flex-end;
 }
-.rf-footer__content-links li {
-  margin-right: 1.5rem;
-  display: inline;
+.rf-footer__content-links {
+  display: flex;
+}
+.rf-footer__content-links li:not(:last-of-type) {
+  margin-right: 1.6rem;
 }
 .rf-footer__content-links li a {
-  color: var(--g700);
-  display: inline;
-  font-size: 1.1em;
+  font-size: 1.6rem;
   font-weight: 700;
+  color: var(--primary-color);
 }
 .rf-footer__bottom {
-  flex-wrap: nowrap;
-  padding: 0;
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   margin-top: 2.5rem;
-  border-top: 1px solid var(--g400);
+  padding: 1.6rem 0 0;
   color: var(--g600);
+  border-top: 1px solid var(--g400);
 }
 .rf-footer__bottom a {
   color: var(--g700);
 }
 .rf-footer__bottom-list {
-  padding: 1rem 0;
   flex-wrap: wrap;
   align-items: center;
   width: 100%;
@@ -604,7 +601,7 @@ footer a {
 .rf-footer__bottom-list li {
   display: inline;
   padding: 0 1.5em 0 0;
-  font-size: 0.9em;
+  font-size: 1.2rem;
 }
 .rf-footer__bottom-list li a {
   -webkit-box-shadow: none;
@@ -1277,28 +1274,8 @@ progress {
     padding-bottom: 4.8rem;
   }
 
-  footer {
-    font-size: 1rem;
-    padding: 0;
-  }
-  footer img {
-    width: 11rem;
-  }
   .rf-logo__image--custom {
     margin: 0;
-  }
-  .rf-footer__brand,
-  .rf-footer__content {
-    flex-basis: 100%;
-  }
-  .rf-footer__bottom {
-    flex-wrap: wrap;
-  }
-  .rf-footer__bottom-list {
-    padding: 0.5rem 0;
-  }
-  .rf-footer__bottom-copy {
-    margin: 1rem 0 0;
   }
 
   .grid {
