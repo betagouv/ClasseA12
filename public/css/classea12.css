@@ -121,7 +121,7 @@ html {
 }
 .cols_seven-five > div:last-of-type {
   width: calc((100% / 12) * 5);
-  padding-left: 4rem;
+  padding-left: 3.2rem;
 }
 
 .content {
@@ -176,7 +176,8 @@ button {
   border: none;
 }
 
-.btn {
+.btn,
+.button {
   display: inline-block;
   padding: 1.3rem 2rem;
   font-family: "montserrat", Arial, sans-serif;
@@ -209,6 +210,7 @@ label,
 legend {
   margin-bottom: 0.8rem;
   font-size: 1.4rem;
+  font-weight: 600;
   text-transform: uppercase;
   color: var(--primary-color);
 }
@@ -892,7 +894,7 @@ aside > div img {
   margin-bottom: 1.2rem;
 }
 
-.video_suggestion {
+.video_suggestion > div {
   max-height: 600px;
   overflow-y: scroll;
 }
@@ -933,17 +935,13 @@ aside > div img {
   margin-bottom: 0;
 }
 .video_contribution p {
-  color: var(--font-color-light);
+  color: var(--font-color);
 }
 .video_contribution form {
-  display: block;
   margin-top: 3.2rem;
 }
-
 .video_contribution form .form__group {
-  width: 100%;
   margin-bottom: 2rem;
-  padding-left: 0;
 }
 
 .form__group {

@@ -760,7 +760,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                                 else
                                     ""
                             ]
-                            [ viewComments videoID comments attachmentList commentFormNode
+                            [ viewComments videoID comments attachmentList
                             ]
                         , H.div
                             [ HA.class <|
@@ -772,6 +772,9 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                             ]
                             [ viewRelatedVideos peerTubeURL relatedVideos
                             ]
+                        ]
+                    , H.div []
+                        [ commentFormNode
                         ]
                     ]
             )
@@ -1061,8 +1064,7 @@ viewComments :
     -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
     -> List Attachment
     -> H.Html Msg
-    -> H.Html Msg
-viewComments videoID commentsData attachmentList commentFormNode =
+viewComments videoID commentsData attachmentList =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.PeerTube.Received comments ->
@@ -1079,7 +1081,6 @@ viewComments videoID commentsData attachmentList commentFormNode =
 
             _ ->
                 H.p [] [ H.text "Aucune contribution pour le moment" ]
-        , commentFormNode
         ]
 
 
@@ -1150,7 +1151,10 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
     if not <| Data.Session.isLoggedIn userInfo then
         H.div []
             [ H.h2 []
-                [ H.text "Apporter une contribution"
+                [ H.text "Votre contribution"
+                ]
+            , H.p []
+                [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..."
                 ]
             , Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
             ]
