@@ -881,7 +881,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                         [ HA.href <| "http://twitter.com/share?text=" ++ shareText
                         , HA.title "Partager la vidéo par twitter"
                         ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/twitter_32_white_purple.svg" ] [] ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/twitter_32_purple.svg" ] [] ]
                     ]
                  , H.li []
                     [ H.a
@@ -907,7 +907,8 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
             case commentsData_ of
                 Data.PeerTube.Received comments ->
                     comments
-                    |> List.any (\comment -> String.fromInt comment.id == attachment.commentID)
+                        |> List.any (\comment -> String.fromInt comment.id == attachment.commentID)
+
                 _ ->
                     False
 
@@ -1020,7 +1021,18 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
     in
     H.div
         []
-        [ Page.Common.Video.playerForVideo video peerTubeURL
+        [ H.div [ HA.class "video_details" ]
+            [ Page.Common.Video.title video
+            , H.div []
+                [ H.img
+                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
+                    ]
+                    []
+                , Page.Common.Video.metadata video
+                , Page.Common.Video.keywords video.tags
+                ]
+            ]
+        , Page.Common.Video.playerForVideo video peerTubeURL
         , case video.files of
             Just files ->
                 H.div []
@@ -1033,17 +1045,6 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
 
             Nothing ->
                 H.text ""
-        , H.div [ HA.class "video_details" ]
-            [ Page.Common.Video.title video
-            , H.div []
-                [ H.img
-                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
-                    ]
-                    []
-                , Page.Common.Video.metadata video
-                , Page.Common.Video.keywords video.tags
-                ]
-            ]
         , H.div [ HA.class "video_infos cols_height-four" ]
             [ Page.Common.Video.description video
             , viewAttachments

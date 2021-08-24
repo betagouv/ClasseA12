@@ -295,7 +295,7 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
 
 viewContent : List (Html msg) -> Html msg
 viewContent body =
-    main_ [ class "wrapper" ]
+    div [ class "wrapper" ]
         body
 
 

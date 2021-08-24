@@ -12,7 +12,7 @@ formatStringDate date =
 formatStringDatetime : String -> String
 formatStringDatetime date =
     -- Very naive way to display the date and time of the day given a date in the format "2019-04-05T12:56:54.424Z"
-    String.left 19 date
+    String.left 16 date
         |> String.replace "T" " "
 
 
