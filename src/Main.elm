@@ -491,87 +491,87 @@ view model =
         HomePage homeModel ->
             Home.view model.session homeModel
                 |> mapMsg HomeMsg
-                |> Page.homeFrame (pageConfig Page.Home)
+                |> Page.frame Page.HomeFrame (pageConfig Page.Home)
 
         AllVideosPage allVideosModel ->
             AllVideos.view model.session allVideosModel
                 |> mapMsg AllVideosMsg
-                |> Page.videoFrame (pageConfig Page.AllVideos)
+                |> Page.frame Page.VideoFrame (pageConfig Page.AllVideos)
 
         VideoListPage videoListModel ->
             VideoList.view model.session videoListModel
                 |> mapMsg VideoListMsg
-                |> Page.videoFrame (pageConfig <| Page.VideoList videoListModel.query)
+                |> Page.frame Page.VideoFrame (pageConfig <| Page.VideoList videoListModel.query)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel
                 |> mapMsg AboutMsg
-                |> Page.aboutFrame (pageConfig Page.About)
+                |> Page.frame Page.AboutFrame (pageConfig Page.About)
 
         ParticipatePage participateModel ->
             Participate.view model.session participateModel
                 |> mapMsg ParticipateMsg
-                |> Page.aboutFrame (pageConfig Page.Participate)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Participate)
 
         CGUPage cguModel ->
             CGU.view model.session cguModel
                 |> mapMsg CGUMsg
-                |> Page.aboutFrame (pageConfig Page.CGU)
+                |> Page.frame Page.AboutFrame (pageConfig Page.CGU)
 
         ConventionPage conventionModel ->
             Convention.view model.session conventionModel
                 |> mapMsg ConventionMsg
-                |> Page.aboutFrame (pageConfig Page.Convention)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Convention)
 
         PrivacyPolicyPage privacyPolicyModel ->
             PrivacyPolicy.view model.session privacyPolicyModel
                 |> mapMsg PrivacyPolicyMsg
-                |> Page.aboutFrame (pageConfig Page.PrivacyPolicy)
+                |> Page.frame Page.AboutFrame (pageConfig Page.PrivacyPolicy)
 
         AdminPage adminModel ->
             Admin.view model.session adminModel
                 |> mapMsg AdminMsg
-                |> Page.videoFrame (pageConfig Page.Admin)
+                |> Page.frame Page.VideoFrame (pageConfig Page.Admin)
 
         VideoPage videoModel ->
             Video.view model.session videoModel
                 |> mapMsg VideoMsg
-                |> Page.videoFrame (pageConfig Page.Video)
+                |> Page.frame Page.VideoFrame (pageConfig Page.Video)
 
         LoginPage loginModel ->
             Login.view model.session loginModel
                 |> mapMsg LoginMsg
-                |> Page.aboutFrame (pageConfig Page.Login)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Login)
 
         RegisterPage registerModel ->
             Register.view model.session registerModel
                 |> mapMsg RegisterMsg
-                |> Page.aboutFrame (pageConfig Page.Register)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Register)
 
         ResetPasswordPage resetPasswordModel ->
             ResetPassword.view model.session resetPasswordModel
                 |> mapMsg ResetPasswordMsg
-                |> Page.aboutFrame (pageConfig Page.ResetPassword)
+                |> Page.frame Page.AboutFrame (pageConfig Page.ResetPassword)
 
         SetNewPasswordPage setNewPasswordModel ->
             SetNewPassword.view model.session setNewPasswordModel
                 |> mapMsg SetNewPasswordMsg
-                |> Page.aboutFrame (pageConfig Page.SetNewPassword)
+                |> Page.frame Page.AboutFrame (pageConfig Page.SetNewPassword)
 
         ActivatePage activateModel ->
             Activate.view model.session activateModel
                 |> mapMsg ActivateMsg
-                |> Page.aboutFrame (pageConfig Page.Activate)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Activate)
 
         ProfilePage profileModel ->
             Profile.view model.session profileModel
                 |> mapMsg ProfileMsg
-                |> Page.aboutFrame (pageConfig Page.Profile)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Profile)
 
         CommentsPage commentsModel ->
             Comments.view model.session commentsModel
                 |> mapMsg CommentsMsg
-                |> Page.videoFrame (pageConfig Page.Comments)
+                |> Page.frame Page.VideoFrame (pageConfig Page.Comments)
 
         NotFound ->
             let
@@ -583,7 +583,7 @@ view model =
             , pageSubTitle = title
             , body = [ Html.text title ]
             }
-                |> Page.aboutFrame (pageConfig Page.NotFound)
+                |> Page.frame Page.AboutFrame (pageConfig Page.NotFound)
 
 
 

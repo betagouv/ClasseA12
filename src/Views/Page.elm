@@ -1,10 +1,10 @@
-module Views.Page exposing (ActivePage(..), Config, aboutFrame, homeFrame, videoFrame)
+module Views.Page exposing (ActivePage(..), Config, Frame(..), frame)
 
 import Browser exposing (Document)
 import Data.PeerTube
 import Data.Session exposing (Session, isLoggedIn)
 import Html exposing (..)
-import Html.Attributes exposing (alt, class, classList, href, placeholder, src, style, title, type_, value)
+import Html.Attributes exposing (alt, class, classList, href, placeholder, src, title, type_, value)
 import Html.Events exposing (onClick, onInput, onSubmit)
 import Page.Common.Components
 import Route
@@ -53,58 +53,36 @@ type alias Config msg =
     }
 
 
-homeFrame : Config msg -> Page.Common.Components.Document msg -> Document msg
-homeFrame config { title, pageTitle, pageSubTitle, body } =
+frame : Frame -> Config msg -> Page.Common.Components.Document msg -> Document msg
+frame frameVariant config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        [ viewRFHeader config pageTitle pageSubTitle
+        [ viewRFHeader frameVariant config pageTitle pageSubTitle
         , Html.main_ [ class "main" ]
             [ div [ class "content" ]
                 [ viewHeader config pageTitle pageSubTitle
                 , viewContent body
                 ]
+            , case frameVariant of
+                HomeFrame ->
+                    viewHomeAside config
+
+                VideoFrame ->
+                    viewVideoAside config
+
+                AboutFrame ->
+                    viewAboutAside config
+
+                NewsFrame ->
+                    viewNewsAside config
             ]
         , viewFooter config.session
         ]
     }
 
 
-videoFrame : Config msg -> Page.Common.Components.Document msg -> Document msg
-videoFrame config { title, pageTitle, pageSubTitle, body } =
-    { title = title ++ " | Classe à 12"
-    , body =
-        [ viewRFHeader config pageTitle pageSubTitle
-        , Html.main_ [ class "main" ]
-            [ div [ class "content" ]
-                [ viewHeader config pageTitle pageSubTitle
-                , viewContent body
-                ]
-            , viewVideoAside config
-            ]
-        , viewFooter config.session
-        ]
-    }
-
-
-aboutFrame : Config msg -> Page.Common.Components.Document msg -> Document msg
-aboutFrame config { title, pageTitle, pageSubTitle, body } =
-    { title = title ++ " | Classe à 12"
-    , body =
-        [ viewRFHeader config pageTitle pageSubTitle
-        , Html.main_ [ class "main" ]
-            [ div [ class "content" ]
-                [ viewHeader config pageTitle pageSubTitle
-                , viewContent body
-                ]
-            , viewOtherAside config
-            ]
-        , viewFooter config.session
-        ]
-    }
-
-
-viewRFHeader : Config msg -> String -> String -> Html msg
-viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTitle pageSubTitle =
+viewRFHeader : Frame -> Config msg -> String -> String -> Html msg
+viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTitle pageSubTitle =
     let
         loginIcon =
             if session.isMenuOpened then
@@ -155,11 +133,12 @@ viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) page
                     a [ class "btn", Route.href Route.Participate ]
                         [ text "Publier une vidéo" ]
 
-        linkMaybeActive page route caption =
+        navLink : Frame -> Route.Route -> String -> Html msg
+        navLink frameVariant route caption =
             a
                 [ Route.href route
                 , classList
-                    [ ( "active", page == activePage )
+                    [ ( "active", frameVariant == activeFrame )
                     ]
                 ]
                 [ text caption
@@ -181,12 +160,12 @@ viewRFHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) page
                 , nav [ class "rf-header__nav" ]
                     [ ul []
                         [ li []
-                            [ linkMaybeActive AllVideos Route.AllVideos "Les vidéos" ]
+                            [ navLink VideoFrame Route.AllVideos "Les vidéos" ]
                         , li []
                             [ a [ href "/" ]
                                 [ text "Actualités" ]
                             ]
-                        , li [] [ linkMaybeActive About Route.About "À propos" ]
+                        , li [] [ navLink AboutFrame Route.About "À propos" ]
                         , li []
                             [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
                                 [ text "Contact" ]
@@ -378,14 +357,19 @@ viewFooter session =
         ]
 
 
+viewHomeAside : Config msg -> Html msg
+viewHomeAside _ =
+    aside [] []
+
+
 viewVideoAside : Config msg -> Html msg
 viewVideoAside config =
     aside [ class "side-menu desktop-only" ]
         (menuNodes config)
 
 
-viewOtherAside : Config msg -> Html msg
-viewOtherAside { activePage } =
+viewAboutAside : Config msg -> Html msg
+viewAboutAside { activePage } =
     let
         linkMaybeActive =
             linkMaybeActiveAside activePage
@@ -417,6 +401,11 @@ viewOtherAside { activePage } =
                 ]
             ]
         ]
+
+
+viewNewsAside : Config msg -> Html msg
+viewNewsAside _ =
+    aside [] []
 
 
 linkMaybeActiveAside : ActivePage -> ActivePage -> Route.Route -> String -> Html msg
