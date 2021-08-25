@@ -1,4 +1,4 @@
-module Views.Page exposing (ActivePage(..), Config, homeFrame, otherFrame, videoFrame)
+module Views.Page exposing (ActivePage(..), Config, aboutFrame, homeFrame, videoFrame)
 
 import Browser exposing (Document)
 import Data.PeerTube
@@ -34,6 +34,13 @@ type ActivePage
     | Profile
     | Comments
     | NotFound
+
+
+type Frame
+    = HomeFrame
+    | VideoFrame
+    | AboutFrame
+    | NewsFrame
 
 
 type alias Config msg =
@@ -79,8 +86,8 @@ videoFrame config { title, pageTitle, pageSubTitle, body } =
     }
 
 
-otherFrame : Config msg -> Page.Common.Components.Document msg -> Document msg
-otherFrame config { title, pageTitle, pageSubTitle, body } =
+aboutFrame : Config msg -> Page.Common.Components.Document msg -> Document msg
+aboutFrame config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
         [ viewRFHeader config pageTitle pageSubTitle
