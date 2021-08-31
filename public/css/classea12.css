@@ -12,6 +12,7 @@
   --menu-hover-color: #28dcf0;
   --yellow: #ffd214;
   --default-font: "nunitoregular", Arial, sans-serif;
+  --default-font-500: "nunitosemibold", Arial, sans-serif;
   --notification-success-color: #0f8246;
   --notification-error-color: #d20019;
   --border-color: rgba(30, 17, 105, 0.1);
@@ -39,6 +40,14 @@
   font-family: "nunitobold";
   src: url("../fonts/nunito-bold-webfont.woff2") format("woff2"),
     url("../fonts/nunito-bold-webfont.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "nunitosemibold";
+  src: url("../fonts/nunito-semibold-webfont.woff2") format("woff2"),
+    url("../fonts/nunito-semibold-webfont.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -188,6 +197,7 @@ button {
   color: var(--font-color-inverted);
   background-color: var(--primary-color);
   border-radius: 2.5rem;
+  cursor: pointer;
 }
 .btn:hover {
   color: var(--font-color-inverted);
@@ -254,7 +264,9 @@ input {
   position: relative;
   padding-right: 1.6rem;
   padding-left: 1.6rem;
+  font-family: var(--default-font-500);
   line-height: 2;
+  text-transform: none;
   border-radius: 12px;
   cursor: pointer;
 }
@@ -1062,8 +1074,8 @@ progress {
 .participate_intro h1 {
   margin-bottom: 2.4rem;
 }
-.participate_intro p:first-of-type {
-  margin-bottom: 2.4rem;
+.participate_intro p {
+  margin-bottom: 1.6rem;
 }
 
 .upload_steps {
@@ -1076,11 +1088,20 @@ progress {
 .upload_steps .upload-step:before {
   content: "";
   position: absolute;
-  left: -3.3rem;
+  left: -3.7rem;
+  width: 1px;
   height: 100%;
-  border-left: 1px dashed var(--tabs-border);
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--tabs-border) 0,
+    var(--tabs-border) 5px,
+    transparent 5px,
+    transparent 10px
+  );
 }
-
+.upload_steps .file-label {
+  text-transform: none;
+}
 .upload_steps .file-input {
   display: none;
 }
@@ -1109,7 +1130,7 @@ progress {
   align-items: center;
   margin-bottom: 0.8rem;
   font-weight: bold;
-  font-size: 1.8rem;
+  font-size: 2rem;
 }
 .upload-step_icon {
   position: relative;
@@ -1130,18 +1151,25 @@ progress {
   background-color: var(--border-color);
   border-radius: 50%;
 }
+.upload-step_title span {
+  margin-left: 0.4rem;
+  font-size: 1.6rem;
+  font-weight: normal;
+}
 
 .upload-step_thumbnail video {
   margin-bottom: 1.8rem;
 }
 
-.keywords {
-  display: inline-block;
-}
-.keywords:not(:first-of-type) {
-  margin-left: 0.8rem;
+.upload-step fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
 }
 
+.keywords label {
+  margin-bottom: 0;
+}
 /* NOTIFICATIONS */
 .notification {
   align-items: center;

@@ -228,13 +228,14 @@ view { userInfo } model =
             , H.p [] [ H.text "Vous aimeriez avoir l'avis de vos collègues sur une problématique ou souhaitez poster une vidéo pour aider le collectif, vous êtes au bon endroit !" ]
             , H.p []
                 [ H.text "Pensez bien à faire signer les autorisations de droit à l'image !"
-                , H.br [] []
-                , H.text "Des demandes d’autorisation sont disponibles ici : "
+                ]
+            , H.p []
+                [ H.text "Des demandes d’autorisation sont disponibles ici : "
                 , H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-majeur_2017.pdf" ]
-                    [ H.text "autorisation adulte" ]
+                    [ H.text "Adulte (PDF)" ]
                 , H.text " - "
                 , H.a [ HA.href "%PUBLIC_URL%/documents/Autorisation-captation-image-mineur_2017.pdf" ]
-                    [ H.text "autorisation mineur" ]
+                    [ H.text "Mineur (PDF)" ]
                 ]
             ]
         , if not <| Data.Session.isLoggedIn userInfo then
@@ -276,6 +277,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/download_32_purple.svg" ] []
                     ]
                 , H.text "Étape 1 : Télécharger votre vidéo"
+                , H.span [] [ H.text "(format mpeg, avi ou mov)" ]
                 ]
             , displayVideo
             , H.div
@@ -298,7 +300,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                         ]
                         []
                     , H.span [ HA.class "btn" ]
-                        [ H.span [ HA.class "file-label" ] [ H.text "Envoyer un fichier vidéo" ]
+                        [ H.span [ HA.class "file-label" ] [ H.text "Téléverser votre vidéo" ]
                         ]
                     ]
                 ]
@@ -330,7 +332,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                 [ formInput
                     H.input
                     "title"
-                    "Titre*"
+                    "Titre *"
                     "Titre de la video"
                     newVideo.title
                     (\title -> UpdateVideoForm { newVideo | title = title })
