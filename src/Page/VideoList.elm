@@ -362,7 +362,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                 H.section [ HA.class "category", HA.id "keyword" ]
                     [ H.div [ HA.class "home-title_wrapper" ]
                         [ H.h3 [ HA.class "home-title" ]
-                            [ H.text <| "Les vidéos dans la catégorie " ++ keyword
+                            [ H.text <| "Vidéos : " ++ keyword
                             ]
                         ]
                     , Page.Common.Video.viewVideoListData videoListData peerTubeURL
