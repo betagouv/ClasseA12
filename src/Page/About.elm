@@ -100,7 +100,7 @@ view _ { title } =
             ]
         , H.div [ class "about__end" ]
             [ H.p [] [ H.text "Que vous soyez novice ou expérimenté, nous vous invitons à oser dire et agir ensemble en tant que professeur expérimentateur" ]
-            , H.h2 [] [ H.text "Avec &laquo; classe à 12 &raquo; nous partageons bien plus que des vidéos, alors, osons ensemble !" ]
+            , H.h2 [] [ H.text "Avec « classe à 12 » nous partageons bien plus que des vidéos, alors, osons ensemble !" ]
             , H.img
                 [ HA.src "%PUBLIC_URL%/images/logos/classea12-dark.svg"
                 , HA.alt "Logo Classe à 12"
