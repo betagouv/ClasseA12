@@ -443,7 +443,7 @@ menuNodes { activePage } =
                             route =
                                 Route.VideoList <| Route.Keyword keyword
                         in
-                        li [] [ linkMaybeActive (VideoList <| Route.Search keyword) route keyword ]
+                        li [] [ linkMaybeActive (VideoList <| Route.Keyword keyword) route keyword ]
                     )
             )
         ]
