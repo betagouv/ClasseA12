@@ -10,6 +10,7 @@ import Html.Events as HE
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
+import List.Extra
 import Markdown
 import Page.Common.Components as Components
 import Page.Common.Dates as Dates
@@ -904,19 +905,39 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     ++ navigatorShareButton
                 )
 
-        hasComment : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> Attachment -> Bool
-        hasComment commentsData_ attachment =
+        getAttachmentUploader : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> Attachment -> Maybe Data.PeerTube.Account
+        getAttachmentUploader commentsData_ attachment =
             case commentsData_ of
                 Data.PeerTube.Received comments ->
                     comments
-                        |> List.any (\comment -> String.fromInt comment.id == attachment.commentID)
+                        |> List.Extra.find (\comment -> String.fromInt comment.id == attachment.commentID)
+                        |> Maybe.map .account
 
                 _ ->
-                    False
+                    Nothing
+
+        viewUploader : Data.PeerTube.Account -> H.Html Msg
+        viewUploader uploader =
+            H.div []
+                [ H.text "Par "
+                , H.a
+                    [ Route.href <| Route.Profile uploader.name
+                    , HA.class "comment_author"
+                    ]
+                    [ H.text uploader.displayName ]
+                ]
 
         activeAttachmentList =
             attachmentList
-                |> List.filter (hasComment commentsData)
+                |> List.filter
+                    (\attachment ->
+                        case getAttachmentUploader commentsData attachment of
+                            Just _ ->
+                                True
+
+                            _ ->
+                                False
+                    )
 
         viewAttachments =
             H.div [ HA.class "video_resources" ]
@@ -943,6 +964,9 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                                         -- , H.span [ HA.class "file_info" ]
                                         --     [ H.text " Type - n Ko"
                                         --     ]
+                                        , getAttachmentUploader commentsData attachment
+                                            |> Maybe.map viewUploader
+                                            |> Maybe.withDefault (H.text "")
                                         ]
                                 )
                         )
