@@ -901,6 +901,13 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                         ]
                         [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] [] ]
                     ]
+                 , H.li []
+                    [ H.a
+                        [ HA.href "https://www.tchap.gouv.fr/"
+                        , HA.title "Partager la vidéo par Tchap"
+                        ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/tchap_32_purple.svg" ] [] ]
+                    ]
                  ]
                     ++ navigatorShareButton
                 )
