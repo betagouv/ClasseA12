@@ -379,9 +379,8 @@ update session msg model =
             let
                 attachments =
                     attachmentList
-                        |> List.map (attachmentFromString session.filesURL)
-                        -- Remove the `Nothing`s and keep the `Just`s
-                        |> List.filterMap identity
+                        -- `filterMap` will remove the `Nothing`s and keep the `Just`s
+                        |> List.filterMap (attachmentFromString session.filesURL)
             in
             ( { model | attachmentList = attachments }
             , Cmd.none
