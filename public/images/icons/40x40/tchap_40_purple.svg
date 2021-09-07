@@ -1,1 +1,6 @@
-<svg height="40" viewBox="0 0 40 40" width="40" xmlns="http://www.w3.org/2000/svg"><g fill="none" transform="translate(10 7)"><path d="m20.678 19.432-10.275 5.932-10.274-5.932v-11.862l10.274-5.931 10.275 5.931z" fill="#1e1169"/><path d="m16.856 8.893h-12.255v4.324h1.781v-2.543h3.243v9.456h1.78v-9.456h5.451z" fill="#fff"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g fill="none" transform="translate(10 7)">
+    <polygon fill="#1E1169" points="20.678 19.432 10.403 25.364 .129 19.432 .129 7.57 10.403 1.639 20.678 7.57"/>
+    <polygon fill="#FFF" points="16.856 8.893 4.601 8.893 4.601 13.217 6.382 13.217 6.382 10.674 9.625 10.674 9.625 20.13 11.405 20.13 11.405 10.674 16.856 10.674"/>
+  </g>
+</svg>

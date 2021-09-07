@@ -1,1 +1,7 @@
-<svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="m0 .46666667h14m-14 5.09090909h14m-14 5.17575754h14" fill="none" stroke="#1e1169" stroke-linecap="round" stroke-width="2" transform="translate(5 6)"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g fill="none" fill-rule="evenodd" stroke="#1E1169" stroke-linecap="round" stroke-width="2" transform="translate(5 6)">
+    <line x2="14" y1=".467" y2=".467"/>
+    <line x2="14" y1="5.558" y2="5.558"/>
+    <line x2="14" y1="10.733" y2="10.733"/>
+  </g>
+</svg>
