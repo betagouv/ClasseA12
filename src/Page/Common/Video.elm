@@ -198,7 +198,21 @@ viewList peerTubeURL videoList =
                 [ H.text "Aucune vidéo pour le moment" ]
     in
     H.div [ HA.class "video-grid" ]
-        videoCards
+        (viewInsert
+            :: videoCards
+        )
+
+
+viewInsert : H.Html msg
+viewInsert =
+    H.div [ HA.class "insert" ]
+        [ H.img
+            [ HA.src <| "%PUBLIC_URL%/images/inserts/" ++ "foobar" ++ ".jpg"
+            , HA.alt <| "Encart pour la catégorie " ++ "foobar"
+            ]
+            []
+        , H.text "foobar"
+        ]
 
 
 viewVideo : String -> Data.PeerTube.Video -> H.Html msg
