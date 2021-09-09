@@ -205,13 +205,18 @@ viewList peerTubeURL videoList =
 
 viewInsert : H.Html msg
 viewInsert =
-    H.div [ HA.class "insert" ]
+    H.div [ HA.class "video-grid__insert" ]
         [ H.img
             [ HA.src <| "%PUBLIC_URL%/images/inserts/" ++ "foobar" ++ ".jpg"
             , HA.alt <| "Encart pour la catégorie " ++ "foobar"
             ]
             []
-        , H.text "foobar"
+        , H.div []
+            [ H.h4 [] []
+            , H.h5 [] []
+            , H.p [] [ H.text "foobar" ]
+            , H.a [ HA.href "#", HA.class "btn btn--secondary" ] [ H.text "Vers" ]
+            ]
         ]
 
 
