@@ -1,3 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <polyline fill="none" stroke="#FFF" stroke-linecap="round" stroke-width="2" points="9 6 15.007 11.993 9 18"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/24x24/flechebold-droite-white</title>
+    <g id="icone/24x24/flechebold-droite-white" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <polyline id="Fleche" stroke="#FFFFFF" stroke-width="2" points="9 6 15.0066519 11.9933481 9 18"></polyline>
+    </g>
 </svg>

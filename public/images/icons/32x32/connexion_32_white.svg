@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <g fill="none" fill-rule="evenodd" stroke="#FFF" transform="translate(8 6)">
-    <rect width="14.5" height="10.5" x=".75" y="8.25" stroke-width="1.5" rx="1"/>
-    <path stroke-width="1.5" d="M4.5,-1.71428571 L5.78571429,-1.71428571 C8.94162714,-1.71428571 11.5,0.844087144 11.5,4 C11.5,7.15591286 8.94162714,9.71428571 5.78571429,9.71428571 L4.5,9.71428571 L4.5,9.71428571" transform="rotate(-90 8 4)"/>
-    <ellipse cx="8" cy="12" rx="1.714" ry="1.5"/>
-    <line x1="8" x2="8" y1="13.5" y2="16.072" stroke-linecap="round"/>
-  </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/32x32/connexion_32_white</title>
+    <g id="icone/32x32/connexion_32_white" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(8.000000, 6.000000)" stroke="#FFFFFF">
+            <rect id="Rectangle" stroke-width="1.5" x="0.75" y="8.25" width="14.5" height="10.5" rx="1"></rect>
+            <path d="M4.5,-1.71428571 L5.78571429,-1.71428571 C8.94162714,-1.71428571 11.5,0.844087144 11.5,4 C11.5,7.15591286 8.94162714,9.71428571 5.78571429,9.71428571 L4.5,9.71428571 L4.5,9.71428571" id="Rectangle-Copy" stroke-width="1.5" transform="translate(8.000000, 4.000000) rotate(-90.000000) translate(-8.000000, -4.000000) "></path>
+            <ellipse id="Oval" cx="8" cy="12" rx="1.71428571" ry="1.5"></ellipse>
+            <line x1="8" y1="13.5" x2="8" y2="16.0718403" id="Line-5" stroke-linecap="round"></line>
+        </g>
+    </g>
 </svg>

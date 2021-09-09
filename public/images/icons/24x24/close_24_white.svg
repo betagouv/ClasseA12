@@ -1,6 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <g fill="none" fill-rule="evenodd" stroke="#FFF" stroke-linecap="round" stroke-width="2.5" transform="translate(4.9 4.565)">
-    <line x1="-2.51" x2="17.045" y1="7.267" y2="7.267" transform="rotate(45 7.267 7.267)"/>
-    <line x1="7.304" x2="7.478" y1="-2.423" y2="16.958" transform="rotate(45 7.39 7.267)"/>
-  </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/24x24/close_24_white</title>
+    <g id="icone/24x24/close_24_white" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="Group" transform="translate(4.900124, 4.564903)" stroke="#FFFFFF" stroke-width="2.5">
+            <line x1="-2.51029142" y1="7.26748636" x2="17.0452641" y2="7.26748636" id="Line-2" transform="translate(7.267486, 7.267486) rotate(-315.000000) translate(-7.267486, -7.267486) "></line>
+            <line x1="7.30357227" y1="-2.42317234" x2="7.47781043" y2="16.9581451" id="Line-2" transform="translate(7.390691, 7.267486) rotate(-315.000000) translate(-7.390691, -7.267486) "></line>
+        </g>
+    </g>
 </svg>

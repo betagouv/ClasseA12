@@ -1,7 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <g fill="none" fill-rule="evenodd" stroke="#1E1169" stroke-linecap="round" stroke-width="2" transform="translate(5 6)">
-    <line x2="14" y1=".467" y2=".467"/>
-    <line x2="14" y1="5.558" y2="5.558"/>
-    <line x2="14" y1="10.733" y2="10.733"/>
-  </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/24x24/menu_open_24_purple</title>
+    <g id="icone/24x24/menu_open_24_purple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="Menu_icone" transform="translate(5.000000, 6.000000)" stroke="#1E1169" stroke-width="2">
+            <line x1="0" y1="0.466666667" x2="14" y2="0.466666667" id="Line-2"></line>
+            <line x1="0" y1="5.55757576" x2="14" y2="5.55757576" id="Line-2"></line>
+            <line x1="0" y1="10.7333333" x2="14" y2="10.7333333" id="Line-2"></line>
+        </g>
+    </g>
 </svg>
