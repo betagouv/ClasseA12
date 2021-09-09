@@ -22,7 +22,6 @@ import Ports
 import Request.Files
 import Request.PeerTube
 import Route
-import Set
 import Task
 import Url exposing (Url)
 
@@ -81,7 +80,7 @@ type Msg
     | AttachmentSent Decode.Value
     | ProgressUpdated Decode.Value
     | AttachmentListReceived (Result Http.Error (List String))
-    | RelatedVideosReceived (List String) (Result Http.Error (List Data.PeerTube.Video))
+    | RelatedVideosReceived (Result Http.Error (List (List Data.PeerTube.Video)))
     | ActivateTab Tab
     | NotificationMsg Notifications.Msg
     | AskDeleteConfirmation
@@ -150,12 +149,20 @@ update session msg model =
                 -- keywords, and then the ones which have one keyword in common.
                 -- This will be something like [[foo, bar], [foo], [bar]]
                 relatedVideosKeywordsToRequest =
-                    (video.tags
-                        :: (video.tags |> List.map List.singleton)
-                    )
-                        -- Make sure we don't have duplicated, eg for a video that has only one keyword.
-                        |> Set.fromList
-                        |> Set.toList
+                    List.foldl
+                        (\keyword acc ->
+                            -- Make sure we don't have duplicates, for exemple if there's a single keyword
+                            if not (List.member [ keyword ] acc) then
+                                [ keyword ] :: acc
+
+                            else
+                                acc
+                        )
+                        -- Start with the full list of keywords
+                        [ video.tags ]
+                        video.tags
+                        -- We want the full list of keywords first, it's the most representative of related videos
+                        |> List.reverse
 
                 relatedVideosCommands =
                     relatedVideosKeywordsToRequest
@@ -165,8 +172,14 @@ update session msg model =
                                     params =
                                         Request.PeerTube.withKeywords keywords Request.PeerTube.emptyVideoListParams
                                 in
-                                Request.PeerTube.getVideoList params session.peerTubeURL (RelatedVideosReceived keywords)
+                                Request.PeerTube.videoListRequest params session.peerTubeURL
+                                    -- Get the task ...
+                                    |> Http.toTask
                             )
+                        -- ... then make a single task from the list of tasks
+                        |> Task.sequence
+                        -- ... and finally transform that into a command
+                        |> Task.attempt RelatedVideosReceived
 
                 favoriteStatusCommand =
                     case session.userToken of
@@ -182,8 +195,8 @@ update session msg model =
               }
             , Cmd.batch
                 ([ scrollToComment session.url.fragment model
+                 , relatedVideosCommands
                  ]
-                    ++ relatedVideosCommands
                     ++ favoriteStatusCommand
                 )
             , Request.PeerTube.extractSessionMsg authResult
@@ -415,36 +428,22 @@ update session msg model =
             , Nothing
             )
 
-        RelatedVideosReceived keywords (Ok videos) ->
+        RelatedVideosReceived (Ok videosLists) ->
             let
                 newVideos =
-                    videos
+                    videosLists
+                        -- Transform the list of "video lists" into a flat list
+                        |> List.concat
+                        -- Remove the current video from the list of suggestions
                         |> List.filter (\video -> video.uuid /= model.videoID)
-
-                relatedVideos =
-                    case model.relatedVideos of
-                        Data.PeerTube.Received previousVideoList ->
-                            if List.length keywords > 1 then
-                                -- More than one keyword? It must be results from the request with all the keywords
-                                -- so display those results first (they have more keywords in common)
-                                (newVideos ++ previousVideoList)
-                                    |> dedupVideos
-                                    |> Data.PeerTube.Received
-
-                            else
-                                (previousVideoList ++ newVideos)
-                                    |> dedupVideos
-                                    |> Data.PeerTube.Received
-
-                        _ ->
-                            Data.PeerTube.Received newVideos
+                        |> dedupVideos
             in
-            ( { model | relatedVideos = relatedVideos }
+            ( { model | relatedVideos = Data.PeerTube.Received newVideos }
             , Cmd.none
             , Nothing
             )
 
-        RelatedVideosReceived _ (Err _) ->
+        RelatedVideosReceived (Err _) ->
             ( { model
                 | relatedVideos = Data.PeerTube.Failed "Échec de la récupération des vidéos"
                 , notifications =

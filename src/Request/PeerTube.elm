@@ -33,6 +33,7 @@ module Request.PeerTube exposing
     , updateUserAccount
     , urlFromVideoListParams
     , userPublishedVideoList
+    , videoListRequest
     , withKeyword
     , withKeywords
     )
