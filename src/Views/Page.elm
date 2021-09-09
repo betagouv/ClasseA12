@@ -364,7 +364,7 @@ viewHomeAside _ =
 
 viewVideoAside : Config msg -> Html msg
 viewVideoAside config =
-    aside [ class "side-menu desktop-only" ]
+    aside [ class "side-menu" ]
         (menuNodes config)
 
 
@@ -374,7 +374,7 @@ viewAboutAside { activePage } =
         linkMaybeActive =
             linkMaybeActiveAside activePage
     in
-    aside [ class "side-menu desktop-only" ]
+    aside [ class "side-menu" ]
         [ nav []
             [ linkMaybeActive About Route.About "À propos de Classe à 12"
             , linkMaybeActive Participate Route.Participate "Participer"
@@ -427,7 +427,7 @@ menuNodes { activePage } =
         linkMaybeActive =
             linkMaybeActiveAside activePage
     in
-    [ nav []
+    [ nav [ class "desktop-only" ]
         [ ul []
             [ li [] [ linkMaybeActive AllVideos Route.AllVideos "Accueil videos" ]
             , li [] [ linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés" ]
@@ -447,7 +447,7 @@ menuNodes { activePage } =
                     )
             )
         ]
-    , div []
+    , div [ class "desktop-only" ]
         [ a []
             [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
                 []
@@ -457,6 +457,31 @@ menuNodes { activePage } =
             ]
             [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
                 []
+            ]
+        ]
+    , details [ class "mobile-only mobile-categories" ]
+        [ summary [ class "" ]
+            [ text "Choisir une catégorie"
+            ]
+        , nav []
+            [ ul []
+                [ li [] [ linkMaybeActive AllVideos Route.AllVideos "Accueil videos" ]
+                , li [] [ linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés" ]
+                , li [] [ linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
+                , li [] [ linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
+                ]
+            , h3 [] [ text "Catégories" ]
+            , ul []
+                (Data.PeerTube.keywordList
+                    |> List.map
+                        (\keyword ->
+                            let
+                                route =
+                                    Route.VideoList <| Route.Keyword keyword
+                            in
+                            li [] [ linkMaybeActive (VideoList <| Route.Keyword keyword) route keyword ]
+                        )
+                )
             ]
         ]
     ]
