@@ -200,7 +200,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                                 Dict.get keyword videoData
                                     |> Maybe.withDefault Data.PeerTube.NotRequested
                         in
-                        Page.Common.Video.viewCategory videoListData peerTubeURL <| Route.Search keyword
+                        Page.Common.Video.viewCategory videoListData peerTubeURL <| Route.Keyword keyword
                     )
     in
     { title = title
