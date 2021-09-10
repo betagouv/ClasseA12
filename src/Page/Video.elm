@@ -40,6 +40,7 @@ type alias Model =
     , progress : Page.Common.Progress.Progress
     , attachmentList : List Attachment
     , relatedVideos : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+    , numRelatedVideosToDisplay : Int
     , notifications : Notifications.Model
     , activeTab : Tab
     , deletedVideo : Data.PeerTube.RemoteData ()
@@ -119,6 +120,7 @@ init videoID videoTitle session =
       , progress = Page.Common.Progress.empty
       , attachmentList = []
       , relatedVideos = Data.PeerTube.NotRequested
+      , numRelatedVideosToDisplay = 3
       , notifications = Notifications.init
       , activeTab = ContributionTab
       , deletedVideo = Data.PeerTube.NotRequested
@@ -677,7 +679,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -769,7 +771,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                                 else
                                     ""
                             ]
-                            [ viewRelatedVideos peerTubeURL relatedVideos
+                            [ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay
                             ]
                         ]
                     , H.div []
@@ -1273,8 +1275,8 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
             ]
 
 
-viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> H.Html Msg
-viewRelatedVideos peerTubeURL relatedVideos =
+viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> Int -> H.Html Msg
+viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay =
     case relatedVideos of
         Data.PeerTube.Received videos ->
             if videos /= [] then
@@ -1282,6 +1284,7 @@ viewRelatedVideos peerTubeURL relatedVideos =
                     [ H.h4 [] [ H.text "Suggestions" ]
                     , H.div []
                         (videos
+                            |> List.take numRelatedVideosToDisplay
                             |> List.map (Page.Common.Video.viewVideo peerTubeURL)
                         )
                     ]
