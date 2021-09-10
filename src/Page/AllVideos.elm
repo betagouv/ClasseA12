@@ -142,7 +142,7 @@ view : Session -> Model -> Page.Common.Components.Document Msg
 view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle, faqFlashVideoData, videoData } =
     let
         viewRecentVideo =
-            [ H.section [ HA.class "category insert-wide", HA.id "latest" ]
+            [ H.section [ HA.class "category", HA.id "latest" ]
                 [ H.div [ HA.class "home-title_wrapper" ]
                     [ H.h3 [ HA.class "home-title" ]
                         [ H.text "Les nouveautés"
@@ -164,7 +164,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                     else
                         ""
             in
-            [ H.section [ HA.class "category", HA.id "playlist" ]
+            [ H.section [ HA.class "category insert-wide", HA.id "playlist" ]
                 [ H.div [ HA.class "home-title_wrapper" ]
                     [ H.h3 [ HA.class "home-title" ]
                         [ H.text <| "La playlist de la semaine" ++ playlistName
