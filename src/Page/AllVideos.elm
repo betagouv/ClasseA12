@@ -207,8 +207,8 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
     , pageTitle = "Classe à 12 en vidéo"
     , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
     , body =
-        viewRecentVideo
-            ++ viewPlaylistVideo
+        viewPlaylistVideo
+            ++ viewRecentVideo
             ++ viewFAQFlash
             ++ viewVideoCategories
     }
