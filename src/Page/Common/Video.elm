@@ -212,10 +212,9 @@ viewInsert =
             ]
             []
         , H.div []
-            [ H.h4 [] []
-            , H.h5 [] []
-            , H.p [] [ H.text "foobar" ]
-            , H.a [ HA.href "#", HA.class "btn btn--secondary" ] [ H.text "Vers" ]
+            [ H.h4 [] [ H.text "Titre de la catégorie" ]
+            , H.p [] [ H.text "Contenu de la description de la catégorie" ]
+            , H.a [ HA.href "#", HA.class "btn btn--secondary" ] [ H.text "Voir les vidéos" ]
             ]
         ]
 
