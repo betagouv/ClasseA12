@@ -504,7 +504,7 @@ update session msg model =
             , Nothing
             )
 
-        VideoDeleted (Err err) ->
+        VideoDeleted (Err _) ->
             ( { model
                 | deletedVideo = Data.PeerTube.Failed "Échec de la suppression de la vidéo"
                 , notifications =
