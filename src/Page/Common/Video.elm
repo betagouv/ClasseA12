@@ -14,11 +14,13 @@ module Page.Common.Video exposing
     )
 
 import Data.PeerTube
+import Dict
 import Html as H
 import Html.Attributes as HA
 import Markdown
 import Page.Common.Dates as Dates
 import Route
+import String.Normalize
 
 
 publishedAtFromVideo : Data.PeerTube.Video -> String
@@ -129,49 +131,84 @@ keywords keywordList =
         H.text ""
 
 
+titleForQuery : Route.VideoListQuery -> String
+titleForQuery query =
+    case query of
+        Route.Latest ->
+            "Les nouveautés"
+
+        Route.Playlist ->
+            "La playlist de la semaine"
+
+        Route.FAQFlash ->
+            "FAQ Flash"
+
+        Route.Keyword keyword ->
+            keyword
+
+        Route.Search search ->
+            search
+
+        Route.Favorites profile ->
+            "Les vidéos favorites de " ++ profile
+
+        Route.Published profile ->
+            "Les vidéos publiées par " ++ profile
+
+
+textContentForQuery : Route.VideoListQuery -> String
+textContentForQuery query =
+    case query of
+        Route.Latest ->
+            "Du texte pour l'encart de les nouveautés"
+
+        Route.Playlist ->
+            "Du texte pour l'encart de la playlist de la semaine"
+
+        Route.FAQFlash ->
+            "Du texte pour l'encart de la FAQ Flash"
+
+        Route.Keyword keyword ->
+            Dict.fromList
+                [ ( "Français", "Du texte pour l'encart de Français" )
+                , ( "Mathématiques", "Du texte pour l'encart de Mathématiques" )
+                , ( "Questionner le monde", "Du texte pour l'encart de Questionner le monde" )
+                , ( "Arts", "Du texte pour l'encart de Arts" )
+                , ( "Numérique", "Du texte pour l'encart de Numérique" )
+                , ( "Enseignement moral et civique", "Du texte pour l'encart de Enseignement moral et civique" )
+                , ( "Gestion de classe", "Du texte pour l'encart de Gestion de classe" )
+                , ( "Outils", "Du texte pour l'encart de Outils" )
+                ]
+                |> Dict.get keyword
+                |> Maybe.withDefault ""
+
+        _ ->
+            ""
+
+
 viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> Route.VideoListQuery -> H.Html msg
 viewCategory data peerTubeURL query =
     let
-        displayedKeyword =
-            case query of
-                Route.Latest ->
-                    "nouveautés"
-
-                Route.Playlist ->
-                    "playlist de la semaine"
-
-                Route.FAQFlash ->
-                    "FAQ Flash"
-
-                Route.Keyword keyword ->
-                    keyword
-
-                Route.Search search ->
-                    search
-
-                Route.Favorites profile ->
-                    "vidéos favorites de " ++ profile
-
-                Route.Published profile ->
-                    "vidéos publiées par " ++ profile
+        categoryTitle =
+            titleForQuery query
     in
-    H.section [ HA.class "category", HA.id displayedKeyword ]
+    H.section [ HA.class "category", HA.id <| String.Normalize.slug categoryTitle ]
         [ H.div [ HA.class "home-title_wrapper" ]
             [ H.h3 [ HA.class "home-title" ]
                 [ H.text "Le coin "
-                , H.text displayedKeyword
+                , H.text categoryTitle
                 ]
             , H.a [ Route.href <| Route.VideoList query ]
                 [ H.text "Toutes les vidéos "
-                , H.text displayedKeyword
+                , H.text categoryTitle
                 ]
             ]
-        , viewVideoListData data peerTubeURL
+        , viewVideoListData query data peerTubeURL
         ]
 
 
-viewVideoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> H.Html msg
-viewVideoListData data peerTubeURL =
+viewVideoListData : Route.VideoListQuery -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> H.Html msg
+viewVideoListData query data peerTubeURL =
     case data of
         Data.PeerTube.NotRequested ->
             H.text ""
@@ -180,14 +217,14 @@ viewVideoListData data peerTubeURL =
             H.text "Chargement des vidéos..."
 
         Data.PeerTube.Received videoList ->
-            viewList peerTubeURL videoList
+            viewList query peerTubeURL videoList
 
         Data.PeerTube.Failed error ->
             H.text error
 
 
-viewList : String -> List Data.PeerTube.Video -> H.Html msg
-viewList peerTubeURL videoList =
+viewList : Route.VideoListQuery -> String -> List Data.PeerTube.Video -> H.Html msg
+viewList query peerTubeURL videoList =
     let
         videoCards =
             if videoList /= [] then
@@ -198,23 +235,34 @@ viewList peerTubeURL videoList =
                 [ H.text "Aucune vidéo pour le moment" ]
     in
     H.div [ HA.class "video-grid" ]
-        (viewInsert
+        (viewInsert query
             :: videoCards
         )
 
 
-viewInsert : H.Html msg
-viewInsert =
+viewInsert : Route.VideoListQuery -> H.Html msg
+viewInsert query =
+    let
+        categoryTitle =
+            titleForQuery query
+
+        textContent =
+            textContentForQuery query
+    in
     H.div [ HA.class "video-grid__insert" ]
         [ H.img
-            [ HA.src <| "%PUBLIC_URL%/images/inserts/" ++ "foobar" ++ ".jpg"
-            , HA.alt <| "Encart pour la catégorie " ++ "foobar"
+            [ HA.src <| "%PUBLIC_URL%/images/inserts/" ++ String.Normalize.slug categoryTitle ++ ".jpg"
+            , HA.alt <| "Encart pour la catégorie " ++ categoryTitle
             ]
             []
         , H.div []
-            [ H.h4 [] [ H.text "Titre de la catégorie" ]
-            , H.p [] [ H.text "Contenu de la description de la catégorie" ]
-            , H.a [ HA.href "#", HA.class "btn btn--secondary" ] [ H.text "Voir les vidéos" ]
+            [ H.h4 [] [ H.text categoryTitle ]
+            , H.p [] [ H.text textContent ]
+            , H.a
+                [ Route.href <| Route.VideoList query
+                , HA.class "btn btn--secondary"
+                ]
+                [ H.text "Voir les vidéos" ]
             ]
         ]
 

@@ -151,7 +151,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                         [ H.text "Toutes les vidéos récentes"
                         ]
                     ]
-                , Page.Common.Video.viewVideoListData recentVideoData peerTubeURL
+                , Page.Common.Video.viewVideoListData Route.Latest recentVideoData peerTubeURL
                 ]
             ]
 
@@ -173,7 +173,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                         [ H.text "Toutes les vidéos de la playlist"
                         ]
                     ]
-                , Page.Common.Video.viewVideoListData playlistVideoData peerTubeURL
+                , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL
                 ]
             ]
 
@@ -187,7 +187,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                         [ H.text "Toutes les vidéos de la FAQ Flash"
                         ]
                     ]
-                , Page.Common.Video.viewVideoListData faqFlashVideoData peerTubeURL
+                , Page.Common.Video.viewVideoListData Route.FAQFlash faqFlashVideoData peerTubeURL
                 ]
             ]
 

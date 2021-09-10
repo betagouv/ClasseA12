@@ -61,7 +61,7 @@ view { peerTubeURL } { title, playlistVideoData } =
                         []
                     , H.text "Les vidéos à la une"
                     ]
-                , Page.Common.Video.viewVideoListData playlistVideoData peerTubeURL
+                , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL
                 , H.a [ Route.href Route.AllVideos ]
                     [ H.text "Voir toutes les vidéos"
                     ]
