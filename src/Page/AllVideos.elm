@@ -178,7 +178,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
             ]
 
         viewFAQFlash =
-            [ H.section [ HA.class "category", HA.id "latest" ]
+            [ H.section [ HA.class "category", HA.id "faq-flash" ]
                 [ H.div [ HA.class "home-title_wrapper" ]
                     [ H.h3 [ HA.class "home-title" ]
                         [ H.text "FAQ Flash"
