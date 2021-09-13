@@ -82,6 +82,7 @@ type Msg
     | ProgressUpdated Decode.Value
     | AttachmentListReceived (Result Http.Error (List String))
     | RelatedVideosReceived (Result Http.Error (List (List Data.PeerTube.Video)))
+    | LoadMore
     | ActivateTab Tab
     | NotificationMsg Notifications.Msg
     | AskDeleteConfirmation
@@ -455,6 +456,9 @@ update session msg model =
             , Cmd.none
             , Nothing
             )
+
+        LoadMore ->
+            (model, Cmd.none, Nothing)
 
         ActivateTab tab ->
             ( { model | activeTab = tab }
@@ -1287,6 +1291,7 @@ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay =
                             |> List.take numRelatedVideosToDisplay
                             |> List.map (Page.Common.Video.viewVideo peerTubeURL)
                         )
+                    , Components.button "Afficher plus de vidéos" Components.NotLoading (Just LoadMore)
                     ]
 
             else
