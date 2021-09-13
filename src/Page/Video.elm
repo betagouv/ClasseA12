@@ -181,6 +181,7 @@ update session msg model =
                                 let
                                     params =
                                         Request.PeerTube.withKeywords keywords Request.PeerTube.emptyVideoListParams
+                                            |> Request.PeerTube.withCount 20
                                 in
                                 Request.PeerTube.videoListRequest params session.peerTubeURL
                                     -- Get the task ...
