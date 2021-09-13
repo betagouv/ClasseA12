@@ -97,6 +97,11 @@ type Msg
     | NoOp
 
 
+numRelatedVideos : Int
+numRelatedVideos =
+    3
+
+
 init : String -> String -> Session -> ( Model, Cmd Msg )
 init videoID videoTitle session =
     let
@@ -121,7 +126,7 @@ init videoID videoTitle session =
       , progress = Page.Common.Progress.empty
       , attachmentList = []
       , relatedVideos = Data.PeerTube.NotRequested
-      , numRelatedVideosToDisplay = 3
+      , numRelatedVideosToDisplay = numRelatedVideos
       , notifications = Notifications.init
       , activeTab = ContributionTab
       , deletedVideo = Data.PeerTube.NotRequested
@@ -458,7 +463,12 @@ update session msg model =
             )
 
         LoadMore ->
-            (model, Cmd.none, Nothing)
+            ( { model
+                | numRelatedVideosToDisplay = model.numRelatedVideosToDisplay + numRelatedVideos
+              }
+            , Cmd.none
+            , Nothing
+            )
 
         ActivateTab tab ->
             ( { model | activeTab = tab }
