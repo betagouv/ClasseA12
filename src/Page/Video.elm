@@ -1,6 +1,5 @@
 module Page.Video exposing (Model, Msg(..), init, update, view)
 
-import Array
 import Browser.Dom as Dom
 import Data.PeerTube
 import Data.Session exposing (Session)
@@ -19,7 +18,7 @@ import Page.Common.Progress
 import Page.Common.Video
 import Page.Common.XHR
 import Ports
-import Request.Files
+import Request.Files exposing (Attachment)
 import Request.PeerTube
 import Route
 import Task
@@ -56,14 +55,6 @@ type Tab
     | RelatedVideosTab
 
 
-type alias Attachment =
-    { commentID : String
-    , videoID : String
-    , filename : String
-    , url : String
-    }
-
-
 type FavoriteStatus
     = Unknown
     | Favorite Data.PeerTube.FavoriteData
@@ -81,7 +72,7 @@ type Msg
     | AttachmentSelected
     | AttachmentSent Decode.Value
     | ProgressUpdated Decode.Value
-    | AttachmentListReceived (Result Http.Error (List String))
+    | AttachmentListReceived (Result String (List Attachment))
     | RelatedVideosReceived (Result Http.Error (List (List Data.PeerTube.Video)))
     | LoadMore
     | ActivateTab Tab
@@ -401,40 +392,18 @@ update session msg model =
             )
 
         AttachmentListReceived (Ok attachmentList) ->
-            let
-                attachments =
-                    attachmentList
-                        -- `filterMap` will remove the `Nothing`s and keep the `Just`s
-                        |> List.filterMap (attachmentFromString session.filesURL)
-            in
-            ( { model | attachmentList = attachments }
+            ( { model | attachmentList = attachmentList }
             , Cmd.none
             , Nothing
             )
 
-        AttachmentListReceived (Err error) ->
-            let
-                updatedModel =
-                    case error of
-                        Http.BadStatus response ->
-                            if response.status.code == 404 then
-                                { model | attachmentList = [] }
-
-                            else
-                                { model
-                                    | notifications =
-                                        "Échec de la récupération des pièces jointes"
-                                            |> Notifications.addError model.notifications
-                                }
-
-                        _ ->
-                            { model
-                                | notifications =
-                                    "Échec de la récupération des pièces jointes"
-                                        |> Notifications.addError model.notifications
-                            }
-            in
-            ( updatedModel
+        AttachmentListReceived (Err _) ->
+            ( { model
+                | attachmentList = []
+                , notifications =
+                    "Échec de la récupération des pièces jointes"
+                        |> Notifications.addError model.notifications
+              }
             , Cmd.none
             , Nothing
             )
@@ -664,32 +633,6 @@ dedupVideos videos =
             )
             []
         |> List.reverse
-
-
-attachmentFromString : String -> String -> Maybe Attachment
-attachmentFromString baseURL str =
-    let
-        splitted =
-            String.split "/" str
-                |> Array.fromList
-
-        -- Get the element at the given index, and return an empty string otherwise.
-        get : Int -> Array.Array String -> String
-        get index array =
-            Array.get index array
-                |> Maybe.withDefault ""
-    in
-    if Array.length splitted == 4 then
-        -- The file url starts with a "/", so the first element in `splitted` is an empty string
-        Just
-            { videoID = get 1 splitted
-            , commentID = get 2 splitted
-            , filename = get 3 splitted
-            , url = baseURL ++ str
-            }
-
-    else
-        Nothing
 
 
 scrollToComment : Maybe String -> Model -> Cmd Msg
