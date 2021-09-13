@@ -41,6 +41,7 @@ type alias Model =
     , attachmentList : List Attachment
     , relatedVideos : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , numRelatedVideosToDisplay : Int
+    , loadMoreState : Components.ButtonState
     , notifications : Notifications.Model
     , activeTab : Tab
     , deletedVideo : Data.PeerTube.RemoteData ()
@@ -127,6 +128,7 @@ init videoID videoTitle session =
       , attachmentList = []
       , relatedVideos = Data.PeerTube.NotRequested
       , numRelatedVideosToDisplay = numRelatedVideos
+      , loadMoreState = Components.NotLoading
       , notifications = Notifications.init
       , activeTab = ContributionTab
       , deletedVideo = Data.PeerTube.NotRequested
@@ -463,8 +465,25 @@ update session msg model =
             )
 
         LoadMore ->
+            let
+                newCount =
+                    model.numRelatedVideosToDisplay + numRelatedVideos
+
+                loadMoreState =
+                    case model.relatedVideos of
+                        Data.PeerTube.Received relatedVideos ->
+                            if newCount >= List.length relatedVideos then
+                                Components.Disabled
+
+                            else
+                                Components.NotLoading
+
+                        _ ->
+                            Components.NotLoading
+            in
             ( { model
                 | numRelatedVideosToDisplay = model.numRelatedVideosToDisplay + numRelatedVideos
+                , loadMoreState = loadMoreState
               }
             , Cmd.none
             , Nothing
@@ -693,7 +712,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, loadMoreState, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -785,7 +804,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                                 else
                                     ""
                             ]
-                            [ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay
+                            [ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreState
                             ]
                         ]
                     , H.div []
@@ -1289,8 +1308,8 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
             ]
 
 
-viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> Int -> H.Html Msg
-viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay =
+viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> Int -> Components.ButtonState -> H.Html Msg
+viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreState =
     case relatedVideos of
         Data.PeerTube.Received videos ->
             if videos /= [] then
@@ -1301,7 +1320,7 @@ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay =
                             |> List.take numRelatedVideosToDisplay
                             |> List.map (Page.Common.Video.viewVideo peerTubeURL)
                         )
-                    , Components.button "Afficher plus de vidéos" Components.NotLoading (Just LoadMore)
+                    , Components.button "Afficher plus de vidéos" loadMoreState (Just LoadMore)
                     ]
 
             else
