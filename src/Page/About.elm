@@ -102,10 +102,10 @@ view _ { title } =
                     [ H.h3 [ HA.class "title is-3", HA.id "statistiques" ] [ H.text "Statistiques" ]
                     ]
                 , H.iframe
-                    [ HA.src "https://e.infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9?src=embed"
+                    [ HA.src "https://e.infogram.com/4a22aab9-f4b0-43eb-917d-0e2e63f3bb73?src=embed"
                     , HA.title "Classe à 12"
                     , HA.width 800
-                    , HA.height 400
+                    , HA.height 450
                     , HA.style "border" "none"
                     , HA.attribute "scrolling" "no"
                     , HA.attribute "frameborder" "0"
@@ -115,10 +115,10 @@ view _ { title } =
                 , H.div
                     []
                     [ H.a
-                        [ HA.href "https://infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9"
+                        [ HA.href "https://infogram.com/4a22aab9-f4b0-43eb-917d-0e2e63f3bb73"
                         , HA.target "_blank"
                         ]
-                        [ H.text "Classe à 12 sur Infogram" ]
+                        [ H.text "Devoirs faits sur Infogram" ]
                     ]
                 ]
             ]
