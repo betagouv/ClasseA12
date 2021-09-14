@@ -2,6 +2,7 @@ module Request.Files exposing (Attachment, attachmentFromString, getVideoAttachm
 
 import Array
 import Dict
+import Filesize
 import Http
 import Json.Decode as Decode
 import MimeType
@@ -18,7 +19,7 @@ type alias Attachment =
 
 
 type alias ContentInfo =
-    { contentLength : Int
+    { contentLength : String
     , mimeType : String
     }
 
@@ -110,6 +111,8 @@ extractContentInfo response =
                     Dict.get "content-length" response.headers
                         |> Maybe.andThen String.toInt
                         |> Maybe.withDefault 0
+                        |> Filesize.format
+                        |> toFrenchFormat
                 , mimeType =
                     Dict.get "content-type" response.headers
                         |> Maybe.andThen MimeType.parseMimeType
@@ -164,3 +167,12 @@ toHumanReadableMimeType mimeType =
 
         MimeType.OtherMimeType mime ->
             mime
+
+
+toFrenchFormat : String -> String
+toFrenchFormat size =
+    -- Hack: Change "314.2 kB" into "314.2Ko"
+    size
+        |> String.replace " " ""
+        |> String.toUpper
+        |> String.replace "B" "o"
