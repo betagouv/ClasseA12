@@ -101,7 +101,7 @@ view _ { title } =
                         [ HA.href "https://infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9"
                         , HA.target "_blank"
                         ]
-                        [ H.text "Classe à 12 on Infogram" ]
+                        [ H.text "Classe à 12 sur Infogram" ]
                     ]
                 ]
             ]
