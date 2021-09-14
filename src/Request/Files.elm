@@ -106,11 +106,11 @@ extractContentInfo response =
         200 ->
             Ok
                 { contentLength =
-                    Dict.get "Content-Length" response.headers
+                    Dict.get "content-length" response.headers
                         |> Maybe.andThen String.toInt
                         |> Maybe.withDefault 0
                 , mimeType =
-                    Dict.get "Content-Type" response.headers
+                    Dict.get "content-type" response.headers
                         |> Maybe.withDefault ""
                 }
 
