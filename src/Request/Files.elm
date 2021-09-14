@@ -4,6 +4,7 @@ import Array
 import Dict
 import Http
 import Json.Decode as Decode
+import MimeType
 import Task
 
 
@@ -111,8 +112,55 @@ extractContentInfo response =
                         |> Maybe.withDefault 0
                 , mimeType =
                     Dict.get "content-type" response.headers
+                        |> Maybe.andThen MimeType.parseMimeType
+                        |> Maybe.map toHumanReadableMimeType
                         |> Maybe.withDefault ""
                 }
 
         _ ->
             Err <| "Erreur lors de la récupération des infos des pièces jointes"
+
+
+toHumanReadableMimeType : MimeType.MimeType -> String
+toHumanReadableMimeType mimeType =
+    case mimeType of
+        MimeType.Image _ ->
+            "Image"
+
+        MimeType.Audio _ ->
+            "Audio"
+
+        MimeType.Video _ ->
+            "Video"
+
+        MimeType.Text _ ->
+            "Texte"
+
+        MimeType.App app ->
+            case app of
+                MimeType.Word ->
+                    "Word"
+
+                MimeType.WordXml ->
+                    "WordXml"
+
+                MimeType.Excel ->
+                    "Excel"
+
+                MimeType.ExcelXml ->
+                    "ExcelXml"
+
+                MimeType.PowerPoint ->
+                    "PowerPoint"
+
+                MimeType.PowerPointXml ->
+                    "PowerPointXml"
+
+                MimeType.Pdf ->
+                    "PDF"
+
+                MimeType.OtherApp autre ->
+                    autre
+
+        MimeType.OtherMimeType mime ->
+            mime
