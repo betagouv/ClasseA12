@@ -7,26 +7,17 @@ import Json.Decode as Decode
 import Task
 
 
-type alias ContentInfo =
-    { contentLength : Int
-    , mimeType : String
-    }
-
-
-type alias AttachmentInfo =
-    { commentID : String
-    , videoID : String
-    , filename : String
-    , url : String
-    }
-
-
 type alias Attachment =
     { commentID : String
     , videoID : String
     , filename : String
     , url : String
-    , contentLength : Int
+    , contentInfo : Maybe ContentInfo
+    }
+
+
+type alias ContentInfo =
+    { contentLength : Int
     , mimeType : String
     }
 
@@ -45,64 +36,12 @@ getVideoAttachmentList videoID serverURL message =
     getVideoAttachmentListRequest videoID serverURL
         |> Http.toTask
         |> Task.mapError (\_ -> "Error while getting the attachment list")
-        |> Task.andThen (List.map (attachmentInfoRequest serverURL) >> Task.sequence)
+        |> Task.map (List.filterMap (attachmentFromString serverURL))
+        |> Task.andThen (List.map contentInfoRequest >> Task.sequence)
         |> Task.attempt message
 
 
-convertStringResponse : Http.Response String -> Result String ContentInfo
-convertStringResponse response =
-    case response.status.code of
-        200 ->
-            Ok
-                { contentLength =
-                    Dict.get "Content-Length" response.headers
-                        |> Maybe.andThen String.toInt
-                        |> Maybe.withDefault 0
-                , mimeType =
-                    Dict.get "Content-Type" response.headers
-                        |> Maybe.withDefault ""
-                }
-
-        _ ->
-            Err "Error while decoding the attachment content info from the headers"
-
-
-attachmentInfoRequest : String -> String -> Task.Task String Attachment
-attachmentInfoRequest baseURL str =
-    Http.request
-        { method = "GET"
-        , headers = []
-        , url = baseURL ++ str
-        , body = Http.emptyBody
-        , expect = Http.expectStringResponse convertStringResponse
-        , timeout = Nothing
-        , withCredentials = False
-        }
-        |> Http.toTask
-        |> Task.onError (\_ -> Task.succeed { contentLength = 0, mimeType = "" })
-        |> Task.andThen
-            (\contentInfo ->
-                let
-                    attachmentInfo =
-                        attachmentFromString baseURL str
-                in
-                case attachmentInfo of
-                    Just info ->
-                        Task.succeed
-                            { videoID = info.videoID
-                            , commentID = info.commentID
-                            , filename = info.filename
-                            , url = info.url
-                            , contentLength = contentInfo.contentLength
-                            , mimeType = contentInfo.mimeType
-                            }
-
-                    Nothing ->
-                        Task.fail "Error while getting the attachment info"
-            )
-
-
-attachmentFromString : String -> String -> Maybe AttachmentInfo
+attachmentFromString : String -> String -> Maybe Attachment
 attachmentFromString baseURL str =
     let
         splitted =
@@ -122,7 +61,45 @@ attachmentFromString baseURL str =
             , commentID = get 2 splitted
             , filename = get 3 splitted
             , url = baseURL ++ str
+            , contentInfo = Nothing
             }
 
     else
         Nothing
+
+
+contentInfoRequest : Attachment -> Task.Task String Attachment
+contentInfoRequest attachment =
+    Http.request
+        { method = "GET"
+        , headers = []
+        , url = attachment.url
+        , body = Http.emptyBody
+        , expect = Http.expectStringResponse extractContentInfo
+        , timeout = Nothing
+        , withCredentials = False
+        }
+        |> Http.toTask
+        |> Task.map
+            (\contentInfo ->
+                { attachment | contentInfo = Just contentInfo }
+            )
+        |> Task.onError (\_ -> Task.succeed { attachment | contentInfo = Nothing })
+
+
+extractContentInfo : Http.Response String -> Result String ContentInfo
+extractContentInfo response =
+    case response.status.code of
+        200 ->
+            Ok
+                { contentLength =
+                    Dict.get "Content-Length" response.headers
+                        |> Maybe.andThen String.toInt
+                        |> Maybe.withDefault 0
+                , mimeType =
+                    Dict.get "Content-Type" response.headers
+                        |> Maybe.withDefault ""
+                }
+
+        _ ->
+            Err "Error while decoding the attachment content info from the headers"
