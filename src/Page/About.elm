@@ -80,6 +80,30 @@ view _ { title } =
                         ]
                     ]
                 ]
+            , H.div [ HA.class "container" ]
+                [ H.div [ HA.class "richtext" ]
+                    [ H.h3 [ HA.class "title is-3" ] [ H.text "Statistiques" ]
+                    ]
+                , H.iframe
+                    [ HA.src "https://e.infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9?src=embed"
+                    , HA.title "Classe à 12"
+                    , HA.width 800
+                    , HA.height 400
+                    , HA.style "border" "none"
+                    , HA.attribute "scrolling" "no"
+                    , HA.attribute "frameborder" "0"
+                    , HA.attribute "allowfullscreen" "allowfullscreen"
+                    ]
+                    []
+                , H.div
+                    []
+                    [ H.a
+                        [ HA.href "https://infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9"
+                        , HA.target "_blank"
+                        ]
+                        [ H.text "Classe à 12 on Infogram" ]
+                    ]
+                ]
             ]
         ]
     }
