@@ -952,11 +952,12 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                                             , HE.onClick <| CommentSelected attachment.commentID
                                             ]
                                             [ H.text attachment.filename ]
-
-                                        -- TODO : we don't have the mimetype or the file size yet.
-                                        -- , H.span [ HA.class "file_info" ]
-                                        --     [ H.text " Type - n Ko"
-                                        --     ]
+                                        , H.span [ HA.class "file_info" ]
+                                            [ attachment.contentInfo
+                                                |> Maybe.map (\info -> info.mimeType ++ " - " ++ info.contentLength)
+                                                |> Maybe.withDefault ""
+                                                |> H.text
+                                            ]
                                         , getAttachmentUploader commentsData attachment
                                             |> Maybe.map viewUploader
                                             |> Maybe.withDefault (H.text "")
