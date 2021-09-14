@@ -72,7 +72,7 @@ type Msg
     | AttachmentSelected
     | AttachmentSent Decode.Value
     | ProgressUpdated Decode.Value
-    | AttachmentListReceived (Result String (List Attachment))
+    | AttachmentListReceived (Result (Maybe String) (List Attachment))
     | RelatedVideosReceived (Result Http.Error (List (List Data.PeerTube.Video)))
     | LoadMore
     | ActivateTab Tab
@@ -397,13 +397,21 @@ update session msg model =
             , Nothing
             )
 
-        AttachmentListReceived (Err _) ->
-            ( { model
-                | attachmentList = []
-                , notifications =
-                    "Échec de la récupération des pièces jointes"
-                        |> Notifications.addError model.notifications
-              }
+        AttachmentListReceived (Err error) ->
+            let
+                updatedModel =
+                    case error of
+                        Just errorMessage ->
+                            { model
+                                | notifications =
+                                    errorMessage
+                                        |> Notifications.addError model.notifications
+                            }
+
+                        Nothing ->
+                            { model | attachmentList = [] }
+            in
+            ( updatedModel
             , Cmd.none
             , Nothing
             )

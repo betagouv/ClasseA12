@@ -31,11 +31,24 @@ getVideoAttachmentListRequest videoID serverURL =
     Http.get url (Decode.list Decode.string)
 
 
-getVideoAttachmentList : String -> String -> (Result String (List Attachment) -> msg) -> Cmd msg
+getVideoAttachmentList : String -> String -> (Result (Maybe String) (List Attachment) -> msg) -> Cmd msg
 getVideoAttachmentList videoID serverURL message =
     getVideoAttachmentListRequest videoID serverURL
         |> Http.toTask
-        |> Task.mapError (\_ -> "Error while getting the attachment list")
+        |> Task.mapError
+            (\error ->
+                case error of
+                    Http.BadStatus response ->
+                        if response.status.code == 404 then
+                            -- If there are no attachments, it's an "expected failure", not an error
+                            Nothing
+
+                        else
+                            Just "Échec de la récupération des pièces jointes"
+
+                    _ ->
+                        Just "Échec de la récupération des pièces jointes"
+            )
         |> Task.map (List.filterMap (attachmentFromString serverURL))
         |> Task.andThen (List.map contentInfoRequest >> Task.sequence)
         |> Task.attempt message
@@ -68,10 +81,10 @@ attachmentFromString baseURL str =
         Nothing
 
 
-contentInfoRequest : Attachment -> Task.Task String Attachment
+contentInfoRequest : Attachment -> Task.Task (Maybe String) Attachment
 contentInfoRequest attachment =
     Http.request
-        { method = "GET"
+        { method = "HEAD"
         , headers = []
         , url = attachment.url
         , body = Http.emptyBody
@@ -102,4 +115,4 @@ extractContentInfo response =
                 }
 
         _ ->
-            Err "Error while decoding the attachment content info from the headers"
+            Err <| "Erreur lors de la récupération des infos des pièces jointes"
