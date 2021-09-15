@@ -82,7 +82,7 @@ view _ { title } =
                 ]
             , H.div [ HA.class "container" ]
                 [ H.div [ HA.class "richtext" ]
-                    [ H.h3 [ HA.class "title is-3" ] [ H.text "Statistiques" ]
+                    [ H.h3 [ HA.class "title is-3", HA.id "statistiques" ] [ H.text "Statistiques" ]
                     ]
                 , H.iframe
                     [ HA.src "https://e.infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9?src=embed"

@@ -1,4 +1,4 @@
-module Route exposing (Route(..), VideoListQuery(..), fromUrl, href, pushUrl, toString)
+module Route exposing (Route(..), VideoListQuery(..), fromUrl, href, hrefWithAnchor, pushUrl, toString)
 
 import Browser.Navigation as Nav
 import Html exposing (Attribute)
@@ -113,6 +113,11 @@ fromUrl url =
 href : Route -> Attribute msg
 href route =
     Attr.href (toString route)
+
+
+hrefWithAnchor : Route -> String -> Attribute msg
+hrefWithAnchor route anchor =
+    Attr.href (toString route ++ "#" ++ anchor)
 
 
 pushUrl : Nav.Key -> Route -> Cmd msg
