@@ -33,7 +33,7 @@ publishedAtFromVideo video =
 embedPlayer : Data.PeerTube.Video -> String -> H.Html msg
 embedPlayer video peerTubeURL =
     H.embed
-        [ HA.src <| peerTubeURL ++ video.embedPath
+        [ HA.src <| peerTubeURL ++ video.embedPath ++ "?warningTitle=false"
         , HA.width 1000
         , HA.height 800
         ]
