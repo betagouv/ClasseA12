@@ -10,6 +10,7 @@ import Json.Encode as Encode
 import Page.About as About
 import Page.Activate as Activate
 import Page.Admin as Admin
+import Page.AllNews as AllNews
 import Page.AllVideos as AllVideos
 import Page.CGU as CGU
 import Page.Comments as Comments
@@ -42,6 +43,7 @@ type Page
     = HomePage Home.Model
     | AllVideosPage AllVideos.Model
     | VideoListPage VideoList.Model
+    | AllNewsPage AllNews.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
     | CGUPage CGU.Model
@@ -73,6 +75,7 @@ type Msg
     = HomeMsg Home.Msg
     | AllVideosMsg AllVideos.Msg
     | VideoListMsg VideoList.Msg
+    | AllNewsMsg AllNews.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
     | CGUMsg CGU.Msg
@@ -135,6 +138,9 @@ setRoute url oldModel =
 
         Just (Route.VideoList query) ->
             toPage VideoListPage (VideoList.init query) VideoListMsg
+
+        Just Route.AllNews ->
+            toPage AllNewsPage AllNews.init AllNewsMsg
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -281,6 +287,9 @@ update msg ({ page, session } as model) =
         ( VideoListMsg videoListMsg, VideoListPage videoListModel ) ->
             toPage VideoListPage VideoListMsg (VideoList.update session) videoListMsg videoListModel
 
+        ( AllNewsMsg allNewsMsg, AllNewsPage allNewsModel ) ->
+            toPage AllNewsPage AllNewsMsg (AllNews.update session) allNewsMsg allNewsModel
+
         ( AboutMsg aboutMsg, AboutPage aboutModel ) ->
             toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
 
@@ -411,6 +420,9 @@ subscriptions model =
             VideoListPage _ ->
                 Sub.none
 
+            AllNewsPage _ ->
+                Sub.none
+
             AboutPage _ ->
                 Sub.none
 
@@ -502,6 +514,11 @@ view model =
             VideoList.view model.session videoListModel
                 |> mapMsg VideoListMsg
                 |> Page.frame Page.VideoFrame (pageConfig <| Page.VideoList videoListModel.query)
+
+        AllNewsPage allNewsModel ->
+            AllNews.view model.session allNewsModel
+                |> mapMsg AllNewsMsg
+                |> Page.frame Page.NewsFrame (pageConfig Page.AllNews)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel

@@ -15,6 +15,7 @@ type ActivePage
     = Home
     | AllVideos
     | VideoList Route.VideoListQuery
+    | AllNews
     | PeerTube
     | PeerTubeVideo
     | PeerTubeAccount
@@ -162,9 +163,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                         [ li []
                             [ navLink VideoFrame Route.AllVideos "Les vidéos" ]
                         , li []
-                            [ a [ href "/" ]
-                                [ text "Actualités" ]
-                            ]
+                            [ navLink NewsFrame Route.AllNews "Actualités" ]
                         , li [] [ navLink AboutFrame Route.About "À propos" ]
                         , li []
                             [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
@@ -404,8 +403,25 @@ viewAboutAside { activePage } =
 
 
 viewNewsAside : Config msg -> Html msg
-viewNewsAside _ =
-    aside [] []
+viewNewsAside { activePage } =
+    let
+        linkMaybeActive =
+            linkMaybeActiveAside activePage
+    in
+    aside [ class "side-menu" ]
+        [ nav []
+            [ linkMaybeActive AllNews Route.AllNews "Nouveautés"
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_purple.svg" ] []
+                , text "Nos événements"
+                ]
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
+                , text "Les challenges"
+                ]
+            , linkMaybeActive About Route.About "À propos de Classe à 12"
+            ]
+        ]
 
 
 linkMaybeActiveAside : ActivePage -> ActivePage -> Route.Route -> String -> Html msg

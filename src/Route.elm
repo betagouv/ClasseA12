@@ -13,6 +13,7 @@ type Route
     = Home
     | AllVideos
     | VideoList VideoListQuery
+    | AllNews
     | About
     | Participate
     | CGU
@@ -60,6 +61,7 @@ parser =
         , Parser.map (VideoList Playlist) (Parser.s "videos-playlist")
         , Parser.map (\search -> VideoList <| Keyword search) (Parser.s "videos" </> Parser.string)
         , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos-recherche" </> Parser.string)
+        , Parser.map AllNews (Parser.s "actualites")
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map CGU (Parser.s "CGU")
@@ -160,6 +162,9 @@ toString route =
 
                         Published profile ->
                             [ "profil", Url.percentEncode profile, "publiees" ]
+
+                AllNews ->
+                    [ "actualites" ]
 
                 About ->
                     [ "apropos" ]
