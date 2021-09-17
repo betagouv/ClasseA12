@@ -1595,6 +1595,10 @@ progress {
   margin-right: 0.8rem;
 }
 
+.category:not(.insert-wide):nth-child(odd) .video-grid__insert {
+  grid-column: -2 / -1;
+}
+
 .title_wrapper {
   display: flex;
   align-items: center;
