@@ -65,7 +65,7 @@ view _ { title } =
                     ]
                 ]
             ]
-        , H.section [ HA.class "category", HA.id "latest" ]
+        , H.section [ HA.class "category", HA.id "archive" ]
             [ H.div [ HA.class "home-title_wrapper" ]
                 [ H.h3 [ HA.class "home-title" ]
                     [ H.text "Toutes les actualités"
