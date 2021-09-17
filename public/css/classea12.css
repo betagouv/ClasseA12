@@ -1606,6 +1606,14 @@ progress {
   margin-bottom: 4.8rem;
 }
 
+.news_item {
+  background-color: #fff;
+}
+
+.news_item > div {
+  padding: 3.2rem;
+}
+
 /* RESPONSIVE */
 
 .mobile-only {
