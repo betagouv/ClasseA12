@@ -106,5 +106,9 @@ viewPost post =
                     [ H.text post.excerpt ]
                 ]
             ]
-        , H.img [] []
+        , H.img
+            [ HA.src <| "/blog/" ++ post.id ++ "/" ++ post.image
+            , HA.alt "Photo miniature"
+            ]
+            []
         ]

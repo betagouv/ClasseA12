@@ -10,6 +10,7 @@ type alias Post =
     , createdAt : Time.Posix
     , title : String
     , author : String
+    , image : String
     , excerpt : String
     }
 
@@ -25,4 +26,5 @@ postDecoder =
         |> Pipeline.required "created-at" (Decode.int |> Decode.map Time.millisToPosix)
         |> Pipeline.required "title" Decode.string
         |> Pipeline.required "author" Decode.string
+        |> Pipeline.required "image" Decode.string
         |> Pipeline.required "excerpt" Decode.string
