@@ -44,6 +44,22 @@ type Frame
     | NewsFrame
 
 
+frameToString : Frame -> String
+frameToString frameVariant =
+    case frameVariant of
+        HomeFrame ->
+            "home"
+
+        VideoFrame ->
+            "video"
+
+        AboutFrame ->
+            "about"
+
+        NewsFrame ->
+            "news"
+
+
 type alias Config msg =
     { session : Session
     , updateSearchMsg : String -> msg
@@ -59,7 +75,10 @@ frame frameVariant config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
         [ viewRFHeader frameVariant config pageTitle pageSubTitle
-        , Html.main_ [ class "main" ]
+        , Html.main_
+            [ class "main"
+            , class <| frameToString frameVariant
+            ]
             [ div [ class "content" ]
                 [ viewHeader config pageTitle pageSubTitle
                 , viewContent body
