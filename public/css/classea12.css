@@ -40,7 +40,7 @@
   font-family: "nunitobold";
   src: url("../fonts/nunito-bold-webfont.woff2") format("woff2"),
     url("../fonts/nunito-bold-webfont.woff") format("woff");
-  font-weight: normal;
+  font-weight: 700;
   font-style: normal;
 }
 
@@ -48,7 +48,7 @@
   font-family: "nunitosemibold";
   src: url("../fonts/nunito-semibold-webfont.woff2") format("woff2"),
     url("../fonts/nunito-semibold-webfont.woff") format("woff");
-  font-weight: normal;
+  font-weight: 600;
   font-style: normal;
 }
 
@@ -64,7 +64,7 @@
   font-family: "montserrat_lightregular";
   src: url("../fonts/montserrat-light-webfont.woff2") format("woff2"),
     url("../fonts/montserrat-light-webfont.woff") format("woff");
-  font-weight: normal;
+  font-weight: 300;
   font-style: normal;
 }
 
@@ -80,7 +80,7 @@
   font-family: "montserrat";
   src: url("../fonts/montserrat-bold-webfont.woff2") format("woff2"),
     url("../fonts/montserrat-bold-webfont.woff") format("woff");
-  font-weight: bold;
+  font-weight: 700;
   font-style: normal;
 }
 
@@ -140,20 +140,22 @@ html {
 h1,
 h2,
 h3,
-h4 {
+h4,
+h5 {
   font-family: "montserrat", Arial, sans-serif;
   color: var(--font-color-thirdary);
+  margin-bottom: 0;
 }
 
 h1 {
   font-family: "montserrat", Arial, sans-serif;
   font-weight: normal;
-  font-size: 2.8rem;
+  font-size: 3.2rem;
 }
 
 h2 {
   font-family: "montserrat_lightregular", Arial, sans-serif;
-  font-size: 2.6rem;
+  font-size: 2.8rem;
 }
 
 h3 {
@@ -163,7 +165,10 @@ h3 {
 h4 {
   margin-bottom: 2.4rem;
   font-weight: bold;
-  font-size: 1.8rem;
+  font-size: 2rem;
+}
+h5 {
+  font-size: 2rem;
 }
 
 /* LINKS & BUTTONS */
@@ -953,6 +958,27 @@ aside > div img {
   display: flex;
   flex-direction: column;
 }
+.video-grid__insert img {
+  margin-top: -5rem;
+  margin-left: -5.6rem;
+}
+.video-grid__insert h4 {
+  margin-top: 5.6rem;
+  margin-bottom: 1.6rem;
+  color: #fff;
+}
+.video-grid__insert p {
+  margin-bottom: 1.6rem;
+}
+.video-grid__insert .btn {
+  text-align: center;
+}
+.insert-wide .video-grid__insert {
+  grid-column: 1/3;
+}
+.insert-wide .video-grid__insert img {
+  max-width: 130%;
+}
 
 /* PAGE VIDEO */
 
@@ -1556,8 +1582,24 @@ progress {
 }
 
 /* PAGE CATEGORIES  */
-.category + .center-wrapper {
-  margin-top: 3.2rem;
+.category + .category {
+  margin-top: 6.4rem;
+}
+
+.category .title {
+  display: flex;
+  align-items: center;
+}
+
+.category .title img {
+  margin-right: 0.8rem;
+}
+
+.title_wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4.8rem;
 }
 
 /* RESPONSIVE */
@@ -1686,10 +1728,6 @@ progress {
   .card_img,
   .card_content {
     height: auto;
-  }
-
-  .home-title_wrapper {
-    display: block;
   }
 
   .breadcrumbs {

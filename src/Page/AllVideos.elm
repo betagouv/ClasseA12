@@ -143,8 +143,8 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
     let
         viewRecentVideo =
             [ H.section [ HA.class "category", HA.id "latest" ]
-                [ H.div [ HA.class "home-title_wrapper" ]
-                    [ H.h3 [ HA.class "home-title" ]
+                [ H.div [ HA.class "title_wrapper" ]
+                    [ H.h2 []
                         [ H.text "Les nouveautés"
                         ]
                     , H.a [ Route.href <| Route.VideoList Route.Latest ]
@@ -165,9 +165,10 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                         ""
             in
             [ H.section [ HA.class "category insert-wide", HA.id "playlist" ]
-                [ H.div [ HA.class "home-title_wrapper" ]
-                    [ H.h3 [ HA.class "home-title" ]
-                        [ H.text <| "La playlist de la semaine" ++ playlistName
+                [ H.div [ HA.class "title_wrapper" ]
+                    [ H.h1 [ HA.class "title" ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg", HA.alt "" ] []
+                        , H.text <| "La playlist de la semaine" ++ playlistName
                         ]
                     , H.a [ Route.href <| Route.VideoList Route.Playlist ]
                         [ H.text "Toutes les vidéos de la playlist"
@@ -179,8 +180,8 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
 
         viewFAQFlash =
             [ H.section [ HA.class "category", HA.id "faq-flash" ]
-                [ H.div [ HA.class "home-title_wrapper" ]
-                    [ H.h3 [ HA.class "home-title" ]
+                [ H.div [ HA.class "title_wrapper" ]
+                    [ H.h2 [ HA.class "title" ]
                         [ H.text "FAQ Flash"
                         ]
                     , H.a [ Route.href <| Route.VideoList Route.FAQFlash ]

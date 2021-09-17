@@ -193,9 +193,10 @@ viewCategory data peerTubeURL query =
             titleForQuery query
     in
     H.section [ HA.class "category", HA.id <| String.Normalize.slug categoryTitle ]
-        [ H.div [ HA.class "home-title_wrapper" ]
-            [ H.h3 [ HA.class "home-title" ]
-                [ H.text "Le coin "
+        [ H.div [ HA.class "title_wrapper" ]
+            [ H.h3 [ HA.class "title" ]
+                [ H.img [ HA.src <| "%PUBLIC_URL%/images/icons/48x48/" ++ String.Normalize.slug categoryTitle ++ "_48_bicolore.svg", HA.alt "" ] []
+                , H.text "Le coin "
                 , H.text categoryTitle
                 ]
             , H.a [ Route.href <| Route.VideoList query ]
@@ -251,8 +252,8 @@ viewInsert query =
     in
     H.div [ HA.class "video-grid__insert" ]
         [ H.img
-            [ HA.src <| "%PUBLIC_URL%/images/inserts/" ++ String.Normalize.slug categoryTitle ++ ".jpg"
-            , HA.alt <| "Encart pour la catégorie " ++ categoryTitle
+            [ HA.src <| "%PUBLIC_URL%/images/illustrations/inserts/" ++ String.Normalize.slug categoryTitle ++ ".svg"
+            , HA.alt ""
             ]
             []
         , H.div []
