@@ -20,6 +20,8 @@
             "elm-community/list-extra": "8.4.0",
             "elm-explorations/markdown": "1.0.0",
             "kuon/elm-string-normalize": "1.0.1",
+            "ohanhi/remotedata-http": "3.0.0",
+            "krisajenkins/remotedata": "5.0.0",
             "rtfeldman/elm-iso8601-date-strings": "1.1.4"
         },
         "indirect": {

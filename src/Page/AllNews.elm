@@ -1,34 +1,39 @@
 module Page.AllNews exposing (Model, Msg(..), init, update, view)
 
+import Data.News
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Page.Common.Components
+import RemoteData exposing (RemoteData(..), WebData)
+import Request.News exposing (getPostList)
 import Route
 
 
 type alias Model =
     { title : String
+    , postList : WebData (List Data.News.Post)
     }
 
 
 type Msg
-    = NoOp
+    = PostListReceived (WebData (List Data.News.Post))
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
+      , postList = Loading
       }
-    , Cmd.none
+    , getPostList PostListReceived
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update _ msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        PostListReceived data ->
+            ( { model | postList = data }, Cmd.none )
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
