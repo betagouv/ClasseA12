@@ -4,7 +4,9 @@ import Data.News
 import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
+import Iso8601
 import Page.Common.Components
+import Page.Common.Dates as Dates
 import RemoteData exposing (RemoteData(..), WebData)
 import Request.News exposing (getPostList)
 import Route
@@ -37,56 +39,72 @@ update _ msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view _ { title } =
-    { title = title
+view _ model =
+    { title = model.title
     , pageTitle = "Toutes les actualités"
     , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
     , body =
-        [ H.section [ HA.id "latest" ]
-            [ H.div [ HA.class "title_wrapper" ]
-                [ H.h1 [ HA.class "title" ]
-                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg", HA.alt "" ] []
-                    , H.text "Nouveautés"
-                    ]
-                ]
-            , H.article [ HA.class "news_item" ]
-                [ H.div []
-                    [ H.div []
-                        [ H.h4 []
-                            [ H.a [] [ H.text "Classe à 12 : l'histoire d'un projet innovant" ] ]
-                        , H.em []
-                            [ H.text "Par l'équipe classe à 12, le 16 septembre 2021" ]
-                        , H.p []
-                            [ H.text "Classe à 12 est une communauté de professeurs qui partagent leurs pratiques professionnelles. Comment ? Grâce à des vidéos de moins de 2 minutes. Elles  sont réalisées et publiées librement. Il s’agit  d’une invitation à réfléchir collectivement à nos pratiques pédagogiques. À ce jour, ce sont près de 260 vidéos publiées et plus de 200 000 vues."
+        [ case model.postList of
+            Loading ->
+                H.text "Chargement en cours..."
+
+            Success postList ->
+                H.div []
+                    [ H.section [ HA.id "latest" ]
+                        (H.div [ HA.class "title_wrapper" ]
+                            [ H.h1 [ HA.class "title" ]
+                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg", HA.alt "" ] []
+                                , H.text "Nouveautés"
+                                ]
                             ]
+                            :: (postList
+                                    |> List.take 2
+                                    |> List.map
+                                        viewPost
+                               )
+                        )
+                    , H.section [ HA.class "category", HA.id "archive" ]
+                        (H.div [ HA.class "home-title_wrapper" ]
+                            [ H.h2 [ HA.class "home-title" ]
+                                [ H.text "Toutes les actualités"
+                                ]
+                            ]
+                            :: (postList
+                                    |> List.map
+                                        viewPost
+                               )
+                        )
+                    , H.a [ Route.href <| Route.VideoList Route.Latest ]
+                        [ H.text "Charger toutes les actualités"
                         ]
                     ]
-                , H.img [] []
-                ]
-            ]
-        , H.section [ HA.class "category", HA.id "archive" ]
-            [ H.div [ HA.class "home-title_wrapper" ]
-                [ H.h2 [ HA.class "home-title" ]
-                    [ H.text "Toutes les actualités"
-                    ]
-                ]
-            , H.article []
-                [ H.img [] []
-                , H.div []
-                    [ H.div []
-                        [ H.h4 []
-                            [ H.a [] [ H.text "Classe à 12 : l'histoire d'un projet innovant" ] ]
-                        , H.em []
-                            [ H.text "Par l'équipe classe à 12, le 16 septembre 2021" ]
-                        , H.p []
-                            [ H.text "Classe à 12 est une communauté de professeurs qui partagent leurs pratiques professionnelles. Comment ? Grâce à des vidéos de moins de 2 minutes. Elles  sont réalisées et publiées librement. Il s’agit  d’une invitation à réfléchir collectivement à nos pratiques pédagogiques. À ce jour, ce sont près de 260 vidéos publiées et plus de 200 000 vues."
-                            ]
-                        ]
-                    ]
-                ]
-            , H.a [ Route.href <| Route.VideoList Route.Latest ]
-                [ H.text "Charger toutes les actualités"
-                ]
-            ]
+
+            Failure _ ->
+                H.text "Erreur lors du chargement des actualités"
+
+            NotAsked ->
+                H.text "Erreur"
         ]
     }
+
+
+viewPost : Data.News.Post -> H.Html Msg
+viewPost post =
+    let
+        createdAt =
+            Iso8601.fromTime post.createdAt
+                |> Dates.formatStringDatetime
+    in
+    H.article [ HA.class "news_item" ]
+        [ H.div []
+            [ H.div []
+                [ H.h4 []
+                    [ H.a [] [ H.text post.title ] ]
+                , H.em []
+                    [ H.text <| "Par " ++ post.author ++ ", le " ++ createdAt ]
+                , H.p []
+                    [ H.text post.excerpt ]
+                ]
+            ]
+        , H.img [] []
+        ]
