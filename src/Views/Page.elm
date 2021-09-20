@@ -16,6 +16,7 @@ type ActivePage
     | AllVideos
     | VideoList Route.VideoListQuery
     | AllNews
+    | News
     | PeerTube
     | PeerTubeVideo
     | PeerTubeAccount

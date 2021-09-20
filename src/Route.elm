@@ -14,6 +14,7 @@ type Route
     | AllVideos
     | VideoList VideoListQuery
     | AllNews
+    | News String
     | About
     | Participate
     | CGU
@@ -62,6 +63,7 @@ parser =
         , Parser.map (\search -> VideoList <| Keyword search) (Parser.s "videos" </> Parser.string)
         , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos-recherche" </> Parser.string)
         , Parser.map AllNews (Parser.s "actualites")
+        , Parser.map News (Parser.s "actualites" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map CGU (Parser.s "CGU")
@@ -165,6 +167,11 @@ toString route =
 
                 AllNews ->
                     [ "actualites" ]
+
+                News newsID ->
+                    [ "actualites"
+                    , newsID
+                    ]
 
                 About ->
                     [ "apropos" ]

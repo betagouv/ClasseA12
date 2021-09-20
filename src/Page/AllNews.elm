@@ -99,7 +99,7 @@ viewPost post =
         [ H.div []
             [ H.div []
                 [ H.h4 []
-                    [ H.a [] [ H.text post.title ] ]
+                    [ H.a [ Route.href <| Route.News post.id ] [ H.text post.title ] ]
                 , H.em []
                     [ H.text <| "Par " ++ post.author ++ ", le " ++ createdAt ]
                 , H.p []
@@ -107,7 +107,7 @@ viewPost post =
                 ]
             ]
         , H.img
-            [ HA.src <| "/blog/" ++ post.id ++ "/" ++ post.image
+            [ HA.src <| "/blog/" ++ post.id ++ "/image.png"
             , HA.alt "Photo miniature"
             ]
             []

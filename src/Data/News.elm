@@ -12,6 +12,7 @@ type alias Post =
     , author : String
     , image : String
     , excerpt : String
+    , content : Maybe String
     }
 
 
@@ -28,3 +29,4 @@ postDecoder =
         |> Pipeline.required "author" Decode.string
         |> Pipeline.required "image" Decode.string
         |> Pipeline.required "excerpt" Decode.string
+        |> Pipeline.hardcoded Nothing

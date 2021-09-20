@@ -18,6 +18,7 @@ import Page.Common.Components
 import Page.Convention as Convention
 import Page.Home as Home
 import Page.Login as Login
+import Page.News as News
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
@@ -44,6 +45,7 @@ type Page
     | AllVideosPage AllVideos.Model
     | VideoListPage VideoList.Model
     | AllNewsPage AllNews.Model
+    | NewsPage News.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
     | CGUPage CGU.Model
@@ -76,6 +78,7 @@ type Msg
     | AllVideosMsg AllVideos.Msg
     | VideoListMsg VideoList.Msg
     | AllNewsMsg AllNews.Msg
+    | NewsMsg News.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
     | CGUMsg CGU.Msg
@@ -141,6 +144,9 @@ setRoute url oldModel =
 
         Just Route.AllNews ->
             toPage AllNewsPage AllNews.init AllNewsMsg
+
+        Just (Route.News postID) ->
+            toPage NewsPage (News.init postID) NewsMsg
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -290,6 +296,9 @@ update msg ({ page, session } as model) =
         ( AllNewsMsg allNewsMsg, AllNewsPage allNewsModel ) ->
             toPage AllNewsPage AllNewsMsg (AllNews.update session) allNewsMsg allNewsModel
 
+        ( NewsMsg newsMsg, NewsPage newsModel ) ->
+            toPage NewsPage NewsMsg (News.update session) newsMsg newsModel
+
         ( AboutMsg aboutMsg, AboutPage aboutModel ) ->
             toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
 
@@ -423,6 +432,9 @@ subscriptions model =
             AllNewsPage _ ->
                 Sub.none
 
+            NewsPage _ ->
+                Sub.none
+
             AboutPage _ ->
                 Sub.none
 
@@ -519,6 +531,11 @@ view model =
             AllNews.view model.session allNewsModel
                 |> mapMsg AllNewsMsg
                 |> Page.frame Page.NewsFrame (pageConfig Page.AllNews)
+
+        NewsPage newsModel ->
+            News.view model.session newsModel
+                |> mapMsg NewsMsg
+                |> Page.frame Page.NewsFrame (pageConfig Page.News)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel
