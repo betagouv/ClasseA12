@@ -5,6 +5,8 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Iso8601
+import Markdown.Parser as Markdown
+import Markdown.Renderer
 import Page.Common.Components
 import Page.Common.Dates as Dates
 import RemoteData exposing (RemoteData(..), WebData)
@@ -83,10 +85,23 @@ viewPost post =
         , H.div []
             [ H.em []
                 [ H.text <| "Par " ++ post.author ++ ", le " ++ createdAt ]
-            , H.p []
-                [ post.content
+            , case
+                post.content
                     |> Maybe.withDefault "Contenu introuvable"
-                    |> H.text
-                ]
+                    |> Markdown.parse
+                    |> Result.mapError deadEndsToString
+                    |> Result.andThen (\ast -> Markdown.Renderer.render Markdown.Renderer.defaultHtmlRenderer ast)
+              of
+                Ok rendered ->
+                    H.div [] rendered
+
+                Err errors ->
+                    H.text errors
             ]
         ]
+
+
+deadEndsToString deadEnds =
+    deadEnds
+        |> List.map Markdown.deadEndToString
+        |> String.join "\n"
