@@ -122,10 +122,10 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
         icon =
             if session.isMenuOpened then
                 -- This should never be the case on desktop, so display the mobile icon which is white
-                "%PUBLIC_URL%/images/icons/32x32/profil_white.svg"
+                "%PUBLIC_URL%/images/icons/32x32/profil_32_white.svg"
 
             else
-                "%PUBLIC_URL%/images/icons/32x32/profil_purple.svg"
+                "%PUBLIC_URL%/images/icons/32x32/profil_32_purple.svg"
 
         profileIcon =
             case session.userInfo of
@@ -221,10 +221,10 @@ viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTi
         icon =
             if session.isMenuOpened then
                 -- This should never be the case on desktop, so display the mobile icon which is white
-                "%PUBLIC_URL%/images/icons/32x32/profil_white.svg"
+                "%PUBLIC_URL%/images/icons/32x32/profil_32_white.svg"
 
             else
-                "%PUBLIC_URL%/images/icons/32x32/profil_purple.svg"
+                "%PUBLIC_URL%/images/icons/32x32/profil_32_purple.svg"
 
         profileIcon =
             case session.userInfo of

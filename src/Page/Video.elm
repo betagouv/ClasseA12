@@ -1034,10 +1034,10 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Favorite favoriteData ->
-                    Components.button "Retirer cette vidéo des favoris" buttonState (Just <| RemoveFromFavorite favoriteData)
+                    Components.button "Retirer des favoris" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    Components.button "Ajouter cette vidéo aux favoris" buttonState (Just <| AddToFavorite)
+                    Components.button "Ajouter aux favoris" buttonState (Just <| AddToFavorite)
     in
     H.div
         []
@@ -1058,7 +1058,13 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                 H.div []
                     [ H.a
                         [ HA.href files.fileDownloadUrl ]
-                        [ H.text "Télécharger cette vidéo" ]
+                        [ H.img
+                            [ HA.src "%PUBLIC_URL%/images/icons/24x24/download_24_purple.svg"
+                            ]
+                            []
+                        , H.text
+                            "Télécharger cette vidéo"
+                        ]
                     , deleteVideoNode
                     , favoriteVideoNode
                     ]
