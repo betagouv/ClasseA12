@@ -1585,16 +1585,6 @@ progress {
 .category + .category {
   margin-top: 6.4rem;
 }
-
-.category .title {
-  display: flex;
-  align-items: center;
-}
-
-.category .title img {
-  margin-right: 0.8rem;
-}
-
 .category:not(.insert-wide):nth-child(odd) .video-grid__insert {
   grid-column: -2 / -1;
 }
@@ -1605,13 +1595,109 @@ progress {
   justify-content: space-between;
   margin-bottom: 4.8rem;
 }
-
-.news_item {
-  background-color: #fff;
+.title {
+  display: flex;
+  align-items: center;
 }
 
+.title img {
+  margin-right: 0.8rem;
+}
+
+.news section + section {
+  margin-top: 6.4rem;
+}
+.news section + section::before {
+  content: "";
+  display: block;
+  width: 12.8rem;
+  height: 1px;
+  margin-bottom: 6.4rem;
+  background-color: var(--tabs-border);
+}
+
+.news_item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 0.8rem;
+  overflow: hidden;
+}
+.news_item + .news_item {
+  margin-top: 4.8rem;
+}
 .news_item > div {
   padding: 3.2rem;
+}
+.news_item > div > div {
+  max-width: 90%;
+}
+.news_item h4 {
+  margin-bottom: 0;
+}
+.news_item a {
+  text-decoration: none;
+}
+.news_item span {
+  display: block;
+  margin-bottom: 1.6rem;
+  color: var(--font-color-secondary);
+}
+.news_item img {
+  max-width: 35.2rem;
+}
+
+#archive .news_item {
+  position: relative;
+  background: none;
+}
+#archive .news_item + .news_item {
+  padding-top: 7.2rem;
+  margin-top: 0;
+}
+#archive .news_item::before {
+  content: "";
+  flex-shrink: 0;
+  display: block;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-right: 2.4rem;
+  border-radius: 50%;
+  border: 1px solid #c6c6e4;
+}
+#archive .news_item::after {
+  content: "";
+  position: absolute;
+  left: 0.8rem;
+  width: 1px;
+  height: 100%;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--tabs-border) 0,
+    var(--tabs-border) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+}
+#archive .news_item:first-of-type::after {
+  top: 50%;
+}
+#archive .news_item:last-of-type::after {
+  bottom: 50%;
+}
+#archive .news_item > div {
+  padding: 0 3.2rem;
+  order: 2;
+}
+#archive .news_item > div > div {
+  max-width: 80%;
+}
+#archive .news_item img {
+  order: 1;
+  max-width: 18.4rem;
+}
+#archive + div {
+  margin-top: 7.2rem;
 }
 
 /* RESPONSIVE */

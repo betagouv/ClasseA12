@@ -49,7 +49,7 @@ view _ model =
                 H.text "Chargement en cours..."
 
             Success postList ->
-                H.div []
+                H.div [ HA.class "news" ]
                     [ H.section [ HA.id "latest" ]
                         (H.div [ HA.class "title_wrapper" ]
                             [ H.h1 [ HA.class "title" ]
@@ -63,10 +63,11 @@ view _ model =
                                         viewPost
                                )
                         )
-                    , H.section [ HA.class "category", HA.id "archive" ]
-                        (H.div [ HA.class "home-title_wrapper" ]
-                            [ H.h2 [ HA.class "home-title" ]
-                                [ H.text "Toutes les actualités"
+                    , H.section [ HA.id "archive" ]
+                        (H.div [ HA.class "title_wrapper" ]
+                            [ H.h2 [ HA.class "title" ]
+                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/news_48_bicolore.svg", HA.alt "" ] []
+                                , H.text "Toutes les actualités"
                                 ]
                             ]
                             :: (postList
@@ -74,8 +75,10 @@ view _ model =
                                         viewPost
                                )
                         )
-                    , H.a [ Route.href <| Route.VideoList Route.Latest ]
-                        [ H.text "Charger toutes les actualités"
+                    , H.div [ HA.class "center-wrapper" ]
+                        [ H.a [ HA.class "btn", Route.href <| Route.VideoList Route.Latest ]
+                            [ H.text "Charger toutes les actualités"
+                            ]
                         ]
                     ]
 
@@ -100,7 +103,7 @@ viewPost post =
             [ H.div []
                 [ H.h4 []
                     [ H.a [ Route.href <| Route.News post.id ] [ H.text post.title ] ]
-                , H.em []
+                , H.span []
                     [ H.text <| "Par " ++ post.author ++ ", le " ++ createdAt ]
                 , H.p []
                     [ H.text post.excerpt ]
@@ -108,7 +111,7 @@ viewPost post =
             ]
         , H.img
             [ HA.src <| "/blog/" ++ post.id ++ "/image.png"
-            , HA.alt "Photo miniature"
+            , HA.alt ""
             ]
             []
         ]
