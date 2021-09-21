@@ -1657,6 +1657,7 @@ progress {
 }
 #archive .news_item::before {
   content: "";
+  position: relative;
   flex-shrink: 0;
   display: block;
   width: 1.6rem;
@@ -1664,6 +1665,8 @@ progress {
   margin-right: 2.4rem;
   border-radius: 50%;
   border: 1px solid #c6c6e4;
+  background-color: var(--font-color-light);
+  z-index: 2;
 }
 #archive .news_item::after {
   content: "";
@@ -1683,7 +1686,7 @@ progress {
   top: 50%;
 }
 #archive .news_item:last-of-type::after {
-  bottom: 50%;
+  bottom: 32%;
 }
 #archive .news_item > div {
   padding: 0 3.2rem;
