@@ -33,15 +33,15 @@ Actuellement, cette relation avec les utilisateurs du service est assurée grâc
 * **Les “ateliers utilisateurs”** permettent de d’améliorer en continue l’offre de service.
 * **Les “déplacement écoles”** permettent d’une part, d’aider les enseignants désireux de se lancer dans la production d’une vidéo et d’autre part de rencontrer les utilisateurs afin d’échanger avec eux sur le quotidien des classes dédoublées.
 * **Les “événements”** Classe à 12 contribuent activement à l’animation de la communauté des utilisateurs et à la productions de vidéos :
-    * **Classe à 12 challenge** : 
-        * une session de travail pour produire seul ou en groupe des vidéos “façon” classe à 12, à partir des observations faites en classes, des besoins des collègues ou des élèves.
-        * à destination des enseignants, des formateurs, coordonnateurs REP, IEN…
-    * **Classe à 12 focus** : 
-        * une session de travail au cours de laquelle l’auteur d’une vidéo présente sa production ainsi que son travail de classe sur un thème donné à d’autres enseignants. C’est l’occasion d’échanges professionnels à partir du réel présenté dans les vidéos. La session de travail peut-être “facilitée” par un porteur de projet classe à 12 ou par toute autre personne souhaitant jouer le rôle de facilitateur (enseignant, formateur, inspecteur)
+  * **Classe à 12 challenge** : 
+    * une session de travail pour produire seul ou en groupe des vidéos “façon” classe à 12, à partir des observations faites en classes, des besoins des collègues ou des élèves.
+    * à destination des enseignants, des formateurs, coordonnateurs REP, IEN…
+  * **Classe à 12 focus** : 
+    * une session de travail au cours de laquelle l’auteur d’une vidéo présente sa production ainsi que son travail de classe sur un thème donné à d’autres enseignants. C’est l’occasion d’échanges professionnels à partir du réel présenté dans les vidéos. La session de travail peut-être “facilitée” par un porteur de projet classe à 12 ou par toute autre personne souhaitant jouer le rôle de facilitateur (enseignant, formateur, inspecteur)
 
 ## Eléments clé # 5 : Les ressources clés 
 
-Ce sont l’ensemble des ressources et **moyens physiques, intellectuels, nécessaires pour faire fonctionner le projet. Pour Classe à 12 il s’agit d’une part, des **vidéos de 2 minutes** produites par des enseignants et d’autre part, des **professeurs contributeurs** qui produisent et publient les vidéos.
+Ce sont l’ensemble des ressources et **moyens physiques, intellectuels**, nécessaires pour faire fonctionner le projet. Pour Classe à 12 il s’agit d’une part, des **vidéos de 2 minutes** produites par des enseignants et d’autre part, des **professeurs contributeurs** qui produisent et publient les vidéos.
 
 ## Eléments clé # 6 : Les activités clés 
 
