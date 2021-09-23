@@ -1,8 +1,4 @@
-# Classe à 12 : l’histoire d’un projet innovant
-
-Classe à 12 est une **communauté de professeurs** qui partagent leurs pratiques professionnelles. Comment ? Grâce à des **vidéos de moins de 2 minutes**. Elles  sont réalisées et publiées librement. Il s’agit  d’une invitation à réfléchir collectivement à nos pratiques pédagogiques. À ce jour, ce sont près de **260 vidéos publiées** et plus de **200 000 vues**.
-
-## Classe à 12 n’est pas l’idée d’une personne 
+## Classe à 12 n’est pas l’idée d’une personne
 
 Avant l’écriture de la première ligne de code, nous avons mené une **phase d’investigation** de plusieurs semaines. Nous nous sommes entretenus avec **des dizaines de professeurs**, dans plusieurs académies. Des ateliers de **co-construction** ont été organisés au Lab de l’innovation du ministère de l’éducation nationale notamment. De cette première phase a émergé le concept de Classe à 12.
 

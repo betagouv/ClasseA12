@@ -3,7 +3,7 @@ module Page.News exposing (Model, Msg(..), init, update, view)
 import Data.News
 import Data.Session exposing (Session)
 import Html as H
-import Html.Attributes as HA
+import Html.Attributes as HA exposing (class)
 import Iso8601
 import Markdown.Parser as Markdown
 import Markdown.Renderer
@@ -71,21 +71,26 @@ viewPost post =
             Iso8601.fromTime post.createdAt
                 |> Dates.formatStringDatetime
     in
-    H.article [ HA.class "news_item" ]
-        [ H.div [ HA.class "title_wrapper" ]
-            [ H.h1 [ HA.class "title" ]
-                [ H.text post.title
+    H.article [ HA.class "news-details" ]
+        [ H.h1 []
+            [ H.text post.title
+            ]
+        , H.div [ HA.class "news-details_meta" ]
+            [ H.div []
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg", HA.alt "" ] []
+                , H.text <| "Par " ++ post.author ++ ", le " ++ createdAt
                 ]
+            ]
+        , H.p [ class "news-details_excerpt" ]
+            [ H.text post.excerpt
             ]
         , H.img
             [ HA.src <| "/blog/" ++ post.id ++ "/" ++ post.image
-            , HA.alt "Photo miniature"
+            , HA.alt ""
             ]
             []
-        , H.div []
-            [ H.em []
-                [ H.text <| "Par " ++ post.author ++ ", le " ++ createdAt ]
-            , case
+        , H.div [ HA.class "news-details_content" ]
+            [ case
                 post.content
                     |> Maybe.withDefault "Contenu introuvable"
                     |> Markdown.parse
@@ -98,6 +103,7 @@ viewPost post =
                 Err errors ->
                     H.text errors
             ]
+        , H.div [] [ H.text "Partager cette actualité" ]
         ]
 
 
