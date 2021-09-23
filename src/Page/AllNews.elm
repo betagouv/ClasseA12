@@ -5,7 +5,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA
 import Iso8601
-import Page.Common.Components
+import Page.Common.Components as Components
 import Page.Common.Dates as Dates
 import RemoteData exposing (RemoteData(..), WebData)
 import Request.News exposing (getPostList)
@@ -15,17 +15,25 @@ import Route
 type alias Model =
     { title : String
     , postList : WebData (List Data.News.Post)
+    , numNewsToDisplay : Int
     }
 
 
 type Msg
     = PostListReceived (WebData (List Data.News.Post))
+    | DisplayMoreNews
+
+
+numNewsToDisplay : Int
+numNewsToDisplay =
+    6
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
       , postList = Loading
+      , numNewsToDisplay = numNewsToDisplay
       }
     , getPostList PostListReceived
     )
@@ -37,8 +45,13 @@ update _ msg model =
         PostListReceived data ->
             ( { model | postList = data }, Cmd.none )
 
+        DisplayMoreNews ->
+            ( { model | numNewsToDisplay = model.numNewsToDisplay + numNewsToDisplay }
+            , Cmd.none
+            )
 
-view : Session -> Model -> Page.Common.Components.Document Msg
+
+view : Session -> Model -> Components.Document Msg
 view _ model =
     { title = model.title
     , pageTitle = "Toutes les actualités"
@@ -71,15 +84,13 @@ view _ model =
                                 ]
                             ]
                             :: (postList
+                                    |> List.take model.numNewsToDisplay
                                     |> List.map
                                         viewPost
                                )
                         )
                     , H.div [ HA.class "center-wrapper" ]
-                        [ H.a [ HA.class "btn", Route.href <| Route.VideoList Route.Latest ]
-                            [ H.text "Charger toutes les actualités"
-                            ]
-                        ]
+                        [ viewLoadMoreNewsButton model.numNewsToDisplay postList ]
                     ]
 
             Failure _ ->
@@ -115,3 +126,16 @@ viewPost post =
             ]
             []
         ]
+
+
+viewLoadMoreNewsButton : Int -> List Data.News.Post -> H.Html Msg
+viewLoadMoreNewsButton currentNumNewsToDisplay postList =
+    let
+        buttonState =
+            if currentNumNewsToDisplay >= List.length postList then
+                Components.Disabled
+
+            else
+                Components.NotLoading
+    in
+    Components.button "Charger plus d'actualités" buttonState (Just DisplayMoreNews)
