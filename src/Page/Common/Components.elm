@@ -38,43 +38,67 @@ submitButton label buttonState =
 
 button : String -> ButtonState -> Maybe msg -> H.Html msg
 button label buttonState maybeOnClick =
+    H.button
+        (loadingAttrs buttonState ++ onClickAttr maybeOnClick)
+        (H.text label :: loadingIcon buttonState)
+
+
+iconButton : String -> String -> ButtonState -> Maybe msg -> H.Html msg
+iconButton label iconSrc buttonState maybeOnClick =
     let
-        loadingAttrs =
-            case buttonState of
-                Disabled ->
-                    [ HA.type_ "submit"
-                    , HA.class "button"
-                    , HA.disabled True
-                    ]
-
-                Loading ->
-                    [ HA.type_ "submit"
-                    , HA.class "button button-loader"
-                    , HA.disabled True
-                    ]
-
-                NotLoading ->
-                    [ HA.type_ "submit"
-                    , HA.class "button"
-                    ]
-
-        onClickAttr =
-            maybeOnClick
-                |> Maybe.map (\onClick -> [ HE.onClick onClick ])
-                |> Maybe.withDefault []
+        icon =
+            H.img
+                [ HA.src iconSrc
+                ]
+                []
     in
     H.button
-        (loadingAttrs ++ onClickAttr)
-        [ if buttonState == Loading then
-            H.span []
-                [ H.text label
-                , H.text " "
-                , H.i [ HA.class "fas fa-spinner fa-spin" ] []
-                ]
+        (loadingAttrs buttonState ++ onClickAttr maybeOnClick)
+        ([ icon
+         , H.text " "
+         , H.text label
+         ]
+            ++ loadingIcon buttonState
+        )
 
-          else
-            H.text label
+
+loadingAttrs : ButtonState -> List (H.Attribute msg)
+loadingAttrs buttonState =
+    case buttonState of
+        Disabled ->
+            [ HA.type_ "submit"
+            , HA.class "button"
+            , HA.disabled True
+            ]
+
+        Loading ->
+            [ HA.type_ "submit"
+            , HA.class "button button-loader"
+            , HA.disabled True
+            ]
+
+        NotLoading ->
+            [ HA.type_ "submit"
+            , HA.class "button"
+            ]
+
+
+onClickAttr : Maybe msg -> List (H.Attribute msg)
+onClickAttr maybeOnClick =
+    maybeOnClick
+        |> Maybe.map (\onClick -> [ HE.onClick onClick ])
+        |> Maybe.withDefault []
+
+
+loadingIcon : ButtonState -> List (H.Html msg)
+loadingIcon buttonState =
+    if buttonState == Loading then
+        [ H.text " "
+        , H.i [ HA.class "fas fa-spinner fa-spin" ] []
         ]
+
+    else
+        []
 
 
 
