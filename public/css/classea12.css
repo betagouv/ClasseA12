@@ -1049,6 +1049,29 @@ aside > div img {
   background-color: var(--border-color);
 }
 
+.video_actions {
+  display: flex;
+  align-items: center;
+}
+.video_actions a,
+.video_actions button {
+  display: flex;
+  align-items: center;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+.video_actions button {
+  margin-left: 1.6rem;
+}
+.video_actions .button {
+  padding: 0;
+  background: none;
+  border-radius: 0;
+}
+.video_actions .button:hover {
+  color: var(--primary-color);
+}
+
 .video_resources h4 {
   margin-bottom: 2rem;
   font-size: 2rem;
@@ -1062,9 +1085,11 @@ aside > div img {
 }
 
 .video_share {
+  margin-top: 1.6rem;
   color: var(--primary-color);
   font-weight: bold;
 }
+
 .video_share::after {
   content: "";
   display: block;

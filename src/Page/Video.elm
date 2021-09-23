@@ -1042,7 +1042,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/unfavorite_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/favorite_24_purple.svg" buttonState (Just <| AddToFavorite)
+                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/heart_24_purple.svg" buttonState (Just <| AddToFavorite)
     in
     H.div
         []
@@ -1060,7 +1060,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
         , Page.Common.Video.playerForVideo video peerTubeURL
         , case video.files of
             Just files ->
-                H.div []
+                H.div [ HA.class "video_actions" ]
                     [ H.a
                         [ HA.href files.fileDownloadUrl ]
                         [ H.img
