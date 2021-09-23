@@ -988,7 +988,12 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                             [ H.button
                                 [ HE.onClick AskDeleteConfirmation
                                 ]
-                                [ H.text "Supprimer cette vidéo" ]
+                                [ H.img
+                                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/delete_24_purple.svg"
+                                    ]
+                                    []
+                                , H.text "Supprimer cette vidéo"
+                                ]
                             , H.div
                                 [ HA.class "modal__backdrop"
                                 , HA.class <|
@@ -1034,10 +1039,10 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Favorite favoriteData ->
-                    Components.button "Retirer des favoris" buttonState (Just <| RemoveFromFavorite favoriteData)
+                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/unfavorite_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    Components.button "Ajouter aux favoris" buttonState (Just <| AddToFavorite)
+                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/favorite_24_purple.svg" buttonState (Just <| AddToFavorite)
     in
     H.div
         []

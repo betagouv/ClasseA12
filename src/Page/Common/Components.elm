@@ -2,6 +2,7 @@ module Page.Common.Components exposing
     ( ButtonState(..)
     , Document
     , button
+    , iconButton
     , onChange
     , onFileSelected
     , optgroup
