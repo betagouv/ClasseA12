@@ -4,7 +4,7 @@ import Browser.Dom as Dom
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
-import Html.Attributes as HA
+import Html.Attributes as HA exposing (class)
 import Html.Events as HE
 import Http
 import Json.Decode as Decode
@@ -911,7 +911,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
 
         viewUploader : Data.PeerTube.Account -> H.Html Msg
         viewUploader uploader =
-            H.div []
+            H.div [ HA.class "video_resources_uploader" ]
                 [ H.text "Par "
                 , H.a
                     [ Route.href <| Route.Profile uploader.name
@@ -945,21 +945,24 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                                         , HA.title ""
                                         ]
                                         []
-                                    , H.a
-                                        [ HA.href <| "#" ++ attachment.commentID
-                                        , HA.class "comment-link"
-                                        , HE.onClick <| CommentSelected attachment.commentID
+                                    , H.div []
+                                        [ H.div [ HA.class "video_resources_file" ]
+                                            [ H.a
+                                                [ HA.href <| "#" ++ attachment.commentID
+                                                , HE.onClick <| CommentSelected attachment.commentID
+                                                ]
+                                                [ H.text attachment.filename ]
+                                            , H.span [ HA.class "file_info" ]
+                                                [ attachment.contentInfo
+                                                    |> Maybe.map (\info -> info.mimeType ++ " - " ++ info.contentLength)
+                                                    |> Maybe.withDefault ""
+                                                    |> H.text
+                                                ]
+                                            ]
+                                        , getAttachmentUploader commentsData attachment
+                                            |> Maybe.map viewUploader
+                                            |> Maybe.withDefault (H.text "")
                                         ]
-                                        [ H.text attachment.filename ]
-                                    , H.span [ HA.class "file_info" ]
-                                        [ attachment.contentInfo
-                                            |> Maybe.map (\info -> info.mimeType ++ " - " ++ info.contentLength)
-                                            |> Maybe.withDefault ""
-                                            |> H.text
-                                        ]
-                                    , getAttachmentUploader commentsData attachment
-                                        |> Maybe.map viewUploader
-                                        |> Maybe.withDefault (H.text "")
                                     ]
                             )
                     )
