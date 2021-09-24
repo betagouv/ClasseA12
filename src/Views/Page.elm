@@ -553,8 +553,11 @@ searchForm { session, submitSearchMsg, updateSearchMsg } searchFormType =
         DesktopSearchForm ->
             form [ onSubmit submitSearchMsg, class "desktop-only" ]
                 [ div [ class "search__group" ]
-                    [ searchInput
-                    , button [ class "search_button" ]
+                    [ button [ class "search_button" ]
                         [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
+                    , div []
+                        [ searchInput
+                        , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
+                        ]
                     ]
                 ]

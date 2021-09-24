@@ -447,10 +447,7 @@ details[open] summary::after {
   margin-left: 2.4rem;
 }
 .search__group input {
-  display: none;
-}
-.search_button {
-  background: none;
+  /*display: none;*/
 }
 
 .mobile-menu {
@@ -1078,6 +1075,8 @@ aside > div img {
   display: flex;
   align-items: center;
   color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.4rem;
   text-decoration: none;
 }
 .video_actions button {
