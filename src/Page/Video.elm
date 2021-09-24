@@ -935,40 +935,34 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
         viewAttachments =
             H.div [ HA.class "video_resources" ]
                 [ H.h4 [] [ H.text "Ressources" ]
-                , if activeAttachmentList /= [] then
-                    H.ul []
-                        (activeAttachmentList
-                            |> List.map
-                                (\attachment ->
-                                    H.li []
-                                        [ H.img
-                                            [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
-                                            , HA.title ""
-                                            ]
-                                            []
-                                        , H.a
-                                            [ HA.href <| "#" ++ attachment.commentID
-                                            , HA.class "comment-link"
-                                            , HE.onClick <| CommentSelected attachment.commentID
-                                            ]
-                                            [ H.text attachment.filename ]
-                                        , H.span [ HA.class "file_info" ]
-                                            [ attachment.contentInfo
-                                                |> Maybe.map (\info -> info.mimeType ++ " - " ++ info.contentLength)
-                                                |> Maybe.withDefault ""
-                                                |> H.text
-                                            ]
-                                        , getAttachmentUploader commentsData attachment
-                                            |> Maybe.map viewUploader
-                                            |> Maybe.withDefault (H.text "")
+                , H.ul []
+                    (activeAttachmentList
+                        |> List.map
+                            (\attachment ->
+                                H.li []
+                                    [ H.img
+                                        [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
+                                        , HA.title ""
                                         ]
-                                )
-                        )
-
-                  else
-                    H.p []
-                        [ H.text "Aucune ressource disponible"
-                        ]
+                                        []
+                                    , H.a
+                                        [ HA.href <| "#" ++ attachment.commentID
+                                        , HA.class "comment-link"
+                                        , HE.onClick <| CommentSelected attachment.commentID
+                                        ]
+                                        [ H.text attachment.filename ]
+                                    , H.span [ HA.class "file_info" ]
+                                        [ attachment.contentInfo
+                                            |> Maybe.map (\info -> info.mimeType ++ " - " ++ info.contentLength)
+                                            |> Maybe.withDefault ""
+                                            |> H.text
+                                        ]
+                                    , getAttachmentUploader commentsData attachment
+                                        |> Maybe.map viewUploader
+                                        |> Maybe.withDefault (H.text "")
+                                    ]
+                            )
+                    )
                 ]
 
         deleteVideoNode =
@@ -1078,7 +1072,11 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                 H.text ""
         , H.div [ HA.class "video_infos cols_height-four" ]
             [ Page.Common.Video.description video
-            , viewAttachments
+            , if activeAttachmentList /= [] then
+                viewAttachments
+
+              else
+                H.text ""
             ]
         , H.div [ HA.class "video_share" ]
             [ H.text "Partager cette vidéo : "
