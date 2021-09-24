@@ -446,6 +446,11 @@ details[open] summary::after {
 .rf-header__actions a {
   margin-left: 2.4rem;
 }
+.search__group,
+.search__group div {
+  display: flex;
+  align-items: center;
+}
 .search__group input {
   /*display: none;*/
 }
