@@ -390,14 +390,14 @@ viewVideoAside config =
 viewAboutAside : Config msg -> Html msg
 viewAboutAside { activePage } =
     let
-        linkMaybeActive =
-            linkMaybeActiveAside activePage
+        isActive =
+            genericIsActive activePage
     in
     aside [ class "side-menu" ]
         [ nav []
-            [ linkMaybeActive About Route.About "À propos de Classe à 12"
-            , linkMaybeActive Participate Route.Participate "Participer"
-            , linkMaybeActive Register Route.Register "S'inscrire"
+            [ linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
+            , linkMaybeActive (isActive Participate) Route.Participate "Participer"
+            , linkMaybeActive (isActive Register) Route.Register "S'inscrire"
             , a [ href "" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/faq-flash_32_purple.svg" ] []
                 , text "Comment participer"
@@ -425,12 +425,13 @@ viewAboutAside { activePage } =
 viewNewsAside : Config msg -> Html msg
 viewNewsAside { activePage } =
     let
-        linkMaybeActive =
-            linkMaybeActiveAside activePage
+        isActive page =
+            -- Also highlight the "all news" side menu when a specific news page is displayed
+            activePage == News && page == AllNews || genericIsActive activePage page
     in
     aside [ class "side-menu" ]
         [ nav []
-            [ linkMaybeActive AllNews Route.AllNews "Nouveautés"
+            [ linkMaybeActive (isActive AllNews) Route.AllNews "Nouveautés"
             , a [ href "" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_purple.svg" ] []
                 , text "Nos événements"
@@ -439,17 +440,22 @@ viewNewsAside { activePage } =
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
                 , text "Les challenges"
                 ]
-            , linkMaybeActive About Route.About "À propos de Classe à 12"
+            , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
             ]
         ]
 
 
-linkMaybeActiveAside : ActivePage -> ActivePage -> Route.Route -> String -> Html msg
-linkMaybeActiveAside activePage page route caption =
+genericIsActive : ActivePage -> ActivePage -> Bool
+genericIsActive activePage page =
+    activePage == page
+
+
+linkMaybeActive : Bool -> Route.Route -> String -> Html msg
+linkMaybeActive isActive route caption =
     a
         [ Route.href route
         , classList
-            [ ( "active", page == activePage )
+            [ ( "active", isActive )
             ]
         ]
         [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_purple.svg") ] []
@@ -460,15 +466,15 @@ linkMaybeActiveAside activePage page route caption =
 menuNodes : Config msg -> List (Html msg)
 menuNodes { activePage } =
     let
-        linkMaybeActive =
-            linkMaybeActiveAside activePage
+        isActive =
+            genericIsActive activePage
     in
     [ nav [ class "desktop-only" ]
         [ ul []
-            [ li [] [ linkMaybeActive AllVideos Route.AllVideos "Accueil videos" ]
-            , li [] [ linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés" ]
-            , li [] [ linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
-            , li [] [ linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
+            [ li [] [ linkMaybeActive (isActive AllVideos) Route.AllVideos "Accueil videos" ]
+            , li [] [ linkMaybeActive (isActive (VideoList Route.Latest)) (Route.VideoList Route.Latest) "Nouveautés" ]
+            , li [] [ linkMaybeActive (isActive (VideoList Route.Playlist)) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
+            , li [] [ linkMaybeActive (isActive (VideoList Route.FAQFlash)) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
             ]
         , h3 [] [ text "Catégories" ]
         , ul []
@@ -479,7 +485,7 @@ menuNodes { activePage } =
                             route =
                                 Route.VideoList <| Route.Keyword keyword
                         in
-                        li [] [ linkMaybeActive (VideoList <| Route.Keyword keyword) route keyword ]
+                        li [] [ linkMaybeActive (isActive (VideoList <| Route.Keyword keyword)) route keyword ]
                     )
             )
         ]
@@ -501,10 +507,10 @@ menuNodes { activePage } =
             ]
         , nav []
             [ ul []
-                [ li [] [ linkMaybeActive AllVideos Route.AllVideos "Accueil videos" ]
-                , li [] [ linkMaybeActive (VideoList Route.Latest) (Route.VideoList Route.Latest) "Nouveautés" ]
-                , li [] [ linkMaybeActive (VideoList Route.Playlist) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
-                , li [] [ linkMaybeActive (VideoList Route.FAQFlash) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
+                [ li [] [ linkMaybeActive (isActive AllVideos) Route.AllVideos "Accueil videos" ]
+                , li [] [ linkMaybeActive (isActive (VideoList Route.Latest)) (Route.VideoList Route.Latest) "Nouveautés" ]
+                , li [] [ linkMaybeActive (isActive (VideoList Route.Playlist)) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
+                , li [] [ linkMaybeActive (isActive (VideoList Route.FAQFlash)) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
                 ]
             , h3 [] [ text "Catégories" ]
             , ul []
@@ -515,7 +521,7 @@ menuNodes { activePage } =
                                 route =
                                     Route.VideoList <| Route.Keyword keyword
                             in
-                            li [] [ linkMaybeActive (VideoList <| Route.Keyword keyword) route keyword ]
+                            li [] [ linkMaybeActive (isActive (VideoList <| Route.Keyword keyword)) route keyword ]
                         )
                 )
             ]
