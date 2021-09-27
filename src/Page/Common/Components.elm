@@ -6,6 +6,7 @@ module Page.Common.Components exposing
     , onChange
     , onFileSelected
     , optgroup
+    , shareButtons
     , submitButton
     , viewConnectNow
     )
@@ -100,6 +101,69 @@ loadingIcon buttonState =
 
     else
         []
+
+
+
+---- SHARE BUTTONS ----
+
+
+shareButtons shareText shareUrl navigatorShare navigatorShareOnClick =
+    let
+        navigatorShareButton =
+            if navigatorShare then
+                [ H.li []
+                    [ H.a
+                        [ HE.onClick navigatorShareOnClick
+                        , HA.href "#"
+                        , HA.title "Partager la vidéo en utilisant une application"
+                        ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/app_32_purple.svg" ] [] ]
+                    ]
+                ]
+
+            else
+                []
+    in
+    H.ul [ HA.class "social" ]
+        ([ H.li []
+            [ H.a
+                [ HA.href "https://www.facebook.com/sharer/sharer.php"
+                , HA.title "Partager la vidéo par facebook"
+                ]
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] [] ]
+            ]
+         , H.li []
+            [ H.a
+                [ HA.href <| "http://twitter.com/share?text=" ++ shareText
+                , HA.title "Partager la vidéo par twitter"
+                ]
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/twitter_32_purple.svg" ] [] ]
+            ]
+         , H.li []
+            [ H.a
+                [ HA.href <| "whatsapp://send?text=" ++ shareText ++ " : " ++ shareUrl
+                , HA.property "data-action" (Encode.string "share/whatsapp/share")
+                , HA.title "Partager la vidéo par whatsapp"
+                ]
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/whatsapp_32_purple.svg" ] [] ]
+            ]
+         , H.li []
+            [ H.a
+                [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
+                , HA.title "Partager la vidéo par email"
+                ]
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] [] ]
+            ]
+         , H.li []
+            [ H.a
+                [ HA.href "https://www.tchap.gouv.fr/"
+                , HA.title "Partager la vidéo par Tchap"
+                ]
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/tchap_32_purple.svg" ] [] ]
+            ]
+         ]
+            ++ navigatorShareButton
+        )
 
 
 

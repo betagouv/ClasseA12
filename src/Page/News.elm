@@ -9,8 +9,10 @@ import Markdown.Parser as Markdown
 import Markdown.Renderer
 import Page.Common.Components
 import Page.Common.Dates as Dates
+import Ports
 import RemoteData exposing (RemoteData(..), WebData)
 import Request.News exposing (getPost)
+import Url exposing (Url)
 
 
 type alias Model =
@@ -21,6 +23,7 @@ type alias Model =
 
 type Msg
     = PostReceived (WebData Data.News.Post)
+    | ShareNews String
 
 
 init : String -> Session -> ( Model, Cmd Msg )
@@ -38,9 +41,12 @@ update _ msg model =
         PostReceived data ->
             ( { model | post = data }, Cmd.none )
 
+        ShareNews shareText ->
+            ( model, Ports.navigatorShare shareText )
+
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view _ model =
+view { navigatorShare, url } model =
     { title = model.title
     , pageTitle = "Toutes les actualités"
     , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
@@ -52,7 +58,7 @@ view _ model =
             Success post ->
                 H.div []
                     [ H.section [ HA.id "post" ]
-                        [ viewPost post ]
+                        [ viewPost url navigatorShare post ]
                     ]
 
             Failure _ ->
@@ -64,9 +70,12 @@ view _ model =
     }
 
 
-viewPost : Data.News.Post -> H.Html Msg
-viewPost post =
+viewPost : Url -> Bool -> Data.News.Post -> H.Html Msg
+viewPost url navigatorShare post =
     let
+        shareText =
+            "Actualité sur Classe à 12 : " ++ post.title
+
         createdAt =
             Iso8601.fromTime post.createdAt
                 |> Dates.formatStringDatetime
@@ -103,7 +112,14 @@ viewPost post =
                 Err errors ->
                     H.text errors
             ]
-        , H.div [] [ H.text "Partager cette actualité" ]
+        , H.div []
+            [ H.text "Partager cette actualité"
+            , Page.Common.Components.shareButtons
+                shareText
+                (Url.toString url)
+                navigatorShare
+                (ShareNews shareText)
+            ]
         ]
 
 

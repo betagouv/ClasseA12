@@ -838,66 +838,6 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
 
-        shareUrl =
-            Url.toString url
-
-        navigatorShareButton =
-            if navigatorShare then
-                [ H.li []
-                    [ H.a
-                        [ HE.onClick <| ShareVideo shareText
-                        , HA.href "#"
-                        , HA.title "Partager la vidéo en utilisant une application"
-                        ]
-                        [ H.i [ HA.class "fas fa-share-alt fa-2x" ] [] ]
-                    ]
-                ]
-
-            else
-                []
-
-        shareButtons =
-            H.ul [ HA.class "social" ]
-                ([ H.li []
-                    [ H.a
-                        [ HA.href "https://www.facebook.com/sharer/sharer.php"
-                        , HA.title "Partager la vidéo par facebook"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href <| "http://twitter.com/share?text=" ++ shareText
-                        , HA.title "Partager la vidéo par twitter"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/twitter_32_purple.svg" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href <| "whatsapp://send?text=" ++ shareText ++ " : " ++ shareUrl
-                        , HA.property "data-action" (Encode.string "share/whatsapp/share")
-                        , HA.title "Partager la vidéo par whatsapp"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/whatsapp_32_purple.svg" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
-                        , HA.title "Partager la vidéo par email"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href "https://www.tchap.gouv.fr/"
-                        , HA.title "Partager la vidéo par Tchap"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/tchap_32_purple.svg" ] [] ]
-                    ]
-                 ]
-                    ++ navigatorShareButton
-                )
-
         getAttachmentUploader : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> Attachment -> Maybe Data.PeerTube.Account
         getAttachmentUploader commentsData_ attachment =
             case commentsData_ of
@@ -1083,7 +1023,11 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
             ]
         , H.div [ HA.class "video_share" ]
             [ H.text "Partager cette vidéo : "
-            , shareButtons
+            , Components.shareButtons
+                shareText
+                (Url.toString url)
+                navigatorShare
+                (ShareVideo shareText)
             ]
         ]
 
