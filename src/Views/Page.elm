@@ -63,6 +63,7 @@ frameToString frameVariant =
 
 type alias Config msg =
     { session : Session
+    , toggleSearchForm : msg
     , updateSearchMsg : String -> msg
     , submitSearchMsg : msg
     , openMenuMsg : msg
@@ -535,7 +536,7 @@ type SearchForm
 
 
 searchForm : Config msg -> SearchForm -> Html.Html msg
-searchForm { session, submitSearchMsg, updateSearchMsg } searchFormType =
+searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } searchFormType =
     let
         searchInput =
             input
@@ -559,11 +560,19 @@ searchForm { session, submitSearchMsg, updateSearchMsg } searchFormType =
         DesktopSearchForm ->
             form [ onSubmit submitSearchMsg, class "desktop-only" ]
                 [ div [ class "search__group" ]
-                    [ button [ class "search_button" ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
-                    , div []
-                        [ searchInput
-                        , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
+                    [ button
+                        [ class "search_button"
+                        , onClick toggleSearchForm
+                        , type_ "button"
                         ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
+                    , if session.searchFormOpened then
+                        div []
+                            [ searchInput
+                            , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
+                            ]
+
+                      else
+                        text ""
                     ]
                 ]

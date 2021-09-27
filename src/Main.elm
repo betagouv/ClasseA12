@@ -96,6 +96,7 @@ type Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | AdjustTimeZone Time.Zone
+    | ToggleSearchForm
     | UpdateSearch String
     | SubmitSearch
     | OpenMenu
@@ -241,6 +242,7 @@ init flags url navKey =
             , prevUrl = url
             , userToken = userToken
             , userInfo = userInfo
+            , searchFormOpened = False
             , search = ""
             , isMenuOpened = False
             }
@@ -377,6 +379,13 @@ update msg ({ page, session } as model) =
             in
             ( { model | session = { modelSession | timezone = zone } }, Cmd.none )
 
+        ( ToggleSearchForm, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | searchFormOpened = not modelSession.searchFormOpened } }, Cmd.none )
+
         ( UpdateSearch search, _ ) ->
             let
                 modelSession =
@@ -501,7 +510,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session UpdateSearch SubmitSearch OpenMenu CloseMenu
+            Page.Config model.session ToggleSearchForm UpdateSearch SubmitSearch OpenMenu CloseMenu
 
         mapMsg : (msg -> Msg) -> Page.Common.Components.Document msg -> Page.Common.Components.Document Msg
         mapMsg msg { title, pageTitle, pageSubTitle, body } =
