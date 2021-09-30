@@ -139,9 +139,11 @@ app.ports.submitVideo.subscribe(function (data) {
 
     // Create a thumbnail from the video.
     const canvas = document.getElementById("thumbnail-preview");
-    const thumbnail = dataURItoBlob(canvas.toDataURL("image/jpeg"));
+    const imageData = dataURItoBlob(canvas.toDataURL("image/jpeg"));
     const thumbnailFilename = uuidv4() + ".jpg";
-    formData.append('thumbnailfile', thumbnail, thumbnailFilename);
+    const previewFilename = uuidv4() + ".jpg";
+    formData.append('previewfile', imageData, previewFilename);
+    formData.append('thumbnailfile', imageData, thumbnailFilename);
 
     const url = PEERTUBE_URL + "/api/v1/videos/upload";
     let xhrVideo = xhrForAttachment(url, "POST", "Envoi de la vidéo", access_token, "Bearer", app.ports.videoSubmitted.send);
