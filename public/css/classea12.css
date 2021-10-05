@@ -824,6 +824,17 @@ aside > div img {
 }
 
 /* HOME */
+
+.home {
+  display: block;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.home .content {
+  max-width: 100%;
+}
+
 .home__intro {
   min-height: 78rem;
   text-align: center;
@@ -858,7 +869,6 @@ aside > div img {
   display: block;
   margin-top: 1.6rem;
 }
-
 .home__intro-logos {
   margin-top: 6.4rem;
 }
@@ -899,6 +909,9 @@ aside > div img {
   width: 1.6rem;
   height: 1.6rem;
   background: url(../images/icons/16x16/arrow_left_16_purple.svg) 0 0 no-repeat;
+}
+.home__category .video-grid__insert {
+  display: none;
 }
 
 .video-grid {

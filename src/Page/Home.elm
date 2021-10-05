@@ -52,7 +52,7 @@ view : Session -> Model -> Page.Common.Components.Document Msg
 view { peerTubeURL } { title, playlistVideoData } =
     let
         viewPlaylistVideo =
-            [ H.section [ HA.class "home__category", HA.id "playlist" ]
+            [ H.section [ HA.class "home__category wrapper", HA.id "playlist" ]
                 [ H.h2 []
                     [ H.img
                         [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg"
@@ -112,17 +112,17 @@ view { peerTubeURL } { title, playlistVideoData } =
                             ]
                         , H.div [ class "home__participate-content" ]
                             [ H.div []
-                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
+                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/gestion-de-classe_48_bicolore.svg" ] []
                                 , H.h3 [] [ H.text "Une communauté d’enseignants, pour les enseignants" ]
                                 , H.p [] [ H.text "Venenatis euismod sit sed habitant. Mattis vulputate bibendum commodo posuere turpis enim faucibus lacus. In praesent." ]
                                 ]
                             , H.div []
-                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/coinlecture_48_bicolore.svg" ] []
+                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/share_48_bicolore.svg" ] []
                                 , H.h3 [] [ H.text "Un partage d’expériences, de pratiques et de bonnes idées" ]
                                 , H.p [] [ H.text "Venenatis euismod sit sed habitant. Mattis vulputate bibendum commodo posuere turpis enim faucibus lacus. In praesent." ]
                                 ]
                             , H.div []
-                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/coinmath_48_bicolore.svg" ] []
+                                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/compte_48_bicolore.svg" ] []
                                 , H.h3 [] [ H.text "Créez un compte totalement gratuit pour participer" ]
                                 , H.p [] [ H.text "Venenatis euismod sit sed habitant. Mattis vulputate bibendum commodo posuere turpis enim faucibus lacus. In praesent." ]
                                 ]
@@ -130,6 +130,16 @@ view { peerTubeURL } { title, playlistVideoData } =
                         , H.div [ HA.class "center-wrapper" ]
                             [ H.a [ class "btn btn--secondary", HA.href "#" ] [ H.text "Rejoignez la communauté" ]
                             ]
+                        ]
+                    ]
+               , H.section [ HA.class "home__category" ]
+                    [ H.div [ class "wrapper" ]
+                        [ H.h2 []
+                            [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
+                            , H.text "L’actualité de Classe à 12"
+                            ]
+                        , H.div [ class "" ]
+                            []
                         ]
                     ]
                ]
