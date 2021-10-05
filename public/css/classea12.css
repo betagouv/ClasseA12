@@ -1135,13 +1135,12 @@ aside > div img {
   font-size: 1.2rem;
 }
 
-.video_share {
+.share {
   margin-top: 1.6rem;
   color: var(--primary-color);
   font-weight: bold;
 }
-
-.video_share::after {
+.share::after {
   content: "";
   display: block;
   width: 12.8rem;
@@ -1150,14 +1149,14 @@ aside > div img {
   margin-bottom: 1.6rem;
   background-color: var(--border-color);
 }
-.video_share .social {
+.share .social {
   display: inline;
 }
-.video_share .social li {
+.share .social li {
   display: inline-block;
   line-height: 32px;
 }
-.video_share .social li img {
+.share .social li img {
   vertical-align: bottom;
 }
 

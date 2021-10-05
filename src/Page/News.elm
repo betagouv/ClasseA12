@@ -112,7 +112,7 @@ viewPost url navigatorShare post =
                 Err errors ->
                     H.text errors
             ]
-        , H.div []
+        , H.div [ HA.class "share" ]
             [ H.text "Partager cette actualité"
             , Page.Common.Components.shareButtons
                 shareText

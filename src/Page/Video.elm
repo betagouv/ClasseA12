@@ -1021,7 +1021,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
               else
                 H.text ""
             ]
-        , H.div [ HA.class "video_share" ]
+        , H.div [ HA.class "share" ]
             [ H.text "Partager cette vidéo : "
             , Components.shareButtons
                 shareText
