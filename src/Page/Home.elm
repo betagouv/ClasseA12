@@ -126,10 +126,34 @@ view { peerTubeURL } { title, playlistVideoData } =
                                 , H.h3 [] [ H.text "Créez un compte totalement gratuit pour participer" ]
                                 , H.p [] [ H.text "Venenatis euismod sit sed habitant. Mattis vulputate bibendum commodo posuere turpis enim faucibus lacus. In praesent." ]
                                 ]
+                            , H.div
+                                [ HA.class "home__participate-photos" ]
+                                [ H.div [ HA.class "about__image" ]
+                                    [ H.img
+                                        [ HA.src "%PUBLIC_URL%/images/photos/mobile.jpg"
+                                        , HA.alt ""
+                                        ]
+                                        []
+                                    ]
+                                , H.div [ HA.class "about__image" ]
+                                    [ H.img
+                                        [ HA.src "%PUBLIC_URL%/images/photos/equipe.jpg"
+                                        , HA.alt ""
+                                        ]
+                                        []
+                                    ]
+                                , H.div [ HA.class "about__image" ]
+                                    [ H.img
+                                        [ HA.src "%PUBLIC_URL%/images/photos/groupe.jpg"
+                                        , HA.alt ""
+                                        ]
+                                        []
+                                    ]
+                                ]
                             ]
-                        , H.div [ HA.class "center-wrapper" ]
-                            [ H.a [ class "btn btn--secondary", HA.href "#" ] [ H.text "Rejoignez la communauté" ]
-                            ]
+                        ]
+                    , H.div [ HA.class "center-wrapper" ]
+                        [ H.a [ class "btn btn--secondary", HA.href "#" ] [ H.text "Rejoignez la communauté" ]
                         ]
                     ]
                , H.section [ HA.class "home__category" ]
@@ -138,8 +162,6 @@ view { peerTubeURL } { title, playlistVideoData } =
                             [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
                             , H.text "L’actualité de Classe à 12"
                             ]
-                        , H.div [ class "" ]
-                            []
                         ]
                     ]
                ]

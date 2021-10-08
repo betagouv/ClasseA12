@@ -39,8 +39,8 @@ view _ { title } =
                 ]
             , H.article [ HA.class "about__service" ]
                 [ H.img
-                    [ HA.src "%PUBLIC_URL%/images/photos/photo_de_classe.jpg"
-                    , HA.alt "Photo d'élèves dans une classe"
+                    [ HA.src "%PUBLIC_URL%/images/photos/equipe.jpg"
+                    , HA.alt ""
                     , HA.class "about__image"
                     ]
                     []
@@ -54,8 +54,8 @@ view _ { title } =
             , H.article [ HA.class "about__participate" ]
                 [ H.div [ HA.class "about__image" ]
                     [ H.img
-                        [ HA.src "%PUBLIC_URL%/images/photos/Nicolas_smartphone.jpg"
-                        , HA.alt "Photo de Nicolas Leyri en train de se filmer sur son smartphone"
+                        [ HA.src "%PUBLIC_URL%/images/photos/post-its.jpg"
+                        , HA.alt ""
                         ]
                         []
                     ]
@@ -72,8 +72,8 @@ view _ { title } =
             , H.article [ HA.class "about__subject" ]
                 [ H.div [ HA.class "about__image" ]
                     [ H.img
-                        [ HA.src "%PUBLIC_URL%/images/photos/Casier_rangement_feutres.jpg"
-                        , HA.alt "Photo d'un casier de rangements de feutres de couleur"
+                        [ HA.src "%PUBLIC_URL%/images/photos/groupe.jpg"
+                        , HA.alt ""
                         ]
                         []
                     ]
@@ -86,8 +86,8 @@ view _ { title } =
             , H.article [ HA.class "about__video" ]
                 [ H.div [ HA.class "about__image" ]
                     [ H.img
-                        [ HA.src "%PUBLIC_URL%/images/photos/Casier_rangement_feutres.jpg"
-                        , HA.alt "Photo d'un casier de rangements de feutres de couleur"
+                        [ HA.src "%PUBLIC_URL%/images/photos/mobile.jpg"
+                        , HA.alt ""
                         ]
                         []
                     ]
