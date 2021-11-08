@@ -1,5 +1,6 @@
 module Page.Home exposing (Model, Msg(..), init, update, view)
 
+import Data.News
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
@@ -7,6 +8,7 @@ import Html.Attributes as HA exposing (class)
 import Http
 import Page.Common.Components
 import Page.Common.Video
+import RemoteData exposing (RemoteData(..), WebData)
 import Request.PeerTube
 import Route
 
@@ -14,6 +16,7 @@ import Route
 type alias Model =
     { title : String
     , playlistVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+    , postList : WebData (List Data.News.Post)
     }
 
 
@@ -25,6 +28,7 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
       , playlistVideoData = Data.PeerTube.Requested
+      , postList = Loading
       }
     , Request.PeerTube.getPlaylistVideoList
         "classea12"
