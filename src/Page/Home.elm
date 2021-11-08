@@ -207,5 +207,8 @@ viewNews postList =
 
                 NotAsked ->
                     H.text "Erreur"
+            , H.a [ Route.href Route.AllNews ]
+                [ H.text "Voir toutes les actualités"
+                ]
             ]
         ]
