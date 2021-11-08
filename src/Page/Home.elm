@@ -6,6 +6,7 @@ import Data.Session exposing (Session)
 import Html as H
 import Html.Attributes as HA exposing (class)
 import Http
+import Page.AllNews exposing (viewPost)
 import Page.Common.Components
 import Page.Common.Video
 import RemoteData exposing (RemoteData(..), WebData)
@@ -61,7 +62,7 @@ update _ msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, playlistVideoData } =
+view { peerTubeURL } { title, playlistVideoData, postList } =
     { title = title
     , pageTitle = "Classe à 12 en vidéo"
     , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
@@ -69,7 +70,7 @@ view { peerTubeURL } { title, playlistVideoData } =
         [ viewHeader
         , viewPlaylistVideo peerTubeURL playlistVideoData
         , viewParticipate
-        , viewNews
+        , viewNews postList
         ]
     }
 
@@ -182,13 +183,29 @@ viewParticipate =
         ]
 
 
-viewNews : H.Html Msg
-viewNews =
+viewNews : WebData (List Data.News.Post) -> H.Html Msg
+viewNews postList =
     H.section [ HA.class "home__category" ]
         [ H.div [ class "wrapper" ]
             [ H.h2 []
                 [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
                 , H.text "L’actualité de Classe à 12"
                 ]
+            , case postList of
+                Loading ->
+                    H.text "Chargement en cours..."
+
+                Success posts ->
+                    H.div [ HA.class "news" ]
+                        (posts
+                            |> List.take 2
+                            |> List.map viewPost
+                        )
+
+                Failure _ ->
+                    H.text "Erreur lors du chargement des actualités"
+
+                NotAsked ->
+                    H.text "Erreur"
             ]
         ]

@@ -1,4 +1,4 @@
-module Page.AllNews exposing (Model, Msg(..), init, update, view)
+module Page.AllNews exposing (Model, Msg(..), init, update, view, viewPost)
 
 import Data.News
 import Data.Session exposing (Session)
@@ -102,7 +102,7 @@ view _ model =
     }
 
 
-viewPost : Data.News.Post -> H.Html Msg
+viewPost : Data.News.Post -> H.Html msg
 viewPost post =
     let
         createdAt =
