@@ -31,7 +31,7 @@ numNewsToDisplay =
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
+    ( { title = "Toutes les actualités"
       , postList = Loading
       , numNewsToDisplay = numNewsToDisplay
       }
