@@ -9,6 +9,7 @@ import Http
 import Page.Common.Components
 import Page.Common.Video
 import RemoteData exposing (RemoteData(..), WebData)
+import Request.News exposing (getPostList)
 import Request.PeerTube
 import Route
 
@@ -22,6 +23,7 @@ type alias Model =
 
 type Msg
     = PlaylistVideoListReceived (Result Http.Error ( String, List Data.PeerTube.Video ))
+    | PostListReceived (WebData (List Data.News.Post))
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -30,11 +32,14 @@ init session =
       , playlistVideoData = Data.PeerTube.Requested
       , postList = Loading
       }
-    , Request.PeerTube.getPlaylistVideoList
-        "classea12"
-        Request.PeerTube.emptyVideoListParams
-        session.peerTubeURL
-        PlaylistVideoListReceived
+    , Cmd.batch
+        [ Request.PeerTube.getPlaylistVideoList
+            "classea12"
+            Request.PeerTube.emptyVideoListParams
+            session.peerTubeURL
+            PlaylistVideoListReceived
+        , getPostList PostListReceived
+        ]
     )
 
 
@@ -50,6 +55,9 @@ update _ msg model =
 
         PlaylistVideoListReceived (Err _) ->
             ( { model | playlistVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos de la playlist" }, Cmd.none )
+
+        PostListReceived data ->
+            ( { model | postList = data }, Cmd.none )
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
