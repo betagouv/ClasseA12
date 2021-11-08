@@ -1,6 +1,6 @@
 # Classe à 12
 
-Source code for the project [Classe à 12](https://beta.gouv.fr/startup/classes12.html).
+Source code for the project [Classe à 12](https://beta.gouv.fr/startups/classe-a-12.html).
 This has been bootstraped with [elm-kitchen](https://allo-media.github.io/elm-kitchen/), see after the separator for more information.
 The project is bundled using [create-elm-app](https://github.com/halfzebra/create-elm-app).
 
@@ -13,7 +13,7 @@ $ yarn install
 $ yarn start
 ```
 
-Check out https://classea12.beta.gouv.fr/
+Check out https://classe-a-12.beta.gouv.fr
 
 
 # Deployment
