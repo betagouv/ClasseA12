@@ -28,7 +28,7 @@ type Msg
 
 init : String -> Session -> ( Model, Cmd Msg )
 init postID _ =
-    ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
+    ( { title = "Actualité : " ++ postID
       , post = Loading
       }
     , getPost postID PostReceived
