@@ -33,7 +33,7 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init session =
-    ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
+    ( { title = "Toutes les vidéos"
       , search = ""
       , recentVideoData = Data.PeerTube.Requested
       , playlistVideoData = Data.PeerTube.Requested
