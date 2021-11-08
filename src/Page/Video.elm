@@ -1013,14 +1013,18 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
 
             Nothing ->
                 H.text ""
-        , H.div [ HA.class "video_infos cols_height-four" ]
-            [ Page.Common.Video.description video
-            , if activeAttachmentList /= [] then
-                viewAttachments
+        , if video.description /= "" && activeAttachmentList /= [] then
+            H.div [ HA.class "video_infos cols_height-four" ]
+                [ Page.Common.Video.description video
+                , if activeAttachmentList /= [] then
+                    viewAttachments
 
-              else
-                H.text ""
-            ]
+                  else
+                    H.text ""
+                ]
+
+          else
+            H.text ""
         , H.div [ HA.class "share" ]
             [ H.text "Partager cette vidéo : "
             , Components.shareButtons
