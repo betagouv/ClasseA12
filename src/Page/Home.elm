@@ -91,7 +91,7 @@ viewHeader =
                 ]
             , H.p [] [ H.text "Chaque semaine, des enseignants de classe à 12 partagent leurs idées pédagogiques, ateliers, bonnes pratiques dans des formats vidéos courts." ]
             , H.a [ HA.class "btn", Route.href Route.AllVideos ] [ H.text "Découvrez les vidéos pédagogiques" ]
-            , H.a [ HA.href "" ] [ H.text "Découvrez Classe à 12" ]
+            , H.a [ Route.href Route.About ] [ H.text "Découvrez Classe à 12" ]
             ]
         , H.div [ HA.class "home__intro-logos" ]
             [ H.img
