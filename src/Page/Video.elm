@@ -711,7 +711,6 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
     , pageSubTitle = videoTitle
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , viewBreadCrumbs videoData
         , H.section []
             (case deletedVideo of
                 Data.PeerTube.Received _ ->
