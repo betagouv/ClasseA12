@@ -420,6 +420,18 @@ viewAboutAside { activePage } =
                 , text "Twitter"
                 ]
             ]
+            ,div [ class "desktop-only" ]
+        [ a []
+            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                []
+            ]
+        , a
+            [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+            ]
+            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                []
+            ]
+        ]
         ]
 
 
@@ -442,7 +454,19 @@ viewNewsAside { activePage } =
                 , text "Les challenges"
                 ]
             , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
+            ],
+            div [ class "desktop-only" ]
+        [ a []
+            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                []
             ]
+        , a
+            [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+            ]
+            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                []
+            ]
+        ]
         ]
 
 
