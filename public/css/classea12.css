@@ -979,6 +979,23 @@ aside > div img {
   margin-top: 3.2rem;
   text-align: right;
 }
+.home__category .news {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-gap: 3.2rem;
+}
+.home__category .news_item {
+  flex-direction: column;
+}
+.home__category .news_item  + .news_item {
+  margin-top: 0;
+}
+.home__category .news_item div {
+  order: 2;
+}
+.home__category .news_item img {
+  order: 1;
+}
 
 .video-grid {
   display: grid;
