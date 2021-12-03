@@ -591,9 +591,23 @@ searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } searc
                         ]
                         [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
                     , if session.searchFormOpened then
-                        div []
-                            [ searchInput
+                        div [ class "search_view"]
+                            [ 
+                                button [class "search__close"][
+                                    text "Fermer",
+                                    div[][
+                                    img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ][]
+                                    ]
+                                ],
+                                div[ class "content"][
+                                h1 [][
+                                    text "Votre recherche"
+                                ],
+                                div[][
+                                searchInput
                             , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
+                            ]
+                            ]
                             ]
 
                       else
