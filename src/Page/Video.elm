@@ -975,7 +975,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Favorite favoriteData ->
-                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/unfavorite_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
+                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/heartdelete_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
                     Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/heart_24_purple.svg" buttonState (Just <| AddToFavorite)

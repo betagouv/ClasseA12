@@ -114,6 +114,9 @@ html {
 body {
   overflow-x: hidden;
 }
+body.is-blocked {
+  overflow: hidden;
+}
 .wrapper {
   width: 100%;
   max-width: 112rem;

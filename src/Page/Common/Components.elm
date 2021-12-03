@@ -117,7 +117,7 @@ shareButtons shareText shareUrl navigatorShare navigatorShareOnClick =
                         , HA.href "#"
                         , HA.title "Partager la vidéo en utilisant une application"
                         ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/app_32_purple.svg" ] [] ]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/24x24/sharebrowser_24_purple.svg" ] [] ]
                     ]
                 ]
 
