@@ -1978,6 +1978,35 @@ progress {
   margin-top: 0.8rem;
 }
 
+.connect {
+  margin: 0 auto;
+  max-width: 50%;
+}
+.connect h1 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.6rem;
+  text-align: left;
+}
+.connect h1 img {
+  margin-right: 1.6rem;
+}
+.connect__submit {
+  display: flex;
+  justify-content: flex-end;
+}
+.connect__links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 3.2rem;
+  padding-top: 2.8rem;
+  border-top: 1px solid var(--tabs-border);
+}
+.connect__links a + a {
+margin-top: 1.2rem;
+}
+
 /* RESPONSIVE */
 
 .mobile-only {
