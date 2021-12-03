@@ -955,7 +955,8 @@ aside > div img {
   display: block;
   margin: 0 auto 0.8rem;
 }
-.home__category > a {
+.home__category > a,
+.home__category  .news + div > a {
   align-self: flex-end;
   display: flex;
   align-items: center;
@@ -963,7 +964,8 @@ aside > div img {
   font-weight: 600;
   text-decoration: none;
 }
-.home__category > a::after {
+.home__category > a::after,
+.home__category  .news + div> a::after {
   content: "";
   display: block;
   width: 1.6rem;
@@ -972,6 +974,10 @@ aside > div img {
 }
 .home__category .video-grid__insert {
   display: none;
+}
+.home__category .news + div {
+  margin-top: 3.2rem;
+  text-align: right;
 }
 
 .video-grid {

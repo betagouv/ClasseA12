@@ -185,9 +185,8 @@ viewParticipate =
 
 viewNews : WebData (List Data.News.Post) -> H.Html Msg
 viewNews postList =
-    H.section [ HA.class "home__category" ]
-        [ H.div [ class "wrapper" ]
-            [ H.h2 []
+    H.section [ HA.class "home__category wrapper" ]
+        [ H.h2 []
                 [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
                 , H.text "L’actualité de Classe à 12"
                 ]
@@ -209,6 +208,5 @@ viewNews postList =
                     H.text "Erreur"
             , H.a [ Route.href Route.AllNews ]
                 [ H.text "Voir toutes les actualités"
-                ]
             ]
         ]
