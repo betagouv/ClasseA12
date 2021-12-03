@@ -224,7 +224,7 @@ view _ { title, pageState, profileForm, profileData, ownProfile, notifications }
     let
         logoutButton =
             if ownProfile then
-                [ H.button [ HA.class "button warning", HE.onClick Logout ] [ H.text "Me déconnecter" ] ]
+                [ H.div[HA.class "connect connect__submit logout"][H.button [ HA.class "button warning", HE.onClick Logout ] [ H.text "Me déconnecter" ] ]]
 
             else
                 []
@@ -232,11 +232,10 @@ view _ { title, pageState, profileForm, profileData, ownProfile, notifications }
         favoriteVideosLink =
             case profileData of
                 Data.PeerTube.Received data ->
-                    [ H.hr [] []
-                    , H.a [ Route.href (Route.VideoList <| Route.Favorites data.name) ] [ H.text "Vidéos favorites" ]
-                    , H.br [] []
+                    [ H.div[HA.class "connect__links"][
+                    H.a [ Route.href (Route.VideoList <| Route.Favorites data.name) ] [ H.text "Vidéos favorites" ]
                     , H.a [ Route.href (Route.VideoList <| Route.Published data.name) ] [ H.text "Vidéos publiées" ]
-                    ]
+                    ]]
 
                 _ ->
                     []
@@ -292,11 +291,11 @@ viewEditProfileForm profileForm profileData =
                 Page.Common.Components.Disabled
 
         submitButton =
-            H.div []
+            H.div [HA.class "connect__submit"]
                 [ Page.Common.Components.submitButton "Mettre à jour mon profil" buttonState ]
     in
     H.form
-        [ HE.onSubmit UpdateProfile ]
+        [ HE.onSubmit UpdateProfile, HA.class "connect" ]
         [ H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "name" ] [ H.text "Nom d'usage (utilisé comme identité sur ce site)" ]
             , H.input

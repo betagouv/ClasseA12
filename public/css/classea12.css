@@ -1982,6 +1982,9 @@ progress {
   margin: 0 auto;
   max-width: 50%;
 }
+.logout {
+  margin-top: 3.2rem;
+}
 .connect h1 {
   display: flex;
   align-items: center;
