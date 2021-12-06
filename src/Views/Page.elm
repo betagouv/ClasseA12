@@ -420,36 +420,41 @@ viewNewsAside { activePage } =
         isActive page =
             -- Also highlight the "all news" side menu when a specific news page is displayed
             activePage == News && page == AllNews || genericIsActive activePage page
+
+        navContent =
+            [ linkMaybeActive (isActive AllNews) Route.AllNews "Nouveautés"
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_purple.svg" ] []
+                , text "Nos événements"
+                ]
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
+                , text "Les challenges"
+                ]
+            , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
+            ]
     in
     aside [ class "side-menu" ]
-        [ details [ class "mobile-only mobile-categories" ]
+        [ nav [ class "desktop-only" ]
+            navContent
+        , div [ class "desktop-only" ]
+            [ a []
+                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                    []
+                ]
+            , a
+                [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+                ]
+                [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                    []
+                ]
+            ]
+        , details [ class "mobile-only mobile-categories" ]
             [ summary [ class "" ]
                 [ text "Choisir une catégorie"
                 ]
             , nav []
-                [ linkMaybeActive (isActive AllNews) Route.AllNews "Nouveautés"
-                , a [ href "" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_purple.svg" ] []
-                    , text "Nos événements"
-                    ]
-                , a [ href "" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
-                    , text "Les challenges"
-                    ]
-                , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
-                ]
-            , div [ class "desktop-only" ]
-                [ a []
-                    [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
-                        []
-                    ]
-                , a
-                    [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
-                    ]
-                    [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                        []
-                    ]
-                ]
+                navContent
             ]
         ]
 
