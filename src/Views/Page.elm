@@ -362,49 +362,54 @@ viewAboutAside { activePage } =
     let
         isActive =
             genericIsActive activePage
+
+        navContent =
+            [ linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
+            , linkMaybeActive (isActive Participate) Route.Participate "Participer"
+            , linkMaybeActive (isActive Register) Route.Register "S'inscrire"
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/faq-flash_32_purple.svg" ] []
+                , text "Comment participer"
+                ]
+            , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] []
+                , text "Nous contacter"
+                ]
+            , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_purple.svg" ] []
+                , text "Newsletter"
+                ]
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] []
+                , text "Facebook"
+                ]
+            , a [ href "" ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/twitter_32_purple.svg" ] []
+                , text "Twitter"
+                ]
+            ]
     in
     aside [ class "side-menu" ]
-        [ details [ class "mobile-only mobile-categories" ]
+        [ nav [ class "desktop-only" ]
+            navContent
+        , div [ class "desktop-only" ]
+            [ a []
+                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                    []
+                ]
+            , a
+                [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+                ]
+                [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                    []
+                ]
+            ]
+        , details [ class "mobile-only mobile-categories" ]
             [ summary [ class "" ]
                 [ text "Choisir une catégorie"
                 ]
             , nav []
-                [ linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
-                , linkMaybeActive (isActive Participate) Route.Participate "Participer"
-                , linkMaybeActive (isActive Register) Route.Register "S'inscrire"
-                , a [ href "" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/faq-flash_32_purple.svg" ] []
-                    , text "Comment participer"
-                    ]
-                , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] []
-                    , text "Nous contacter"
-                    ]
-                , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_purple.svg" ] []
-                    , text "Newsletter"
-                    ]
-                , a [ href "" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] []
-                    , text "Facebook"
-                    ]
-                , a [ href "" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/twitter_32_purple.svg" ] []
-                    , text "Twitter"
-                    ]
-                ]
-            , div [ class "desktop-only" ]
-                [ a []
-                    [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
-                        []
-                    ]
-                , a
-                    [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
-                    ]
-                    [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                        []
-                    ]
-                ]
+                navContent
             ]
         ]
 
