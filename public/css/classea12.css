@@ -1580,10 +1580,25 @@ progress {
 }
 
 /* ABOUT PAGE */
+.about {
+  position: relative;
+}
 .about h1 {
   margin-top: 3.2rem;
   margin-bottom: 7.2rem;
   text-align: center;
+}
+.about h1::after {
+  content: '';
+  position: absolute;
+  top: -5.6rem;
+  right: 0;
+  left: 0;
+  margin: auto;
+  display: block;
+  width: 317px;
+  height: 173px;
+  background: url(../images/illustrations/about/illu_title.svg) center center no-repeat
 }
 .about h1 span {
   display: block;
