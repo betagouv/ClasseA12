@@ -417,28 +417,33 @@ viewNewsAside { activePage } =
             activePage == News && page == AllNews || genericIsActive activePage page
     in
     aside [ class "side-menu" ]
-        [ nav []
-            [ linkMaybeActive (isActive AllNews) Route.AllNews "Nouveautés"
-            , a [ href "" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_purple.svg" ] []
-                , text "Nos événements"
+        [ details [ class "mobile-only mobile-categories" ]
+            [ summary [ class "" ]
+                [ text "Choisir une catégorie"
                 ]
-            , a [ href "" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
-                , text "Les challenges"
+            , nav []
+                [ linkMaybeActive (isActive AllNews) Route.AllNews "Nouveautés"
+                , a [ href "" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_purple.svg" ] []
+                    , text "Nos événements"
+                    ]
+                , a [ href "" ]
+                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
+                    , text "Les challenges"
+                    ]
+                , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
                 ]
-            , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
-            ]
-        , div [ class "desktop-only" ]
-            [ a []
-                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
-                    []
-                ]
-            , a
-                [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
-                ]
-                [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                    []
+            , div [ class "desktop-only" ]
+                [ a []
+                    [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                        []
+                    ]
+                , a
+                    [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+                    ]
+                    [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                        []
+                    ]
                 ]
             ]
         ]
