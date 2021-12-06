@@ -191,7 +191,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                             ]
                         ]
                     ]
-                , searchForm config DesktopSearchForm
+                , searchForm config
                 , div [ class "rf-header__actions desktop-only" ]
                     [ viewPublishVideoButton
                     , loginProfileIcon
@@ -216,11 +216,11 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                         , div
                             []
                             [ viewPublishVideoButton
-                            ,nav []
+                            , nav []
                                 [ loginProfileIcon
-                                , searchForm config DesktopSearchForm
+                                , searchForm config
                                 , a [ href "" ]
-                                    [ img [src "%PUBLIC_URL%/images/icons/32x32/home_purple.svg" ] []
+                                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/home_purple.svg" ] []
                                     , text "Accueil"
                                     ]
                                 ]
@@ -502,13 +502,8 @@ menuNodes { activePage } =
     ]
 
 
-type SearchForm
-    = MobileSearchForm
-    | DesktopSearchForm
-
-
-searchForm : Config msg -> SearchForm -> Html.Html msg
-searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } searchFormType =
+searchForm : Config msg -> Html.Html msg
+searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } =
     let
         searchInput =
             input
@@ -519,46 +514,36 @@ searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } searc
                 ]
                 []
     in
-    case searchFormType of
-        MobileSearchForm ->
-            form [ onSubmit submitSearchMsg ]
-                [ div [ class "search__group" ]
-                    [ button [ class "search_button" ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_white.svg" ] [] ]
-                    , searchInput
-                    ]
+    form [ onSubmit submitSearchMsg, class "" ]
+        [ div [ class "search__group" ]
+            [ button
+                [ class "search_button"
+                , onClick toggleSearchForm
+                , type_ "button"
                 ]
-
-        DesktopSearchForm ->
-            form [ onSubmit submitSearchMsg, class "" ]
-                [ div [ class "search__group" ]
-                    [ button
-                        [ class "search_button"
-                        , onClick toggleSearchForm
-                        , type_ "button"
-                        ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [],
-                        span [ class "mobile-only" ][ text "Recherche"] ]
-                    , if session.searchFormOpened then
-                        div [ class "search_view" ]
-                            [ button [ class "search__close" ]
-                                [ text "Fermer"
-                                , div []
-                                    [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
-                                    ]
-                                ]
-                            , div [ class "content" ]
-                                [ h1 []
-                                    [ text "Votre recherche"
-                                    ]
-                                , div []
-                                    [ searchInput
-                                    , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
-                                    ]
-                                ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] []
+                , span [ class "mobile-only" ] [ text "Recherche" ]
+                ]
+            , if session.searchFormOpened then
+                div [ class "search_view" ]
+                    [ button [ class "search__close" ]
+                        [ text "Fermer"
+                        , div []
+                            [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
                             ]
-
-                      else
-                        text ""
+                        ]
+                    , div [ class "content" ]
+                        [ h1 []
+                            [ text "Votre recherche"
+                            ]
+                        , div []
+                            [ searchInput
+                            , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
+                            ]
+                        ]
                     ]
-                ]
+
+              else
+                text ""
+            ]
+        ]
