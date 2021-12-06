@@ -553,7 +553,7 @@ details[open] summary::after {
   font-size: 1.8rem;
 }
 .mobile-menu nav::after {
-  content: '';
+  content: "";
   display: block;
   width: 19.2rem;
   height: 1px;
@@ -574,7 +574,7 @@ details[open] summary::after {
   font-weight: inherit;
 }
 .mobile-menu nav img {
-  margin-right: 0.8rem; 
+  margin-right: 0.8rem;
 }
 .mobile-menu .search_button {
   padding: 0;
@@ -1555,7 +1555,8 @@ progress {
 /* ABOUT PAGE */
 .about_content {
   position: relative;
-  background: url(../images/illustrations/about/illu_bg.svg) top 10rem center no-repeat;
+  background: url(../images/illustrations/about/illu_bg.svg) top 10rem center
+    no-repeat;
 }
 .about h1 {
   margin-top: 3.2rem;
@@ -1581,9 +1582,12 @@ progress {
 }
 
 .about article {
-  display: grid;
+  /*  display: grid;
   grid-gap: 3.2rem;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr)); */
+  position: relative;
+  display: flex;
+  align-items: flex-start;
 }
 
 .about__image,
@@ -1593,12 +1597,13 @@ progress {
 }
 
 .about__image {
-  padding: 0.8rem 0.8rem 8rem;
+  padding: 0.8rem 0.8rem 4.2rem;
   border-radius: 0.2rem;
 }
 
 .about__text {
   position: relative;
+  width: 54%;
   padding: 4.8rem;
   border-radius: 0.9rem;
 }
@@ -1612,17 +1617,15 @@ progress {
   background-repeat: no-repeat;
 }
 
-.about__service {
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-}
 .about__service .about__image {
-  grid-column: 5/12;
-  grid-row: 1/3;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 55%;
   transform: rotate(8deg);
 }
 .about__service .about__text {
-  grid-column: 2/8;
-  grid-row: 2/4;
+  margin-top: 20rem;
 }
 .about__service .about__text::after {
   top: -8rem;
@@ -1634,10 +1637,10 @@ progress {
 
 .about__participate {
   margin-top: 10rem;
+  justify-content: flex-end;
 }
 .about__participate .about__image {
-  grid-column: 3/7;
-  grid-row-start: 1;
+  width: 23%;
   transform: rotate(-16deg);
 }
 .about__participate .about__image::after {
@@ -1648,8 +1651,7 @@ progress {
   background-image: url(../images/illustrations/about/illu_pen-yellow.svg);
 }
 .about__participate .about__text {
-  grid-column: 6/12;
-  grid-row-start: 1;
+  margin-top: 2.2rem;
 }
 .about__participate .about__text::after {
   top: -3.2rem;
@@ -1663,10 +1665,13 @@ progress {
   margin-top: 8rem;
 }
 .about__subject .about__image {
-  grid-column: 6/12;
-  grid-row: 2/3;
+  position: absolute;
+  top: 38rem;
+  right: 0;
   transform: rotate(8deg);
+  width: 56%;
   margin-top: -5.8rem;
+  order: 2;
 }
 .about__subject .about__image::after {
   top: -20rem;
@@ -1676,8 +1681,6 @@ progress {
   background-image: url(../images/illustrations/about/illu_carnet.svg);
 }
 .about__subject .about__text {
-  grid-column: 2/9;
-  grid-row: 1/2;
   padding-right: 6.2rem;
 }
 .about__subject .about__text::after {
@@ -1689,11 +1692,10 @@ progress {
 }
 
 .about__video {
-  margin-top: 10rem;
+  justify-content: center;
+  margin-top: 52rem;
 }
 .about__video .about__image {
-  grid-column: 3/7;
-  grid-row-start: 1;
   transform: rotate(8deg);
 }
 .about__video .about__image::after {
@@ -1704,8 +1706,6 @@ progress {
   background-image: url(../images/illustrations/about/illu_pen-green.svg);
 }
 .about__video .about__text {
-  grid-column: 6/12;
-  grid-row-start: 1;
 }
 .about__video .about__text::after {
   bottom: -9.6rem;
@@ -1717,6 +1717,7 @@ progress {
 
 .about__text p:first-of-type {
   color: var(--primary-color);
+  font-weight: bold;
 }
 
 .about__end {
@@ -2322,6 +2323,41 @@ progress {
   .home__participate-photos {
     left: -30%;
   }
+
+  .about__text {
+    width: 60%;
+    padding: 2.4rem;
+  }
+  .about__service .about__text {
+    margin-top: 14rem;
+  }
+  .about__service .about__text::after {
+    left: -3.2rem;
+    width: 9.6rem;
+    height: 9.6rem;
+  }
+  .about__participate {
+    justify-content: space-between;
+  }
+  .about__participate .about__image {
+    width: 35%;
+  }
+  .about__subject .about__image {
+    top: 27rem;
+  }
+  .about__subject .about__text {
+    padding-right: 2.4rem;
+  }
+  .about__subject .about__text::after {
+    top: -3.2rem;
+    right: -6rem;
+  }
+  .about__video {
+    margin-top: 24rem;
+  }
+  .about__end p {
+    width: 50%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2447,6 +2483,36 @@ progress {
   }
   .card_date {
     font-size: 1rem;
+  }
+  .about__text {
+    width: 100%;
+    padding: 1.6rem;
+  }
+
+  .about article {
+    margin-top: 12rem;
+  }
+  .about__text::after,
+  .about__image::after {
+    display: none;
+  }
+  .about__image {
+    position: absolute;
+  }
+  
+  .about__service .about__text::after {
+    display: none;
+  }
+  .about__participate .about__image {
+    top: -5rem;
+    left: -2rem;
+  }
+  .about__subject .about__image {
+    top: -12rem ;
+  }
+  .about__video .about__image {
+    top: -14rem;
+    left: -7rem;
   }
 }
 
