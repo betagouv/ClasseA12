@@ -469,7 +469,7 @@ details[open] summary::after {
 .search_view .content {
   flex-wrap: wrap;
   max-width: 50%;
-  margin: 0 auto
+  margin: 0 auto;
 }
 .search_view .content > div {
   width: 100%;
@@ -520,54 +520,19 @@ details[open] summary::after {
   right: 0;
   bottom: 0;
   left: 0;
-  flex-direction: column;
   width: 100%;
-  background: var(--primary-color);
+  padding: 3.2rem;
+  background: #fff;
   z-index: 3;
   overflow-y: scroll;
 }
 .mobile-menu.opened {
   display: flex;
 }
-.mobile-menu nav,
-.mobile-menu > div {
-  flex-direction: column;
-  width: 100%;
-  margin-left: 0;
-  font-size: 1.8rem;
-}
-.mobile-menu > nav {
-  border: none;
-}
-.mobile-menu > nav::before {
-  display: none;
-}
-.mobile-menu > nav::after,
-.mobile-menu > div nav:first-of-type::after {
-  content: "";
-  display: block;
-  width: 50%;
-  height: 1px;
-  background-color: var(--default-background);
-}
-.mobile-menu > nav::after {
-  position: relative;
-}
-.mobile-menu > div nav:first-of-type::after {
-  left: 0;
-}
-.mobile-menu > div {
-  align-items: flex-start;
-}
-.mobile-menu > div:first-child {
-  flex-direction: row;
-  justify-content: space-between;
-  padding-right: 3.2rem;
-  padding-left: 2.4rem;
-  margin-top: 2rem;
-  margin-bottom: 3.2rem;
-}
 .close-mobile-menu {
+  position: absolute;
+  top: 3.2rem;
+  right: 3.2rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -575,39 +540,47 @@ details[open] summary::after {
   height: 4.4rem;
   margin-left: auto;
   padding: 0;
-  background-color: var(--default-background);
+  background-color: var(--primary-color);
+  border-radius: 50%;
 }
-.mobile-menu h3 {
-  font-weight: bold;
-  font-size: 1.8rem;
-  text-transform: none;
-}
-header .mobile-menu a:last-of-type {
+.mobile-menu nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 3.2rem;
   margin-left: 0;
+  font-size: 1.8rem;
+}
+.mobile-menu nav::after {
+  content: '';
+  display: block;
+  width: 19.2rem;
+  height: 1px;
+  margin-top: 3.6rem;
+  margin-left: -3.2rem;
+  background-color: var(--tabs-border);
 }
 .mobile-menu nav:first-of-type {
-  padding-bottom: 0;
+  margin-top: 4.2rem;
 }
-.mobile-menu nav a {
+.mobile-menu nav a,
+.mobile-menu .search_button {
+  display: flex;
+  align-items: center;
   margin-bottom: 1.6rem;
 }
 .mobile-menu nav a:hover {
   font-weight: inherit;
 }
-.mobile-menu nav a::after {
-  display: none;
-}
-.mobile-menu form {
-  border-left: 0.4rem solid transparent;
+.mobile-menu nav img {
+  margin-right: 0.8rem; 
 }
 .mobile-menu .search_button {
-  margin-right: 0.8rem;
-  padding-right: 0;
-  padding-left: 2.4rem;
+  padding: 0;
 }
-.mobile-menu .search__group input {
-  margin-bottom: 1rem;
-  margin-right: 1rem;
+.mobile-menu > div > div img:first-of-type {
+  margin-right: 6.8rem;
 }
 
 .menu-opener {
@@ -956,7 +929,7 @@ aside > div img {
   margin: 0 auto 0.8rem;
 }
 .home__category > a,
-.home__category  .news + div > a {
+.home__category .news + div > a {
   align-self: flex-end;
   display: flex;
   align-items: center;
@@ -965,7 +938,7 @@ aside > div img {
   text-decoration: none;
 }
 .home__category > a::after,
-.home__category  .news + div> a::after {
+.home__category .news + div > a::after {
   content: "";
   display: block;
   width: 1.6rem;
@@ -987,7 +960,7 @@ aside > div img {
 .home__category .news_item {
   flex-direction: column;
 }
-.home__category .news_item  + .news_item {
+.home__category .news_item + .news_item {
   margin-top: 0;
 }
 .home__category .news_item div {
@@ -1589,7 +1562,7 @@ progress {
   text-align: center;
 }
 .about h1::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -5.6rem;
   right: 0;
@@ -1598,7 +1571,8 @@ progress {
   display: block;
   width: 317px;
   height: 173px;
-  background: url(../images/illustrations/about/illu_title.svg) center center no-repeat
+  background: url(../images/illustrations/about/illu_title.svg) center center
+    no-repeat;
 }
 .about h1 span {
   display: block;
@@ -2022,7 +1996,7 @@ progress {
   border-top: 1px solid var(--tabs-border);
 }
 .connect__links a + a {
-margin-top: 1.2rem;
+  margin-top: 1.2rem;
 }
 
 /* RESPONSIVE */

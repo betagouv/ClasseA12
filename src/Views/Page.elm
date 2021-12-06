@@ -179,7 +179,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                     [ href "/", class "rf-header__logo" ]
                     [ img [ src "%PUBLIC_URL%/images/logos/classea12-dark.svg" ] []
                     ]
-                , nav [ class "rf-header__nav" ]
+                , nav [ class "rf-header__nav desktop-only" ]
                     [ ul []
                         [ li []
                             [ navLink VideoFrame Route.AllVideos "Les vidéos" ]
@@ -193,9 +193,55 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                         ]
                     ]
                 , searchForm config DesktopSearchForm
-                , div [ class "rf-header__actions" ]
+                , div [ class "rf-header__actions desktop-only" ]
                     [ viewPublishVideoButton
                     , loginProfileIcon
+                    ]
+                , div [ class "mobile-only" ]
+                    [ button
+                        [ class "mobile-only menu-opener"
+                        , onClick openMenuMsg
+                        ]
+                        [ text "Menu"
+                        , div []
+                            [ span [] []
+                            ]
+                        ]
+                    , div [ class "mobile-menu opened" ]
+                        [ button
+                            [ class "close-mobile-menu"
+                            , onClick closeMenuMsg
+                            ]
+                            [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_white.svg" ] []
+                            ]
+                        , div
+                            []
+                            [ viewPublishVideoButton
+                            ,nav []
+                                [ loginProfileIcon
+                                , searchForm config DesktopSearchForm
+                                , a [ href "" ]
+                                    [ img [src "%PUBLIC_URL%/images/icons/32x32/home_purple.svg" ] []
+                                    , text "Accueil"
+                                    ]
+                                ]
+                            , nav []
+                                [ text "le contenu de la nav"
+                                ]
+                            , div []
+                                [ a []
+                                    [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                                        []
+                                    ]
+                                , a
+                                    [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+                                    ]
+                                    [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                                        []
+                                    ]
+                                ]
+                            ]
+                        ]
                     ]
                 ]
             ]
@@ -420,18 +466,18 @@ viewAboutAside { activePage } =
                 , text "Twitter"
                 ]
             ]
-            ,div [ class "desktop-only" ]
-        [ a []
-            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
-                []
+        , div [ class "desktop-only" ]
+            [ a []
+                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                    []
+                ]
+            , a
+                [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+                ]
+                [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                    []
+                ]
             ]
-        , a
-            [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
-            ]
-            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                []
-            ]
-        ]
         ]
 
 
@@ -454,19 +500,19 @@ viewNewsAside { activePage } =
                 , text "Les challenges"
                 ]
             , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
-            ],
-            div [ class "desktop-only" ]
-        [ a []
-            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
-                []
             ]
-        , a
-            [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+        , div [ class "desktop-only" ]
+            [ a []
+                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                    []
+                ]
+            , a
+                [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+                ]
+                [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                    []
+                ]
             ]
-            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                []
-            ]
-        ]
         ]
 
 
@@ -582,32 +628,32 @@ searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } searc
                 ]
 
         DesktopSearchForm ->
-            form [ onSubmit submitSearchMsg, class "desktop-only" ]
+            form [ onSubmit submitSearchMsg, class "" ]
                 [ div [ class "search__group" ]
                     [ button
                         [ class "search_button"
                         , onClick toggleSearchForm
                         , type_ "button"
                         ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [] ]
+                        [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] [],
+                        span [ class "mobile-only" ][ text "Recherche"] ]
                     , if session.searchFormOpened then
-                        div [ class "search_view"]
-                            [ 
-                                button [class "search__close"][
-                                    text "Fermer",
-                                    div[][
-                                    img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ][]
+                        div [ class "search_view" ]
+                            [ button [ class "search__close" ]
+                                [ text "Fermer"
+                                , div []
+                                    [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
                                     ]
-                                ],
-                                div[ class "content"][
-                                h1 [][
-                                    text "Votre recherche"
-                                ],
-                                div[][
-                                searchInput
-                            , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
-                            ]
-                            ]
+                                ]
+                            , div [ class "content" ]
+                                [ h1 []
+                                    [ text "Votre recherche"
+                                    ]
+                                , div []
+                                    [ searchInput
+                                    , button [ type_ "submit", class "btn" ] [ text "Rechercher" ]
+                                    ]
+                                ]
                             ]
 
                       else
