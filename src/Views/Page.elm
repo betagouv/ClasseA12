@@ -175,6 +175,18 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                 ]
                 [ text caption
                 ]
+
+        navLinks =
+            [ li []
+                [ navLink VideoFrame Route.AllVideos "Les vidéos" ]
+            , li []
+                [ navLink NewsFrame Route.AllNews "Actualités" ]
+            , li [] [ navLink AboutFrame Route.About "À propos" ]
+            , li []
+                [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
+                    [ text "Contact" ]
+                ]
+            ]
     in
     header [ class "rf-header" ]
         [ div [ class "rf-container" ]
@@ -191,18 +203,11 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                     ]
                 , nav [ class "rf-header__nav desktop-only" ]
                     [ ul []
-                        [ li []
-                            [ navLink VideoFrame Route.AllVideos "Les vidéos" ]
-                        , li []
-                            [ navLink NewsFrame Route.AllNews "Actualités" ]
-                        , li [] [ navLink AboutFrame Route.About "À propos" ]
-                        , li []
-                            [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
-                                [ text "Contact" ]
-                            ]
-                        , li []
-                            [ searchForm config ]
-                        ]
+                        (navLinks
+                            ++ [ li []
+                                    [ searchForm config ]
+                               ]
+                        )
                     ]
                 , div [ class "rf-header__actions desktop-only" ]
                     [ viewPublishVideoButton
@@ -242,8 +247,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                                     ]
                                 ]
                             , nav []
-                                [ text "le contenu de la nav"
-                                ]
+                                navLinks
                             , div []
                                 [ a []
                                     [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
