@@ -472,44 +472,8 @@ menuNodes { activePage } =
     let
         isActive =
             genericIsActive activePage
-    in
-    [ nav [ class "desktop-only" ]
-        [ ul []
-            [ li [] [ linkMaybeActive (isActive AllVideos) Route.AllVideos "Accueil videos" ]
-            , li [] [ linkMaybeActive (isActive (VideoList Route.Latest)) (Route.VideoList Route.Latest) "Nouveautés" ]
-            , li [] [ linkMaybeActive (isActive (VideoList Route.Playlist)) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
-            , li [] [ linkMaybeActive (isActive (VideoList Route.FAQFlash)) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
-            ]
-        , h3 [] [ text "Catégories" ]
-        , ul []
-            (Data.PeerTube.keywordList
-                |> List.map
-                    (\keyword ->
-                        let
-                            route =
-                                Route.VideoList <| Route.Keyword keyword
-                        in
-                        li [] [ linkMaybeActive (isActive (VideoList <| Route.Keyword keyword)) route keyword ]
-                    )
-            )
-        ]
-    , div [ class "desktop-only" ]
-        [ a []
-            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
-                []
-            ]
-        , a
-            [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
-            ]
-            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
-                []
-            ]
-        ]
-    , details [ class "mobile-only mobile-categories" ]
-        [ summary [ class "" ]
-            [ text "Choisir une catégorie"
-            ]
-        , nav []
+
+        navContent =
             [ ul []
                 [ li [] [ linkMaybeActive (isActive AllVideos) Route.AllVideos "Accueil videos" ]
                 , li [] [ linkMaybeActive (isActive (VideoList Route.Latest)) (Route.VideoList Route.Latest) "Nouveautés" ]
@@ -529,6 +493,27 @@ menuNodes { activePage } =
                         )
                 )
             ]
+    in
+    [ nav [ class "desktop-only" ]
+        navContent
+    , div [ class "desktop-only" ]
+        [ a []
+            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                []
+            ]
+        , a
+            [ href "https://www.education.gouv.fr/110-bis-le-lab-d-innovation-de-l-education-nationale-100157"
+            ]
+            [ img [ alt "Logo 110bis - Lab de l'éducation nationale", src "%PUBLIC_URL%/images/logos/110bis.svg" ]
+                []
+            ]
+        ]
+    , details [ class "mobile-only mobile-categories" ]
+        [ summary [ class "" ]
+            [ text "Choisir une catégorie"
+            ]
+        , nav []
+            navContent
         ]
     ]
 
