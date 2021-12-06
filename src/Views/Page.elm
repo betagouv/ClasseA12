@@ -193,9 +193,10 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                             [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
                                 [ text "Contact" ]
                             ]
+                        , li []
+                            [ searchForm config ]
                         ]
                     ]
-                , searchForm config
                 , div [ class "rf-header__actions desktop-only" ]
                     [ viewPublishVideoButton
                     , loginProfileIcon
