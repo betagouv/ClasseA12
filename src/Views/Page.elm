@@ -76,28 +76,35 @@ frame : Frame -> Config msg -> Page.Common.Components.Document msg -> Document m
 frame frameVariant config { title, pageTitle, pageSubTitle, body } =
     { title = title ++ " | Classe à 12"
     , body =
-        [ viewRFHeader frameVariant config pageTitle pageSubTitle
-        , Html.main_
-            [ class "main"
-            , class <| frameToString frameVariant
-            ]
-            [ div [ class "content" ]
-                [ viewContent body
+        [ div
+            [ classList
+                [ ( "body-wrapper", True )
+                , ( "is-blocked", config.session.isMenuOpened || config.session.searchFormOpened )
                 ]
-            , case frameVariant of
-                HomeFrame ->
-                    viewHomeAside config
-
-                VideoFrame ->
-                    viewVideoAside config
-
-                AboutFrame ->
-                    viewAboutAside config
-
-                NewsFrame ->
-                    viewNewsAside config
             ]
-        , viewFooter config.session
+            [ viewRFHeader frameVariant config pageTitle pageSubTitle
+            , Html.main_
+                [ class "main"
+                , class <| frameToString frameVariant
+                ]
+                [ div [ class "content" ]
+                    [ viewContent body
+                    ]
+                , case frameVariant of
+                    HomeFrame ->
+                        viewHomeAside config
+
+                    VideoFrame ->
+                        viewVideoAside config
+
+                    AboutFrame ->
+                        viewAboutAside config
+
+                    NewsFrame ->
+                        viewNewsAside config
+                ]
+            , viewFooter config.session
+            ]
         ]
     }
 

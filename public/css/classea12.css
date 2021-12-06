@@ -114,7 +114,7 @@ html {
 body {
   overflow-x: hidden;
 }
-body.is-blocked {
+.body-wrapper.is-blocked {
   overflow: hidden;
 }
 .wrapper {
