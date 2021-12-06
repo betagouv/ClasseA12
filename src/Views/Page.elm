@@ -151,8 +151,12 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                     text ""
 
                 _ ->
-                    a [ class "btn", Route.href Route.Participate ]
-                        [ text "Publier une vidéo" ]
+                    if isLoggedIn session.userInfo then
+                        a [ class "btn", Route.href Route.Participate ]
+                            [ text "Publier une vidéo" ]
+
+                    else
+                        text ""
 
         navLink : Frame -> Route.Route -> String -> Html msg
         navLink frameVariant route caption =
