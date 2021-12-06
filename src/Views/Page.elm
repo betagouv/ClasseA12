@@ -210,7 +210,12 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                             [ span [] []
                             ]
                         ]
-                    , div [ class "mobile-menu opened" ]
+                    , div
+                        [ classList
+                            [ ( "mobile-menu", True )
+                            , ( "opened", session.isMenuOpened )
+                            ]
+                        ]
                         [ button
                             [ class "close-mobile-menu"
                             , onClick closeMenuMsg
