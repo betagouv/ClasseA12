@@ -394,7 +394,17 @@ update msg ({ page, session } as model) =
             ( { model | session = { modelSession | search = search } }, Cmd.none )
 
         ( SubmitSearch, _ ) ->
-            ( model, Route.pushUrl model.navKey (Route.VideoList <| Route.Search model.session.search) )
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | searchFormOpened = not modelSession.searchFormOpened } }
+            , if model.session.search /= "" then
+                Route.pushUrl model.navKey (Route.VideoList <| Route.Search model.session.search)
+
+              else
+                Route.pushUrl model.navKey Route.AllVideos
+            )
 
         ( OpenMenu, _ ) ->
             let

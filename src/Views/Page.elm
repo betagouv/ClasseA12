@@ -536,7 +536,11 @@ searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } =
                 ]
             , if session.searchFormOpened then
                 div [ class "search_view" ]
-                    [ button [ class "search__close" ]
+                    [ button
+                        [ class "search__close"
+                        , onClick toggleSearchForm
+                        , type_ "button"
+                        ]
                         [ text "Fermer"
                         , div []
                             [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
