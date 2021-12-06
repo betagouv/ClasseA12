@@ -82,8 +82,7 @@ frame frameVariant config { title, pageTitle, pageSubTitle, body } =
             , class <| frameToString frameVariant
             ]
             [ div [ class "content" ]
-                [ viewHeader config pageTitle pageSubTitle
-                , viewContent body
+                [ viewContent body
                 ]
             , case frameVariant of
                 HomeFrame ->
@@ -244,103 +243,6 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                         ]
                     ]
                 ]
-            ]
-        ]
-
-
-viewHeader : Config msg -> String -> String -> Html msg
-viewHeader ({ session, openMenuMsg, closeMenuMsg, activePage } as config) pageTitle pageSubTitle =
-    let
-        loginIcon =
-            if session.isMenuOpened then
-                -- This should never be the case on desktop, so display the mobile icon which is white
-                a [ Route.href Route.Login, title "Se connecter" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_white.svg" ] []
-                    , text " Se connecter"
-                    ]
-
-            else
-                a [ Route.href Route.Login, title "Se connecter" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
-                    , text " Se connecter"
-                    ]
-
-        icon =
-            if session.isMenuOpened then
-                -- This should never be the case on desktop, so display the mobile icon which is white
-                "%PUBLIC_URL%/images/icons/32x32/profil_32_white.svg"
-
-            else
-                "%PUBLIC_URL%/images/icons/32x32/profil_32_purple.svg"
-
-        profileIcon =
-            case session.userInfo of
-                Just userInfo ->
-                    a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
-                        [ img [ src icon ] []
-                        , text <| " " ++ userInfo.username
-                        ]
-
-                Nothing ->
-                    text ""
-
-        loginProfileIcon =
-            if isLoggedIn session.userInfo then
-                profileIcon
-
-            else
-                loginIcon
-
-        viewPublishVideoButton =
-            case activePage of
-                Participate ->
-                    text ""
-
-                _ ->
-                    a [ class "btn", Route.href Route.Participate ]
-                        [ text "Publier une vidéo" ]
-    in
-    header []
-        [ div [ class "wrapper" ]
-            [ a [ href "/", class "mobile-only logo" ]
-                [ img [ src "%PUBLIC_URL%/images/logos/classea12.svg", class "logo" ] []
-                ]
-            , button
-                [ class "mobile-only menu-opener"
-                , onClick openMenuMsg
-                ]
-                [ text "Menu"
-                , div []
-                    [ span [] []
-                    ]
-                ]
-            , aside
-                [ class <|
-                    "mobile-menu"
-                        ++ (if session.isMenuOpened then
-                                " opened"
-
-                            else
-                                ""
-                           )
-                ]
-                ([ div []
-                    [ viewPublishVideoButton
-                    , button
-                        [ class "close-mobile-menu"
-                        , onClick closeMenuMsg
-                        ]
-                        [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
-                        ]
-                    ]
-                 , nav
-                    []
-                    [ loginProfileIcon
-                    , searchForm config MobileSearchForm
-                    ]
-                 ]
-                    ++ menuNodes config
-                )
             ]
         ]
 
