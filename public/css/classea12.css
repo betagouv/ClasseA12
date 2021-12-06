@@ -116,6 +116,7 @@ body {
 }
 .body-wrapper.is-blocked {
   overflow: hidden;
+  height: 100vh;
 }
 .wrapper {
   width: 100%;
