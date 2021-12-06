@@ -1553,8 +1553,9 @@ progress {
 }
 
 /* ABOUT PAGE */
-.about {
+.about_content {
   position: relative;
+  background: url(../images/illustrations/about/illu_bg.svg) top 10rem center no-repeat;
 }
 .about h1 {
   margin-top: 3.2rem;

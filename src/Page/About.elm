@@ -30,7 +30,7 @@ view _ { title } =
     , pageTitle = title
     , pageSubTitle = "Prêt ? Filmez ! Partagez !"
     , body =
-        [ H.section [ HA.class "about" ]
+        [ H.section [ HA.class "about_content" ]
             [ H.h1 []
                 [ H.text "À propos"
                 , H.span []
