@@ -405,15 +405,16 @@ details[open] summary::after {
 }
 .rf-header__nav li {
   display: flex;
+  align-items: center;
 }
 .rf-header__nav li:not(:first-of-type) {
   margin-left: 1.6rem;
 }
-.rf-header__nav li::after {
+.rf-header__nav li:not(:last-of-type)::after {
   content: "";
   display: block;
   width: 1px;
-  height: 100%;
+  height: 47%;
   margin-left: 1.6rem;
   background-color: var(--nav-separator);
 }
@@ -428,7 +429,7 @@ details[open] summary::after {
   content: "";
   position: absolute;
   right: 0;
-  bottom: -1.2rem;
+  bottom: -1.6rem;
   left: 0;
   display: block;
   width: 0.8rem;
@@ -453,9 +454,6 @@ details[open] summary::after {
 .search__group div {
   display: flex;
   align-items: center;
-}
-.search__group input {
-  /*display: none;*/
 }
 
 .search_view {
