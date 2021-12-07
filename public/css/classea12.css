@@ -377,13 +377,14 @@ details[open] summary::after {
 
 /* RF-HEADER */
 .rf-header {
+  position: relative;
+  padding: 0;
+  background-color: var(--w-g750);
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.1),
     0 8px 16px -16px rgba(0, 0, 0, 0.32);
-  background-color: var(--w-g750);
-  padding: 0;
-  position: relative;
 }
 .rf-header a {
+  font-family: "montserrat", Arial, sans-serif !important;
   text-decoration: none;
   box-shadow: none;
 }
@@ -567,16 +568,19 @@ details[open] summary::after {
 .mobile-menu .search_button {
   display: flex;
   align-items: center;
+  font-weight: 500;
   margin-bottom: 1.6rem;
 }
 .mobile-menu nav a:hover {
-  font-weight: inherit;
+  font-weight: 500;
 }
 .mobile-menu nav img {
   margin-right: 0.8rem;
 }
 .mobile-menu .search_button {
   padding: 0;
+  font-family: "montserrat", Arial, sans-serif;
+  color: var(--primary-color);
 }
 .mobile-menu > div > div img:first-of-type {
   margin-right: 6.8rem;
@@ -585,41 +589,15 @@ details[open] summary::after {
 .menu-opener {
   align-items: center;
   padding: 0;
-  font-size: 1.4rem;
+  font-weight: 600;
   background: none;
-  position: absolute;
-  top: 30px;
-  right: 32px;
 }
 .menu-opener,
 .menu-opener:hover {
   color: var(--primary-color);
 }
-
-.menu-opener div {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: space-between;
+.menu-opener img {
   margin-left: 0.8rem;
-}
-.menu-opener div::before,
-.menu-opener div::after,
-.menu-opener span {
-  display: block;
-  width: 1.6rem;
-  height: 0.2rem;
-  background-color: var(--primary-color);
-  border-radius: 3px;
-}
-.menu-opener div::before,
-.menu-opener div::after {
-  content: "";
-}
-.menu-opener div::before {
-  margin-bottom: 4px;
-}
-.menu-opener div::after {
-  margin-top: 4px;
 }
 
 /* FOOTER */
@@ -2016,6 +1994,33 @@ progress {
   }
   .desktop-only {
     display: none;
+  }
+  .rf-header__body {
+    justify-content: space-between;
+  }
+  .mobile-menu nav a,
+  .mobile-menu .search_button  {
+    font-size: 2.4rem;
+  }
+  .rf-header__nav li:not(:first-of-type) {
+    margin-left: 0;
+  }
+  .rf-header__nav li:not(:last-of-type)::after {
+    display: none;
+  }
+  .rf-header__nav a{
+    padding-left: 2.4rem;
+  }
+  .rf-header__nav a::after {
+    right: auto;
+    bottom: 0.8rem;
+    left: 0;
+    height: 1px;
+    background-color: var(--primary-color);
+  }
+  .rf-header__nav a.active:after {
+    bottom: 0.4rem;
+    height: .8rem;
   }
   header .wrapper {
     display: flex;
