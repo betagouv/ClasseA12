@@ -451,6 +451,13 @@ details[open] summary::after {
 .rf-header__actions a {
   margin-left: 2.4rem;
 }
+.rf-header__actions a {
+  display: flex;
+  align-items: center;
+}
+.rf-header__actions a img {
+  margin-right: 0.8rem;
+}
 .search__group,
 .search__group div {
   display: flex;
@@ -1879,6 +1886,7 @@ progress {
 #archive .news_item img {
   order: 1;
   max-width: 18.4rem;
+  border-radius: .8rem;
 }
 #archive + div {
   margin-top: 7.2rem;
@@ -1999,7 +2007,7 @@ progress {
     justify-content: space-between;
   }
   .mobile-menu nav a,
-  .mobile-menu .search_button  {
+  .mobile-menu .search_button {
     font-size: 2.4rem;
   }
   .rf-header__nav li:not(:first-of-type) {
@@ -2008,7 +2016,7 @@ progress {
   .rf-header__nav li:not(:last-of-type)::after {
     display: none;
   }
-  .rf-header__nav a{
+  .rf-header__nav a {
     padding-left: 2.4rem;
   }
   .rf-header__nav a::after {
@@ -2020,7 +2028,7 @@ progress {
   }
   .rf-header__nav a.active:after {
     bottom: 0.4rem;
-    height: .8rem;
+    height: 0.8rem;
   }
   header .wrapper {
     display: flex;
@@ -2272,8 +2280,7 @@ progress {
   }
 
   aside {
-    margin: 0 6.4rem;
-    width: calc(100% - 12.8rem);
+    width: 100%;
   }
 
   .mobile-categories {
@@ -2390,9 +2397,17 @@ progress {
     font-size: 1.4rem;
   }
 
+  p {
+    font-size: 1.4rem;
+  }
+
   .rf-container {
     padding-right: 2.4rem;
     padding-left: 2.4rem;
+  }
+  .mobile-menu nav a,
+  .mobile-menu .search_button {
+    font-size: 1.8rem;
   }
 
   footer,
@@ -2503,7 +2518,7 @@ progress {
   .about__image {
     position: absolute;
   }
-  
+
   .about__service .about__text::after {
     display: none;
   }
@@ -2512,11 +2527,48 @@ progress {
     left: -2rem;
   }
   .about__subject .about__image {
-    top: -12rem ;
+    top: -12rem;
   }
   .about__video .about__image {
     top: -14rem;
     left: -7rem;
+  }
+  .news_item {
+    flex-direction: column;
+  }
+  .news_item img {
+    order: 1;
+  }
+  .news_item > div {
+    order: 2;
+    padding: 1.6rem;
+  }
+
+  #archive .news_item::before {
+    align-self: flex-start;
+  }
+  #archive .news_item:first-of-type::after {
+    top: 0;
+  }
+  #archive .news_item:last-of-type::after {
+    bottom: 100%;
+  }
+  #archive .news_item {
+    padding-bottom: 3.2rem;
+  }
+  #archive .news_item + .news_item {
+    padding-top: 0;
+  }
+  #archive .news_item > div {
+    margin-top: 0.8rem;
+  }
+  #archive .news_item img {
+    max-width: calc(100% - 3.2rem);
+    margin-top: -1.6rem;
+    margin-left: 3.2rem;
+  }
+  #archive .news_item > div > div {
+    max-width: 100%;
   }
 }
 
