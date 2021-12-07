@@ -2464,7 +2464,14 @@ progress {
     background-size: contain;
   }
   .home__participate-photos {
-    bottom: -44.5rem;
+    left: 0;
+    bottom: -22.5rem;
+  }
+  .home__participate-photos .about__image:first-of-type {
+    top: -19rem;
+  }
+  .home__participate-photos .about__image:last-of-type {
+    top: 12rem;
   }
   .home__participate-content {
     max-width: 100%;
@@ -2569,6 +2576,9 @@ progress {
   }
   #archive .news_item > div > div {
     max-width: 100%;
+  }
+  .home__category .news {
+    grid-template-columns: 1fr;
   }
 }
 
