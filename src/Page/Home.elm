@@ -95,7 +95,7 @@ viewHeader =
             ]
         , H.div [ HA.class "home__intro-logos" ]
             [ H.img
-                [ HA.src "%PUBLIC_URL%/images/logos/ecoleconfiance.png"
+                [ HA.src "%PUBLIC_URL%/images/logos/ecoleconfiance.svg"
                 , HA.alt ""
                 , HA.class "logo-ecoleconfiance"
                 ]

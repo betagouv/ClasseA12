@@ -235,7 +235,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                                 navLinks
                             , div []
                                 [ a []
-                                    [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                                    [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.svg" ]
                                         []
                                     ]
                                 , a
@@ -379,7 +379,7 @@ viewAboutAside { activePage } =
             navContent
         , div [ class "desktop-only" ]
             [ a []
-                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.svg" ]
                     []
                 ]
             , a
@@ -424,7 +424,7 @@ viewNewsAside { activePage } =
             navContent
         , div [ class "desktop-only" ]
             [ a []
-                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+                [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.svg" ]
                     []
                 ]
             , a
@@ -493,7 +493,7 @@ menuNodes { activePage } =
         navContent
     , div [ class "desktop-only" ]
         [ a []
-            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.png" ]
+            [ img [ alt "Égalité des chances - L'école de la confiance - Dédoublement des classes", src "%PUBLIC_URL%/images/logos/ecoleconfiance.svg" ]
                 []
             ]
         , a
