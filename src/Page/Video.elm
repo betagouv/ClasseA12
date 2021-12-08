@@ -1012,7 +1012,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
 
             Nothing ->
                 H.text ""
-        , if video.description /= "" && activeAttachmentList /= [] then
+        , if video.description /= "" || activeAttachmentList /= [] then
             H.div [ HA.class "video_infos cols_height-four" ]
                 [ Page.Common.Video.description video
                 , if activeAttachmentList /= [] then
