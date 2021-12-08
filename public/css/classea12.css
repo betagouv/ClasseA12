@@ -480,6 +480,7 @@ details[open] summary::after {
 }
 .rf-header__actions {
   margin-left: auto;
+  display: flex;
 }
 .rf-header__actions a {
   margin-left: 2.4rem;
