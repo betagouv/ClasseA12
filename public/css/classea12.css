@@ -145,6 +145,7 @@ html {
 }
 body {
   overflow-x: hidden;
+  font-family: "nunito", Arial, sans-serif;
 }
 .body-wrapper.is-blocked {
   overflow: hidden;
@@ -1200,6 +1201,8 @@ aside > div {
 .video_actions {
   display: flex;
   align-items: center;
+  padding: 1.2rem 0 1.6rem;
+  border-bottom: 1px solid var(--tabs-border);
 }
 .video_actions a,
 .video_actions button {
@@ -1212,6 +1215,7 @@ aside > div {
 }
 .video_actions button {
   margin-left: 1.6rem;
+  font-family: "nunito", Arial, sans-serif;
 }
 .video_actions .button {
   padding: 0;
@@ -1220,6 +1224,9 @@ aside > div {
 }
 .video_actions .button:hover {
   color: var(--primary-color);
+}
+.video_actions img {
+  margin-right: 0.4rem;
 }
 
 .video_resources h4 {
@@ -1249,17 +1256,16 @@ aside > div {
 }
 
 .share {
-  margin-top: 1.6rem;
+  margin-bottom: 6.4rem;
   color: var(--primary-color);
-  font-weight: bold;
+  font-weight: 600;
 }
 .share::after {
   content: "";
   display: block;
   width: 12.8rem;
   height: 1px;
-  margin-top: 2.4rem;
-  margin-bottom: 1.6rem;
+  margin-top: 1.6rem;
   background-color: var(--border-color);
 }
 .share .social {
@@ -1286,6 +1292,7 @@ aside > div {
 
 .video_suggestion > div {
   max-height: 600px;
+  margin-bottom: 3.2rem;
   overflow-y: scroll;
 }
 .video_suggestion .card_img,
@@ -1316,6 +1323,12 @@ aside > div {
 }
 .video_suggestion .card_content h3 {
   font-size: 1.2rem;
+}
+
+.video_suggestion .button {
+  color: var(--primary-color);
+  background-color: transparent;
+  border: 1px solid var(--primary-color);
 }
 
 .video_contribution {
@@ -2147,7 +2160,7 @@ progress {
     width: 8rem;
     height: 1px;
     margin-bottom: 1.6rem;
-    background-color: #e6e6f0;
+    background-color: var(--tabs-border);
   }
 
   main {

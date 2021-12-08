@@ -1232,7 +1232,7 @@ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreSt
                             |> List.take numRelatedVideosToDisplay
                             |> List.map (Page.Common.Video.viewVideo peerTubeURL)
                         )
-                    , Components.button "Afficher plus de vidéos" loadMoreState (Just LoadMore)
+                    , Components.button "Plus de suggestions" loadMoreState (Just LoadMore)
                     ]
 
             else
