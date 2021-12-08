@@ -147,9 +147,6 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                     [ H.h2 []
                         [ H.text "Les nouveautés"
                         ]
-                    , H.a [ Route.href <| Route.VideoList Route.Latest ]
-                        [ H.text "Toutes les vidéos récentes"
-                        ]
                     ]
                 , Page.Common.Video.viewVideoListData Route.Latest recentVideoData peerTubeURL
                 ]
@@ -170,9 +167,6 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                         [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg", HA.alt "" ] []
                         , H.text <| "La playlist de la semaine" ++ playlistName
                         ]
-                    , H.a [ Route.href <| Route.VideoList Route.Playlist ]
-                        [ H.text "Toutes les vidéos de la playlist"
-                        ]
                     ]
                 , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL
                 ]
@@ -183,9 +177,6 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                 [ H.div [ HA.class "title_wrapper" ]
                     [ H.h2 [ HA.class "title" ]
                         [ H.text "FAQ Flash"
-                        ]
-                    , H.a [ Route.href <| Route.VideoList Route.FAQFlash ]
-                        [ H.text "Toutes les vidéos de la FAQ Flash"
                         ]
                     ]
                 , Page.Common.Video.viewVideoListData Route.FAQFlash faqFlashVideoData peerTubeURL

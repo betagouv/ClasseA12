@@ -199,10 +199,6 @@ viewCategory data peerTubeURL query =
                 , H.text "Le coin "
                 , H.text categoryTitle
                 ]
-            , H.a [ Route.href <| Route.VideoList query ]
-                [ H.text "Toutes les vidéos "
-                , H.text categoryTitle
-                ]
             ]
         , viewVideoListData query data peerTubeURL
         ]
