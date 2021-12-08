@@ -1,4 +1,4 @@
-module Page.Common.Dates exposing (formatStringDate, formatStringDatetime, posixToDate)
+module Page.Common.Dates exposing (formatStringDate, formatStringDatetime, formatStringDatetimeShort, posixToDate)
 
 import Iso8601
 import Time
@@ -11,6 +11,11 @@ fullHumanDateTime =
     "%A %-d %B %Y à %H:%M"
 
 
+shortHumanDateTime : String
+shortHumanDateTime =
+    "%-d %B à %H:%M"
+
+
 formatStringDate : String -> String
 formatStringDate date =
     -- Very naive way to display only the date of the day given a date in the format "2019-04-05T12:56:54.424Z"
@@ -21,6 +26,13 @@ formatStringDatetime : String -> String
 formatStringDatetime date =
     Iso8601.toTime date
         |> Result.map (Time.Format.format Time.Format.Config.Config_fr_fr.config fullHumanDateTime Time.utc)
+        |> Result.withDefault ""
+
+
+formatStringDatetimeShort : String -> String
+formatStringDatetimeShort date =
+    Iso8601.toTime date
+        |> Result.map (Time.Format.format Time.Format.Config.Config_fr_fr.config shortHumanDateTime Time.utc)
         |> Result.withDefault ""
 
 

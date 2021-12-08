@@ -107,7 +107,7 @@ viewPost post =
     let
         createdAt =
             Iso8601.fromTime post.createdAt
-                |> Dates.formatStringDatetime
+                |> Dates.formatStringDatetimeShort
     in
     H.article [ HA.class "news_item" ]
         [ H.div []
