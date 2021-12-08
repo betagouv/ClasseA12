@@ -114,9 +114,9 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
-                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
-                    , text " Se connecter"
-                    ]
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
+                , text " Se connecter"
+                ]
 
         icon =
             "%PUBLIC_URL%/images/icons/32x32/profil_32_purple.svg"
@@ -198,7 +198,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                     ]
                 , div [ class "rf-header__actions desktop-only" ]
                     [ viewPublishVideoButton
-                    , loginIcon
+                    , loginProfileIcon
                     ]
                 , div [ class "mobile-only" ]
                     [ button
@@ -206,7 +206,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                         , onClick openMenuMsg
                         ]
                         [ text "Menu"
-                        , img [src "%PUBLIC_URL%/images/icons/24x24/menu_open_24_purple.svg"][]
+                        , img [ src "%PUBLIC_URL%/images/icons/24x24/menu_open_24_purple.svg" ] []
                         ]
                     , div
                         [ classList
@@ -231,7 +231,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                                     , text "Accueil"
                                     ]
                                 ]
-                            , nav [ class"rf-header__nav"]
+                            , nav [ class "rf-header__nav" ]
                                 navLinks
                             , div []
                                 [ a []
