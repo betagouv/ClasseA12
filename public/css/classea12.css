@@ -519,6 +519,10 @@ details[open] summary::after {
   border-left: 0;
   border-bottom-width: 2px;
 }
+.search_view ::placeholder {
+  color: #fff;
+  opacity: 0.8;
+}
 .search_view .btn {
   margin-left: 4.8rem;
   color: var(--primary-color);
