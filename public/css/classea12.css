@@ -1871,6 +1871,7 @@ progress {
   background-color: #fff;
   border-radius: 0.8rem;
   overflow: hidden;
+  box-shadow: 0 2px 6px 0 rgba(0,0,0,0.16);
 }
 .news_item + .news_item {
   margin-top: 4.8rem;
@@ -1887,6 +1888,10 @@ progress {
 .news_item a {
   text-decoration: none;
 }
+.news_item a:hover {
+  text-decoration: underline;
+  color: inherit
+}
 .news_item span {
   display: block;
   margin-bottom: 1.6rem;
@@ -1899,6 +1904,7 @@ progress {
 #archive .news_item {
   position: relative;
   background: none;
+  box-shadow: none;
 }
 #archive .news_item + .news_item {
   padding-top: 7.2rem;
