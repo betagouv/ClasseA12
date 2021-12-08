@@ -99,8 +99,18 @@ view _ { title } =
                 ]
             ]
         , H.div [ class "about__end" ]
-            [ H.p [] [ H.text "Que vous soyez novice ou expérimenté, nous vous invitons à oser dire et agir ensemble en tant que professeur expérimentateur" ]
-            , H.h2 [] [ H.text "Avec « classe à 12 » nous partageons bien plus que des vidéos, alors, osons ensemble !" ]
+            [ H.p []
+                [ H.text "Que vous soyez novice ou expérimenté"
+                , H.br [] []
+                , H.text "nous vous invitons à oser dire et agir ensemble"
+                , H.br [] []
+                , H.text "en tant que professeur expérimentateur"
+                ]
+            , H.h2 []
+                [ H.text "Avec « classe à 12 » nous partageons bien plus que des vidéos,"
+                , H.br [] []
+                , H.text "alors, osons ensemble !"
+                ]
             , H.img
                 [ HA.src "%PUBLIC_URL%/images/logos/classea12-dark.svg"
                 , HA.alt "Logo Classe à 12"
@@ -108,10 +118,7 @@ view _ { title } =
                 ]
                 []
             , H.div [ HA.class "container" ]
-                [ H.div [ HA.class "richtext" ]
-                    [ H.h3 [ HA.class "title is-3", HA.id "statistiques" ] [ H.text "Statistiques" ]
-                    ]
-                , H.iframe
+                [ H.iframe
                     [ HA.src "https://e.infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9?src=embed"
                     , HA.title "Classe à 12"
                     , HA.width 800

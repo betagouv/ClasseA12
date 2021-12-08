@@ -1597,7 +1597,7 @@ progress {
 /* ABOUT PAGE */
 .about_content {
   position: relative;
-  background: url(../images/illustrations/about/illu_bg.svg) top 10rem center
+  background: url(../images/illustrations/about/illu_bg.svg) top 12rem center
     no-repeat;
 }
 .about h1 {
@@ -1767,11 +1767,17 @@ progress {
   text-align: center;
 }
 .about__end p {
-  width: 34%;
+  width: 36%;
+  font-family: "montserrat", Arial, sans-serif;
+  font-weight: 500;
   margin: 0 auto;
 }
 .about__end h2 {
   margin-top: 1.6rem;
+  font-weight: 600;
+}
+.container {
+  margin-top: 12.8rem;
 }
 
 .about__logo {
