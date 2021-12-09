@@ -2411,16 +2411,25 @@ progress {
   .home__participate {
     margin-bottom: 26rem;
   }
+  .home__participate .wrapper {
+    max-width: 55rem;
+  }
   .home__participate-content {
     display: block;
-    max-width: 70%;
+    max-width: 42rem;
     margin: 0 auto;
   }
   .home__participate-content::before {
     top: -30rem;
   }
   .home__participate-photos {
-    left: -30%;
+    left: -42%;
+  }
+  .home__category .news {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .home__category .news_item:nth-child(n+3) {
+    display: none;
   }
 
   .about__text {
@@ -2551,6 +2560,9 @@ progress {
     right: 0.8rem;
     left: auto;
     background-size: contain;
+  }
+  .home__participate .wrapper {
+    max-width: 100%;
   }
   .home__participate-photos {
     left: 0;
