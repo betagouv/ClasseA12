@@ -1198,6 +1198,11 @@ aside > div {
   margin-bottom: 1.6rem;
   background-color: var(--border-color);
 }
+.cols_height-four > div:last-of-type.video_description {
+  width: 100%;
+  padding-left: 0;
+  border-left: 0;
+}
 
 .video_actions {
   display: flex;
@@ -1243,6 +1248,7 @@ aside > div {
 }
 .video_resources_file {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
 }
@@ -2079,6 +2085,9 @@ progress {
   }
   .rf-header__body {
     justify-content: space-between;
+  }
+  .rf-header__logo {
+    margin-left: 0;
   }
   .mobile-menu nav a,
   .mobile-menu .search_button {
