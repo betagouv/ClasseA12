@@ -218,7 +218,10 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                             [ class "close-mobile-menu"
                             , onClick closeMenuMsg
                             ]
-                            [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_white.svg" ] []
+                            [ text "Fermer"
+                            , span []
+                                [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_white.svg" ] []
+                                ]
                             ]
                         , div
                             []
@@ -226,7 +229,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                             , nav []
                                 [ loginProfileIcon
                                 , searchForm config
-                                , a [ href "" ]
+                                , a [ href "/" ]
                                     [ img [ src "%PUBLIC_URL%/images/icons/32x32/home_purple.svg" ] []
                                     , text "Accueil"
                                     ]
