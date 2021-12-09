@@ -22,7 +22,7 @@
   --breadcrumbs: rgba(30, 17, 105, 0.5);
   --shadow: rgba(0, 0, 0, 0.06);
   --tabs-border: #e6e6f0;
-  --tabs-background: rgba(230, 240, 240, 0.5);
+  --tabs-background: rgba(230, 230, 240, 0.5);
   --modal-backdrop: rgba(0, 0, 0, 0.5);
   --modal-shadow: rgba(201, 211, 223, 0.2);
   --nav-separator: #d8d8d8;
@@ -1215,8 +1215,8 @@ aside > div {
 
 .video_wrapper {
   padding-top: 56.25%;
-    height: 0px;
-    position: relative;
+  height: 0px;
+  position: relative;
 }
 .video_wrapper embed {
   width: 100%;
@@ -2223,10 +2223,17 @@ progress {
     grid-template-columns: 100%;
   }
   .cols_height-four > .active,
-  .cols_height-four > div:last-of-type {
+  .cols_height-four > div:last-of-type,
+  .cols_height-four > div:first-of-type, 
+  .cols_height-four > div.active:not(.tab-headers) {
     width: 100%;
     padding: 0;
     border: none;
+  }
+  .cols_seven-five > div:first-child,
+  .cols_seven-five > div:last-of-type {
+    width: 100%;
+    padding: 0;
   }
 
   .card,
@@ -2275,7 +2282,6 @@ progress {
     margin-top: 2.3rem;
   }
   .video_contribution form .form__group + .form__group {
-    margin-top: 2.4rem;
     text-align: center;
   }
   .video_contribution button {
@@ -2321,6 +2327,7 @@ progress {
     margin-bottom: 1.6rem;
     width: 100vw !important;
     margin-left: 50%;
+    padding-right: 0 !important;
     transform: translateX(-50%);
   }
   .mobile-tabs .tab-headers a {
@@ -2497,17 +2504,24 @@ progress {
   }
   .video-grid__insert,
   .insert-wide .video-grid__insert,
-  .category:not(.insert-wide):nth-child(2n+1) .video-grid__insert {
+  .category:not(.insert-wide):nth-child(2n + 1) .video-grid__insert {
     grid-column: 1/4;
     flex-direction: row;
-  } 
-  .video-grid__insert> div ,
-  .insert-wide .video-grid__insert> div ,
-  .category:not(.insert-wide):nth-child(2n+1) .video-grid__insert > div {
+  }
+  .video-grid__insert > div,
+  .insert-wide .video-grid__insert > div,
+  .category:not(.insert-wide):nth-child(2n + 1) .video-grid__insert > div {
     margin-left: 3.2rem;
   }
   .video-grid__insert h4 {
     margin-top: 0;
+  }
+
+  .share {
+    margin-bottom: 3.2rem;
+  }
+  .share::after {
+    display: none;
   }
 }
 
@@ -2564,9 +2578,9 @@ progress {
   }
   .video-grid__insert,
   .insert-wide .video-grid__insert,
-  .category:not(.insert-wide):nth-child(2n+1) .video-grid__insert {
+  .category:not(.insert-wide):nth-child(2n + 1) .video-grid__insert {
     grid-column: 1/3;
-  } 
+  }
 
   .rf-logo__image--custom {
     height: 7.2rem;
@@ -2736,7 +2750,6 @@ progress {
   .search_view .content {
     max-width: calc(100% - 6.4rem);
   }
-
 }
 
 /* MODALS */
