@@ -2478,6 +2478,24 @@ progress {
     margin-top: 3.2rem;
     margin-left: auto;
   }
+
+  .video-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .video-grid__insert,
+  .insert-wide .video-grid__insert,
+  .category:not(.insert-wide):nth-child(2n+1) .video-grid__insert {
+    grid-column: 1/4;
+    flex-direction: row;
+  } 
+  .video-grid__insert> div ,
+  .insert-wide .video-grid__insert> div ,
+  .category:not(.insert-wide):nth-child(2n+1) .video-grid__insert > div {
+    margin-left: 3.2rem;
+  }
+  .video-grid__insert h4 {
+    margin-top: 0;
+  }
 }
 
 @media (max-width: 768px) {
@@ -2529,8 +2547,13 @@ progress {
     padding: 2.4rem 3.2rem 6.4rem;
   }
   .video-grid {
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .video-grid__insert,
+  .insert-wide .video-grid__insert,
+  .category:not(.insert-wide):nth-child(2n+1) .video-grid__insert {
+    grid-column: 1/3;
+  } 
 
   .rf-logo__image--custom {
     height: 7.2rem;
@@ -2700,6 +2723,7 @@ progress {
   .search_view .content {
     max-width: calc(100% - 6.4rem);
   }
+
 }
 
 /* MODALS */
