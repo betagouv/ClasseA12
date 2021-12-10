@@ -176,7 +176,8 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
             [ H.section [ HA.class "category", HA.id "faq-flash" ]
                 [ H.div [ HA.class "title_wrapper" ]
                     [ H.h2 [ HA.class "title" ]
-                        [ H.text "FAQ Flash"
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/infocircle_48_bicolore.svg", HA.alt "" ] []
+                        , H.text "FAQ Flash"
                         ]
                     ]
                 , Page.Common.Video.viewVideoListData Route.FAQFlash faqFlashVideoData peerTubeURL
