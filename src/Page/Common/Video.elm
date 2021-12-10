@@ -34,7 +34,7 @@ publishedAtFromVideo video =
 
 embedPlayer : Data.PeerTube.Video -> String -> H.Html msg
 embedPlayer video peerTubeURL =
-    H.div [HA.class "video_wrapper"]
+    H.div [ HA.class "video_wrapper" ]
         [ H.embed
             [ HA.src <| peerTubeURL ++ video.embedPath ++ "?warningTitle=false"
             ]
@@ -160,24 +160,24 @@ textContentForQuery : Route.VideoListQuery -> String
 textContentForQuery query =
     case query of
         Route.Latest ->
-            "Du texte pour l'encart de les nouveautés"
+            "Découvrez nos dernières publications."
 
         Route.Playlist ->
-            "Du texte pour l'encart de la playlist de la semaine"
+            "Des vidéos sélectionnées par auteur, sujet, académie, département, école…"
 
         Route.FAQFlash ->
-            "Du texte pour l'encart de la FAQ Flash"
+            "On répond à vos questions d’ordre technique."
 
         Route.Keyword keyword ->
             Dict.fromList
-                [ ( "Français", "Du texte pour l'encart de Français" )
-                , ( "Mathématiques", "Du texte pour l'encart de Mathématiques" )
-                , ( "Questionner le monde", "Du texte pour l'encart de Questionner le monde" )
-                , ( "Arts", "Du texte pour l'encart de Arts" )
-                , ( "Numérique", "Du texte pour l'encart de Numérique" )
-                , ( "Enseignement moral et civique", "Du texte pour l'encart de Enseignement moral et civique" )
-                , ( "Gestion de classe", "Du texte pour l'encart de Gestion de classe" )
-                , ( "Outils", "Du texte pour l'encart de Outils" )
+                [ ( "Français", "Des vidéos pour apprendre à lire, écrire, parler." )
+                , ( "Mathématiques", "Des vidéos en géométrie, calcul, numération, résolution de problèmes." )
+                , ( "Questionner le monde", "" )
+                , ( "Arts", "" )
+                , ( "Numérique", "De nombreux outils pratiques pour le quotidien de la classe." )
+                , ( "Enseignement moral et civique", "" )
+                , ( "Gestion de classe", "Des outils et conseils pour vous aider à gérer, organiser votre classe." )
+                , ( "Outils", "Des vidéos qui présentent des outils très concrets, variés et faciles à utiliser" )
                 ]
                 |> Dict.get keyword
                 |> Maybe.withDefault ""
