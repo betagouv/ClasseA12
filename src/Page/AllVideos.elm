@@ -144,8 +144,9 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
         viewRecentVideo =
             [ H.section [ HA.class "category", HA.id "latest" ]
                 [ H.div [ HA.class "title_wrapper" ]
-                    [ H.h2 []
-                        [ H.text "Les nouveautés"
+                    [ H.h2 [ HA.class "title"]
+                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/new_48_bicolore.svg", HA.alt "" ] []
+                        , H.text "Les nouveautés"
                         ]
                     ]
                 , Page.Common.Video.viewVideoListData Route.Latest recentVideoData peerTubeURL
