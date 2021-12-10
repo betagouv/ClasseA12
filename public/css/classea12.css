@@ -1129,7 +1129,7 @@ aside > div {
   max-height: calc(100% + 8.8rem);
   margin-top: -5.6rem;
   margin-left: -5.6rem;
-} 
+}
 .video-grid__insert h4 {
   margin-top: 5.6rem;
   margin-bottom: 1.6rem;
@@ -1704,9 +1704,10 @@ progress {
 .about__service .about__text::after {
   top: -8rem;
   left: -6.4rem;
-  width: 12.8rem;
-  height: 12.8rem;
-  background-image: url(../images/illustrations/about/illu_horloge.svg);
+  width: 14.2rem;
+  height: 13.6rem;
+  background-image: url(../images/illustrations/about/illu_horloge.png);
+  background-size: contain;
 }
 
 .about__participate {
@@ -1720,19 +1721,21 @@ progress {
 .about__participate .about__image::after {
   top: 4rem;
   left: -8rem;
-  width: 6.1rem;
-  height: 12rem;
-  background-image: url(../images/illustrations/about/illu_pen-yellow.svg);
+  width: 3rem;
+  height: 15rem;
+  background-image: url(../images/illustrations/about/crayon_jaune.png);
+  transform: rotate(36deg);
 }
 .about__participate .about__text {
   margin-top: 2.2rem;
 }
 .about__participate .about__text::after {
-  top: -3.2rem;
+  top: -4.8rem;
   right: 3rem;
-  width: 7rem;
-  height: 10rem;
-  background-image: url(../images/illustrations/about/illu_stylet.svg);
+  width: 3rem;
+  height: 15rem;
+  background-image: url(../images/illustrations/about/stylo_bleu.png);
+  transform: rotate(-32deg);
 }
 
 .about__subject {
@@ -1750,19 +1753,10 @@ progress {
 .about__subject .about__image::after {
   top: -20rem;
   right: 8rem;
-  width: 15rem;
-  height: 18.6rem;
-  background-image: url(../images/illustrations/about/illu_carnet.svg);
-}
-.about__subject .about__text {
-  padding-right: 6.2rem;
-}
-.about__subject .about__text::after {
-  top: 8.6rem;
-  right: 0.3rem;
-  width: 6rem;
-  height: 9rem;
-  background-image: url(../images/illustrations/about/illu_pen-red.svg);
+  width: 10rem;
+  height: 15rem;
+  background-image: url(../images/illustrations/about/smartphone.png);
+  transform: rotate(-33deg);
 }
 
 .about__video {
@@ -1772,21 +1766,35 @@ progress {
 .about__video .about__image {
   transform: rotate(8deg);
 }
+.about__video .about__image::before {
+  content: "";
+  position: absolute;
+  bottom: -8rem;
+  left: -2rem;
+  display: block;
+  width: 7.4rem;
+  height: 7.4rem;
+  background-image: url(../images/illustrations/about/peinture.png);
+  background-size: contain;
+  transform: rotate(54deg);
+}
 .about__video .about__image::after {
-  bottom: 4rem;
-  left: -4rem;
-  width: 12.6rem;
-  height: 4.4rem;
-  background-image: url(../images/illustrations/about/illu_pen-green.svg);
+  top: 3rem;
+  left: -8rem;
+  width: 3rem;
+  height: 15rem;
+  background-image: url(../images/illustrations/about/pinceau.png);
+  transform: rotate(-39deg);
 }
 .about__video .about__text {
 }
 .about__video .about__text::after {
   bottom: -9.6rem;
-  right: -1.6rem;
-  width: 7rem;
-  height: 10rem;
-  background-image: url(../images/illustrations/about/illu_rule.svg);
+  right: -4.2rem;
+  width: 10.3rem;
+  height: 16.5rem;
+  background-image: url(../images/illustrations/about/compas.png);
+  transform: rotate(23deg);
 }
 
 .about__text p:first-of-type {
