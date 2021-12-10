@@ -1228,6 +1228,7 @@ aside > div {
 
 .video_actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   padding: 1.2rem 0 1.6rem;
   border-bottom: 1px solid var(--tabs-border);
@@ -1242,7 +1243,7 @@ aside > div {
   text-decoration: none;
 }
 .video_actions button {
-  margin-left: 1.6rem;
+  gap: 1.6rem;
   font-family: "nunito", Arial, sans-serif;
 }
 .video_actions .button {
@@ -1937,6 +1938,7 @@ progress {
 }
 
 #archive .news_item {
+  align-items: flex-start;
   position: relative;
   background: none;
   box-shadow: none;
@@ -1947,6 +1949,7 @@ progress {
 }
 #archive .news_item::before {
   content: "";
+  align-self: center;
   position: relative;
   flex-shrink: 0;
   display: block;
