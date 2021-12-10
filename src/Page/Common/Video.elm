@@ -248,7 +248,7 @@ viewInsert query =
     in
     H.div [ HA.class "video-grid__insert" ]
         [ H.img
-            [ HA.src <| "%PUBLIC_URL%/images/illustrations/inserts/" ++ String.Normalize.slug categoryTitle ++ ".svg"
+            [ HA.src <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png"
             , HA.alt ""
             ]
             []
