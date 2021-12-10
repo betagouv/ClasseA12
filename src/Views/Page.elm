@@ -367,14 +367,6 @@ viewAboutAside { activePage } =
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_purple.svg" ] []
                 , text "Newsletter"
                 ]
-            , a [ href "" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] []
-                , text "Facebook"
-                ]
-            , a [ href "" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/twitter_32_purple.svg" ] []
-                , text "Twitter"
-                ]
             ]
     in
     aside [ class "side-menu" ]
