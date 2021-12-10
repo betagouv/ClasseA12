@@ -54,7 +54,7 @@ view _ { title } =
             , H.article [ HA.class "about__participate" ]
                 [ H.div [ HA.class "about__image" ]
                     [ H.img
-                        [ HA.src "%PUBLIC_URL%/images/photos/post-its.jpg"
+                        [ HA.src "%PUBLIC_URL%/images/photos/postits.jpg"
                         , HA.alt ""
                         ]
                         []
