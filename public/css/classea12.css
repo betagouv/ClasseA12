@@ -897,6 +897,7 @@ aside > div {
 
 .home {
   display: block;
+  padding-top: 0;
   padding-right: 0;
   padding-left: 0;
 }
@@ -907,6 +908,7 @@ aside > div {
 
 .home__intro {
   min-height: 78rem;
+  padding-top: 6.4rem;
   text-align: center;
   background: url(../images/illustrations/home__intro-bg.svg) center top
     no-repeat;
