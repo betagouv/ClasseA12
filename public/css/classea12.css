@@ -426,6 +426,9 @@ details[open] summary::after {
   width: 10.4rem;
   margin-left: 3.2rem;
 }
+.rf-header__nav {
+  flex-shrink: 0;
+}
 .rf-header__nav ul {
   display: flex;
   margin-left: 3.2rem;
@@ -476,11 +479,11 @@ details[open] summary::after {
   display: flex;
 }
 .rf-header__actions a {
-  margin-left: 2.4rem;
-}
-.rf-header__actions a {
   display: flex;
   align-items: center;
+}
+.rf-header__actions a + a {
+  margin-left: 2.4rem;
 }
 .rf-header__actions a img {
   margin-right: 0.8rem;
@@ -2107,6 +2110,19 @@ progress {
   display: none;
 }
 
+@media (max-width: 1158px) {
+  .rf-header__actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .rf-header__actions a:first-of-type {
+    order: 2;
+  }
+  .rf-header__actions a:last-of-type {
+    order: 1;
+    margin-bottom: .8rem;  
+  }
+}
 @media (max-width: 1024px) {
   .rf-container {
     padding-right: 6.4rem;

@@ -126,7 +126,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                 Just userInfo ->
                     a [ Route.href <| Route.Profile userInfo.username, title "Éditer son profil" ]
                         [ img [ src icon ] []
-                        , text <| " " ++ userInfo.username
+                        , text "Votre profil"
                         ]
 
                 Nothing ->
