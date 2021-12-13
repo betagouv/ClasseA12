@@ -87,9 +87,9 @@ viewHeader =
                 []
             , H.h1 []
                 [ H.text "La communauté vidéo"
-                , H.span [] [ H.text "des enseignants en classe à 12" ]
+                , H.span [] [ H.text "des enseignants en classe dédoublée" ]
                 ]
-            , H.p [] [ H.text "Chaque semaine, des enseignants de classe à 12 partagent leurs idées pédagogiques, ateliers, bonnes pratiques dans des formats vidéos courts." ]
+            , H.p [] [ H.text "Chaque semaine, des enseignants de classe dédoublée partagent leurs idées pédagogiques, ateliers, bonnes pratiques dans des formats vidéos courts." ]
             , H.a [ HA.class "btn", Route.href Route.AllVideos ] [ H.text "Découvrez les vidéos pédagogiques" ]
             , H.a [ Route.href Route.About ] [ H.text "Découvrez Classe à 12" ]
             ]
