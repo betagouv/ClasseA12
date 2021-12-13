@@ -139,17 +139,14 @@ viewParticipate =
                 [ H.div []
                     [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/gestion-de-classe_48_bicolore.svg" ] []
                     , H.h3 [] [ H.text "Une communauté d’enseignants, pour les enseignants" ]
-                    , H.p [] [ H.text "Venenatis euismod sit sed habitant. Mattis vulputate bibendum commodo posuere turpis enim faucibus lacus. In praesent." ]
                     ]
                 , H.div []
                     [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/share_48_bicolore.svg" ] []
                     , H.h3 [] [ H.text "Un partage d’expériences, de pratiques et de bonnes idées" ]
-                    , H.p [] [ H.text "Venenatis euismod sit sed habitant. Mattis vulputate bibendum commodo posuere turpis enim faucibus lacus. In praesent." ]
                     ]
                 , H.div []
                     [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/compte_48_bicolore.svg" ] []
                     , H.h3 [] [ H.text "Créez un compte totalement gratuit pour participer" ]
-                    , H.p [] [ H.text "Venenatis euismod sit sed habitant. Mattis vulputate bibendum commodo posuere turpis enim faucibus lacus. In praesent." ]
                     ]
                 , H.div
                     [ HA.class "home__participate-photos" ]
@@ -187,26 +184,26 @@ viewNews : WebData (List Data.News.Post) -> H.Html Msg
 viewNews postList =
     H.section [ HA.class "home__category wrapper" ]
         [ H.h2 []
-                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
-                , H.text "L’actualité de Classe à 12"
-                ]
-            , case postList of
-                Loading ->
-                    H.text "Chargement en cours..."
+            [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
+            , H.text "L’actualité de Classe à 12"
+            ]
+        , case postList of
+            Loading ->
+                H.text "Chargement en cours..."
 
-                Success posts ->
-                    H.div [ HA.class "news" ]
-                        (posts
-                            |> List.take 2
-                            |> List.map viewPost
-                        )
+            Success posts ->
+                H.div [ HA.class "news" ]
+                    (posts
+                        |> List.take 2
+                        |> List.map viewPost
+                    )
 
-                Failure _ ->
-                    H.text "Erreur lors du chargement des actualités"
+            Failure _ ->
+                H.text "Erreur lors du chargement des actualités"
 
-                NotAsked ->
-                    H.text "Erreur"
-            , H.a [ Route.href Route.AllNews ]
-                [ H.text "Voir toutes les actualités"
+            NotAsked ->
+                H.text "Erreur"
+        , H.a [ Route.href Route.AllNews ]
+            [ H.text "Voir toutes les actualités"
             ]
         ]
