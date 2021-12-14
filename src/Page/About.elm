@@ -47,7 +47,7 @@ view _ { title } =
                 , H.div [ HA.class "richtext about__text" ]
                     [ H.h3 [ HA.class "title is-3" ] [ H.text "Un nouveau service, pour quoi faire ?" ]
                     , H.p [] [ H.text "Partager pour apprendre et progresser en équipe" ]
-                    , H.p [] [ H.text "Ce projet en cours de développement, co-construit avec les enseignants des classes dédoublées (CP et CE1), a pour objectif de valoriser les retours d’expérience et les échanges de pratiques personnalisées, via un produit numérique de type réseau social." ]
+                    , H.p [] [ H.text "Ce projet en cours de développement, co-construit avec les enseignants des classes dédoublées (grandes sections, CP et CE1), a pour objectif de valoriser les retours d’expérience et les échanges de pratiques personnalisées, via un produit numérique de type réseau social." ]
                     , H.p [] [ H.text "Que vous soyez novice ou expérimenté, nous vous proposons une plateforme vidéo permettant de partager vos expériences pédagogiques auprès de vos collègues, facilement et dans le respect des pratiques de chacun." ]
                     ]
                 ]
