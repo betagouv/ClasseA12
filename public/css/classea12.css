@@ -626,6 +626,7 @@ details[open] summary::after {
 }
 .mobile-menu nav a:hover {
   font-weight: 500;
+  color: var(--primary-color);
 }
 .mobile-menu nav img {
   margin-right: 0.8rem;
@@ -639,9 +640,20 @@ details[open] summary::after {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
 }
 .mobile-menu > div > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: auto;
+  width: 100%;
+}
+.mobile-menu img[src*="ecoleconfiance"] {
+  width: 9.6rem;
+}
+.mobile-menu img[src*="110bis"] {
+  height: 6.2rem;
 }
 
 .menu-opener {
@@ -965,7 +977,6 @@ aside > div {
 .home__category h2 {
   margin-bottom: 4.8rem;
   font-weight: 600;
-  font-size: 2.8rem;
   text-align: center;
 }
 .home__category h2 img {
@@ -1208,7 +1219,6 @@ aside > div {
   width: 3.2rem;
   height: 1px;
   margin-top: 1.6rem;
-  margin-bottom: 1.6rem;
   background-color: var(--border-color);
 }
 .cols_height-four > div:last-of-type.video_description {
@@ -1234,6 +1244,7 @@ aside > div {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 1.6rem;
   padding: 1.2rem 0 1.6rem;
   border-bottom: 1px solid var(--tabs-border);
 }
@@ -1247,9 +1258,9 @@ aside > div {
   text-decoration: none;
 }
 .video_actions button {
-  gap: 1.6rem;
   font-family: "nunito", Arial, sans-serif;
 }
+.video_actions button,
 .video_actions .button {
   padding: 0;
   background: none;
@@ -1291,6 +1302,7 @@ aside > div {
 
 .share {
   margin-bottom: 6.4rem;
+  padding-top: 1.6rem;
   color: var(--primary-color);
   font-weight: 600;
 }
@@ -1789,8 +1801,6 @@ progress {
   background-image: url(../images/illustrations/about/pinceau.png);
   transform: rotate(-39deg);
 }
-.about__video .about__text {
-}
 .about__video .about__text::after {
   bottom: -9.6rem;
   right: -4.2rem;
@@ -2120,7 +2130,7 @@ progress {
   }
   .rf-header__actions a:last-of-type {
     order: 1;
-    margin-bottom: .8rem;  
+    margin-bottom: 0.8rem;
   }
 }
 @media (max-width: 1024px) {
@@ -2600,7 +2610,7 @@ progress {
     font-size: 1rem;
   }
   main {
-    padding: 2.4rem 3.2rem 6.4rem;
+    padding: 2.4rem 2.4rem 6.4rem;
   }
   .video-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2636,8 +2646,9 @@ progress {
     padding-left: 2.4rem;
   }
   .home__participate {
+    margin-bottom: 8rem;
     padding-top: 5.6rem;
-    padding-bottom: 13rem;
+    padding-bottom: 4.8rem;
   }
   .home__participate::before {
     width: 4.8rem;
@@ -2647,9 +2658,9 @@ progress {
   .home__participate::after {
     width: 2.4rem;
     height: 2.4rem;
-    top: 12rem;
-    right: 0.8rem;
-    left: auto;
+    top: 24rem;
+    right: auto;
+    left: 8rem;
     background-size: contain;
   }
   .home__participate .wrapper {
@@ -2659,14 +2670,12 @@ progress {
     left: 0;
     bottom: -22.5rem;
   }
-  .home__participate-photos .about__image:first-of-type {
-    top: -19rem;
-  }
-  .home__participate-photos .about__image:last-of-type {
-    top: 12rem;
+  .home__participate-photos {
+    display: none;
   }
   .home__participate-content {
     max-width: 100%;
+    padding-left: 11.2rem;
   }
   .home__participate-content::before {
     top: -22rem;
@@ -2706,7 +2715,6 @@ progress {
     width: 100%;
     padding: 1.6rem;
   }
-
   .about article {
     margin-top: 12rem;
   }
@@ -2717,16 +2725,15 @@ progress {
   .about__image {
     position: absolute;
   }
-
   .about__service .about__text::after {
     display: none;
   }
   .about__participate .about__image {
-    top: -5rem;
+    top: -11rem;
     left: -2rem;
   }
   .about__subject .about__image {
-    top: -12rem;
+    top: -6rem;
   }
   .about__video .about__image {
     top: -14rem;
@@ -2737,6 +2744,7 @@ progress {
   }
   .news_item img {
     order: 1;
+    max-width: 100%;
   }
   .news_item > div {
     order: 2;
@@ -2752,7 +2760,7 @@ progress {
   #archive .news_item:last-of-type::after {
     bottom: 100%;
   }
-  #archive .news_item {
+  #archive .news_item:not(:last-of-type) {
     padding-bottom: 3.2rem;
   }
   #archive .news_item + .news_item {
@@ -2769,6 +2777,9 @@ progress {
   #archive .news_item > div > div {
     max-width: 100%;
   }
+  .home__category:last-of-type {
+    margin-bottom: 0;
+  }
   .home__category .news {
     grid-template-columns: 1fr;
   }
@@ -2778,6 +2789,60 @@ progress {
   }
   .search_view .content {
     max-width: calc(100% - 6.4rem);
+  }
+  .home__intro-logos .logo-ecoleconfiance {
+    width: 7.2rem;
+  }
+  .home__intro-logos .logo-110bis {
+    height: 4.2rem;
+    margin-left: 3.2rem;
+  }
+  #playlist.home__category h2 {
+    font-size: 2.4rem;
+  }
+  .close-mobile-menu {
+    text-indent: -9999px;
+  }
+  .share .social {
+    display: block;
+  }
+  .connect {
+    max-width: 100%;
+  }
+  .news section + section {
+    margin-top: 3.2rem;  
+  }
+  .news section + section::before {
+    display: none;
+  }
+  #archive + div {
+    margin-top: 3.6rem;
+  }
+  .title_wrapper {
+    margin-bottom: 3.2rem;  
+  }
+  .about__service .about__image {
+    top: -2.4rem;
+  }
+  .about__end p {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .home__participate::after {
+    right: 0.8rem;
+    left: auto;
+  }
+  .home__participate-content {
+    padding-left: 0;
+  }
+  .about__service .about__image {
+    top: -3.2rem;
+    width: 85%;
+  }
+  .about__subject .about__image {
+    top: -8rem;
   }
 }
 
