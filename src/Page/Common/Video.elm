@@ -247,11 +247,26 @@ viewInsert query =
             textContentForQuery query
     in
     H.div [ HA.class "video-grid__insert" ]
-        [ H.img
-            [ HA.src <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png"
-            , HA.alt ""
-            ]
+        [ H.node "picture"
             []
+            [ H.source
+                [ HA.media "(min-width: 1024px)"
+                , HA.attribute "srcset" <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ ".png 1x, %PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png 2x"
+                ]
+                []
+            , H.source
+                [ HA.media "(min-width: 768px)"
+                , HA.attribute "srcset" <| "%PUBLIC_URL%/images/illustrations/inserts/tablette_illu_" ++ String.Normalize.slug categoryTitle ++ ".png 1x, %PUBLIC_URL%/images/illustrations/inserts/tablette_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png 2x"
+                ]
+                []
+            , H.source
+                [ HA.media "(max-width: 768px)"
+                , HA.attribute "srcset" <| "%PUBLIC_URL%/images/illustrations/inserts/mobile_illu_" ++ String.Normalize.slug categoryTitle ++ ".png 1x, %PUBLIC_URL%/images/illustrations/inserts/mobile_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png 2x"
+                ]
+                []
+            , H.img [ 
+            HA.src  <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ ".png"][]
+            ]
         , H.div []
             [ H.h4 [] [ H.text categoryTitle ]
             , H.p [] [ H.text textContent ]
