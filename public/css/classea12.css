@@ -579,7 +579,6 @@ details[open] summary::after {
   top: 3.2rem;
   right: 3.2rem;
   display: flex;
-  align-items: center;
   margin-left: auto;
   padding: 0;
   font-weight: 500;
@@ -2115,7 +2114,6 @@ progress {
   margin-top: 1.2rem;
 }
 
-
 /*=======================================================================
 
 Responsive
@@ -2153,6 +2151,7 @@ Responsive
   }
   .rf-header__body {
     justify-content: space-between;
+    padding: 2.4rem 0;
   }
   .rf-header__logo {
     margin-left: 0;
@@ -2160,6 +2159,10 @@ Responsive
   .mobile-menu nav a,
   .mobile-menu .search_button {
     font-size: 2.4rem;
+  }
+  .mobile-menu .btn[href*="participer"] {
+    padding-top: 1.4rem;
+    padding-bottom: 1.4rem;
   }
   .rf-header__nav li:not(:first-of-type) {
     margin-left: 0;
@@ -2492,14 +2495,27 @@ Responsive
   .home__participate-content::before {
     top: -30rem;
   }
+  .home__participate-content > div:not(:first-of-type) {
+    margin-top: 3.2rem;
+  }
+  .home__participate-content img {
+    margin-bottom: 1.6rem;
+  }
+  .home__participate .center-wrapper {
+    margin-top: 3.2rem;
+  }
   .home__participate-photos {
     left: -42%;
+    bottom: -37.5rem;
   }
   .home__category .news {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .home__category .news_item:nth-child(n + 3) {
     display: none;
+  }
+  .home__category .news_item img {
+    max-width: 100%;
   }
 
   .about__text {
@@ -2519,6 +2535,9 @@ Responsive
   }
   .about__participate .about__image {
     width: 35%;
+  }
+  .about__participate .about__image img {
+    width: 100%;
   }
   .about__subject .about__image {
     top: 27rem;
@@ -2707,17 +2726,8 @@ Responsive
   .home__participate-content > div {
     padding: 0;
   }
-  .home__participate-content > div:not(:first-of-type) {
-    margin-top: 3.2rem;
-  }
-  .home__participate-content img {
-    margin-bottom: 1.6rem;
-  }
   .home__participate-content h3 {
     font-size: 1.4rem;
-  }
-  .home__participate .center-wrapper {
-    margin-top: 3.2rem;
   }
   .card {
     grid-template-rows: auto minmax(0, 1fr);
@@ -2830,7 +2840,7 @@ Responsive
     max-width: 100%;
   }
   .news section + section {
-    margin-top: 3.2rem;  
+    margin-top: 3.2rem;
   }
   .news section + section::before {
     display: none;
@@ -2839,7 +2849,7 @@ Responsive
     margin-top: 3.6rem;
   }
   .title_wrapper {
-    margin-bottom: 3.2rem;  
+    margin-bottom: 3.2rem;
   }
   .about__service .about__image {
     top: -2.4rem;
@@ -2848,6 +2858,9 @@ Responsive
     width: 100%;
   }
   .video-grid__insert p {
+    display: none;
+  }
+  iframe {
     display: none;
   }
 }
