@@ -594,7 +594,7 @@ view model =
         LoginPage loginModel ->
             Login.view model.session loginModel
                 |> mapMsg LoginMsg
-                |> Page.frame Page.AboutFrame (pageConfig Page.Login)
+                |> Page.frame Page.ProfileFrame (pageConfig Page.Login)
 
         RegisterPage registerModel ->
             Register.view model.session registerModel
@@ -619,7 +619,7 @@ view model =
         ProfilePage profileModel ->
             Profile.view model.session profileModel
                 |> mapMsg ProfileMsg
-                |> Page.frame Page.AboutFrame (pageConfig Page.Profile)
+                |> Page.frame Page.ProfileFrame (pageConfig Page.Profile)
 
         CommentsPage commentsModel ->
             Comments.view model.session commentsModel

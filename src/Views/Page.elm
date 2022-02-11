@@ -43,6 +43,7 @@ type Frame
     | VideoFrame
     | AboutFrame
     | NewsFrame
+    | ProfileFrame
 
 
 frameToString : Frame -> String
@@ -59,6 +60,9 @@ frameToString frameVariant =
 
         NewsFrame ->
             "news"
+
+        ProfileFrame ->
+            "profile"
 
 
 type alias Config msg =
@@ -102,6 +106,9 @@ frame frameVariant config { title, pageTitle, pageSubTitle, body } =
 
                     NewsFrame ->
                         viewNewsAside config
+
+                    ProfileFrame ->
+                        Html.text ""
                 ]
             , viewFooter config.session
             ]
