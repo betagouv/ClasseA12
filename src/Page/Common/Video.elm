@@ -14,11 +14,13 @@ module Page.Common.Video exposing
     )
 
 import Data.PeerTube
+import Dict
 import Html as H
 import Html.Attributes as HA
 import Markdown
 import Page.Common.Dates as Dates
 import Route
+import String.Normalize
 
 
 publishedAtFromVideo : Data.PeerTube.Video -> String
@@ -32,12 +34,12 @@ publishedAtFromVideo video =
 
 embedPlayer : Data.PeerTube.Video -> String -> H.Html msg
 embedPlayer video peerTubeURL =
-    H.embed
-        [ HA.src <| peerTubeURL ++ video.embedPath ++ "?warningTitle=false"
-        , HA.width 1000
-        , HA.height 800
+    H.div [ HA.class "video_wrapper" ]
+        [ H.embed
+            [ HA.src <| peerTubeURL ++ video.embedPath ++ "?warningTitle=false"
+            ]
+            []
         ]
-        []
 
 
 rawPlayer : Data.PeerTube.Video -> H.Html msg
@@ -129,67 +131,97 @@ keywords keywordList =
         H.text ""
 
 
+titleForQuery : Route.VideoListQuery -> String
+titleForQuery query =
+    case query of
+        Route.Latest ->
+            "Les nouveautés"
+
+        Route.Playlist ->
+            "La playlist de la semaine"
+
+        Route.FAQFlash ->
+            "FAQ Flash"
+
+        Route.Keyword keyword ->
+            keyword
+
+        Route.Search search ->
+            search
+
+        Route.Favorites profile ->
+            "Les vidéos favorites de " ++ profile
+
+        Route.Published profile ->
+            "Les vidéos publiées par " ++ profile
+
+
+textContentForQuery : Route.VideoListQuery -> String
+textContentForQuery query =
+    case query of
+        Route.Latest ->
+            "Découvrez nos dernières publications."
+
+        Route.Playlist ->
+            "Des vidéos sélectionnées par auteur, sujet, académie, département, école…"
+
+        Route.FAQFlash ->
+            "On répond à vos questions d’ordre technique."
+
+        Route.Keyword keyword ->
+            Dict.fromList
+                [ ( "Français", "Des vidéos pour apprendre à lire, écrire, parler." )
+                , ( "Mathématiques", "Des vidéos en géométrie, calcul, numération, résolution de problèmes." )
+                , ( "Questionner le monde", "" )
+                , ( "Arts", "" )
+                , ( "Numérique", "De nombreux outils pratiques pour le quotidien de la classe." )
+                , ( "Enseignement moral et civique", "" )
+                , ( "Gestion de classe", "Des outils et conseils pour vous aider à gérer, organiser votre classe." )
+                , ( "Outils", "Des vidéos qui présentent des outils très concrets, variés et faciles à utiliser" )
+                ]
+                |> Dict.get keyword
+                |> Maybe.withDefault ""
+
+        _ ->
+            ""
+
+
 viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> Route.VideoListQuery -> H.Html msg
 viewCategory data peerTubeURL query =
     let
-        displayedKeyword =
-            case query of
-                Route.Latest ->
-                    "nouveautés"
-
-                Route.Playlist ->
-                    "playlist de la semaine"
-
-                Route.FAQFlash ->
-                    "FAQ Flash"
-
-                Route.Keyword keyword ->
-                    keyword
-
-                Route.Search search ->
-                    search
-
-                Route.Favorites profile ->
-                    "vidéos favorites de " ++ profile
-
-                Route.Published profile ->
-                    "vidéos publiées par " ++ profile
+        categoryTitle =
+            titleForQuery query
     in
-    H.section [ HA.class "category", HA.id displayedKeyword ]
-        [ H.div [ HA.class "home-title_wrapper" ]
-            [ H.h3 [ HA.class "home-title" ]
-                [ H.text "Le coin "
-                , H.text displayedKeyword
-                ]
-            , H.a [ Route.href <| Route.VideoList query ]
-                [ H.text "Toutes les vidéos "
-                , H.text displayedKeyword
+    H.section [ HA.class "category", HA.id <| String.Normalize.slug categoryTitle ]
+        [ H.div [ HA.class "title_wrapper" ]
+            [ H.h3 [ HA.class "title" ]
+                [ H.img [ HA.src <| "%PUBLIC_URL%/images/icons/48x48/" ++ String.Normalize.slug categoryTitle ++ "_48_bicolore.svg", HA.alt "" ] []
+                , H.text "Le coin "
+                , H.text categoryTitle
                 ]
             ]
-        , viewVideoListData data peerTubeURL
+        , viewVideoListData query data peerTubeURL
         ]
 
 
-viewVideoListData : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> H.Html msg
-viewVideoListData data peerTubeURL =
-    H.div []
-        [ case data of
-            Data.PeerTube.NotRequested ->
-                H.text ""
+viewVideoListData : Route.VideoListQuery -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> H.Html msg
+viewVideoListData query data peerTubeURL =
+    case data of
+        Data.PeerTube.NotRequested ->
+            H.text ""
 
-            Data.PeerTube.Requested ->
-                H.text "Chargement des vidéos..."
+        Data.PeerTube.Requested ->
+            H.text "Chargement des vidéos..."
 
-            Data.PeerTube.Received videoList ->
-                viewList peerTubeURL videoList
+        Data.PeerTube.Received videoList ->
+            viewList query peerTubeURL videoList
 
-            Data.PeerTube.Failed error ->
-                H.text error
-        ]
+        Data.PeerTube.Failed error ->
+            H.text error
 
 
-viewList : String -> List Data.PeerTube.Video -> H.Html msg
-viewList peerTubeURL videoList =
+viewList : Route.VideoListQuery -> String -> List Data.PeerTube.Video -> H.Html msg
+viewList query peerTubeURL videoList =
     let
         videoCards =
             if videoList /= [] then
@@ -199,8 +231,52 @@ viewList peerTubeURL videoList =
             else
                 [ H.text "Aucune vidéo pour le moment" ]
     in
-    H.div [ HA.class "grid" ]
-        videoCards
+    H.div [ HA.class "video-grid" ]
+        (viewInsert query
+            :: videoCards
+        )
+
+
+viewInsert : Route.VideoListQuery -> H.Html msg
+viewInsert query =
+    let
+        categoryTitle =
+            titleForQuery query
+
+        textContent =
+            textContentForQuery query
+    in
+    H.div [ HA.class "video-grid__insert" ]
+        [ H.node "picture"
+            []
+            [ H.source
+                [ HA.media "(min-width: 1024px)"
+                , HA.attribute "srcset" <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ ".png 1x, %PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png 2x"
+                ]
+                []
+            , H.source
+                [ HA.media "(min-width: 768px)"
+                , HA.attribute "srcset" <| "%PUBLIC_URL%/images/illustrations/inserts/tablette_illu_" ++ String.Normalize.slug categoryTitle ++ ".png 1x, %PUBLIC_URL%/images/illustrations/inserts/tablette_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png 2x"
+                ]
+                []
+            , H.source
+                [ HA.media "(max-width: 768px)"
+                , HA.attribute "srcset" <| "%PUBLIC_URL%/images/illustrations/inserts/mobile_illu_" ++ String.Normalize.slug categoryTitle ++ ".png 1x, %PUBLIC_URL%/images/illustrations/inserts/mobile_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png 2x"
+                ]
+                []
+            , H.img [ 
+            HA.src  <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ ".png"][]
+            ]
+        , H.div []
+            [ H.h4 [] [ H.text categoryTitle ]
+            , H.p [] [ H.text textContent ]
+            , H.a
+                [ Route.href <| Route.VideoList query
+                , HA.class "btn btn--secondary"
+                ]
+                [ H.text "Voir les vidéos" ]
+            ]
+        ]
 
 
 viewVideo : String -> Data.PeerTube.Video -> H.Html msg

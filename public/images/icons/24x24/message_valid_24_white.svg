@@ -1,6 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <g fill="none" fill-rule="evenodd" stroke="#FFF" stroke-linecap="round" transform="translate(1 1)">
-    <polyline stroke-width="2" points="15.565 6.417 9.762 15.583 6.435 12.146"/>
-    <circle cx="11" cy="11" r="11" stroke-linejoin="round" stroke-width="1.5"/>
-  </g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/24x24/message_valid_24_white</title>
+    <g id="icone/24x24/message_valid_24_white" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="message-ok" transform="translate(1.000000, 1.000000)" stroke="#FFFFFF">
+            <polyline id="Path" stroke-width="2" points="15.565 6.41666667 9.7625 15.5833333 6.435 12.1458333"></polyline>
+            <circle id="Oval" stroke-width="1.5" stroke-linejoin="round" cx="11" cy="11" r="11"></circle>
+        </g>
+    </g>
 </svg>

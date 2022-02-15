@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/32x32/infocircle_32_purple</title>
+    <g id="icone/32x32/infocircle_32_purple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <path d="M17.2,10.7082759 C17.2,11.3703448 16.6537931,11.9 15.9917241,11.9 C15.3296552,11.9 14.8,11.3703448 14.8,10.7082759 C14.8,10.0462069 15.3296552,9.5 15.9917241,9.5 C16.6537931,9.5 17.2,10.0462069 17.2,10.7082759 Z M18,21.5 L14,21.5 L14,20.0691057 L15.1186441,20.0691057 L15.1186441,14.9308943 L14,14.9308943 L14,13.5 L16.9661017,13.5 L16.9661017,20.0691057 L18,20.0691057 L18,21.5 Z" id="i" fill="#1E1169" fill-rule="nonzero"></path>
+        <circle id="Oval" stroke="#1E1169" stroke-width="1.5" cx="16" cy="16" r="11.25"></circle>
+    </g>
+</svg>

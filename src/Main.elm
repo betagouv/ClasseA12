@@ -10,12 +10,15 @@ import Json.Encode as Encode
 import Page.About as About
 import Page.Activate as Activate
 import Page.Admin as Admin
+import Page.AllNews as AllNews
+import Page.AllVideos as AllVideos
 import Page.CGU as CGU
 import Page.Comments as Comments
 import Page.Common.Components
 import Page.Convention as Convention
 import Page.Home as Home
 import Page.Login as Login
+import Page.News as News
 import Page.Participate as Participate
 import Page.PrivacyPolicy as PrivacyPolicy
 import Page.Profile as Profile
@@ -39,7 +42,10 @@ type alias Flags =
 
 type Page
     = HomePage Home.Model
+    | AllVideosPage AllVideos.Model
     | VideoListPage VideoList.Model
+    | AllNewsPage AllNews.Model
+    | NewsPage News.Model
     | AboutPage About.Model
     | ParticipatePage Participate.Model
     | CGUPage CGU.Model
@@ -69,7 +75,10 @@ type alias Model =
 
 type Msg
     = HomeMsg Home.Msg
+    | AllVideosMsg AllVideos.Msg
     | VideoListMsg VideoList.Msg
+    | AllNewsMsg AllNews.Msg
+    | NewsMsg News.Msg
     | AboutMsg About.Msg
     | ParticipateMsg Participate.Msg
     | CGUMsg CGU.Msg
@@ -87,6 +96,7 @@ type Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | AdjustTimeZone Time.Zone
+    | ToggleSearchForm
     | UpdateSearch String
     | SubmitSearch
     | OpenMenu
@@ -127,8 +137,17 @@ setRoute url oldModel =
         Just Route.Home ->
             toPage HomePage Home.init HomeMsg
 
+        Just Route.AllVideos ->
+            toPage AllVideosPage AllVideos.init AllVideosMsg
+
         Just (Route.VideoList query) ->
             toPage VideoListPage (VideoList.init query) VideoListMsg
+
+        Just Route.AllNews ->
+            toPage AllNewsPage AllNews.init AllNewsMsg
+
+        Just (Route.News postID) ->
+            toPage NewsPage (News.init postID) NewsMsg
 
         Just Route.About ->
             toPage AboutPage About.init AboutMsg
@@ -223,6 +242,7 @@ init flags url navKey =
             , prevUrl = url
             , userToken = userToken
             , userInfo = userInfo
+            , searchFormOpened = False
             , search = ""
             , isMenuOpened = False
             }
@@ -269,8 +289,17 @@ update msg ({ page, session } as model) =
         ( HomeMsg homeMsg, HomePage homeModel ) ->
             toPage HomePage HomeMsg (Home.update session) homeMsg homeModel
 
+        ( AllVideosMsg allVideosMsg, AllVideosPage allVideosModel ) ->
+            toPage AllVideosPage AllVideosMsg (AllVideos.update session) allVideosMsg allVideosModel
+
         ( VideoListMsg videoListMsg, VideoListPage videoListModel ) ->
             toPage VideoListPage VideoListMsg (VideoList.update session) videoListMsg videoListModel
+
+        ( AllNewsMsg allNewsMsg, AllNewsPage allNewsModel ) ->
+            toPage AllNewsPage AllNewsMsg (AllNews.update session) allNewsMsg allNewsModel
+
+        ( NewsMsg newsMsg, NewsPage newsModel ) ->
+            toPage NewsPage NewsMsg (News.update session) newsMsg newsModel
 
         ( AboutMsg aboutMsg, AboutPage aboutModel ) ->
             toPage AboutPage AboutMsg (About.update session) aboutMsg aboutModel
@@ -350,6 +379,13 @@ update msg ({ page, session } as model) =
             in
             ( { model | session = { modelSession | timezone = zone } }, Cmd.none )
 
+        ( ToggleSearchForm, _ ) ->
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | searchFormOpened = not modelSession.searchFormOpened } }, Cmd.none )
+
         ( UpdateSearch search, _ ) ->
             let
                 modelSession =
@@ -358,7 +394,17 @@ update msg ({ page, session } as model) =
             ( { model | session = { modelSession | search = search } }, Cmd.none )
 
         ( SubmitSearch, _ ) ->
-            ( model, Route.pushUrl model.navKey (Route.VideoList <| Route.Search model.session.search) )
+            let
+                modelSession =
+                    model.session
+            in
+            ( { model | session = { modelSession | searchFormOpened = not modelSession.searchFormOpened } }
+            , if model.session.search /= "" then
+                Route.pushUrl model.navKey (Route.VideoList <| Route.Search model.session.search)
+
+              else
+                Route.pushUrl model.navKey Route.AllVideos
+            )
 
         ( OpenMenu, _ ) ->
             let
@@ -396,7 +442,16 @@ subscriptions model =
             HomePage _ ->
                 Sub.none
 
+            AllVideosPage _ ->
+                Sub.none
+
             VideoListPage _ ->
+                Sub.none
+
+            AllNewsPage _ ->
+                Sub.none
+
+            NewsPage _ ->
                 Sub.none
 
             AboutPage _ ->
@@ -465,7 +520,7 @@ view : Model -> Document Msg
 view model =
     let
         pageConfig =
-            Page.Config model.session UpdateSearch SubmitSearch OpenMenu CloseMenu
+            Page.Config model.session ToggleSearchForm UpdateSearch SubmitSearch OpenMenu CloseMenu
 
         mapMsg : (msg -> Msg) -> Page.Common.Components.Document msg -> Page.Common.Components.Document Msg
         mapMsg msg { title, pageTitle, pageSubTitle, body } =
@@ -479,82 +534,97 @@ view model =
         HomePage homeModel ->
             Home.view model.session homeModel
                 |> mapMsg HomeMsg
-                |> Page.frame (pageConfig Page.Home)
+                |> Page.frame Page.HomeFrame (pageConfig Page.Home)
+
+        AllVideosPage allVideosModel ->
+            AllVideos.view model.session allVideosModel
+                |> mapMsg AllVideosMsg
+                |> Page.frame Page.VideoFrame (pageConfig Page.AllVideos)
 
         VideoListPage videoListModel ->
             VideoList.view model.session videoListModel
                 |> mapMsg VideoListMsg
-                |> Page.frame (pageConfig <| Page.VideoList videoListModel.query)
+                |> Page.frame Page.VideoFrame (pageConfig <| Page.VideoList videoListModel.query)
+
+        AllNewsPage allNewsModel ->
+            AllNews.view model.session allNewsModel
+                |> mapMsg AllNewsMsg
+                |> Page.frame Page.NewsFrame (pageConfig Page.AllNews)
+
+        NewsPage newsModel ->
+            News.view model.session newsModel
+                |> mapMsg NewsMsg
+                |> Page.frame Page.NewsFrame (pageConfig Page.News)
 
         AboutPage aboutModel ->
             About.view model.session aboutModel
                 |> mapMsg AboutMsg
-                |> Page.frame (pageConfig Page.About)
+                |> Page.frame Page.AboutFrame (pageConfig Page.About)
 
         ParticipatePage participateModel ->
             Participate.view model.session participateModel
                 |> mapMsg ParticipateMsg
-                |> Page.frame (pageConfig Page.Participate)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Participate)
 
         CGUPage cguModel ->
             CGU.view model.session cguModel
                 |> mapMsg CGUMsg
-                |> Page.frame (pageConfig Page.CGU)
+                |> Page.frame Page.AboutFrame (pageConfig Page.CGU)
 
         ConventionPage conventionModel ->
             Convention.view model.session conventionModel
                 |> mapMsg ConventionMsg
-                |> Page.frame (pageConfig Page.Convention)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Convention)
 
         PrivacyPolicyPage privacyPolicyModel ->
             PrivacyPolicy.view model.session privacyPolicyModel
                 |> mapMsg PrivacyPolicyMsg
-                |> Page.frame (pageConfig Page.PrivacyPolicy)
+                |> Page.frame Page.AboutFrame (pageConfig Page.PrivacyPolicy)
 
         AdminPage adminModel ->
             Admin.view model.session adminModel
                 |> mapMsg AdminMsg
-                |> Page.frame (pageConfig Page.Admin)
+                |> Page.frame Page.VideoFrame (pageConfig Page.Admin)
 
         VideoPage videoModel ->
             Video.view model.session videoModel
                 |> mapMsg VideoMsg
-                |> Page.frame (pageConfig Page.Video)
+                |> Page.frame Page.VideoFrame (pageConfig Page.Video)
 
         LoginPage loginModel ->
             Login.view model.session loginModel
                 |> mapMsg LoginMsg
-                |> Page.frame (pageConfig Page.Login)
+                |> Page.frame Page.ProfileFrame (pageConfig Page.Login)
 
         RegisterPage registerModel ->
             Register.view model.session registerModel
                 |> mapMsg RegisterMsg
-                |> Page.frame (pageConfig Page.Register)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Register)
 
         ResetPasswordPage resetPasswordModel ->
             ResetPassword.view model.session resetPasswordModel
                 |> mapMsg ResetPasswordMsg
-                |> Page.frame (pageConfig Page.ResetPassword)
+                |> Page.frame Page.AboutFrame (pageConfig Page.ResetPassword)
 
         SetNewPasswordPage setNewPasswordModel ->
             SetNewPassword.view model.session setNewPasswordModel
                 |> mapMsg SetNewPasswordMsg
-                |> Page.frame (pageConfig Page.SetNewPassword)
+                |> Page.frame Page.AboutFrame (pageConfig Page.SetNewPassword)
 
         ActivatePage activateModel ->
             Activate.view model.session activateModel
                 |> mapMsg ActivateMsg
-                |> Page.frame (pageConfig Page.Activate)
+                |> Page.frame Page.AboutFrame (pageConfig Page.Activate)
 
         ProfilePage profileModel ->
             Profile.view model.session profileModel
                 |> mapMsg ProfileMsg
-                |> Page.frame (pageConfig Page.Profile)
+                |> Page.frame Page.ProfileFrame (pageConfig Page.Profile)
 
         CommentsPage commentsModel ->
             Comments.view model.session commentsModel
                 |> mapMsg CommentsMsg
-                |> Page.frame (pageConfig Page.Comments)
+                |> Page.frame Page.VideoFrame (pageConfig Page.Comments)
 
         NotFound ->
             let
@@ -566,7 +636,7 @@ view model =
             , pageSubTitle = title
             , body = [ Html.text title ]
             }
-                |> Page.frame (pageConfig Page.NotFound)
+                |> Page.frame Page.AboutFrame (pageConfig Page.NotFound)
 
 
 

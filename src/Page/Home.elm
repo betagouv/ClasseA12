@@ -1,103 +1,55 @@
 module Page.Home exposing (Model, Msg(..), init, update, view)
 
+import Data.News
 import Data.PeerTube
 import Data.Session exposing (Session)
-import Dict
 import Html as H
-import Html.Attributes as HA
+import Html.Attributes as HA exposing (class)
 import Http
+import Page.AllNews exposing (viewPost)
 import Page.Common.Components
 import Page.Common.Video
+import RemoteData exposing (RemoteData(..), WebData)
+import Request.News exposing (getPostList)
 import Request.PeerTube
 import Route
 
 
 type alias Model =
     { title : String
-    , search : String
-    , recentVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , playlistVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
-    , faqFlashVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
-    , playlistTitle : String
-    , videoData : Dict.Dict String (Data.PeerTube.RemoteData (List Data.PeerTube.Video))
+    , postList : WebData (List Data.News.Post)
     }
 
 
 type Msg
-    = UpdateSearch String
-    | RecentVideoListReceived (Result Http.Error (List Data.PeerTube.Video))
-    | PlaylistVideoListReceived (Result Http.Error ( String, List Data.PeerTube.Video ))
-    | FAQFlashVideoListReceived (Result Http.Error (List Data.PeerTube.Video))
-    | VideoListReceived String (Result Http.Error (List Data.PeerTube.Video))
+    = PlaylistVideoListReceived (Result Http.Error ( String, List Data.PeerTube.Video ))
+    | PostListReceived (WebData (List Data.News.Post))
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( { title = "Échangeons nos pratiques pédagogiques en vidéo"
-      , search = ""
-      , recentVideoData = Data.PeerTube.Requested
       , playlistVideoData = Data.PeerTube.Requested
-      , faqFlashVideoData = Data.PeerTube.Requested
-      , playlistTitle = ""
-      , videoData =
-            Data.PeerTube.keywordList
-                |> List.foldl
-                    (\keyword videoData ->
-                        videoData
-                            |> Dict.insert keyword Data.PeerTube.Requested
-                    )
-                    Dict.empty
+      , postList = Loading
       }
     , Cmd.batch
-        ([ Request.PeerTube.getVideoList
-            Request.PeerTube.emptyVideoListParams
-            session.peerTubeURL
-            RecentVideoListReceived
-         , Request.PeerTube.getPlaylistVideoList
+        [ Request.PeerTube.getPlaylistVideoList
             "classea12"
             Request.PeerTube.emptyVideoListParams
             session.peerTubeURL
             PlaylistVideoListReceived
-         , Request.PeerTube.getSpecificPlaylistVideoList
-            "FAQ Flash"
-            "classea12"
-            Request.PeerTube.emptyVideoListParams
-            session.peerTubeURL
-            FAQFlashVideoListReceived
-         ]
-            ++ (Data.PeerTube.keywordList
-                    |> List.map
-                        (\keyword ->
-                            let
-                                videoListParams =
-                                    Request.PeerTube.emptyVideoListParams
-                                        |> Request.PeerTube.withKeyword keyword
-                            in
-                            Request.PeerTube.getVideoList videoListParams session.peerTubeURL (VideoListReceived keyword)
-                        )
-               )
-        )
+        , getPostList PostListReceived
+        ]
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
 update _ msg model =
     case msg of
-        UpdateSearch newSearch ->
-            ( { model | search = newSearch }, Cmd.none )
-
-        RecentVideoListReceived (Ok videoList) ->
-            ( { model | recentVideoData = Data.PeerTube.Received videoList }
-            , Cmd.none
-            )
-
-        RecentVideoListReceived (Err _) ->
-            ( { model | recentVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos récentes" }, Cmd.none )
-
-        PlaylistVideoListReceived (Ok ( playlistTitle, videoList )) ->
+        PlaylistVideoListReceived (Ok ( _, videoList )) ->
             ( { model
                 | playlistVideoData = Data.PeerTube.Received videoList
-                , playlistTitle = playlistTitle
               }
             , Cmd.none
             )
@@ -105,110 +57,153 @@ update _ msg model =
         PlaylistVideoListReceived (Err _) ->
             ( { model | playlistVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos de la playlist" }, Cmd.none )
 
-        FAQFlashVideoListReceived (Ok videoList) ->
-            ( { model
-                | faqFlashVideoData = Data.PeerTube.Received videoList
-              }
-            , Cmd.none
-            )
-
-        FAQFlashVideoListReceived (Err _) ->
-            ( { model | faqFlashVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos de la playlist FAQ Flash" }, Cmd.none )
-
-        VideoListReceived keyword (Ok videoList) ->
-            ( { model
-                | videoData =
-                    Dict.insert
-                        keyword
-                        (Data.PeerTube.Received videoList)
-                        model.videoData
-              }
-            , Cmd.none
-            )
-
-        VideoListReceived keyword (Err _) ->
-            ( { model
-                | videoData =
-                    Dict.insert
-                        keyword
-                        (Data.PeerTube.Failed "Échec de la récupération des vidéos")
-                        model.videoData
-              }
-            , Cmd.none
-            )
+        PostListReceived data ->
+            ( { model | postList = data }, Cmd.none )
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle, faqFlashVideoData, videoData } =
-    let
-        viewRecentVideo =
-            [ H.section [ HA.class "category", HA.id "latest" ]
-                [ H.div [ HA.class "home-title_wrapper" ]
-                    [ H.h3 [ HA.class "home-title" ]
-                        [ H.text "Les nouveautés"
-                        ]
-                    , H.a [ Route.href <| Route.VideoList Route.Latest ]
-                        [ H.text "Toutes les vidéos récentes"
-                        ]
-                    ]
-                , Page.Common.Video.viewVideoListData recentVideoData peerTubeURL
-                ]
-            ]
-
-        viewPlaylistVideo =
-            let
-                playlistName =
-                    if playlistTitle /= "" then
-                        " : " ++ playlistTitle
-
-                    else
-                        ""
-            in
-            [ H.section [ HA.class "category", HA.id "playlist" ]
-                [ H.div [ HA.class "home-title_wrapper" ]
-                    [ H.h3 [ HA.class "home-title" ]
-                        [ H.text <| "La playlist de la semaine" ++ playlistName
-                        ]
-                    , H.a [ Route.href <| Route.VideoList Route.Playlist ]
-                        [ H.text "Toutes les vidéos de la playlist"
-                        ]
-                    ]
-                , Page.Common.Video.viewVideoListData playlistVideoData peerTubeURL
-                ]
-            ]
-
-        viewFAQFlash =
-            [ H.section [ HA.class "category", HA.id "latest" ]
-                [ H.div [ HA.class "home-title_wrapper" ]
-                    [ H.h3 [ HA.class "home-title" ]
-                        [ H.text "FAQ Flash"
-                        ]
-                    , H.a [ Route.href <| Route.VideoList Route.FAQFlash ]
-                        [ H.text "Toutes les vidéos de la FAQ Flash"
-                        ]
-                    ]
-                , Page.Common.Video.viewVideoListData faqFlashVideoData peerTubeURL
-                ]
-            ]
-
-        viewVideoCategories =
-            Data.PeerTube.keywordList
-                |> List.map
-                    (\keyword ->
-                        let
-                            videoListData =
-                                Dict.get keyword videoData
-                                    |> Maybe.withDefault Data.PeerTube.NotRequested
-                        in
-                        Page.Common.Video.viewCategory videoListData peerTubeURL <| Route.Search keyword
-                    )
-    in
+view { peerTubeURL } { title, playlistVideoData, postList } =
     { title = title
     , pageTitle = "Classe à 12 en vidéo"
     , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
     , body =
-        viewRecentVideo
-            ++ viewPlaylistVideo
-            ++ viewFAQFlash
-            ++ viewVideoCategories
+        [ viewHeader
+        , viewPlaylistVideo peerTubeURL playlistVideoData
+        , viewParticipate
+        , viewNews postList
+        ]
     }
+
+
+viewHeader : H.Html Msg
+viewHeader =
+    H.section [ HA.class "home__intro" ]
+        [ H.div []
+            [ H.img
+                [ HA.src "%PUBLIC_URL%/images/logos/classea12-dark.svg"
+                , HA.alt ""
+                , HA.class "logo"
+                ]
+                []
+            , H.h1 []
+                [ H.text "La communauté vidéo"
+                , H.span [] [ H.text "des enseignants en classe dédoublée" ]
+                ]
+            , H.p [] [ H.text "Chaque semaine, des enseignants de classes dédoublées partagent leurs idées pédagogiques, ateliers, bonnes pratiques dans des formats vidéos courts." ]
+            , H.a [ HA.class "btn", Route.href Route.AllVideos ] [ H.text "Découvrez les vidéos pédagogiques" ]
+            , H.a [ Route.href Route.About ] [ H.text "Découvrez Classe à 12" ]
+            ]
+        , H.div [ HA.class "home__intro-logos" ]
+            [ H.img
+                [ HA.src "%PUBLIC_URL%/images/logos/ecoleconfiance.svg"
+                , HA.alt ""
+                , HA.class "logo-ecoleconfiance"
+                ]
+                []
+            , H.img
+                [ HA.src "%PUBLIC_URL%/images/logos/110bis.svg"
+                , HA.alt ""
+                , HA.class "logo-110bis"
+                ]
+                []
+            ]
+        ]
+
+
+viewPlaylistVideo : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> H.Html Msg
+viewPlaylistVideo peerTubeURL playlistVideoData =
+    H.section [ HA.class "home__category wrapper", HA.id "playlist" ]
+        [ H.h2 []
+            [ H.img
+                [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg"
+                , HA.alt ""
+                ]
+                []
+            , H.text "Les vidéos à la une"
+            ]
+        , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL
+        , H.a [ Route.href Route.AllVideos ]
+            [ H.text "Voir toutes les vidéos"
+            ]
+        ]
+
+
+viewParticipate : H.Html Msg
+viewParticipate =
+    H.section [ HA.class "home__participate" ]
+        [ H.div [ class "wrapper" ]
+            [ H.h2 []
+                [ H.text "Et si vous participiez à cette belle aventure ?"
+                ]
+            , H.div [ class "home__participate-content" ]
+                [ H.div []
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/gestion-de-classe_48_bicolore.svg" ] []
+                    , H.h3 [] [ H.text "Une communauté d’enseignants, pour les enseignants" ]
+                    ]
+                , H.div []
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/share_48_bicolore.svg" ] []
+                    , H.h3 [] [ H.text "Un partage d’expériences, de pratiques et de bonnes idées" ]
+                    ]
+                , H.div []
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/compte_48_bicolore.svg" ] []
+                    , H.h3 [] [ H.text "Créez un compte totalement gratuit pour participer" ]
+                    ]
+                , H.div
+                    [ HA.class "home__participate-photos" ]
+                    [ H.div [ HA.class "about__image" ]
+                        [ H.img
+                            [ HA.src "%PUBLIC_URL%/images/photos/mobile.jpg"
+                            , HA.alt ""
+                            ]
+                            []
+                        ]
+                    , H.div [ HA.class "about__image" ]
+                        [ H.img
+                            [ HA.src "%PUBLIC_URL%/images/photos/equipe.jpg"
+                            , HA.alt ""
+                            ]
+                            []
+                        ]
+                    , H.div [ HA.class "about__image" ]
+                        [ H.img
+                            [ HA.src "%PUBLIC_URL%/images/photos/groupe.jpg"
+                            , HA.alt ""
+                            ]
+                            []
+                        ]
+                    ]
+                ]
+            ]
+        , H.div [ HA.class "center-wrapper" ]
+            [ H.a [ class "btn btn--secondary", HA.href "#" ] [ H.text "Rejoignez la communauté" ]
+            ]
+        ]
+
+
+viewNews : WebData (List Data.News.Post) -> H.Html Msg
+viewNews postList =
+    H.section [ HA.class "home__category wrapper" ]
+        [ H.h2 []
+            [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
+            , H.text "L’actualité de Classe à 12"
+            ]
+        , case postList of
+            Loading ->
+                H.text "Chargement en cours..."
+
+            Success posts ->
+                H.div [ HA.class "news" ]
+                    (posts
+                        |> List.take 2
+                        |> List.map viewPost
+                    )
+
+            Failure _ ->
+                H.text "Erreur lors du chargement des actualités"
+
+            NotAsked ->
+                H.text "Erreur"
+        , H.a [ Route.href Route.AllNews ]
+            [ H.text "Voir toutes les actualités"
+            ]
+        ]

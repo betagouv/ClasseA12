@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/24x24/download_24_purple</title>
+    <g id="icone/24x24/download_24_purple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="Download" transform="translate(3.799400, 5.297364)" stroke="#1E1169" stroke-width="1.5">
+            <polyline id="Shape" points="5.10376475 10.2029529 8.01642298 13.1156111 10.9290812 10.2029529"></polyline>
+            <line x1="8.01642298" y1="6.5621301" x2="8.01642298" y2="13.1156111" id="Shape"></line>
+            <path d="M14.4825242,10.9966523 C15.7816688,10.0830939 16.3387336,8.43282543 15.8590434,6.91880338 C15.3793533,5.40478132 13.9736055,4.37639412 12.3854103,4.37763643 L11.467923,4.37763643 C10.8681444,2.0401872 8.88926363,0.314541359 6.49193966,0.0384235556 C4.0946157,-0.237694248 1.77524376,0.992889554 0.659776235,3.13278101 C-0.45569129,5.27267246 -0.136283221,7.8787809 1.46294197,9.68595605" id="Shape"></path>
+        </g>
+    </g>
+</svg>

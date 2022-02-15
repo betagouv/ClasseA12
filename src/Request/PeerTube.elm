@@ -33,6 +33,8 @@ module Request.PeerTube exposing
     , updateUserAccount
     , urlFromVideoListParams
     , userPublishedVideoList
+    , videoListRequest
+    , withCount
     , withKeyword
     , withKeywords
     )
@@ -62,6 +64,7 @@ import Http
 import Json.Decode as Decode
 import Json.Decode.Pipeline as Pipeline
 import Json.Encode as Encode
+import Route exposing (Route(..))
 import Task
 import Url
 
@@ -107,6 +110,11 @@ withKeywords : List String -> VideoListParams -> VideoListParams
 withKeywords keywords videoListParams =
     keywords
         |> List.foldl withKeyword videoListParams
+
+
+withCount : Int -> VideoListParams -> VideoListParams
+withCount newCount videoListParams =
+    { videoListParams | count = newCount }
 
 
 loadMoreVideos : VideoListParams -> VideoListParams

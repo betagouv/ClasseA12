@@ -322,12 +322,12 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
         , case query of
             Route.Latest ->
                 H.section [ HA.class "category", HA.id "latest" ]
-                    [ H.div [ HA.class "home-title_wrapper" ]
-                        [ H.h3 [ HA.class "home-title" ]
+                    [ H.div [ HA.class "title_wrapper" ]
+                        [ H.h2 [ HA.class "title" ]
                             [ H.text "Les nouveautés"
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
                     ]
 
             Route.Playlist ->
@@ -340,62 +340,62 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             ""
                 in
                 H.section [ HA.class "category", HA.id "playlist" ]
-                    [ H.div [ HA.class "home-title_wrapper" ]
-                        [ H.h3 [ HA.class "home-title" ]
+                    [ H.div [ HA.class "title_wrapper" ]
+                        [ H.h2 [ HA.class "title" ]
                             [ H.text <| "La playlist de la semaine" ++ playlistName
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
                     ]
 
             Route.FAQFlash ->
                 H.section [ HA.class "category", HA.id "playlist" ]
-                    [ H.div [ HA.class "home-title_wrapper" ]
-                        [ H.h3 [ HA.class "home-title" ]
+                    [ H.div [ HA.class "title_wrapper" ]
+                        [ H.h2 [ HA.class "title" ]
                             [ H.text "FAQ Flash"
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
                     ]
 
             Route.Keyword keyword ->
                 H.section [ HA.class "category", HA.id "keyword" ]
-                    [ H.div [ HA.class "home-title_wrapper" ]
-                        [ H.h3 [ HA.class "home-title" ]
-                            [ H.text <| "Les vidéos dans la catégorie " ++ keyword
+                    [ H.div [ HA.class "title_wrapper" ]
+                        [ H.h2 [ HA.class "title" ]
+                            [ H.text <| "Vidéos : " ++ keyword
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
                     ]
 
             Route.Search search ->
                 H.section [ HA.class "category", HA.id "search" ]
-                    [ H.div [ HA.class "home-title_wrapper" ]
-                        [ H.h3 [ HA.class "home-title" ]
+                    [ H.div [ HA.class "title_wrapper" ]
+                        [ H.h3 [ HA.class "title" ]
                             [ H.text <| "Les vidéos pour la recherche : " ++ search
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
                     ]
 
             Route.Favorites profile ->
                 H.section [ HA.class "category", HA.id "playlist" ]
-                    [ H.div [ HA.class "home-title_wrapper" ]
-                        [ H.h3 [ HA.class "home-title" ]
+                    [ H.div [ HA.class "title_wrapper" ]
+                        [ H.h3 [ HA.class "title" ]
                             [ H.text <| "Les vidéos favorites de " ++ profile
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
                     ]
 
             Route.Published profile ->
                 H.section [ HA.class "category", HA.id "playlist" ]
-                    [ H.div [ HA.class "home-title_wrapper" ]
-                        [ H.h3 [ HA.class "home-title" ]
+                    [ H.div [ HA.class "title_wrapper" ]
+                        [ H.h2 [ HA.class "title" ]
                             [ H.text <| "Les vidéos publiées par " ++ profile
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
                     ]
         , case loadMoreState of
             Page.Common.Components.Disabled ->

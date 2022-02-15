@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/32x32/keywords_32_purple</title>
+    <g id="icone/32x32/keywords_32_purple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g id="Group" transform="translate(4.000000, 7.500000)" stroke="#1E1169" stroke-width="2">
+            <line x1="8" y1="0.5" x2="22" y2="0.5" id="Line-4"></line>
+            <line x1="3" y1="8.5" x2="18" y2="8.5" id="Line-4-Copy"></line>
+            <line x1="8" y1="16.5" x2="22" y2="16.5" id="Line-4-Copy-2"></line>
+            <line x1="1.81906573e-12" y1="0.5" x2="2" y2="0.5" id="Line-4-Copy-3"></line>
+            <line x1="23" y1="8.5" x2="25" y2="8.5" id="Line-4-Copy-4"></line>
+            <line x1="1.81906573e-12" y1="16.5" x2="2" y2="16.5" id="Line-4-Copy-5"></line>
+        </g>
+    </g>
+</svg>

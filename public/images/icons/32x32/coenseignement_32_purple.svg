@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/32x32/coenseignement_32_purple</title>
+    <g id="icone/32x32/coenseignement_32_purple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-2" transform="translate(15.903127, 16.034373) rotate(-45.000000) translate(-15.903127, -16.034373) translate(5.014238, 9.034373)" stroke="#1E1169" stroke-width="1.2">
+            <circle id="Oval" cx="7" cy="7" r="7"></circle>
+            <circle id="Oval-Copy-2" cx="14.7777778" cy="7" r="7"></circle>
+        </g>
+        <g id="Group-3-Copy" transform="translate(24.472223, 25.025497) rotate(-180.000000) translate(-24.472223, -25.025497) translate(19.542455, 20.655705)" stroke="#1E1169" stroke-linecap="round">
+            <g id="Group" transform="translate(4.929767, 4.369791) rotate(-26.000000) translate(-4.929767, -4.369791) translate(0.844316, 1.500561)">
+                <path d="M4.06980224,0.0120973246 C2.58804214,1.46411545 1.66865908,3.48787301 1.66865908,5.726364" id="Oval-Copy-3" transform="translate(2.869231, 2.869231) rotate(-315.000000) translate(-2.869231, -2.869231) "></path>
+                <polyline id="Rectangle" transform="translate(6.756689, 1.718476) rotate(-45.000000) translate(-6.756689, -1.718476) " points="7.75668882 0.7184756 7.75668882 2.7184756 5.75668882 2.7184756"></polyline>
+            </g>
+        </g>
+        <g id="Group-3-Copy-2" transform="translate(7.527777, 6.974503) rotate(-360.000000) translate(-7.527777, -6.974503) translate(2.598010, 2.604712)" stroke="#1E1169" stroke-linecap="round">
+            <g id="Group" transform="translate(4.929767, 4.369791) rotate(-26.000000) translate(-4.929767, -4.369791) translate(0.844316, 1.500561)">
+                <path d="M4.06980224,0.0120973246 C2.58804214,1.46411545 1.66865908,3.48787301 1.66865908,5.726364" id="Oval-Copy-3" transform="translate(2.869231, 2.869231) rotate(-315.000000) translate(-2.869231, -2.869231) "></path>
+                <polyline id="Rectangle" transform="translate(6.756689, 1.718476) rotate(-45.000000) translate(-6.756689, -1.718476) " points="7.75668882 0.7184756 7.75668882 2.7184756 5.75668882 2.7184756"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,16 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <g fill="none" fill-rule="evenodd">
-    <g stroke="#FFF" stroke-width="1.2" transform="rotate(-45 24.301 5.464)">
-      <circle cx="7" cy="7" r="7"/>
-      <circle cx="14.778" cy="7" r="7"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/32x32/coenseignement_32_white</title>
+    <g id="icone/32x32/coenseignement_32_white" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-2" transform="translate(15.937500, 16.000000) rotate(-45.000000) translate(-15.937500, -16.000000) translate(5.000000, 9.000000)" stroke="#FFFFFF" stroke-width="1.2">
+            <circle id="Oval" cx="7" cy="7" r="7"></circle>
+            <circle id="Oval-Copy-2" cx="14.7777778" cy="7" r="7"></circle>
+        </g>
+        <g id="Group-3-Copy" transform="translate(24.000000, 25.000000) rotate(-180.000000) translate(-24.000000, -25.000000) translate(18.000000, 20.000000)" stroke="#FFFFFF" stroke-linecap="round">
+            <g id="Group" transform="translate(5.719186, 4.949397) rotate(-26.000000) translate(-5.719186, -4.949397) translate(1.219186, 1.949397)">
+                <path d="M4.30130858,0.0815244003 C2.81954849,1.53354252 1.90016543,3.55730009 1.90016543,5.79579107" id="Oval-Copy-3" transform="translate(3.100737, 2.938658) rotate(-315.000000) translate(-3.100737, -2.938658) "></path>
+                <polyline id="Rectangle" transform="translate(6.988195, 1.787903) rotate(-45.000000) translate(-6.988195, -1.787903) " points="7.98819517 0.787902675 7.98819517 2.78790268 5.98819517 2.78790268"></polyline>
+            </g>
+        </g>
+        <g id="Group-3-Copy-2" transform="translate(8.000000, 7.000000) rotate(-360.000000) translate(-8.000000, -7.000000) translate(2.000000, 2.000000)" stroke="#FFFFFF" stroke-linecap="round">
+            <g id="Group" transform="translate(5.719186, 4.949397) rotate(-26.000000) translate(-5.719186, -4.949397) translate(1.219186, 1.949397)">
+                <path d="M4.30130858,0.0815244003 C2.81954849,1.53354252 1.90016543,3.55730009 1.90016543,5.79579107" id="Oval-Copy-3" transform="translate(3.100737, 2.938658) rotate(-315.000000) translate(-3.100737, -2.938658) "></path>
+                <polyline id="Rectangle" transform="translate(6.988195, 1.787903) rotate(-45.000000) translate(-6.988195, -1.787903) " points="7.98819517 0.787902675 7.98819517 2.78790268 5.98819517 2.78790268"></polyline>
+            </g>
+        </g>
     </g>
-    <g stroke="#FFF" stroke-linecap="round" transform="rotate(154 11.845 16.309)">
-      <path d="M4.30130858,0.0815244003 C2.81954849,1.53354252 1.90016543,3.55730009 1.90016543,5.79579107" transform="rotate(45 3.1 2.939)"/>
-      <polyline points="7.988 .788 7.988 2.788 5.988 2.788" transform="rotate(-45 6.988 1.788)"/>
-    </g>
-    <g stroke="#FFF" stroke-linecap="round" transform="rotate(-26 14.663 -1.997)">
-      <path d="M4.30130858,0.0815244003 C2.81954849,1.53354252 1.90016543,3.55730009 1.90016543,5.79579107" transform="rotate(45 3.1 2.939)"/>
-      <polyline points="7.988 .788 7.988 2.788 5.988 2.788" transform="rotate(-45 6.988 1.788)"/>
-    </g>
-  </g>
 </svg>

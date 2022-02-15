@@ -1,1 +1,7 @@
-<svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg"><path d="m6 3 5 5-5 5" fill="none" stroke="#1e1169" stroke-linecap="round"/></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/16x16/arrow_left_16_purple</title>
+    <g id="icone/16x16/arrow_left_16_purple" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <polyline id="Path-2-Copy-2" stroke="#1E1169" stroke-width="1.5" points="6 3 11 8 6 13"></polyline>
+    </g>
+</svg>

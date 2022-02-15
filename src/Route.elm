@@ -11,7 +11,10 @@ import Url.Parser.Query as Query
 
 type Route
     = Home
+    | AllVideos
     | VideoList VideoListQuery
+    | AllNews
+    | News String
     | About
     | Participate
     | CGU
@@ -53,11 +56,14 @@ parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
         [ Parser.map Home Parser.top
+        , Parser.map AllVideos (Parser.s "videos")
         , Parser.map (VideoList Latest) (Parser.s "videos-recentes")
         , Parser.map (VideoList FAQFlash) (Parser.s "videos-faq-flash")
         , Parser.map (VideoList Playlist) (Parser.s "videos-playlist")
         , Parser.map (\search -> VideoList <| Keyword search) (Parser.s "videos" </> Parser.string)
         , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos-recherche" </> Parser.string)
+        , Parser.map AllNews (Parser.s "actualites")
+        , Parser.map News (Parser.s "actualites" </> Parser.string)
         , Parser.map About (Parser.s "apropos")
         , Parser.map Participate (Parser.s "participer")
         , Parser.map CGU (Parser.s "CGU")
@@ -133,6 +139,9 @@ toString route =
                 Home ->
                     []
 
+                AllVideos ->
+                    [ "videos" ]
+
                 VideoList query ->
                     case query of
                         Latest ->
@@ -155,6 +164,14 @@ toString route =
 
                         Published profile ->
                             [ "profil", Url.percentEncode profile, "publiees" ]
+
+                AllNews ->
+                    [ "actualites" ]
+
+                News newsID ->
+                    [ "actualites"
+                    , newsID
+                    ]
 
                 About ->
                     [ "apropos" ]

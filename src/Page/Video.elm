@@ -1,15 +1,15 @@
 module Page.Video exposing (Model, Msg(..), init, update, view)
 
-import Array
 import Browser.Dom as Dom
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H
-import Html.Attributes as HA
+import Html.Attributes as HA exposing (class)
 import Html.Events as HE
 import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
+import List.Extra
 import Markdown
 import Page.Common.Components as Components
 import Page.Common.Dates as Dates
@@ -18,10 +18,9 @@ import Page.Common.Progress
 import Page.Common.Video
 import Page.Common.XHR
 import Ports
-import Request.Files
+import Request.Files exposing (Attachment)
 import Request.PeerTube
 import Route
-import Set
 import Task
 import Url exposing (Url)
 
@@ -40,6 +39,8 @@ type alias Model =
     , progress : Page.Common.Progress.Progress
     , attachmentList : List Attachment
     , relatedVideos : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
+    , numRelatedVideosToDisplay : Int
+    , loadMoreState : Components.ButtonState
     , notifications : Notifications.Model
     , activeTab : Tab
     , deletedVideo : Data.PeerTube.RemoteData ()
@@ -52,14 +53,6 @@ type alias Model =
 type Tab
     = ContributionTab
     | RelatedVideosTab
-
-
-type alias Attachment =
-    { commentID : String
-    , videoID : String
-    , filename : String
-    , url : String
-    }
 
 
 type FavoriteStatus
@@ -79,8 +72,9 @@ type Msg
     | AttachmentSelected
     | AttachmentSent Decode.Value
     | ProgressUpdated Decode.Value
-    | AttachmentListReceived (Result Http.Error (List String))
-    | RelatedVideosReceived (List String) (Result Http.Error (List Data.PeerTube.Video))
+    | AttachmentListReceived (Result (Maybe String) (List Attachment))
+    | RelatedVideosReceived (Result Http.Error (List (List Data.PeerTube.Video)))
+    | LoadMore
     | ActivateTab Tab
     | NotificationMsg Notifications.Msg
     | AskDeleteConfirmation
@@ -93,6 +87,11 @@ type Msg
     | AddToFavorite
     | AddedToFavoriteReceived (Request.PeerTube.PeerTubeResult Data.PeerTube.FavoriteData)
     | NoOp
+
+
+numRelatedVideos : Int
+numRelatedVideos =
+    3
 
 
 init : String -> String -> Session -> ( Model, Cmd Msg )
@@ -119,6 +118,8 @@ init videoID videoTitle session =
       , progress = Page.Common.Progress.empty
       , attachmentList = []
       , relatedVideos = Data.PeerTube.NotRequested
+      , numRelatedVideosToDisplay = numRelatedVideos
+      , loadMoreState = Components.NotLoading
       , notifications = Notifications.init
       , activeTab = ContributionTab
       , deletedVideo = Data.PeerTube.NotRequested
@@ -149,12 +150,20 @@ update session msg model =
                 -- keywords, and then the ones which have one keyword in common.
                 -- This will be something like [[foo, bar], [foo], [bar]]
                 relatedVideosKeywordsToRequest =
-                    (video.tags
-                        :: (video.tags |> List.map List.singleton)
-                    )
-                        -- Make sure we don't have duplicated, eg for a video that has only one keyword.
-                        |> Set.fromList
-                        |> Set.toList
+                    List.foldl
+                        (\keyword acc ->
+                            -- Make sure we don't have duplicates, for exemple if there's a single keyword
+                            if not (List.member [ keyword ] acc) then
+                                [ keyword ] :: acc
+
+                            else
+                                acc
+                        )
+                        -- Start with the full list of keywords
+                        [ video.tags ]
+                        video.tags
+                        -- We want the full list of keywords first, it's the most representative of related videos
+                        |> List.reverse
 
                 relatedVideosCommands =
                     relatedVideosKeywordsToRequest
@@ -163,9 +172,16 @@ update session msg model =
                                 let
                                     params =
                                         Request.PeerTube.withKeywords keywords Request.PeerTube.emptyVideoListParams
+                                            |> Request.PeerTube.withCount 20
                                 in
-                                Request.PeerTube.getVideoList params session.peerTubeURL (RelatedVideosReceived keywords)
+                                Request.PeerTube.videoListRequest params session.peerTubeURL
+                                    -- Get the task ...
+                                    |> Http.toTask
                             )
+                        -- ... then make a single task from the list of tasks
+                        |> Task.sequence
+                        -- ... and finally transform that into a command
+                        |> Task.attempt RelatedVideosReceived
 
                 favoriteStatusCommand =
                     case session.userToken of
@@ -181,8 +197,8 @@ update session msg model =
               }
             , Cmd.batch
                 ([ scrollToComment session.url.fragment model
+                 , relatedVideosCommands
                  ]
-                    ++ relatedVideosCommands
                     ++ favoriteStatusCommand
                 )
             , Request.PeerTube.extractSessionMsg authResult
@@ -376,14 +392,7 @@ update session msg model =
             )
 
         AttachmentListReceived (Ok attachmentList) ->
-            let
-                attachments =
-                    attachmentList
-                        |> List.map (attachmentFromString session.filesURL)
-                        -- Remove the `Nothing`s and keep the `Just`s
-                        |> List.filterMap identity
-            in
-            ( { model | attachmentList = attachments }
+            ( { model | attachmentList = attachmentList }
             , Cmd.none
             , Nothing
             )
@@ -392,64 +401,67 @@ update session msg model =
             let
                 updatedModel =
                     case error of
-                        Http.BadStatus response ->
-                            if response.status.code == 404 then
-                                { model | attachmentList = [] }
-
-                            else
-                                { model
-                                    | notifications =
-                                        "Échec de la récupération des pièces jointes"
-                                            |> Notifications.addError model.notifications
-                                }
-
-                        _ ->
+                        Just errorMessage ->
                             { model
                                 | notifications =
-                                    "Échec de la récupération des pièces jointes"
+                                    errorMessage
                                         |> Notifications.addError model.notifications
                             }
+
+                        Nothing ->
+                            { model | attachmentList = [] }
             in
             ( updatedModel
             , Cmd.none
             , Nothing
             )
 
-        RelatedVideosReceived keywords (Ok videos) ->
+        RelatedVideosReceived (Ok videosLists) ->
             let
                 newVideos =
-                    videos
+                    videosLists
+                        -- Transform the list of "video lists" into a flat list
+                        |> List.concat
+                        -- Remove the current video from the list of suggestions
                         |> List.filter (\video -> video.uuid /= model.videoID)
-
-                relatedVideos =
-                    case model.relatedVideos of
-                        Data.PeerTube.Received previousVideoList ->
-                            if List.length keywords > 1 then
-                                -- More than one keyword? It must be results from the request with all the keywords
-                                -- so display those results first (they have more keywords in common)
-                                (newVideos ++ previousVideoList)
-                                    |> dedupVideos
-                                    |> Data.PeerTube.Received
-
-                            else
-                                (previousVideoList ++ newVideos)
-                                    |> dedupVideos
-                                    |> Data.PeerTube.Received
-
-                        _ ->
-                            Data.PeerTube.Received newVideos
+                        |> dedupVideos
             in
-            ( { model | relatedVideos = relatedVideos }
+            ( { model | relatedVideos = Data.PeerTube.Received newVideos }
             , Cmd.none
             , Nothing
             )
 
-        RelatedVideosReceived _ (Err _) ->
+        RelatedVideosReceived (Err _) ->
             ( { model
                 | relatedVideos = Data.PeerTube.Failed "Échec de la récupération des vidéos"
                 , notifications =
                     "Échec de la récupération des vidéos"
                         |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        LoadMore ->
+            let
+                newCount =
+                    model.numRelatedVideosToDisplay + numRelatedVideos
+
+                loadMoreState =
+                    case model.relatedVideos of
+                        Data.PeerTube.Received relatedVideos ->
+                            if newCount >= List.length relatedVideos then
+                                Components.Disabled
+
+                            else
+                                Components.NotLoading
+
+                        _ ->
+                            Components.NotLoading
+            in
+            ( { model
+                | numRelatedVideosToDisplay = model.numRelatedVideosToDisplay + numRelatedVideos
+                , loadMoreState = loadMoreState
               }
             , Cmd.none
             , Nothing
@@ -505,7 +517,7 @@ update session msg model =
             , Nothing
             )
 
-        VideoDeleted (Err err) ->
+        VideoDeleted (Err _) ->
             ( { model
                 | deletedVideo = Data.PeerTube.Failed "Échec de la suppression de la vidéo"
                 , notifications =
@@ -631,32 +643,6 @@ dedupVideos videos =
         |> List.reverse
 
 
-attachmentFromString : String -> String -> Maybe Attachment
-attachmentFromString baseURL str =
-    let
-        splitted =
-            String.split "/" str
-                |> Array.fromList
-
-        -- Get the element at the given index, and return an empty string otherwise.
-        get : Int -> Array.Array String -> String
-        get index array =
-            Array.get index array
-                |> Maybe.withDefault ""
-    in
-    if Array.length splitted == 4 then
-        -- The file url starts with a "/", so the first element in `splitted` is an empty string
-        Just
-            { videoID = get 1 splitted
-            , commentID = get 2 splitted
-            , filename = get 3 splitted
-            , url = baseURL ++ str
-            }
-
-    else
-        Nothing
-
-
 scrollToComment : Maybe String -> Model -> Cmd Msg
 scrollToComment maybeCommentID model =
     if model.comments /= Data.PeerTube.Requested && model.videoData /= Data.PeerTube.Requested then
@@ -678,7 +664,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, loadMoreState, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -725,7 +711,6 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
     , pageSubTitle = videoTitle
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
-        , viewBreadCrumbs videoData
         , H.section []
             (case deletedVideo of
                 Data.PeerTube.Received _ ->
@@ -760,7 +745,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                                 else
                                     ""
                             ]
-                            [ viewComments videoID comments attachmentList commentFormNode
+                            [ viewComments videoID comments attachmentList
                             ]
                         , H.div
                             [ HA.class <|
@@ -770,8 +755,11 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                                 else
                                     ""
                             ]
-                            [ viewRelatedVideos peerTubeURL relatedVideos
+                            [ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreState
                             ]
+                        ]
+                    , H.div []
+                        [ commentFormNode
                         ]
                     ]
             )
@@ -849,105 +837,74 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
 
-        shareUrl =
-            Url.toString url
-
-        navigatorShareButton =
-            if navigatorShare then
-                [ H.li []
-                    [ H.a
-                        [ HE.onClick <| ShareVideo shareText
-                        , HA.href "#"
-                        , HA.title "Partager la vidéo en utilisant une application"
-                        ]
-                        [ H.i [ HA.class "fas fa-share-alt fa-2x" ] [] ]
-                    ]
-                ]
-
-            else
-                []
-
-        shareButtons =
-            H.ul [ HA.class "social" ]
-                ([ H.li []
-                    [ H.a
-                        [ HA.href "https://www.facebook.com/sharer/sharer.php"
-                        , HA.title "Partager la vidéo par facebook"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/facebook_32_purple.svg" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href <| "http://twitter.com/share?text=" ++ shareText
-                        , HA.title "Partager la vidéo par twitter"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/twitter_32_white_purple.svg" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href <| "whatsapp://send?text=" ++ shareText ++ " : " ++ shareUrl
-                        , HA.property "data-action" (Encode.string "share/whatsapp/share")
-                        , HA.title "Partager la vidéo par whatsapp"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/whatsapp_32_purple.svg" ] [] ]
-                    ]
-                 , H.li []
-                    [ H.a
-                        [ HA.href <| "mailto:?body=" ++ shareText ++ "&subject=" ++ shareText
-                        , HA.title "Partager la vidéo par email"
-                        ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] [] ]
-                    ]
-                 ]
-                    ++ navigatorShareButton
-                )
-
-        hasComment : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> Attachment -> Bool
-        hasComment commentsData_ attachment =
+        getAttachmentUploader : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> Attachment -> Maybe Data.PeerTube.Account
+        getAttachmentUploader commentsData_ attachment =
             case commentsData_ of
                 Data.PeerTube.Received comments ->
                     comments
-                    |> List.any (\comment -> String.fromInt comment.id == attachment.commentID)
+                        |> List.Extra.find (\comment -> String.fromInt comment.id == attachment.commentID)
+                        |> Maybe.map .account
+
                 _ ->
-                    False
+                    Nothing
+
+        viewUploader : Data.PeerTube.Account -> H.Html Msg
+        viewUploader uploader =
+            H.div [ HA.class "video_resources_uploader" ]
+                [ H.text "Par "
+                , H.a
+                    [ Route.href <| Route.Profile uploader.name
+                    , HA.class "comment_author"
+                    ]
+                    [ H.text uploader.displayName ]
+                ]
 
         activeAttachmentList =
             attachmentList
-                |> List.filter (hasComment commentsData)
+                |> List.filter
+                    (\attachment ->
+                        case getAttachmentUploader commentsData attachment of
+                            Just _ ->
+                                True
+
+                            _ ->
+                                False
+                    )
 
         viewAttachments =
             H.div [ HA.class "video_resources" ]
                 [ H.h4 [] [ H.text "Ressources" ]
-                , if activeAttachmentList /= [] then
-                    H.ul []
-                        (activeAttachmentList
-                            |> List.map
-                                (\attachment ->
-                                    H.li []
-                                        [ H.img
-                                            [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
-                                            , HA.title ""
-                                            ]
-                                            []
-                                        , H.a
-                                            [ HA.href <| "#" ++ attachment.commentID
-                                            , HA.class "comment-link"
-                                            , HE.onClick <| CommentSelected attachment.commentID
-                                            ]
-                                            [ H.text attachment.filename ]
-
-                                        -- TODO : we don't have the mimetype or the file size yet.
-                                        -- , H.span [ HA.class "file_info" ]
-                                        --     [ H.text " Type - n Ko"
-                                        --     ]
+                , H.ul []
+                    (activeAttachmentList
+                        |> List.map
+                            (\attachment ->
+                                H.li []
+                                    [ H.img
+                                        [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
+                                        , HA.title ""
                                         ]
-                                )
-                        )
-
-                  else
-                    H.p []
-                        [ H.text "Aucune ressource disponible"
-                        ]
+                                        []
+                                    , H.div []
+                                        [ H.div [ HA.class "video_resources_file" ]
+                                            [ H.a
+                                                [ HA.href <| "#" ++ attachment.commentID
+                                                , HE.onClick <| CommentSelected attachment.commentID
+                                                ]
+                                                [ H.text attachment.filename ]
+                                            , H.span [ HA.class "file_info" ]
+                                                [ attachment.contentInfo
+                                                    |> Maybe.map (\info -> info.mimeType ++ " - " ++ info.contentLength)
+                                                    |> Maybe.withDefault ""
+                                                    |> H.text
+                                                ]
+                                            ]
+                                        , getAttachmentUploader commentsData attachment
+                                            |> Maybe.map viewUploader
+                                            |> Maybe.withDefault (H.text "")
+                                        ]
+                                    ]
+                            )
+                    )
                 ]
 
         deleteVideoNode =
@@ -967,7 +924,12 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                             [ H.button
                                 [ HE.onClick AskDeleteConfirmation
                                 ]
-                                [ H.text "Supprimer cette vidéo" ]
+                                [ H.img
+                                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/delete_24_purple.svg"
+                                    ]
+                                    []
+                                , H.text "Supprimer cette vidéo"
+                                ]
                             , H.div
                                 [ HA.class "modal__backdrop"
                                 , HA.class <|
@@ -1013,27 +975,14 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Favorite favoriteData ->
-                    Components.button "Retirer cette vidéo des favoris" buttonState (Just <| RemoveFromFavorite favoriteData)
+                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/heartdelete_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    Components.button "Ajouter cette vidéo aux favoris" buttonState (Just <| AddToFavorite)
+                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/heart_24_purple.svg" buttonState (Just <| AddToFavorite)
     in
     H.div
         []
-        [ Page.Common.Video.playerForVideo video peerTubeURL
-        , case video.files of
-            Just files ->
-                H.div []
-                    [ H.a
-                        [ HA.href files.fileDownloadUrl ]
-                        [ H.text "Télécharger cette vidéo" ]
-                    , deleteVideoNode
-                    , favoriteVideoNode
-                    ]
-
-            Nothing ->
-                H.text ""
-        , H.div [ HA.class "video_details" ]
+        [ H.div [ HA.class "video_details" ]
             [ Page.Common.Video.title video
             , H.div []
                 [ H.img
@@ -1044,13 +993,44 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                 , Page.Common.Video.keywords video.tags
                 ]
             ]
-        , H.div [ HA.class "video_infos cols_height-four" ]
-            [ Page.Common.Video.description video
-            , viewAttachments
-            ]
-        , H.div [ HA.class "video_share" ]
+        , Page.Common.Video.playerForVideo video peerTubeURL
+        , case video.files of
+            Just files ->
+                H.div [ HA.class "video_actions" ]
+                    [ H.a
+                        [ HA.href files.fileDownloadUrl ]
+                        [ H.img
+                            [ HA.src "%PUBLIC_URL%/images/icons/24x24/download_24_purple.svg"
+                            ]
+                            []
+                        , H.text
+                            "Télécharger cette vidéo"
+                        ]
+                    , deleteVideoNode
+                    , favoriteVideoNode
+                    ]
+
+            Nothing ->
+                H.text ""
+        , if video.description /= "" || activeAttachmentList /= [] then
+            H.div [ HA.class "video_infos cols_height-four" ]
+                [ Page.Common.Video.description video
+                , if activeAttachmentList /= [] then
+                    viewAttachments
+
+                  else
+                    H.text ""
+                ]
+
+          else
+            H.text ""
+        , H.div [ HA.class "share" ]
             [ H.text "Partager cette vidéo : "
-            , shareButtons
+            , Components.shareButtons
+                shareText
+                (Url.toString url)
+                navigatorShare
+                (ShareVideo shareText)
             ]
         ]
 
@@ -1060,8 +1040,7 @@ viewComments :
     -> Data.PeerTube.RemoteData (List Data.PeerTube.Comment)
     -> List Attachment
     -> H.Html Msg
-    -> H.Html Msg
-viewComments videoID commentsData attachmentList commentFormNode =
+viewComments videoID commentsData attachmentList =
     H.div [ HA.class "comment-list-wrapper" ]
         [ case commentsData of
             Data.PeerTube.Received comments ->
@@ -1078,7 +1057,6 @@ viewComments videoID commentsData attachmentList commentFormNode =
 
             _ ->
                 H.p [] [ H.text "Aucune contribution pour le moment" ]
-        , commentFormNode
         ]
 
 
@@ -1149,7 +1127,10 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
     if not <| Data.Session.isLoggedIn userInfo then
         H.div []
             [ H.h2 []
-                [ H.text "Apporter une contribution"
+                [ H.text "Votre contribution"
+                ]
+            , H.p []
+                [ H.text "Remercier l'auteur de la vidéo, proposer une amélioration, apporter un retour d'expérience..."
                 ]
             , Components.viewConnectNow "Pour ajouter une contribution veuillez vous " "connecter"
             ]
@@ -1239,8 +1220,8 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
             ]
 
 
-viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> H.Html Msg
-viewRelatedVideos peerTubeURL relatedVideos =
+viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> Int -> Components.ButtonState -> H.Html Msg
+viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreState =
     case relatedVideos of
         Data.PeerTube.Received videos ->
             if videos /= [] then
@@ -1248,8 +1229,10 @@ viewRelatedVideos peerTubeURL relatedVideos =
                     [ H.h4 [] [ H.text "Suggestions" ]
                     , H.div []
                         (videos
+                            |> List.take numRelatedVideosToDisplay
                             |> List.map (Page.Common.Video.viewVideo peerTubeURL)
                         )
+                    , Components.button "Plus de suggestions" loadMoreState (Just LoadMore)
                     ]
 
             else

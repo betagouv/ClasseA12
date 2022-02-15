@@ -1,1 +1,11 @@
-<svg height="32" viewBox="0 0 32 32" width="32" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd" transform="translate(4 7)"><rect height="13.5" rx="1" stroke="#fff" stroke-width="1.5" width="22.5" x=".75" y=".75"/><path d="m5.22666667 17.8933333h13.54666663" stroke="#fff" stroke-linecap="round" stroke-width="1.5"/><path d="m10.3733333 4c.08.05333333.1866667.10666667.2933334.16 1.6.93333333 3.2266666 1.84 4.8266666 2.77333333.5066667.29333334.5066667.50666667-.0266666.8-1.6.93333334-3.1733334 1.84-4.7733334 2.74666667-.5066666.2933333-.6933333.1866667-.6933333-.4 0-1.86666667 0-3.70666667 0-5.57333333 0-.24 0-.48.3733333-.50666667z" fill="#fff" fill-rule="nonzero"/></g></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/32x32/playlist_32_white</title>
+    <g id="icone/32x32/playlist_32_white" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(4.000000, 7.000000)">
+            <rect id="Rectangle" stroke="#FFFFFF" stroke-width="1.5" x="0.75" y="0.75" width="22.5" height="13.5" rx="1"></rect>
+            <line x1="5.22666667" y1="17.8933333" x2="18.7733333" y2="17.8933333" id="Line" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"></line>
+            <path d="M10.3733333,4 C10.4533333,4.05333333 10.56,4.10666667 10.6666667,4.16 C12.2666667,5.09333333 13.8933333,6 15.4933333,6.93333333 C16,7.22666667 16,7.44 15.4666667,7.73333333 C13.8666667,8.66666667 12.2933333,9.57333333 10.6933333,10.48 C10.1866667,10.7733333 10,10.6666667 10,10.08 C10,8.21333333 10,6.37333333 10,4.50666667 C10,4.26666667 10,4.02666667 10.3733333,4 Z" id="Path" fill="#FFFFFF" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg>

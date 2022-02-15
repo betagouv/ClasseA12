@@ -162,13 +162,16 @@ viewLoginForm loginForm userInfoData =
                 Page.Common.Components.Disabled
 
         submitButton =
-            Page.Common.Components.submitButton "Utiliser ces identifiants" buttonState
+            Page.Common.Components.submitButton "Se connecter" buttonState
     in
     H.form
-        [ HE.onSubmit Login ]
-        [ H.h1 [] [ H.text "Formulaire de connexion" ]
+        [ HE.onSubmit Login, HA.class "connect" ]
+        [ H.h1 [] [ 
+            H.img [HA.src "%PUBLIC_URL%/images/icons/48x48/compte_48_bicolore.svg"][],
+            H.text "Se connecter" 
+            ]
         , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "username" ] [ H.text "Email de connexion" ]
+            [ H.label [ HA.for "username" ] [ H.text "Votre email de connexion" ]
             , H.input
                 [ HA.type_ "text"
                 , HA.id "username"
@@ -178,7 +181,7 @@ viewLoginForm loginForm userInfoData =
                 []
             ]
         , H.div [ HA.class "form__group" ]
-            [ H.label [ HA.for "password" ] [ H.text "Mot de passe" ]
+            [ H.label [ HA.for "password" ] [ H.text "Votre mot de passe" ]
             , H.input
                 [ HA.type_ "password"
                 , HA.value loginForm.password
@@ -186,10 +189,9 @@ viewLoginForm loginForm userInfoData =
                 ]
                 []
             ]
-        , submitButton
-        , H.p []
+        , H.div[ HA.class "connect__submit"][submitButton]
+        , H.div [ HA.class "connect__links"]
             [ H.a [ Route.href Route.Register ] [ H.text "Je n'ai pas encore de compte" ]
-            , H.text " - "
             , H.a [ Route.href Route.ResetPassword ] [ H.text "J'ai oublié mon mot de passe" ]
             ]
         ]
