@@ -767,6 +767,9 @@ main {
   color: var(--font-color);
   background-color: var(--font-color-light);
 }
+.profile {
+  display: block;
+}
 
 /* ASIDE */
 aside {
