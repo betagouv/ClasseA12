@@ -5,6 +5,7 @@ module Data.PeerTube exposing
     , NewVideo
     , PartialUserInfo
     , Playlist
+    , Rating(..)
     , RemoteData(..)
     , UserInfo
     , UserToken
@@ -129,6 +130,12 @@ type alias FavoriteData =
     { playlistID : Int
     , playlistItemID : Int
     }
+
+
+type Rating
+    = RatingUnknown
+    | Liked
+    | NotLiked
 
 
 type RemoteData a

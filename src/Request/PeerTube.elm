@@ -24,6 +24,7 @@ module Request.PeerTube exposing
     , getVideo
     , getVideoCommentList
     , getVideoList
+    , getVideoRating
     , loadMoreVideos
     , login
     , publishVideo
@@ -654,6 +655,51 @@ removeFromFavoriteRequest playlistItemID playlistID access_token serverURL =
 removeFromFavorite : Data.PeerTube.FavoriteData -> UserToken -> String -> (Result AuthError (AuthResult String) -> msg) -> Cmd msg
 removeFromFavorite { playlistID, playlistItemID } userToken serverURL message =
     removeFromFavoriteRequest playlistItemID playlistID
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+
+---- LIKES ----
+
+
+videoRatingRequest : Video -> String -> String -> Http.Request Data.PeerTube.Rating
+videoRatingRequest video access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/me/videos/" ++ String.fromInt video.id ++ "/rating"
+
+        decoder : Decode.Decoder Data.PeerTube.Rating
+        decoder =
+            Decode.field "rating" Decode.string
+                |> Decode.map
+                    (\ratingString ->
+                        if ratingString == "like" then
+                            Data.PeerTube.Liked
+
+                        else
+                            Data.PeerTube.NotLiked
+                    )
+
+        request : Http.Request Data.PeerTube.Rating
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+getVideoRating : Video -> UserToken -> String -> (Result AuthError (AuthResult Data.PeerTube.Rating) -> msg) -> Cmd msg
+getVideoRating video userToken serverURL message =
+    videoRatingRequest video
         |> authRequestWrapper userToken serverURL
         |> Task.attempt message
 
