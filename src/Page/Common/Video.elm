@@ -107,9 +107,22 @@ description video =
 
 shortDetails : Data.PeerTube.Video -> H.Html msg
 shortDetails video =
+    let
+        videoLikesNode =
+            let
+                likes =
+                    String.fromInt video.likes
+            in
+            H.span []
+                [ H.text "("
+                , H.text likes
+                , H.text ")"
+                ]
+    in
     H.div
         [ HA.class "card_content" ]
         [ H.h3 [] [ H.text video.name ]
+        , videoLikesNode
         , H.time [ HA.class "card_date" ] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
         ]
 
@@ -264,8 +277,10 @@ viewInsert query =
                 , HA.attribute "srcset" <| "%PUBLIC_URL%/images/illustrations/inserts/mobile_illu_" ++ String.Normalize.slug categoryTitle ++ ".png 1x, %PUBLIC_URL%/images/illustrations/inserts/mobile_illu_" ++ String.Normalize.slug categoryTitle ++ "@2x.png 2x"
                 ]
                 []
-            , H.img [ 
-            HA.src  <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ ".png"][]
+            , H.img
+                [ HA.src <| "%PUBLIC_URL%/images/illustrations/inserts/desktop_illu_" ++ String.Normalize.slug categoryTitle ++ ".png"
+                ]
+                []
             ]
         , H.div []
             [ H.h4 [] [ H.text categoryTitle ]
