@@ -77,6 +77,7 @@ type alias Video =
     , tags : List String
     , blacklisted : Bool
     , files : Maybe Files
+    , likes : Int
     }
 
 
@@ -238,6 +239,7 @@ videoDecoder =
                 |> Decode.maybe
                 |> Decode.map (Maybe.withDefault Nothing)
             )
+        |> Pipeline.required "likes" Decode.int
 
 
 videoStreamingPlaylistsDecoder : Decode.Decoder (Maybe Files)

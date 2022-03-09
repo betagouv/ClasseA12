@@ -47,6 +47,8 @@ type alias Model =
     , displayDeleteModal : Bool
     , favoriteStatus : FavoriteStatus
     , togglingFavoriteStatus : Data.PeerTube.RemoteData ()
+
+    -- How the connected user rated the video
     , rating : Data.PeerTube.Rating
     }
 
@@ -1007,7 +1009,18 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                 NotFavorite ->
                     Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/heart_24_purple.svg" buttonState (Just <| AddToFavorite)
 
-        ratingVideoNode =
+        videoLikesNode =
+            let
+                likes =
+                    String.fromInt video.likes
+            in
+            H.span []
+                [ H.text "("
+                , H.text likes
+                , H.text ")"
+                ]
+
+        videoRatingNode =
             case rating of
                 Data.PeerTube.RatingUnknown ->
                     H.text ""
@@ -1048,7 +1061,8 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                         ]
                     , deleteVideoNode
                     , favoriteVideoNode
-                    , ratingVideoNode
+                    , videoLikesNode
+                    , videoRatingNode
                     ]
 
             Nothing ->
