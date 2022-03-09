@@ -28,6 +28,7 @@ module Request.PeerTube exposing
     , loadMoreVideos
     , login
     , publishVideo
+    , rateVideo
     , register
     , removeFromFavorite
     , submitComment
@@ -700,6 +701,47 @@ videoRatingRequest video access_token serverURL =
 getVideoRating : Video -> UserToken -> String -> (Result AuthError (AuthResult Data.PeerTube.Rating) -> msg) -> Cmd msg
 getVideoRating video userToken serverURL message =
     videoRatingRequest video
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+rateVideoRequest : Video -> Data.PeerTube.Rating -> String -> String -> Http.Request ()
+rateVideoRequest video rating access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/" ++ String.fromInt video.id ++ "/rate"
+
+        ratingString =
+            case rating of
+                Data.PeerTube.Liked ->
+                    "like"
+
+                _ ->
+                    "none"
+
+        request : Http.Request ()
+        request =
+            { method = "PUT"
+            , headers = []
+            , url = url
+            , body =
+                Encode.object
+                    [ ( "rating", Encode.string ratingString )
+                    ]
+                    |> Http.jsonBody
+            , expect = Http.expectStringResponse (\_ -> Ok ())
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+rateVideo : Video -> UserToken -> String -> (Result AuthError (AuthResult ()) -> msg) -> Data.PeerTube.Rating -> Cmd msg
+rateVideo video userToken serverURL message rating =
+    rateVideoRequest video rating
         |> authRequestWrapper userToken serverURL
         |> Task.attempt message
 

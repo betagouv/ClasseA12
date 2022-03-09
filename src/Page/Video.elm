@@ -3,7 +3,7 @@ module Page.Video exposing (Model, Msg(..), init, update, view)
 import Browser.Dom as Dom
 import Data.PeerTube
 import Data.Session exposing (Session)
-import Html as H
+import Html as H exposing (video)
 import Html.Attributes as HA exposing (class)
 import Html.Events as HE
 import Http
@@ -47,9 +47,8 @@ type alias Model =
     , displayDeleteModal : Bool
     , favoriteStatus : FavoriteStatus
     , togglingFavoriteStatus : Data.PeerTube.RemoteData ()
-
-    -- How the connected user rated the video
     , rating : Data.PeerTube.Rating
+    , togglingRating : Data.PeerTube.RemoteData ()
     }
 
 
@@ -90,6 +89,8 @@ type Msg
     | AddToFavorite
     | AddedToFavoriteReceived (Request.PeerTube.PeerTubeResult Data.PeerTube.FavoriteData)
     | RatingReceived (Request.PeerTube.PeerTubeResult Data.PeerTube.Rating)
+    | Rate Data.PeerTube.Rating
+    | RatedReceived Data.PeerTube.Rating (Request.PeerTube.PeerTubeResult ())
     | NoOp
 
 
@@ -131,6 +132,7 @@ init videoID videoTitle session =
       , favoriteStatus = Unknown
       , togglingFavoriteStatus = Data.PeerTube.NotRequested
       , rating = Data.PeerTube.RatingUnknown
+      , togglingRating = Data.PeerTube.NotRequested
       }
     , Cmd.batch
         [ Request.PeerTube.getVideo videoID session.userToken session.peerTubeURL VideoReceived
@@ -648,7 +650,67 @@ update session msg model =
             )
 
         RatingReceived (Err _) ->
-            ( { model | rating = Data.PeerTube.NotLiked }
+            ( { model
+                | rating = Data.PeerTube.NotLiked
+                , notifications =
+                    "Échec de la requête du statut de like de cette vidéo"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        Rate rating ->
+            case ( model.videoData, session.userToken ) of
+                ( Data.PeerTube.Received videoData, Just userToken ) ->
+                    ( { model | togglingRating = Data.PeerTube.Requested }
+                    , Request.PeerTube.rateVideo
+                        videoData
+                        userToken
+                        session.peerTubeURL
+                        (RatedReceived rating)
+                        rating
+                    , Nothing
+                    )
+
+                _ ->
+                    ( model, Cmd.none, Nothing )
+
+        RatedReceived rating (Ok authResult) ->
+            let
+                updatedVideo =
+                    case model.videoData of
+                        Data.PeerTube.Received videoData ->
+                            { videoData
+                                | likes =
+                                    case rating of
+                                        Data.PeerTube.Liked ->
+                                            videoData.likes + 1
+
+                                        _ ->
+                                            videoData.likes - 1
+                            }
+                                |> Data.PeerTube.Received
+
+                        _ ->
+                            model.videoData
+            in
+            ( { model
+                | togglingRating = Data.PeerTube.NotRequested
+                , rating = rating
+                , videoData = updatedVideo
+              }
+            , Cmd.none
+            , Request.PeerTube.extractSessionMsg authResult
+            )
+
+        RatedReceived _ (Err _) ->
+            ( { model
+                | togglingRating = Data.PeerTube.NotRequested
+                , notifications =
+                    "Échec de la requête de changement de statut de like de cette vidéo"
+                        |> Notifications.addError model.notifications
+              }
             , Cmd.none
             , Nothing
             )
@@ -690,7 +752,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, loadMoreState, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus, rating } =
+view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, loadMoreState, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus, rating, togglingRating } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -759,6 +821,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                         favoriteStatus
                         togglingFavoriteStatus
                         rating
+                        togglingRating
                     , H.div [ HA.class "cols_height-four mobile-tabs" ]
                         [ H.div [ HA.class "mobile-only tab-headers" ]
                             [ displayTab ContributionTab "Contributions"
@@ -834,11 +897,12 @@ viewVideo :
     -> FavoriteStatus
     -> Data.PeerTube.RemoteData ()
     -> Data.PeerTube.Rating
+    -> Data.PeerTube.RemoteData ()
     -> H.Html Msg
-viewVideo peerTubeURL url navigatorShare videoData commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus rating =
+viewVideo peerTubeURL url navigatorShare videoData commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus rating togglingRating =
     case videoData of
         Data.PeerTube.Received video ->
-            viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus rating
+            viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus rating togglingRating
 
         Data.PeerTube.Requested ->
             H.p [] [ H.text "Chargement de la vidéo en cours..." ]
@@ -860,8 +924,9 @@ viewVideoDetails :
     -> FavoriteStatus
     -> Data.PeerTube.RemoteData ()
     -> Data.PeerTube.Rating
+    -> Data.PeerTube.RemoteData ()
     -> H.Html Msg
-viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus rating =
+viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus rating togglingRating =
     let
         shareText =
             "Vidéo sur Classe à 12 : " ++ video.name
@@ -1021,17 +1086,24 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                 ]
 
         videoRatingNode =
+            let
+                buttonState =
+                    case togglingRating of
+                        Data.PeerTube.Requested ->
+                            Components.Loading
+
+                        _ ->
+                            Components.NotLoading
+            in
             case rating of
                 Data.PeerTube.RatingUnknown ->
                     H.text ""
 
                 Data.PeerTube.Liked ->
-                    -- Components.iconButton "Je n'aime pas cette vidéo" "%PUBLIC_URL%/images/icons/24x24/thumb_24_purple.svg" buttonState (Just <| RateUnlike)
-                    H.text "J'aime cette vidéo"
+                    Components.iconButton "Je n'aime pas cette vidéo" "%PUBLIC_URL%/images/icons/24x24/thumb_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.NotLiked)
 
                 Data.PeerTube.NotLiked ->
-                    -- Components.iconButton "J'aime cette vidéo" "%PUBLIC_URL%/images/icons/24x24/thumb_24_purple.svg" buttonState (Just <| RateLike)
-                    H.text "Je n'aime pas cette vidéo"
+                    Components.iconButton "J'aime cette vidéo" "%PUBLIC_URL%/images/icons/24x24/thumb_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.Liked)
     in
     H.div
         []
