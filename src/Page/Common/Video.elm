@@ -113,17 +113,21 @@ shortDetails video =
                 likes =
                     String.fromInt video.likes
             in
-            H.span []
-                [ H.text "("
-                , H.text likes
-                , H.text ")"
+            H.div [HA.class "card_likes"]
+                [ H.text likes
+                , H.img
+                    [ HA.src "%PUBLIC_URL%/images/icons/16x16/heart_16_purple.svg"
+                    ]
+                    []
                 ]
     in
     H.div
         [ HA.class "card_content" ]
         [ H.h3 [] [ H.text video.name ]
-        , videoLikesNode
-        , H.time [ HA.class "card_date" ] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
+        , H.div [HA.class "card_meta"][
+            H.time [ HA.class "card_date" ] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]  
+            , videoLikesNode
+            ]
         ]
 
 

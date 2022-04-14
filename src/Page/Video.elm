@@ -1069,20 +1069,22 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Favorite favoriteData ->
-                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/heartdelete_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
+                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/fav-delete_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/heart_24_purple.svg" buttonState (Just <| AddToFavorite)
+                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/fav-add_24_purple.svg" buttonState (Just <| AddToFavorite)
 
         videoLikesNode =
             let
                 likes =
                     String.fromInt video.likes
             in
-            H.span []
-                [ H.text "("
+            H.div [HA.class "video_likes"]
+                [ H.img
+                    [ HA.src "%PUBLIC_URL%/images/icons/16x16/heart_16_white.svg"
+                    ]
+                    []
                 , H.text likes
-                , H.text ")"
                 ]
 
         videoRatingNode =
@@ -1100,10 +1102,10 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Data.PeerTube.Liked ->
-                    Components.iconButton "Je n'aime pas cette vidéo" "%PUBLIC_URL%/images/icons/24x24/thumb_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.NotLiked)
+                    Components.iconButton "Ne plus aimer la vidéo" "%PUBLIC_URL%/images/icons/24x24/heart-filled_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.NotLiked)
 
                 Data.PeerTube.NotLiked ->
-                    Components.iconButton "J'aime cette vidéo" "%PUBLIC_URL%/images/icons/24x24/thumb_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.Liked)
+                    Components.iconButton "Aimer la vidéo" "%PUBLIC_URL%/images/icons/24x24/heart_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.Liked)
     in
     H.div
         []
@@ -1116,6 +1118,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     []
                 , Page.Common.Video.metadata video
                 , Page.Common.Video.keywords video.tags
+                , videoLikesNode
                 ]
             ]
         , Page.Common.Video.playerForVideo video peerTubeURL
@@ -1133,7 +1136,6 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                         ]
                     , deleteVideoNode
                     , favoriteVideoNode
-                    , videoLikesNode
                     , videoRatingNode
                     ]
 

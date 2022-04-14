@@ -897,19 +897,37 @@ aside > div {
   line-height: 1.38;
 }
 
-.card_date {
+.card_meta {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.2rem;  
   font-size: 1.2rem;
   color: var(--font-color-secondary);
 }
+
 .card_date::before {
   content: "";
+  position: absolute;
+  top:0;
+  left: 0;
   display: block;
   width: 4rem;
   height: 1px;
-  margin-bottom: 1.2rem;
   background-color: var(--tabs-border);
 }
 
+.card_likes {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+.card_likes img {
+  height: 12px;
+  margin-left: 0.4rem;
+} 
 /* HOME */
 
 .home {
@@ -1209,6 +1227,20 @@ aside > div {
 }
 .video_keywords a {
   text-decoration: none;
+}
+
+.video_likes {
+  display: flex;
+  align-items: center;
+  margin-left: 1.6rem;
+  padding: 0 1.2rem;
+  color: white;
+  background-color: var(--primary-color);
+  border-radius: 12px;
+}
+.video_likes img {
+  height: 1.4rem; 
+  margin-right: 0.4rem;
 }
 
 .video_infos {
