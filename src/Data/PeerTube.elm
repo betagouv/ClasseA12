@@ -154,14 +154,13 @@ type RemoteData a
 
 keywordList : List String
 keywordList =
-    [ "Français"
-    , "Mathématiques"
-    , "Questionner le monde"
-    , "Arts"
-    , "Numérique"
-    , "Enseignement moral et civique"
-    , "Gestion de classe"
-    , "Outils"
+    [ "Gestion de groupe"
+    , "Gestion de matériel"
+    , "Co-intervention"
+    , "Communication"
+    , "DF à distance"
+    , "Coordonnateur DF"
+    , "Ressources"
     ]
 
 

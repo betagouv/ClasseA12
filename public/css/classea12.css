@@ -1023,8 +1023,7 @@ aside > div {
   display: block;
   width: 1.6rem;
   height: 1.6rem;
-  background: url(../images/icons/16x16/arrow_left_16_deepgreen.svg) 0 0
-    no-repeat;
+  background: url(../images/icons/16x16/arrow_left_16_deepgreen.svg) 0 0 no-repeat;
 }
 .home__category .video-grid__insert {
   display: none;

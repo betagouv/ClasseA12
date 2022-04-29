@@ -66,15 +66,23 @@ a:hover {
 
 .video_metadata a,
 .video_keywords a {
-  color: var(--primary-color-dark);
+  color: var(--primary-color);
 }
 
 .video_keywords li {
   background-color: var(--primary-color-light);
 }
 .video_keywords li:hover {
-  background-color: var(--primary-color-dark);
+  background-color: var(--primary-color);
 }
 .video_keywords li:hover a {
   color: white;
+}
+
+.comment_avatar {
+  background-color: var(--green);
+}
+
+#archive .news_item::before {
+background-color: #f7f7fc;
 }

@@ -86,7 +86,7 @@ viewPost url navigatorShare post =
             ]
         , H.div [ HA.class "news-details_meta" ]
             [ H.div []
-                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg", HA.alt "" ] []
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_deepgreen.svg", HA.alt "" ] []
                 , H.text <| "Par " ++ post.author ++ ", le " ++ createdAt
                 ]
             ]

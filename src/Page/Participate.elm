@@ -274,7 +274,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
             ]
             [ H.h2 [ HA.class "upload-step_title" ]
                 [ H.div [ HA.class "upload-step_icon" ]
-                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/download_32_purple.svg" ] []
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/download_32_deepgreen.svg" ] []
                     ]
                 , H.text "Étape 1 : Télécharger votre vidéo"
                 , H.span [] [ H.text "(format mpeg, avi ou mov)" ]
@@ -315,7 +315,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     )
                 ]
                 [ H.div [ HA.class "upload-step_icon" ]
-                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/info_32_purple.svg" ] []
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/info_32_deepgreen.svg" ] []
                     ]
                 , H.text "Étape 2 : À propos de votre vidéo"
                 ]
@@ -435,7 +435,7 @@ displaySubmitVideoForm { newVideo, newVideoData, videoObjectUrl, progress, preSe
                     )
                 ]
                 [ H.div [ HA.class "upload-step_icon" ]
-                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/rocket_32_purple.svg" ] []
+                    [ H.img [ HA.src "%PUBLIC_URL%/images/icons/32x32/rocket_32_deepgreen.svg" ] []
                     ]
                 , H.text "Étape 3 : Soumettez votre vidéo"
                 ]

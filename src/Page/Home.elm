@@ -80,7 +80,7 @@ viewHeader =
     H.section [ HA.class "home__intro" ]
         [ H.div []
             [ H.img
-                [ HA.src "%PUBLIC_URL%/images/logos/classea12-dark.svg"
+                [ HA.src "%PUBLIC_URL%/images/logos/devoirsfaits-dark.svg"
                 , HA.alt ""
                 , HA.class "logo"
                 ]

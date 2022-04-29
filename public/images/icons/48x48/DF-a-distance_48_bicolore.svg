@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/48x48/laptop_48_bicolore</title>
+    <g id="icone/48x48/laptop_48_bicolore" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Oval" stroke="#FFCE00" stroke-width="1.5" cx="4.5" cy="42.5" r="2.75"></circle>
+        <rect id="Rectangle" stroke="#FFCE00" stroke-width="1.5" transform="translate(5.000000, 7.000000) rotate(29.000000) translate(-5.000000, -7.000000) " x="3.25" y="5.25" width="3.5" height="3.5" rx="0.5"></rect>
+        <path d="M43.2140132,18.0180411 L45.7760929,21.5543408 L40.9668029,21.6164581 L43.2140132,18.0180411 Z" id="Triangle" stroke="#FFCE00" stroke-width="1.5" transform="translate(43.369511, 19.373557) rotate(-41.000000) translate(-43.369511, -19.373557) "></path>
+        <g id="laptop" transform="translate(8.000000, 12.000000)" fill="#0B554B" fill-rule="nonzero" stroke="#0B554B" stroke-width="0.5">
+            <path d="M31.2,16.8 L28.8,16.8 L28.8,3.2 C28.8,1.435 27.364,0 25.6,0 L6.4,0 C4.636,0 3.2,1.435 3.2,3.2 L3.2,16.8 L0.8,16.8 C0.358,16.8 0,17.158 0,17.6 L0,20 C0,22.2055 1.794,24 4,24 L28,24 C30.206,24 32,22.2055 32,20 L32,17.6 C32,17.158 31.642,16.8 31.2,16.8 Z M4.8,3.2 C4.8,2.3165 5.5165,1.6 6.4,1.6 L25.6,1.6 C26.4835,1.6 27.2,2.3165 27.2,3.2 L27.2,16.8 L19.5565,16.8 C19.3535,16.8 19.2055,16.9565 19.1605,17.1545 C18.999,17.8675 18.3615,18.4 17.6,18.4 L14.4,18.4 C13.6385,18.4 13.001,17.8675 12.8395,17.1545 C12.7945,16.9565 12.6465,16.8 12.4435,16.8 L4.8,16.8 L4.8,3.2 Z M30.4,20 C30.4,21.3235 29.3235,22.4 28,22.4 L4,22.4 C2.6765,22.4 1.6,21.3235 1.6,20 L1.6,18.4 L11.3375,18.4 C11.667,19.331 12.5565,20 13.6,20 L18.4,20 C19.444,20 20.333,19.331 20.6625,18.4 L30.4,18.4 L30.4,20 Z" id="Shape"></path>
+        </g>
+    </g>
+</svg>

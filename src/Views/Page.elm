@@ -121,12 +121,12 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
     let
         loginIcon =
             a [ Route.href Route.Login, title "Se connecter" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_purple.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/connexion_32_deepgreen.svg" ] []
                 , text " Se connecter"
                 ]
 
         icon =
-            "%PUBLIC_URL%/images/icons/32x32/profil_32_purple.svg"
+            "%PUBLIC_URL%/images/icons/32x32/profil_32_deepgreen.svg"
 
         profileIcon =
             case session.userInfo of
@@ -193,7 +193,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                     []
                 , a
                     [ href "/", class "rf-header__logo" ]
-                    [ img [ src "%PUBLIC_URL%/images/logos/classea12-dark.svg" ] []
+                    [ img [ src "%PUBLIC_URL%/images/logos/devoirsfaits-dark.svg" ] []
                     ]
                 , nav [ class "rf-header__nav desktop-only" ]
                     [ ul []
@@ -213,7 +213,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                         , onClick openMenuMsg
                         ]
                         [ text "Menu"
-                        , img [ src "%PUBLIC_URL%/images/icons/24x24/menu_open_24_purple.svg" ] []
+                        , img [ src "%PUBLIC_URL%/images/icons/24x24/menu_open_24_deepgreen.svg" ] []
                         ]
                     , div
                         [ classList
@@ -237,7 +237,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                                 [ loginProfileIcon
                                 , searchForm config
                                 , a [ href "/" ]
-                                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/home_purple.svg" ] []
+                                    [ img [ src "%PUBLIC_URL%/images/icons/32x32/home_deepgreen.svg" ] []
                                     , text "Accueil"
                                     ]
                                 ]
@@ -363,15 +363,15 @@ viewAboutAside { activePage } =
             , linkMaybeActive (isActive Participate) Route.Participate "Participer"
             , linkMaybeActive (isActive Register) Route.Register "S'inscrire"
             , a [ href "" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/faq-flash_32_purple.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/faq-flash_32_deepgreen.svg" ] []
                 , text "Comment participer"
                 ]
             , a [ href "mailto:devoirsfaits-communaute@education.gouv.fr" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_deepgreen.svg" ] []
                 , text "Nous contacter"
                 ]
             , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_purple.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_deepgreen.svg" ] []
                 , text "Newsletter"
                 ]
             ]
@@ -411,11 +411,11 @@ viewNewsAside { activePage } =
         navContent =
             [ linkMaybeActive (isActive AllNews) Route.AllNews "Nouveautés"
             , a [ href "" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_purple.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/nos-evenements_32_deepgreen.svg" ] []
                 , text "Nos événements"
                 ]
             , a [ href "" ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_deepgreen.svg" ] []
                 , text "Les challenges"
                 ]
             , linkMaybeActive (isActive About) Route.About "À propos de Devoirs Faits"
@@ -459,7 +459,7 @@ linkMaybeActive isActive route caption =
             [ ( "active", isActive )
             ]
         ]
-        [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_purple.svg") ] []
+        [ img [ src ("%PUBLIC_URL%/images/icons/32x32/" ++ String.Normalize.slug caption ++ "_32_deepgreen.svg") ] []
         , text caption
         ]
 
@@ -474,8 +474,6 @@ menuNodes { activePage } =
             [ ul []
                 [ li [] [ linkMaybeActive (isActive AllVideos) Route.AllVideos "Accueil videos" ]
                 , li [] [ linkMaybeActive (isActive (VideoList Route.Latest)) (Route.VideoList Route.Latest) "Nouveautés" ]
-                , li [] [ linkMaybeActive (isActive (VideoList Route.Playlist)) (Route.VideoList Route.Playlist) "La playlist de la semaine" ]
-                , li [] [ linkMaybeActive (isActive (VideoList Route.FAQFlash)) (Route.VideoList Route.FAQFlash) "FAQ Flash" ]
                 ]
             , h3 [] [ text "Catégories" ]
             , ul []
@@ -534,7 +532,7 @@ searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } =
                 , onClick toggleSearchForm
                 , type_ "button"
                 ]
-                [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_purple.svg" ] []
+                [ img [ src "%PUBLIC_URL%/images/icons/32x32/search_32_deepgreen.svg" ] []
                 , span [ class "mobile-only" ] [ text "Recherche" ]
                 ]
             , if session.searchFormOpened then
@@ -546,7 +544,7 @@ searchForm { session, toggleSearchForm, submitSearchMsg, updateSearchMsg } =
                         ]
                         [ text "Fermer"
                         , div []
-                            [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_purple.svg" ] []
+                            [ img [ src "%PUBLIC_URL%/images/icons/24x24/close_24_deepgreen.svg" ] []
                             ]
                         ]
                     , div [ class "content" ]

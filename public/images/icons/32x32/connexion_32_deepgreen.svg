@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icone/32x32/connexion_32_deepgreen</title>
+    <g id="icone/32x32/connexion_32_deepgreen" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(8.000000, 5.571429)" stroke="#0B554B">
+            <rect id="Rectangle" stroke-width="1.5" x="0.75" y="8.75" width="14.5" height="12.2142857" rx="1"></rect>
+            <path d="M4,-1.71428571 L6.28571429,-1.71428571 C9.44162714,-1.71428571 12,0.844087144 12,4 C12,7.15591286 9.44162714,9.71428571 6.28571429,9.71428571 L4,9.71428571 L4,9.71428571" id="Rectangle-Copy" stroke-width="1.5" transform="translate(8.000000, 4.000000) rotate(-90.000000) translate(-8.000000, -4.000000) "></path>
+            <circle id="Oval" cx="8" cy="13.1428571" r="1.71428571"></circle>
+            <line x1="8" y1="14.8571429" x2="8" y2="17.7963889" id="Line-5" stroke-linecap="round"></line>
+        </g>
+    </g>
+</svg>

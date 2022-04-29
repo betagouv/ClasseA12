@@ -971,7 +971,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                             (\attachment ->
                                 H.li []
                                     [ H.img
-                                        [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
+                                        [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_deepgreen.svg"
                                         , HA.title ""
                                         ]
                                         []
@@ -1016,7 +1016,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                                 [ HE.onClick AskDeleteConfirmation
                                 ]
                                 [ H.img
-                                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/delete_24_purple.svg"
+                                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/delete_24_deepgreen.svg"
                                     ]
                                     []
                                 , H.text "Supprimer cette vidéo"
@@ -1066,10 +1066,10 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Favorite favoriteData ->
-                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/fav-delete_24_purple.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
+                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/heartdelete_24_deepgreen.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/fav-add_24_purple.svg" buttonState (Just <| AddToFavorite)
+                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/heart_24_deepgreen.svg" buttonState (Just <| AddToFavorite)
 
         videoLikesNode =
             let
@@ -1111,7 +1111,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
             [ Page.Common.Video.title video
             , H.div []
                 [ H.img
-                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_purple.svg"
+                    [ HA.src "%PUBLIC_URL%/images/icons/24x24/profil_24_deepgreen.svg"
                     ]
                     []
                 , Page.Common.Video.metadata video
@@ -1126,7 +1126,7 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     [ H.a
                         [ HA.href files.fileDownloadUrl ]
                         [ H.img
-                            [ HA.src "%PUBLIC_URL%/images/icons/24x24/download_24_purple.svg"
+                            [ HA.src "%PUBLIC_URL%/images/icons/24x24/download_24_deepgreen.svg"
                             ]
                             []
                         , H.text
@@ -1200,7 +1200,7 @@ viewCommentDetails videoID attachmentList comment =
                     (\attachment ->
                         H.li []
                             [ H.img
-                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_purple.svg"
+                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_deepgreen.svg"
                                 , HA.title ""
                                 ]
                                 []
