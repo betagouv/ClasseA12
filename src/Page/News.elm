@@ -74,7 +74,7 @@ viewPost : Url -> Bool -> Data.News.Post -> H.Html Msg
 viewPost url navigatorShare post =
     let
         shareText =
-            "Actualité sur Classe à 12 : " ++ post.title
+            "Actualité sur Devoirs Faits : " ++ post.title
 
         createdAt =
             Iso8601.fromTime post.createdAt

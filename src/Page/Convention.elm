@@ -30,14 +30,14 @@ view : Session -> Model -> Page.Common.Components.Document Msg
 view _ { title } =
     { title = title
     , pageTitle = "Charte de bonne conduite"
-    , pageSubTitle = "du site « Classe à 12 » du Ministère de l’éducation et de la jeunesse"
+    , pageSubTitle = "du site « Devoirs Faits » du Ministère de l’éducation et de la jeunesse"
     , body =
         [ H.div [ HA.class "section convention" ]
             [ H.div [ HA.class "container" ]
                 [ H.h1 [] [ H.text "Définition du projet :" ]
                 , H.p [] [ H.text "Ce service est un réseau social à base de vidéos de pratiques pédagogiques entre enseignants de classes dédoublées (CP et CE1). Il a pour objectif de faciliter les échanges entre pairs et de mutualiser les pratiques." ]
-                , H.p [] [ H.text "Le site «\u{00A0}Classe à 12\u{00A0}» est un espace commun : tous les usagers et partenaires de Classe à 12 sont à la fois dépositaires et bénéficiaires des ressources et services proposés. C’est  un écosystème apprenant : les acteurs qui gravitent autour de Classe à 12\u{00A0}s’enrichissent mutuellement et nourrissent la plateforme de leurs productions." ]
-                , H.p [] [ H.text "Le site Classe à 12 : propose un cadre neutre d’échanges horizontaux : les échanges se font dans un esprit d’ouverture et de bienveillance entre pairs." ]
+                , H.p [] [ H.text "Le site «\u{00A0}Devoirs Faits\u{00A0}» est un espace commun : tous les usagers et partenaires de Devoirs Faits sont à la fois dépositaires et bénéficiaires des ressources et services proposés. C’est  un écosystème apprenant : les acteurs qui gravitent autour de Devoirs Faits\u{00A0}s’enrichissent mutuellement et nourrissent la plateforme de leurs productions." ]
+                , H.p [] [ H.text "Le site Devoirs Faits : propose un cadre neutre d’échanges horizontaux : les échanges se font dans un esprit d’ouverture et de bienveillance entre pairs." ]
                 , H.h1 [] [ H.text "Conditions d’utilisation :" ]
                 , H.ul []
                     [ H.li [] [ H.text "Les droits d’utilisation nécessitent la validation préalable des conditions générales d’utilisation figurant sur le site." ]

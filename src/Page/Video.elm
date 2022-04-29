@@ -926,7 +926,7 @@ viewVideoDetails :
 viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentList userInfo deletedVideo displayDeleteModal favoriteStatus togglingFavoriteStatus rating togglingRating =
     let
         shareText =
-            "Vidéo sur Classe à 12 : " ++ video.name
+            "Vidéo sur Devoirs Faits : " ++ video.name
 
         getAttachmentUploader : Data.PeerTube.RemoteData (List Data.PeerTube.Comment) -> Attachment -> Maybe Data.PeerTube.Account
         getAttachmentUploader commentsData_ attachment =

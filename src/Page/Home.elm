@@ -64,7 +64,7 @@ update _ msg model =
 view : Session -> Model -> Page.Common.Components.Document Msg
 view { peerTubeURL, userRatedVideoIDs } { title, playlistVideoData, postList } =
     { title = title
-    , pageTitle = "Classe à 12 en vidéo"
+    , pageTitle = "Devoirs Faits en vidéo"
     , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
     , body =
         [ viewHeader
@@ -87,11 +87,11 @@ viewHeader =
                 []
             , H.h1 []
                 [ H.text "La communauté vidéo"
-                , H.span [] [ H.text "des enseignants en classe dédoublée" ]
+                , H.span [] [ H.text "de l’aide aux devoirs" ]
                 ]
-            , H.p [] [ H.text "Chaque semaine, des enseignants de classes dédoublées partagent leurs idées pédagogiques, ateliers, bonnes pratiques dans des formats vidéos courts." ]
+            , H.p [] [ H.text "Chaque semaine, des accompagnateurs aux devoirs partagent leurs idées pédagogiques, ateliers, bonnes pratiques dans des formats vidéos courts." ]
             , H.a [ HA.class "btn", Route.href Route.AllVideos ] [ H.text "Découvrez les vidéos pédagogiques" ]
-            , H.a [ Route.href Route.About ] [ H.text "Découvrez Classe à 12" ]
+            , H.a [ Route.href Route.About ] [ H.text "Découvrez Devoirs Faits" ]
             ]
         , H.div [ HA.class "home__intro-logos" ]
             [ H.img
@@ -185,7 +185,7 @@ viewNews postList =
     H.section [ HA.class "home__category wrapper" ]
         [ H.h2 []
             [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/alaune_48_bicolore.svg" ] []
-            , H.text "L’actualité de Classe à 12"
+            , H.text "L’actualité de Devoirs Faits"
             ]
         , case postList of
             Loading ->

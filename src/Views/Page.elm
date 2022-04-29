@@ -78,7 +78,7 @@ type alias Config msg =
 
 frame : Frame -> Config msg -> Page.Common.Components.Document msg -> Document msg
 frame frameVariant config { title, pageTitle, pageSubTitle, body } =
-    { title = title ++ " | Classe à 12"
+    { title = title ++ " | Devoirs Faits"
     , body =
         [ div
             [ classList
@@ -177,7 +177,7 @@ viewRFHeader activeFrame ({ session, openMenuMsg, closeMenuMsg, activePage } as 
                 [ navLink NewsFrame Route.AllNews "Actualités" ]
             , li [] [ navLink AboutFrame Route.About "À propos" ]
             , li []
-                [ a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
+                [ a [ href "mailto:devoirsfaits-communaute@education.gouv.fr" ]
                     [ text "Contact" ]
                 ]
             ]
@@ -359,14 +359,14 @@ viewAboutAside { activePage } =
             genericIsActive activePage
 
         navContent =
-            [ linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
+            [ linkMaybeActive (isActive About) Route.About "À propos de Devoirs Faits"
             , linkMaybeActive (isActive Participate) Route.Participate "Participer"
             , linkMaybeActive (isActive Register) Route.Register "S'inscrire"
             , a [ href "" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/faq-flash_32_purple.svg" ] []
                 , text "Comment participer"
                 ]
-            , a [ href "mailto:nicolas.leyri@beta.gouv.fr" ]
+            , a [ href "mailto:devoirsfaits-communaute@education.gouv.fr" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_purple.svg" ] []
                 , text "Nous contacter"
                 ]
@@ -418,7 +418,7 @@ viewNewsAside { activePage } =
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/les-challenges_32_purple.svg" ] []
                 , text "Les challenges"
                 ]
-            , linkMaybeActive (isActive About) Route.About "À propos de Classe à 12"
+            , linkMaybeActive (isActive About) Route.About "À propos de Devoirs Faits"
             ]
     in
     aside [ class "side-menu" ]

@@ -16,7 +16,7 @@ type Msg
 
 init : Session -> ( Model, Cmd Msg )
 init _ =
-    ( { title = "Classe à 12 ?" }, Cmd.none )
+    ( { title = "Devoirs Faits ?" }, Cmd.none )
 
 
 update : Session -> Msg -> Model -> ( Model, Cmd Msg )
@@ -34,7 +34,7 @@ view _ { title } =
             [ H.h1 []
                 [ H.text "À propos"
                 , H.span []
-                    [ H.text "de Classe à 12"
+                    [ H.text "de Devoirs Faits"
                     ]
                 ]
             , H.article [ HA.class "about__service" ]
@@ -62,7 +62,7 @@ view _ { title } =
                 , H.div [ HA.class "richtext about__text" ]
                     [ H.h3 [ HA.class "title is-3" ] [ H.text "Comment participer ?" ]
                     , H.p [] [ H.text "Venez comme vous êtes, avec votre envie et vos idées !" ]
-                    , H.p [] [ H.text "Vous avez envie d'échanger et de partager des outils, des pratiques, des gestes professionnels avec vos collègues ? Rien de plus simple avec Classe à 12 ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti !" ]
+                    , H.p [] [ H.text "Vous avez envie d'échanger et de partager des outils, des pratiques, des gestes professionnels avec vos collègues ? Rien de plus simple avec Devoirs Faits ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti !" ]
                     , H.p []
                         [ H.text "N'oubliez pas de remplir et de nous envoyer un formulaire de droit à l'image pour vos élèves, les parents ou vous-mêmes, selon la situation, que vous pouvez "
                         , H.a [ HA.href "http://eduscol.education.fr/internet-responsable/ressources/boite-a-outils.html" ] [ H.text "trouver ici." ]
@@ -97,45 +97,20 @@ view _ { title } =
                     , H.p [] [ H.text "Besoin de compléments d’informations ou de précisions? La possibilité d’échanger, et de déposer des pièces jointes sont des fonctionnalités disponibles." ]
                     ]
                 ]
-            ]
-        , H.div [ class "about__end" ]
-            [ H.p []
-                [ H.text "Que vous soyez novice ou expérimenté"
-                , H.br [] []
-                , H.text "nous vous invitons à oser dire et agir ensemble"
-                , H.br [] []
-                , H.text "en tant que professeur expérimentateur"
-                ]
-            , H.h2 []
-                [ H.text "Avec « classe à 12 » nous partageons bien plus que des vidéos,"
-                , H.br [] []
-                , H.text "alors, osons ensemble !"
-                ]
-            , H.img
-                [ HA.src "%PUBLIC_URL%/images/logos/classea12-dark.svg"
-                , HA.alt "Logo Classe à 12"
-                , HA.class "about__logo"
-                ]
-                []
-            , H.div [ HA.class "container" ]
-                [ H.iframe
-                    [ HA.src "https://e.infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9?src=embed"
-                    , HA.title "Classe à 12"
-                    , HA.width 800
-                    , HA.height 400
-                    , HA.style "border" "none"
-                    , HA.attribute "scrolling" "no"
-                    , HA.attribute "frameborder" "0"
-                    , HA.attribute "allowfullscreen" "allowfullscreen"
-                    ]
-                    []
-                , H.div
-                    []
-                    [ H.a
-                        [ HA.href "https://infogram.com/6155d72e-a7c3-4ced-b555-bad597ecf0e9"
-                        , HA.target "_blank"
+            , H.article [ HA.class "about__DF" ]
+                [ H.div [ HA.class "about__image" ]
+                    [ H.img
+                        [ HA.src "%PUBLIC_URL%/images/logos/devoirsfaits-dark.svg"
+                        , HA.alt ""
                         ]
-                        [ H.text "Classe à 12 sur Infogram" ]
+                        []
+                    ]
+                , H.div [ HA.class "richtext about__text " ]
+                    [ H.h3 [ HA.class "title is-3" ] [ H.text "Devoirs Faits, un projet en construction." ]
+                    , H.p [] [ H.text "Un service en cours d’élaboration pour s’adapter à vos attentes !" ]
+                    , H.p [] [ H.text "Le présent prototype de site est une version bêta : cela veut dire qu’il continuera à évoluer en fonction des retours des usagers pour répondre au mieux à leurs besoins." ]
+                    , H.p [] [ H.text "Ce projet est accompagné par le 110 bis, lab d’innovation de l’Education nationale, et porté par une intrapreneure issue de l’académie de Créteil. Accédez à cet article de présentation pour en savoir plus." ]
+                    , H.p [] [ H.text "Ce prototype s’inscrit dans le dispositif Devoirs Faits porté par le ministère de l’Education nationale, de la Jeunesse et des Sports." ]
                     ]
                 ]
             ]
