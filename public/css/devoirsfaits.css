@@ -1,0 +1,80 @@
+:root {
+  --deep-green: #0b554b;
+  --green: #006154;
+  --light-green: #d9e8e6;
+  --lighter-green: #d1df4c;
+  --pale-green: #efefcd;
+  --ink: #02102d;
+  --ink-light: #4d576c;
+  --yellow: #ffce00;
+  --light-grey: #d9dce1;
+  --primary-color: var(--deep-green);
+  --primary-color-light: var(--light-green);
+  --primary-color-lighter: var(--lighter-green);
+  --secondary-color: var(--yellow);
+  --font-color: var(--ink);
+  --font-color-light: var(--ink-light);
+  --menu-hover-color: var(--primary-color-lighter);
+  --nav-separator: var(--light-grey);
+  --tabs-border: var(--light-grey);
+}
+
+main {
+  background-color: #f7f7fc;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: var(--primary-color);
+}
+
+a {
+  color: var(--primary-color);
+}
+a:hover {
+  color: var(--primary-color-dark);
+}
+
+.btn,
+.button {
+  background-color: var(--green);
+}
+
+.btn--secondary {
+  color: var(--primary-color);
+  background-color: var(--secondary-color);
+}
+
+.card_date {
+  color: var(--font-color-light);
+}
+
+.news_item span {
+  color: var(--font-color-light);
+}
+
+.search_view {
+  background-color: rgba(11, 85, 65, 0.97);
+}
+
+.video-grid__insert {
+  background-image: linear-gradient(0deg, #083f3f 1%, #015045 100%);
+}
+
+.video_metadata a,
+.video_keywords a {
+  color: var(--primary-color-dark);
+}
+
+.video_keywords li {
+  background-color: var(--primary-color-light);
+}
+.video_keywords li:hover {
+  background-color: var(--primary-color-dark);
+}
+.video_keywords li:hover a {
+  color: white;
+}
