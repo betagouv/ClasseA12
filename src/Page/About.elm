@@ -39,7 +39,7 @@ view _ { title } =
                 ]
             , H.article [ HA.class "about__service" ]
                 [ H.img
-                    [ HA.src "%PUBLIC_URL%/images/photos/equipe.jpg"
+                    [ HA.src "%PUBLIC_URL%/images/photos/photo_de_classe.jpg"
                     , HA.alt ""
                     , HA.class "about__image"
                     ]
@@ -54,7 +54,7 @@ view _ { title } =
             , H.article [ HA.class "about__participate" ]
                 [ H.div [ HA.class "about__image" ]
                     [ H.img
-                        [ HA.src "%PUBLIC_URL%/images/photos/postits.jpg"
+                        [ HA.src "%PUBLIC_URL%/images/photos/Camille_post-its.jpg"
                         , HA.alt ""
                         ]
                         []
@@ -62,17 +62,19 @@ view _ { title } =
                 , H.div [ HA.class "richtext about__text" ]
                     [ H.h3 [ HA.class "title is-3" ] [ H.text "Comment participer ?" ]
                     , H.p [] [ H.text "Venez comme vous êtes, avec votre envie et vos idées !" ]
-                    , H.p [] [ H.text "Vous avez envie d'échanger et de partager des outils, des pratiques, des gestes professionnels avec vos collègues ? Rien de plus simple avec Devoirs Faits ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti !" ]
+                    , H.p [] [ H.text "Vous avez envie d'échanger et de partager des outils, des pratiques, des gestes professionnels avec vos collègues ? Rien de plus simple avec le site Devoirs Faits : la communauté ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti !" ]
                     , H.p []
-                        [ H.text "N'oubliez pas de remplir et de nous envoyer un formulaire de droit à l'image pour vos élèves, les parents ou vous-mêmes, selon la situation, que vous pouvez "
-                        , H.a [ HA.href "http://eduscol.education.fr/internet-responsable/ressources/boite-a-outils.html" ] [ H.text "trouver ici." ]
+                        [ H.text "N'oubliez pas de remplir et de nous envoyer un formulaire de droit à l'image pour vos élèves, les parents ou vous-mêmes, selon la situation, que vous pouvez trouver ici : "
+                        , H.a [ HA.href "https://devoirs-faits-communaute.beta.gouv.fr/documents/Autorisation-captation-image-majeur_2017.pdf" ] [ H.text "autorisation adulte" ]
+                        ,H.text " - "
+                        ,H.a [ HA.href "https://devoirs-faits-communaute.beta.gouv.fr/documents/Autorisation-captation-image-mineur_2017.pdf" ] [ H.text "autorisation mineur" ]
                         ]
                     ]
                 ]
             , H.article [ HA.class "about__subject" ]
                 [ H.div [ HA.class "about__image" ]
                     [ H.img
-                        [ HA.src "%PUBLIC_URL%/images/photos/groupe.jpg"
+                        [ HA.src "%PUBLIC_URL%/images/photos/eleve_visio.jpg"
                         , HA.alt ""
                         ]
                         []
@@ -80,21 +82,7 @@ view _ { title } =
                 , H.div [ HA.class "richtext about__text " ]
                     [ H.h3 [ HA.class "title is-3" ] [ H.text "Quel sujet traiter dans ma vidéo ?" ]
                     , H.p [] [ H.text "Toute contribution est précieuse, mutualisons nos expériences et nos intelligences !" ]
-                    , H.p [] [ H.text "Avec ou sans élève, racontez votre classe, décrivez son aménagement, partagez votre organisation avec vos collègues, montrez une séance pédagogique, parlez d'un jeu ou d'un livre qui vous a plu... tout est permis ! Regardez les exemples déjà proposés sur le site ! Et... si le sujet a déjà été traité, n'hésitez pas à donner votre propre point de vue ! Nous nous enrichirons mutuellement." ]
-                    ]
-                ]
-            , H.article [ HA.class "about__video" ]
-                [ H.div [ HA.class "about__image" ]
-                    [ H.img
-                        [ HA.src "%PUBLIC_URL%/images/photos/mobile.jpg"
-                        , HA.alt ""
-                        ]
-                        []
-                    ]
-                , H.div [ HA.class "richtext about__text " ]
-                    [ H.h3 [ HA.class "title is-3" ] [ H.text "Une vidéo de deux minutes permet d’exprimer l’essentiel." ]
-                    , H.p [] [ H.text "L’appropriation de l’activité, des outils, des gestes professionnels devient plus facile" ]
-                    , H.p [] [ H.text "Besoin de compléments d’informations ou de précisions? La possibilité d’échanger, et de déposer des pièces jointes sont des fonctionnalités disponibles." ]
+                    , H.p [] [ H.text "Avec ou sans élève, racontez votre mise en œuvre du dispositif, décrivez son aménagement, partagez votre organisation avec vos collègues, montrez une séance en groupes...tout est permis ! Regardez les exemples déjà proposés sur le site ! Et... si le sujet a déjà été traité, n'hésitez pas à donner votre propre point de vue ! Nous nous enrichirons mutuellement." ]
                     ]
                 ]
             , H.article [ HA.class "about__DF" ]

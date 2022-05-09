@@ -86,3 +86,25 @@ a:hover {
 #archive .news_item::before {
 background-color: #f7f7fc;
 }
+
+.about__service .about__image {
+  left: 33%;
+}
+.about__subject .about__image {
+  left: 44%;
+  width: 43%;
+}
+article.about__DF {
+  align-items: center;
+  margin-top: 32rem;
+}
+.about__DF .about__image {
+  margin-right: 4.2rem;
+  padding: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+.about__DF .about__image img {
+  width: 23.8rem;
+  height: 23.8rem;
+}
