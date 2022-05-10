@@ -56,7 +56,7 @@ init session =
                                 |> Maybe.map .username
                                 |> Maybe.withDefault ""
                     in
-                    if Data.Session.isLoggedIn session.userInfo && username == "classea12" then
+                    if Data.Session.isLoggedIn session.userInfo && username == "devoirsfaits" then
                         ( { initialModel
                             | blacklistedVideoListData = Data.PeerTube.Requested
                           }
@@ -188,7 +188,7 @@ view { peerTubeURL, userInfo } { title, notifications, blacklistedVideoListData,
     , body =
         [ H.map NotificationMsg (Notifications.view notifications)
         , if Data.Session.isLoggedIn userInfo then
-            if username == "classea12" then
+            if username == "devoirsfaits" then
                 case blacklistedVideoListData of
                     Data.PeerTube.Received _ ->
                         H.section [ HA.class "section section-grey cards" ]

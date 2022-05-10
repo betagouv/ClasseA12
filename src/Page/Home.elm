@@ -35,7 +35,7 @@ init session =
       }
     , Cmd.batch
         [ Request.PeerTube.getPlaylistVideoList
-            "classea12"
+            "devoirsfaits"
             Request.PeerTube.emptyVideoListParams
             session.peerTubeURL
             PlaylistVideoListReceived

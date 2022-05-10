@@ -1,6 +1,6 @@
 # Devoirs Faits
 
-Source code for the project [Devoirs Faits](https://beta.gouv.fr/startups/classe-a-12.html).
+Source code for the project [Devoirs Faits](https://beta.gouv.fr/startups/devoirs-faits-communaute.html), which is a branch of the [Classe à 12 project](https://github.com/betagouv/ClasseA12/tree/devoirs-faits-V2).
 This has been bootstraped with [elm-kitchen](https://allo-media.github.io/elm-kitchen/), see after the separator for more information.
 The project is bundled using [create-elm-app](https://github.com/halfzebra/create-elm-app).
 
@@ -9,12 +9,12 @@ To install and tinker (we use yarn because depency resolution seems to work bett
 ```shell
 $ git clone https://github.com/betagouv/ClasseA12
 $ cd ClasseA12
+$ git checkout --track origin/devoirs-faits-V2
 $ yarn install
 $ yarn start
 ```
 
-Check out https://classe-a-12.beta.gouv.fr
-
+Check out https://devoirs-faits-communaute.beta.gouv.fr/
 
 # Deployment
 
@@ -25,7 +25,6 @@ For this second part to work, here's the recipe:
 ## Bare git clone with a post-receive hook on the server
 
 ```shell
-$ cd git
 $ git clone --bare https://github.com/betagouv/ClasseA12.git
 $ vim ClasseA12/hooks/post-receive
 ```
@@ -85,7 +84,7 @@ DocumentRoot "/path/to/www/ClasseA12/"
 </Directory>
 ```
 
-----
+---
 
 # elm-kitchen
 

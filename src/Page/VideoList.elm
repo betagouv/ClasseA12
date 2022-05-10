@@ -63,7 +63,7 @@ init query session =
               , loadMoreState = Page.Common.Components.Loading
               , notifications = Notifications.init
               }
-            , Request.PeerTube.getPlaylistVideoList "classea12" videoListParams session.peerTubeURL PlaylistVideoListReceived
+            , Request.PeerTube.getPlaylistVideoList "devoirsfaits" videoListParams session.peerTubeURL PlaylistVideoListReceived
             )
 
         Route.FAQFlash ->
@@ -75,7 +75,7 @@ init query session =
               , loadMoreState = Page.Common.Components.Loading
               , notifications = Notifications.init
               }
-            , Request.PeerTube.getSpecificPlaylistVideoList "FAQ Flash" "classea12" videoListParams session.peerTubeURL VideoListReceived
+            , Request.PeerTube.getSpecificPlaylistVideoList "FAQ Flash" "devoirsfaits" videoListParams session.peerTubeURL VideoListReceived
             )
 
         Route.Keyword keyword ->
@@ -260,7 +260,7 @@ update session msg model =
             , case model.query of
                 Route.Playlist ->
                     Request.PeerTube.getPlaylistVideoList
-                        "classea12"
+                        "devoirsfaits"
                         params
                         session.peerTubeURL
                         PlaylistVideoListReceived
@@ -268,7 +268,7 @@ update session msg model =
                 Route.FAQFlash ->
                     Request.PeerTube.getSpecificPlaylistVideoList
                         "FAQ Flash"
-                        "classea12"
+                        "devoirsfaits"
                         params
                         session.peerTubeURL
                         VideoListReceived
