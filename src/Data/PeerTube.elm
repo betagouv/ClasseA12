@@ -208,17 +208,7 @@ videoDecoder =
         |> Pipeline.optional "originallyPublishedAt" Decode.string ""
         |> Pipeline.optional "tags" (Decode.list Decode.string) []
         |> Pipeline.optional "blacklisted" Decode.bool False
-        |> Pipeline.optional "streamingPlaylists" videoStreamingPlaylistsDecoder Nothing
-
-
-videoStreamingPlaylistsDecoder : Decode.Decoder (Maybe Files)
-videoStreamingPlaylistsDecoder =
-    Decode.list
-        (Decode.at [ "files" ] videoFilesDecoder)
-        -- Go from `List (Maybe Files)` to `List Files`
-        |> Decode.map (List.filterMap identity)
-        -- Keep the first (hypothetical) File
-        |> Decode.map List.head
+        |> Pipeline.optional "files" videoFilesDecoder Nothing
 
 
 videoFilesDecoder : Decode.Decoder (Maybe Files)
