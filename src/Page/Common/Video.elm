@@ -111,7 +111,10 @@ shortDetails video =
         videoLikesNode =
             let
                 likes =
-                    String.fromInt video.likes
+                    if video.likes > 0 then
+                        String.fromInt video.likes
+                    else
+                        ""
             in
             H.div [HA.class "card_likes"]
                 [ H.text likes
