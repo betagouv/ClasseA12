@@ -87,7 +87,7 @@ viewHeader =
                 []
             , H.h1 []
                 [ H.text "La communauté vidéo"
-                , H.span [] [ H.text "de l’aide aux devoirs" ]
+                , H.span [] [ H.text "du dispositif devoirs faits" ]
                 ]
             , H.p [] [ H.text "Chaque semaine, des accompagnateurs aux devoirs partagent leurs idées pédagogiques, ateliers, bonnes pratiques dans des formats vidéos courts." ]
             , H.a [ HA.class "btn", Route.href Route.AllVideos ] [ H.text "Découvrez les vidéos pédagogiques" ]

@@ -84,7 +84,7 @@ a:hover {
 }
 
 #archive .news_item::before {
-background-color: #f7f7fc;
+  background-color: #f7f7fc;
 }
 
 .about__service .about__image {
@@ -107,4 +107,9 @@ article.about__DF {
 .about__DF .about__image img {
   width: 23.8rem;
   height: 23.8rem;
+}
+
+.home__participate::after {
+  width: 4.6rem;
+  height: 5.2rem;
 }
