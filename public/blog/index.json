@@ -1,18 +1,26 @@
 [
     {
-        "id": "classe-a-12-lhistoire-dun-projet-innovant",
+        "id": "classe-on-vous-dit-tout-sur-devoirs-faits-la-communautea-12-lhistoire-dun-projet-innovant",
         "created-at": 1631785355435,
-        "title": "Devoirs Faits : l’histoire d’un projet innovant",
+        "title": "On vous dit tout sur “Devoirs Faits la communauté” ",
         "author": "L'équipe Devoirs Faits",
         "image": "image.png",
-        "excerpt": "Devoirs Faits est une communauté de professeurs qui partagent leurs pratiques professionnelles. Comment ? Grâce à des vidéos de moins de 2 minutes. Elles sont réalisées et publiées librement. Il s’agit d’une invitation à réfléchir collectivement à nos pratiques pédagogiques. À ce jour, ce sont près de 260 vidéos publiées et plus de 200 000 vues."
+        "excerpt": "Ce projet co-construit avec les enseignants de collège, des CPE, des AED et des chefs d’établissement, a pour objectif de faciliter le partage de ressources et de pratiques mises en œuvre dans le cadre du dispositif “Devoirs faits” au collège."
     },
     {
-        "id": "classe-a-12-et-devoirs-faits-la-communaute",
-        "created-at": 1631785355436,
-        "title": "Devoirs Faits et Devoirs faits la communauté : le top 8 des éléments clés des projets !",
+        "id": "partager-ses-idees-et-agrandir-la-communautee-comment-faire",
+        "created-at": 1631785355435,
+        "title": "Partager ses idées et agrandir la communauté : comment faire ?",
         "author": "L'équipe Devoirs Faits",
         "image": "image.png",
-        "excerpt": "Devoirs Faits et Devoirs faits la communauté, deux sites publiant simplement des vidéos faites par des enseignants ? C’est un peu plus complexe que ça. Dans cet article, on vous révèle comment les équipes projets ont détourné un outil appelé  “Business model” au profit des professeurs !"
+        "excerpt": "Venez comme vous êtes, avec votre envie et vos idées !Vous avez envie d'échanger et de partager des outils, des pratiques, des gestes professionnels avec vos collègues ? Rien de plus simple avec le site Devoirs Faits : la communauté ! Postez une courte vidéo de 1 à 2 mn en format paysage et c'est parti "
+    },
+    {
+        "id": "devoirs-faits-la-communaute-1an-deja",
+        "created-at": 1631785355435,
+        "title": "Devoirs Faits la communauté : 1 an déjà !",
+        "author": "L'équipe Devoirs Faits",
+        "image": "image.png",
+        "excerpt": "Devoirs Faits la communauté a soufflé sa première bougie le 28 avril 2022, retour sur ces derniers mois."
     }
 ]
