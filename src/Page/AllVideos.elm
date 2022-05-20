@@ -17,7 +17,6 @@ type alias Model =
     , search : String
     , recentVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , playlistVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
-    , faqFlashVideoData : Data.PeerTube.RemoteData (List Data.PeerTube.Video)
     , playlistTitle : String
     , videoData : Dict.Dict String (Data.PeerTube.RemoteData (List Data.PeerTube.Video))
     }
@@ -27,7 +26,6 @@ type Msg
     = UpdateSearch String
     | RecentVideoListReceived (Result Http.Error (List Data.PeerTube.Video))
     | PlaylistVideoListReceived (Result Http.Error ( String, List Data.PeerTube.Video ))
-    | FAQFlashVideoListReceived (Result Http.Error (List Data.PeerTube.Video))
     | VideoListReceived String (Result Http.Error (List Data.PeerTube.Video))
 
 
@@ -37,7 +35,6 @@ init session =
       , search = ""
       , recentVideoData = Data.PeerTube.Requested
       , playlistVideoData = Data.PeerTube.Requested
-      , faqFlashVideoData = Data.PeerTube.Requested
       , playlistTitle = ""
       , videoData =
             Data.PeerTube.keywordList
@@ -58,12 +55,6 @@ init session =
             Request.PeerTube.emptyVideoListParams
             session.peerTubeURL
             PlaylistVideoListReceived
-         , Request.PeerTube.getSpecificPlaylistVideoList
-            "FAQ Flash"
-            "devoirsfaits"
-            Request.PeerTube.emptyVideoListParams
-            session.peerTubeURL
-            FAQFlashVideoListReceived
          ]
             ++ (Data.PeerTube.keywordList
                     |> List.map
@@ -105,16 +96,6 @@ update _ msg model =
         PlaylistVideoListReceived (Err _) ->
             ( { model | playlistVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos de la playlist" }, Cmd.none )
 
-        FAQFlashVideoListReceived (Ok videoList) ->
-            ( { model
-                | faqFlashVideoData = Data.PeerTube.Received videoList
-              }
-            , Cmd.none
-            )
-
-        FAQFlashVideoListReceived (Err _) ->
-            ( { model | faqFlashVideoData = Data.PeerTube.Failed "Échec de la récupération des vidéos de la playlist FAQ Flash" }, Cmd.none )
-
         VideoListReceived keyword (Ok videoList) ->
             ( { model
                 | videoData =
@@ -139,7 +120,7 @@ update _ msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL, userRatedVideoIDs } { title, recentVideoData, playlistVideoData, playlistTitle, faqFlashVideoData, videoData } =
+view { peerTubeURL, userRatedVideoIDs } { title, recentVideoData, playlistVideoData, playlistTitle, videoData } =
     let
         viewRecentVideo =
             [ H.section [ HA.class "category", HA.id "latest" ]
@@ -173,18 +154,6 @@ view { peerTubeURL, userRatedVideoIDs } { title, recentVideoData, playlistVideoD
                 ]
             ]
 
-        viewFAQFlash =
-            [ H.section [ HA.class "category", HA.id "faq-flash" ]
-                [ H.div [ HA.class "title_wrapper" ]
-                    [ H.h2 [ HA.class "title" ]
-                        [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/infocircle_48_bicolore.svg", HA.alt "" ] []
-                        , H.text "FAQ Flash"
-                        ]
-                    ]
-                , Page.Common.Video.viewVideoListData Route.FAQFlash faqFlashVideoData peerTubeURL userRatedVideoIDs
-                ]
-            ]
-
         viewVideoCategories =
             Data.PeerTube.keywordList
                 |> List.map
@@ -203,6 +172,5 @@ view { peerTubeURL, userRatedVideoIDs } { title, recentVideoData, playlistVideoD
     , body =
         viewPlaylistVideo
             ++ viewRecentVideo
-            ++ viewFAQFlash
             ++ viewVideoCategories
     }

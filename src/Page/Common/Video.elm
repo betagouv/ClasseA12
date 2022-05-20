@@ -166,10 +166,7 @@ titleForQuery query =
             "Les nouveautés"
 
         Route.Playlist ->
-            "La playlist de la semaine"
-
-        Route.FAQFlash ->
-            "FAQ Flash"
+            "La thématique du mois"
 
         Route.Keyword keyword ->
             keyword
@@ -188,24 +185,20 @@ textContentForQuery : Route.VideoListQuery -> String
 textContentForQuery query =
     case query of
         Route.Latest ->
-            "Découvrez nos dernières publications."
+            "Découvrez sans attendre nos dernières publications et inspirez-vous de ces propositions !"
 
         Route.Playlist ->
-            "Des vidéos sélectionnées par auteur, sujet, académie, département, école…"
-
-        Route.FAQFlash ->
-            "On répond à vos questions d’ordre technique."
+            "Une thématique proposée chaque mois pour découvrir ou redécouvrir des vidéos sélectionnées selon un thème, un sujet, un auteur, ou une académie."
 
         Route.Keyword keyword ->
             Dict.fromList
-                [ ( "Français", "Des vidéos pour apprendre à lire, écrire, parler." )
-                , ( "Mathématiques", "Des vidéos en géométrie, calcul, numération, résolution de problèmes." )
-                , ( "Questionner le monde", "" )
-                , ( "Arts", "" )
-                , ( "Numérique", "De nombreux outils pratiques pour le quotidien de la classe." )
-                , ( "Enseignement moral et civique", "" )
-                , ( "Gestion de classe", "Des outils et conseils pour vous aider à gérer, organiser votre classe." )
-                , ( "Outils", "Des vidéos qui présentent des outils très concrets, variés et faciles à utiliser" )
+                [ ( "Gestion de groupe", "Retrouvez ici des outils, des conseils et des propositions pour vous aider à gérer et organiser le groupe d’élèves pendant vos séances." )
+                , ( "Gestion de matériel", "Repenser la salle et le matériel pour gagner en efficacité lors des séances. Des propositions pour réfléchir à l’aménagement de votre salle et des astuces pour organiser la gestion du matériel." )
+                , ( "Co-intervention", "Dans cette rubrique, découvrez des exemples de collaborations entre le premier et le second degré etdes propositions pour associer les parents au dispositif." )
+                , ( "Communication", "Les utilisateurs partagent des outils très concrets, variés et faciles à utiliser pour communiquer autour du dispositif." )
+                , ( "Devoirs Faits à distance", "Des présentations, des retours d'expérience et des outils pour aider à la mise en place de devoirs faits à distance." )
+                , ( "Coordonnateur Devoirs Faits", "Des outils pour aider le coordonnateur à la mise en place et au pilotage du dispositif. <br>Une boîte à outils indispensable pour faire vivre le dispositif." )
+                , ( "Ressources", "Des vidéos pour s’inspirer et aider à la mise en œuvre du dispositif dans l’établissement. Dans cette rubrique, retrouvez de nombreux outils à télécharger " )
                 ]
                 |> Dict.get keyword
                 |> Maybe.withDefault ""
@@ -224,7 +217,6 @@ viewCategory data peerTubeURL userRatedVideoIDs query =
         [ H.div [ HA.class "title_wrapper" ]
             [ H.h3 [ HA.class "title" ]
                 [ H.img [ HA.src <| "%PUBLIC_URL%/images/icons/48x48/" ++ String.Normalize.slug categoryTitle ++ "_48_bicolore.svg", HA.alt "" ] []
-                , H.text "Le coin "
                 , H.text categoryTitle
                 ]
             ]

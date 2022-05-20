@@ -66,18 +66,6 @@ init query session =
             , Request.PeerTube.getPlaylistVideoList "devoirsfaits" videoListParams session.peerTubeURL PlaylistVideoListReceived
             )
 
-        Route.FAQFlash ->
-            ( { title = "Liste des vidéos de la FAQ Flash"
-              , query = Route.FAQFlash
-              , videoListData = Data.PeerTube.Requested
-              , videoListParams = videoListParams
-              , playlistTitle = ""
-              , loadMoreState = Page.Common.Components.Loading
-              , notifications = Notifications.init
-              }
-            , Request.PeerTube.getSpecificPlaylistVideoList "FAQ Flash" "devoirsfaits" videoListParams session.peerTubeURL VideoListReceived
-            )
-
         Route.Keyword keyword ->
             let
                 decoded =
@@ -265,14 +253,6 @@ update session msg model =
                         session.peerTubeURL
                         PlaylistVideoListReceived
 
-                Route.FAQFlash ->
-                    Request.PeerTube.getSpecificPlaylistVideoList
-                        "FAQ Flash"
-                        "devoirsfaits"
-                        params
-                        session.peerTubeURL
-                        VideoListReceived
-
                 Route.Favorites profile ->
                     Request.PeerTube.getPlaylistVideoList
                         profile
@@ -343,16 +323,6 @@ view { peerTubeURL, userRatedVideoIDs } { title, videoListData, playlistTitle, q
                     [ H.div [ HA.class "title_wrapper" ]
                         [ H.h2 [ HA.class "title" ]
                             [ H.text <| "La playlist de la semaine" ++ playlistName
-                            ]
-                        ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
-                    ]
-
-            Route.FAQFlash ->
-                H.section [ HA.class "category", HA.id "playlist" ]
-                    [ H.div [ HA.class "title_wrapper" ]
-                        [ H.h2 [ HA.class "title" ]
-                            [ H.text "FAQ Flash"
                             ]
                         ]
                     , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs

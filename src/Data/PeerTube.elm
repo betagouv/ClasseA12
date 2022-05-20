@@ -158,8 +158,8 @@ keywordList =
     , "Gestion de matériel"
     , "Co-intervention"
     , "Communication"
-    , "DF à distance"
-    , "Coordonnateur DF"
+    , "Devoirs Faits à distance"
+    , "Coordonnateur Devoirs Faits"
     , "Ressources"
     ]
 

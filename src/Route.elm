@@ -34,7 +34,6 @@ type Route
 type VideoListQuery
     = Latest
     | Playlist
-    | FAQFlash
     | Keyword String
     | Search String
     | Favorites String
@@ -64,7 +63,6 @@ parser =
         [ Parser.map Home Parser.top
         , Parser.map AllVideos (Parser.s "videos")
         , Parser.map (VideoList Latest) (Parser.s "videos-recentes")
-        , Parser.map (VideoList FAQFlash) (Parser.s "videos-faq-flash")
         , Parser.map (VideoList Playlist) (Parser.s "videos-playlist")
         , Parser.map (\search -> VideoList <| Keyword search) (Parser.s "videos" </> decodedStringParser)
         , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos-recherche" </> decodedStringParser)
@@ -155,9 +153,6 @@ toString route =
 
                         Playlist ->
                             [ "videos-playlist" ]
-
-                        FAQFlash ->
-                            [ "videos-faq-flash" ]
 
                         Keyword search ->
                             [ "videos", Url.percentEncode search ]
