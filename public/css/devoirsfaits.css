@@ -87,6 +87,11 @@ a:hover {
   background-color: #f7f7fc;
 }
 
+.about h1::after {
+  width: 36.4rem;
+  background-position: top center;
+}
+
 .about__service .about__image {
   left: 33%;
 }
@@ -94,6 +99,37 @@ a:hover {
   left: 44%;
   width: 43%;
 }
+
+.about__service .about__text::after {
+  width: 10rem;
+  height: 15rem;
+  background-image: url(../images/illustrations/about/smatphone_jaune.png);
+  transform: rotate(33deg);
+}
+
+.home__participate::after {
+  width: 4.6rem;
+  height: 5.2rem;
+}
+.about__participate .about__image::after {
+  width: 8.7rem;
+  height: 11rem;
+  background-image: url(../images/illustrations/about/livre_rouge.png);
+}
+.about__participate .about__text::after {
+  right: -5rem;
+  width: 10rem;
+  height: 10rem;
+  background-image: url(../images/illustrations/about/rapporteur.png);
+  transform: rotate(44deg);
+}
+
+.about__subject .about__image::after {
+  width: 3rem;
+  height: 15rem;
+  background-image: url(../images/illustrations/about/crayon_jaune.png);
+}
+
 article.about__DF {
   align-items: center;
   margin-top: 32rem;
@@ -108,8 +144,9 @@ article.about__DF {
   width: 23.8rem;
   height: 23.8rem;
 }
-
-.home__participate::after {
-  width: 4.6rem;
-  height: 5.2rem;
+.about__DF .about__image::after {
+  width: 7.3rem;
+  height: 7.3rem;
+  background-image: url(../images/illustrations/about/fleche_jaune.png);
+  transform: rotate(76deg);
 }
