@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="104px" height="104px" viewBox="0 0 104 104" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>placeholder/avatar copy</title>
+    <g id="Maquettes---No-Illus" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-I-02.2---Page-vidéo" transform="translate(-424.000000, -1672.000000)">
+            <g id="Group" transform="translate(424.000000, 1672.000000)">
+                <circle id="Oval" fill="#D9E8E6" cx="52" cy="52" r="52"></circle>
+                <g id="Group-2" transform="translate(36.000000, 36.000000)" stroke="#006154" stroke-linecap="round" stroke-width="4">
+                    <path d="M16.6666667,8.33333333 C16.6666667,3.73096042 12.9357062,0 8.33333333,0 C3.73096042,0 0,3.73096042 0,8.33333333" id="Oval"></path>
+                    <path d="M50,8.33333333 C50,3.73096042 46.2690396,0 41.6666667,0 C37.0642938,0 33.3333333,3.73096042 33.3333333,8.33333333" id="Oval-Copy-4"></path>
+                    <path d="M29.1666667,30 C29.1666667,25.3976271 25.4357062,21.6666667 20.8333333,21.6666667" id="Oval-Copy-6" transform="translate(25.000000, 25.833333) rotate(-225.000000) translate(-25.000000, -25.833333) "></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

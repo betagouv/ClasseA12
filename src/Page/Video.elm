@@ -1200,7 +1200,7 @@ viewCommentDetails videoID attachmentList comment =
                     (\attachment ->
                         H.li []
                             [ H.img
-                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_deepgreen.svg"
+                                [  HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_deepgreen.svg"
                                 , HA.title ""
                                 ]
                                 []
@@ -1218,7 +1218,7 @@ viewCommentDetails videoID attachmentList comment =
         , HA.id <| String.fromInt comment.id
         ]
         [ H.div [ HA.class "comment_avatar" ]
-            [ H.img [] []
+            [ H.img [HA.src "%PUBLIC_URL%/images/placeholder/avatar.svg"] []
             ]
         , H.div [ HA.class "comment_content" ]
             [ H.a

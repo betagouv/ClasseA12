@@ -80,7 +80,7 @@ a:hover {
 }
 
 .comment_avatar {
-  background-color: var(--green);
+  background-color: transparent;
 }
 
 #archive .news_item::before {

@@ -19,3 +19,13 @@ Voici nos perspectives pour la suite :
 ✨Agrandir le nombre d’académies participantes afin qu’à terme elles soient toutes représentées sur le site.
 
 Pour fêter ce premier anniversaire, le site s’embellit ! Ces évolutions tiennent compte de vos retours utilisateurs.
+
+![](/blog/devoirs-faits-la-communaute-1an-deja/image1.png)
+
+![](/blog/devoirs-faits-la-communaute-1an-deja/image2.png)
+
+![](/blog/devoirs-faits-la-communaute-1an-deja/image3.png)
+
+![](/blog/devoirs-faits-la-communaute-1an-deja/image4.png)
+
+![](/blog/devoirs-faits-la-communaute-1an-deja/image5.png)
