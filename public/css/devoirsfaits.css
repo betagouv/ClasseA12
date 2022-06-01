@@ -150,3 +150,21 @@ article.about__DF {
   background-image: url(../images/illustrations/about/fleche_jaune.png);
   transform: rotate(76deg);
 }
+
+@media (max-width: 1024px) {
+  .mobile-tabs .tab-headers a.active {
+    background-color: #f7f7fc;
+  }
+
+  aside nav {
+    padding-top: 1rem;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .home__participate::after {
+    width: 2.4rem;
+    height: 2.4rem;
+  }
+}

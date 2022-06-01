@@ -101,6 +101,30 @@ view _ { title } =
                     , H.p [] [ H.text "Ce prototype s’inscrit dans le dispositif Devoirs Faits porté par le ministère de l’Education nationale, de la Jeunesse et des Sports." ]
                     ]
                 ]
+            , H.div [ HA.class "container" ]
+                [ H.div [ HA.class "richtext" ]
+                    [ H.h3 [ HA.class "title is-3", HA.id "statistiques" ] [ H.text "Statistiques" ]
+                    ]
+                , H.iframe
+                    [ HA.src "https://e.infogram.com/4a22aab9-f4b0-43eb-917d-0e2e63f3bb73?src=embed"
+                    , HA.title "Classe à 12"
+                    , HA.width 800
+                    , HA.height 450
+                    , HA.style "border" "none"
+                    , HA.attribute "scrolling" "no"
+                    , HA.attribute "frameborder" "0"
+                    , HA.attribute "allowfullscreen" "allowfullscreen"
+                    ]
+                    []
+                , H.div
+                    []
+                    [ H.a
+                        [ HA.href "https://infogram.com/4a22aab9-f4b0-43eb-917d-0e2e63f3bb73"
+                        , HA.target "_blank"
+                        ]
+                        [ H.text "Devoirs faits sur Infogram" ]
+                    ]
+                ]
             ]
         ]
     }
