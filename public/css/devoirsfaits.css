@@ -167,4 +167,13 @@ article.about__DF {
     width: 2.4rem;
     height: 2.4rem;
   }
+
+  article.about__DF {
+    flex-direction: column;
+    margin-top: 5.2rem;
+  }
+  article.about__DF .about__image {
+    position: relative;
+    order: 2;
+  }
 }

@@ -152,21 +152,21 @@ viewParticipate =
                     [ HA.class "home__participate-photos" ]
                     [ H.div [ HA.class "about__image" ]
                         [ H.img
-                            [ HA.src "%PUBLIC_URL%/images/photos/mobile.jpg"
+                            [ HA.src "%PUBLIC_URL%/images/photos/photo_01.jpg"
                             , HA.alt ""
                             ]
                             []
                         ]
                     , H.div [ HA.class "about__image" ]
                         [ H.img
-                            [ HA.src "%PUBLIC_URL%/images/photos/equipe.jpg"
+                            [ HA.src "%PUBLIC_URL%/images/photos/photo_02.jpg"
                             , HA.alt ""
                             ]
                             []
                         ]
                     , H.div [ HA.class "about__image" ]
                         [ H.img
-                            [ HA.src "%PUBLIC_URL%/images/photos/groupe.jpg"
+                            [ HA.src "%PUBLIC_URL%/images/photos/photo_03.jpg"
                             , HA.alt ""
                             ]
                             []
