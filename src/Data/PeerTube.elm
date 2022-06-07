@@ -10,6 +10,7 @@ module Data.PeerTube exposing
     , UserInfo
     , UserToken
     , Video
+    , VideoID
     , VideoUploaded
     , accountDecoder
     , alternateCommentListDecoder
@@ -63,8 +64,12 @@ type alias Account =
     }
 
 
+type alias VideoID =
+    Int
+
+
 type alias Video =
-    { id : Int
+    { id : VideoID
     , previewPath : String
     , thumbnailPath : String
     , name : String
@@ -96,7 +101,7 @@ type alias NewVideo =
 
 
 type alias VideoUploaded =
-    { id : Int
+    { id : VideoID
     , uuid : String
     }
 
@@ -113,7 +118,7 @@ emptyNewVideo =
 type alias Comment =
     { id : Int
     , text : String
-    , videoId : Int
+    , videoId : VideoID
     , createdAt : String
     , updatedAt : String
     , account : Account
