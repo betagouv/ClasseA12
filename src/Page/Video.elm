@@ -1079,12 +1079,13 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                 likes =
                     String.fromInt video.likes
             in
-            H.div [HA.class "video_likes"]
-                [ H.img
-                    [ HA.src "%PUBLIC_URL%/images/icons/16x16/heart_16_white.svg"
-                    ]
-                    []
-                , H.text likes
+            H.div [ HA.class "video_likes" ]
+                [ H.img [ HA.src "%PUBLIC_URL%/images/icons/16x16/heart_16_white.svg" ] []
+                , if video.likes /= 0 then
+                    H.text likes
+
+                  else
+                    H.text ""
                 ]
 
         videoRatingNode =
