@@ -15,6 +15,7 @@ module Request.PeerTube exposing
     , extractSessionMsgFromError
     , getAccount
     , getAccountForEdit
+    , getAccountRatings
     , getBlacklistedVideoList
     , getCommentList
     , getFavoriteStatus
@@ -662,6 +663,40 @@ removeFromFavorite { playlistID, playlistItemID } userToken serverURL message =
 
 
 ---- LIKES ----
+
+
+getAccountRatingsRequest : String -> String -> String -> Http.Request (List Data.PeerTube.VideoID)
+getAccountRatingsRequest username access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/accounts/" ++ username ++ "/ratings?rating=like&count=100"
+
+        decoder : Decode.Decoder (List Data.PeerTube.VideoID)
+        decoder =
+            Decode.field "data"
+                (Decode.list (Decode.at [ "video", "id" ] Decode.int))
+
+        request : Http.Request (List Data.PeerTube.VideoID)
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+getAccountRatings : String -> UserToken -> String -> (Result AuthError (AuthResult (List Data.PeerTube.VideoID)) -> msg) -> Cmd msg
+getAccountRatings username userToken serverURL message =
+    getAccountRatingsRequest username
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
 
 
 videoRatingRequest : Video -> String -> String -> Http.Request Data.PeerTube.Rating
