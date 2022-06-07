@@ -4,11 +4,10 @@ import Browser.Dom as Dom
 import Data.PeerTube
 import Data.Session exposing (Session)
 import Html as H exposing (video)
-import Html.Attributes as HA exposing (class)
+import Html.Attributes as HA
 import Html.Events as HE
 import Http
 import Json.Decode as Decode
-import Json.Encode as Encode
 import List.Extra
 import Markdown
 import Page.Common.Components as Components
@@ -855,33 +854,6 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
             )
         ]
     }
-
-
-viewBreadCrumbs : Data.PeerTube.RemoteData Data.PeerTube.Video -> H.Html Msg
-viewBreadCrumbs videoData =
-    case videoData of
-        Data.PeerTube.Received video ->
-            let
-                keywordCrumbs =
-                    video.tags
-                        |> List.concatMap
-                            (\keyword ->
-                                [ H.text " / "
-                                , H.a [ Route.href (Route.VideoList <| Route.Search keyword) ] [ H.text keyword ]
-                                ]
-                            )
-            in
-            H.div [ HA.class "breadcrumbs" ]
-                ([ H.a [ Route.href Route.Home ] [ H.text "Accueil" ]
-                 ]
-                    ++ keywordCrumbs
-                    ++ [ H.text " / "
-                       , H.text video.name
-                       ]
-                )
-
-        _ ->
-            H.text ""
 
 
 viewVideo :
