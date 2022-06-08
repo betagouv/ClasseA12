@@ -208,7 +208,39 @@ videoDecoder =
         |> Pipeline.optional "originallyPublishedAt" Decode.string ""
         |> Pipeline.optional "tags" (Decode.list Decode.string) []
         |> Pipeline.optional "blacklisted" Decode.bool False
-        |> Pipeline.optional "files" videoFilesDecoder Nothing
+        -- We may have a "files" or a "streamingPlaylists" fields, when requesting a video
+        -- but those fields are absent when requesting a list of videos (such as suggested videos).
+        -- And if we get a "files" field, it might be an empty list because videos uploaded
+        -- in a newer PeerTube version (v3 and above) will have their files listed as a child of
+        -- the "streamingPlaylists" field.
+        -- So first decode the "files" field. If it results in a "Nothing", then decode the
+        -- "streamingPlaylists" field. Wrap all of that in a `Decode.maybe` in case the "files" field
+        -- is absent.
+        |> Pipeline.custom
+            ((Decode.field "files" videoFilesDecoder
+                |> Decode.andThen
+                    (\maybeFiles ->
+                        case maybeFiles of
+                            Just _ ->
+                                Decode.succeed maybeFiles
+
+                            _ ->
+                                Decode.field "streamingPlaylists" videoStreamingPlaylistsDecoder
+                    )
+             )
+                |> Decode.maybe
+                |> Decode.map (Maybe.withDefault Nothing)
+            )
+
+
+videoStreamingPlaylistsDecoder : Decode.Decoder (Maybe Files)
+videoStreamingPlaylistsDecoder =
+    Decode.list
+        (Decode.at [ "files" ] videoFilesDecoder)
+        -- Go from `List (Maybe Files)` to `List Files`
+        |> Decode.map (List.filterMap identity)
+        -- Keep the first (hypothetical) File
+        |> Decode.map List.head
 
 
 videoFilesDecoder : Decode.Decoder (Maybe Files)
