@@ -20,6 +20,7 @@ module Data.PeerTube exposing
     , encodeComment
     , encodeNewVideoData
     , encodeUserInfo
+    , encodeUserRatedVideoIDs
     , encodeUserToken
     , keywordList
     , playlistDecoder
@@ -383,6 +384,11 @@ encodeUserToken userToken =
         , ( "refresh_token", Encode.string userToken.refresh_token )
         , ( "token_type", Encode.string userToken.token_type )
         ]
+
+
+encodeUserRatedVideoIDs : List VideoID -> Encode.Value
+encodeUserRatedVideoIDs userRatedVideoIDs =
+    Encode.list Encode.int userRatedVideoIDs
 
 
 encodeComment : String -> Encode.Value

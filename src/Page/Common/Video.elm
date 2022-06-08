@@ -105,21 +105,29 @@ description video =
         [ Markdown.toHtml [] video.description ]
 
 
-shortDetails : Data.PeerTube.Video -> H.Html msg
-shortDetails video =
+shortDetails : List Data.PeerTube.VideoID -> Data.PeerTube.Video -> H.Html msg
+shortDetails userRatedVideoIDs video =
     let
         videoLikesNode =
             let
                 likes =
                     if video.likes > 0 then
                         String.fromInt video.likes
+
                     else
                         ""
+
+                icon =
+                    if List.member video.id userRatedVideoIDs then
+                        "%PUBLIC_URL%/images/icons/16x16/heart-filled_16_purple.svg"
+
+                    else
+                        "%PUBLIC_URL%/images/icons/16x16/heart_16_purple.svg"
             in
-            H.div [HA.class "card_likes"]
+            H.div [ HA.class "card_likes" ]
                 [ H.text likes
                 , H.img
-                    [ HA.src "%PUBLIC_URL%/images/icons/16x16/heart_16_purple.svg"
+                    [ HA.src icon
                     ]
                     []
                 ]
@@ -127,8 +135,8 @@ shortDetails video =
     H.div
         [ HA.class "card_content" ]
         [ H.h3 [] [ H.text video.name ]
-        , H.div [HA.class "card_meta"][
-            H.time [ HA.class "card_date" ] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]  
+        , H.div [ HA.class "card_meta" ]
+            [ H.time [ HA.class "card_date" ] [ H.text <| Dates.formatStringDate (publishedAtFromVideo video) ]
             , videoLikesNode
             ]
         ]
@@ -206,8 +214,8 @@ textContentForQuery query =
             ""
 
 
-viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> Route.VideoListQuery -> H.Html msg
-viewCategory data peerTubeURL query =
+viewCategory : Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> List Data.PeerTube.VideoID -> Route.VideoListQuery -> H.Html msg
+viewCategory data peerTubeURL userRatedVideoIDs query =
     let
         categoryTitle =
             titleForQuery query
@@ -220,12 +228,12 @@ viewCategory data peerTubeURL query =
                 , H.text categoryTitle
                 ]
             ]
-        , viewVideoListData query data peerTubeURL
+        , viewVideoListData query data peerTubeURL userRatedVideoIDs
         ]
 
 
-viewVideoListData : Route.VideoListQuery -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> H.Html msg
-viewVideoListData query data peerTubeURL =
+viewVideoListData : Route.VideoListQuery -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> String -> List Data.PeerTube.VideoID -> H.Html msg
+viewVideoListData query data peerTubeURL userRatedVideoIDs =
     case data of
         Data.PeerTube.NotRequested ->
             H.text ""
@@ -234,19 +242,19 @@ viewVideoListData query data peerTubeURL =
             H.text "Chargement des vidéos..."
 
         Data.PeerTube.Received videoList ->
-            viewList query peerTubeURL videoList
+            viewList query peerTubeURL userRatedVideoIDs videoList
 
         Data.PeerTube.Failed error ->
             H.text error
 
 
-viewList : Route.VideoListQuery -> String -> List Data.PeerTube.Video -> H.Html msg
-viewList query peerTubeURL videoList =
+viewList : Route.VideoListQuery -> String -> List Data.PeerTube.VideoID -> List Data.PeerTube.Video -> H.Html msg
+viewList query peerTubeURL userRatedVideoIDs videoList =
     let
         videoCards =
             if videoList /= [] then
                 videoList
-                    |> List.map (\video -> viewVideo peerTubeURL video)
+                    |> List.map (\video -> viewVideo peerTubeURL userRatedVideoIDs video)
 
             else
                 [ H.text "Aucune vidéo pour le moment" ]
@@ -301,8 +309,8 @@ viewInsert query =
         ]
 
 
-viewVideo : String -> Data.PeerTube.Video -> H.Html msg
-viewVideo peerTubeURL video =
+viewVideo : String -> List Data.PeerTube.VideoID -> Data.PeerTube.Video -> H.Html msg
+viewVideo peerTubeURL userRatedVideoIDs video =
     H.a
         [ HA.class "card"
         , Route.href <| Route.Video video.uuid video.name
@@ -315,5 +323,5 @@ viewVideo peerTubeURL video =
                 ]
                 []
             ]
-        , shortDetails video
+        , shortDetails userRatedVideoIDs video
         ]

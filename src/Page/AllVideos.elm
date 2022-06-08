@@ -139,17 +139,17 @@ update _ msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle, faqFlashVideoData, videoData } =
+view { peerTubeURL, userRatedVideoIDs } { title, recentVideoData, playlistVideoData, playlistTitle, faqFlashVideoData, videoData } =
     let
         viewRecentVideo =
             [ H.section [ HA.class "category", HA.id "latest" ]
                 [ H.div [ HA.class "title_wrapper" ]
-                    [ H.h2 [ HA.class "title"]
+                    [ H.h2 [ HA.class "title" ]
                         [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/new_48_bicolore.svg", HA.alt "" ] []
                         , H.text "Les nouveautés"
                         ]
                     ]
-                , Page.Common.Video.viewVideoListData Route.Latest recentVideoData peerTubeURL
+                , Page.Common.Video.viewVideoListData Route.Latest recentVideoData peerTubeURL userRatedVideoIDs
                 ]
             ]
 
@@ -169,7 +169,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                         , H.text <| "La playlist de la semaine" ++ playlistName
                         ]
                     ]
-                , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL
+                , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL userRatedVideoIDs
                 ]
             ]
 
@@ -181,7 +181,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                         , H.text "FAQ Flash"
                         ]
                     ]
-                , Page.Common.Video.viewVideoListData Route.FAQFlash faqFlashVideoData peerTubeURL
+                , Page.Common.Video.viewVideoListData Route.FAQFlash faqFlashVideoData peerTubeURL userRatedVideoIDs
                 ]
             ]
 
@@ -194,7 +194,7 @@ view { peerTubeURL } { title, recentVideoData, playlistVideoData, playlistTitle,
                                 Dict.get keyword videoData
                                     |> Maybe.withDefault Data.PeerTube.NotRequested
                         in
-                        Page.Common.Video.viewCategory videoListData peerTubeURL <| Route.Keyword keyword
+                        Page.Common.Video.viewCategory videoListData peerTubeURL userRatedVideoIDs <| Route.Keyword keyword
                     )
     in
     { title = title

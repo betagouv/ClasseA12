@@ -5,12 +5,14 @@ const FILES_URL = process.env.ELM_APP_FILES_URL;
 const loginForm = window.localStorage.getItem("session");
 const userToken = window.localStorage.getItem("userToken");
 const userInfo = window.localStorage.getItem("userInfo");
+const userRatedVideoIDs = window.localStorage.getItem("userRatedVideoIDs");
 const app = Elm.Main.init({
     node: document.getElementById("root"),
     flags: {
         loginForm: loginForm,
         userToken: userToken,
         userInfo: userInfo,
+        userRatedVideoIDs: userRatedVideoIDs,
         version: process.env.ELM_APP_VERSION,
         peerTubeURL: PEERTUBE_URL,
         filesURL: FILES_URL,
@@ -198,11 +200,15 @@ app.ports.saveUserToken.subscribe(function (userToken) {
 app.ports.saveUserInfo.subscribe(function (userInfo) {
     localStorage.setItem("userInfo", JSON.stringify(userInfo));
 });
+app.ports.saveUserRatedVideoIDs.subscribe(function (userRatedVideoIDs) {
+    localStorage.setItem("userRatedVideoIDs", JSON.stringify(userRatedVideoIDs));
+});
 
 app.ports.logoutSession.subscribe(function () {
     localStorage.removeItem("session");
     localStorage.removeItem("userToken");
     localStorage.removeItem("userInfo");
+    localStorage.removeItem("userRatedVideoIDs");
 });
 
 app.ports.navigatorShare.subscribe(function (shareText) {

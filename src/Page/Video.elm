@@ -751,7 +751,7 @@ scrollToComment maybeCommentID model =
 
 
 view : Session -> Model -> Components.Document Msg
-view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, loadMoreState, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus, rating, togglingRating } =
+view { peerTubeURL, navigatorShare, url, userInfo, userRatedVideoIDs } { videoID, title, videoTitle, videoData, comments, comment, commentData, refreshing, attachmentData, progress, notifications, attachmentList, relatedVideos, numRelatedVideosToDisplay, loadMoreState, activeTab, deletedVideo, displayDeleteModal, favoriteStatus, togglingFavoriteStatus, rating, togglingRating } =
     let
         commentFormNode =
             H.div [ HA.class "video_contribution" ]
@@ -844,7 +844,7 @@ view { peerTubeURL, navigatorShare, url, userInfo } { videoID, title, videoTitle
                                 else
                                     ""
                             ]
-                            [ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreState
+                            [ viewRelatedVideos peerTubeURL userRatedVideoIDs relatedVideos numRelatedVideosToDisplay loadMoreState
                             ]
                         ]
                     , H.div []
@@ -1322,8 +1322,8 @@ viewCommentForm comment userInfo refreshing commentData attachmentData progress 
             ]
 
 
-viewRelatedVideos : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> Int -> Components.ButtonState -> H.Html Msg
-viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreState =
+viewRelatedVideos : String -> List Data.PeerTube.VideoID -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> Int -> Components.ButtonState -> H.Html Msg
+viewRelatedVideos peerTubeURL userRatedVideoIDs relatedVideos numRelatedVideosToDisplay loadMoreState =
     case relatedVideos of
         Data.PeerTube.Received videos ->
             if videos /= [] then
@@ -1332,7 +1332,7 @@ viewRelatedVideos peerTubeURL relatedVideos numRelatedVideosToDisplay loadMoreSt
                     , H.div []
                         (videos
                             |> List.take numRelatedVideosToDisplay
-                            |> List.map (Page.Common.Video.viewVideo peerTubeURL)
+                            |> List.map (Page.Common.Video.viewVideo peerTubeURL userRatedVideoIDs)
                         )
                     , Components.button "Plus de suggestions" loadMoreState (Just LoadMore)
                     ]
