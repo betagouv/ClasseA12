@@ -188,6 +188,7 @@ app.ports.newURL.subscribe(function ([url, title]) {
         "detail": { "url": url, "title": title }
     });
     window.dispatchEvent(event);
+    window.scrollTo(0, 0);
 });
 
 app.ports.saveUserToken.subscribe(function (userToken) {
