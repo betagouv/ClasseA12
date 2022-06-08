@@ -90,6 +90,7 @@ type Msg
     | RatingReceived (Request.PeerTube.PeerTubeResult Data.PeerTube.Rating)
     | Rate Data.PeerTube.Rating
     | RatedReceived Data.PeerTube.Rating (Request.PeerTube.PeerTubeResult ())
+    | UpdatedAccountRatingsReceived (Request.PeerTube.PeerTubeResult (List Data.PeerTube.VideoID))
     | NoOp
 
 
@@ -677,10 +678,10 @@ update session msg model =
 
         RatedReceived rating (Ok authResult) ->
             let
-                updatedVideo =
-                    case model.videoData of
-                        Data.PeerTube.Received videoData ->
-                            { videoData
+                ( updatedVideo, updateUserRatedVideoIDsCmd ) =
+                    case ( model.videoData, session.userInfo, session.userToken ) of
+                        ( Data.PeerTube.Received videoData, Just userInfo, Just userToken ) ->
+                            ( { videoData
                                 | likes =
                                     case rating of
                                         Data.PeerTube.Liked ->
@@ -688,18 +689,22 @@ update session msg model =
 
                                         _ ->
                                             videoData.likes - 1
-                            }
+                              }
                                 |> Data.PeerTube.Received
+                            , Request.PeerTube.getAccountRatings userInfo.username userToken session.peerTubeURL UpdatedAccountRatingsReceived
+                            )
 
                         _ ->
-                            model.videoData
+                            ( model.videoData
+                            , Cmd.none
+                            )
             in
             ( { model
                 | togglingRating = Data.PeerTube.NotRequested
                 , rating = rating
                 , videoData = updatedVideo
               }
-            , Cmd.none
+            , updateUserRatedVideoIDsCmd
             , Request.PeerTube.extractSessionMsg authResult
             )
 
@@ -708,6 +713,26 @@ update session msg model =
                 | togglingRating = Data.PeerTube.NotRequested
                 , notifications =
                     "Échec de la requête de changement de statut de like de cette vidéo"
+                        |> Notifications.addError model.notifications
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        UpdatedAccountRatingsReceived (Ok authResult) ->
+            let
+                userRatedVideoIDs =
+                    Request.PeerTube.extractResult authResult
+            in
+            ( model
+            , Cmd.none
+            , Just <| Data.Session.UpdateAccountRatings userRatedVideoIDs
+            )
+
+        UpdatedAccountRatingsReceived (Err _) ->
+            ( { model
+                | notifications =
+                    "Erreur lors de la récupération des vidéos likées"
                         |> Notifications.addError model.notifications
               }
             , Cmd.none

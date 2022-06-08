@@ -21,6 +21,7 @@ type Msg
     = Login Data.PeerTube.UserToken Data.PeerTube.UserInfo (List Data.PeerTube.VideoID)
     | Logout
     | RefreshToken Data.PeerTube.UserToken
+    | UpdateAccountRatings (List Data.PeerTube.VideoID)
 
 
 type alias Session =
@@ -103,6 +104,13 @@ interpretMsg ( { session, navKey } as model, cmd, maybeMessage ) =
                                 | userToken = Just userToken
                               }
                             , Ports.saveUserToken <| Data.PeerTube.encodeUserToken userToken
+                            )
+
+                        UpdateAccountRatings accountRatings ->
+                            ( { session
+                                | userRatedVideoIDs = accountRatings
+                              }
+                            , Ports.saveUserRatedVideoIDs <| Data.PeerTube.encodeUserRatedVideoIDs accountRatings
                             )
             in
             ( { model | session = updatedSession }, Cmd.batch [ cmd, sessionCmd ] )
