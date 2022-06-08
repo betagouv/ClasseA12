@@ -1237,6 +1237,7 @@ aside > div {
   color: white;
   background-color: var(--primary-color);
   border-radius: 12px;
+  min-height: 20px;
 }
 .video_likes img {
   height: 1.4rem; 
