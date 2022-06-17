@@ -2,7 +2,7 @@ module Page.About exposing (Model, Msg(..), init, update, view)
 
 import Data.Session exposing (Session)
 import Html as H
-import Html.Attributes as HA exposing (class)
+import Html.Attributes as HA
 import Page.Common.Components
 
 
@@ -47,8 +47,18 @@ view _ { title } =
                 , H.div [ HA.class "richtext about__text" ]
                     [ H.h3 [ HA.class "title is-3" ] [ H.text "Un nouveau service, pour quoi faire ?" ]
                     , H.p [] [ H.text "Partager pour apprendre et progresser en équipe" ]
-                    , H.p [] [ H.text "Ce projet en cours de développement, co-construit avec les enseignants des classes dédoublées (grandes sections, CP et CE1), a pour objectif de valoriser les retours d’expérience et les échanges de pratiques personnalisées, via un produit numérique de type réseau social." ]
-                    , H.p [] [ H.text "Que vous soyez novice ou expérimenté, nous vous proposons une plateforme vidéo permettant de partager vos expériences pédagogiques auprès de vos collègues, facilement et dans le respect des pratiques de chacun." ]
+                    , H.p []
+                        [ H.text "Ce projet "
+                        , H.strong [] [ H.text "co-construit " ]
+                        , H.text "avec les enseignants de collège, des CPE, des AED et des chefs d’établissement, a pour objectif de "
+                        , H.strong [] [ H.text "faciliter le partage de ressources et de pratiques " ]
+                        , H.text "mises en œuvre dans le cadre du dispositif “Devoirs faits” au collège."
+                        ]
+                    , H.p []
+                        [ H.text "Vous êtes un acteur de terrain engagé dans le dispositif ? Que vous soyez "
+                        , H.strong [] [ H.text "novice ou expérimenté, " ]
+                        , H.text "nous vous proposons une plateforme vidéo permettant de partager vos initiatives, d’illustrer vos actions et d’inspirer ainsi vos collègues partout en France, facilement et dans le respect des pratiques de chacun."
+                        ]
                     ]
                 ]
             , H.article [ HA.class "about__participate" ]
@@ -66,8 +76,8 @@ view _ { title } =
                     , H.p []
                         [ H.text "N'oubliez pas de remplir et de nous envoyer un formulaire de droit à l'image pour vos élèves, les parents ou vous-mêmes, selon la situation, que vous pouvez trouver ici : "
                         , H.a [ HA.href "https://devoirs-faits-communaute.beta.gouv.fr/documents/Autorisation-captation-image-majeur_2017.pdf" ] [ H.text "autorisation adulte" ]
-                        ,H.text " - "
-                        ,H.a [ HA.href "https://devoirs-faits-communaute.beta.gouv.fr/documents/Autorisation-captation-image-mineur_2017.pdf" ] [ H.text "autorisation mineur" ]
+                        , H.text " - "
+                        , H.a [ HA.href "https://devoirs-faits-communaute.beta.gouv.fr/documents/Autorisation-captation-image-mineur_2017.pdf" ] [ H.text "autorisation mineur" ]
                         ]
                     ]
                 ]
