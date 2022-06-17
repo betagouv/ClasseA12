@@ -119,10 +119,10 @@ shortDetails userRatedVideoIDs video =
 
                 icon =
                     if List.member video.id userRatedVideoIDs then
-                        "%PUBLIC_URL%/images/icons/16x16/heart-filled_16_purple.svg"
+                        "%PUBLIC_URL%/images/icons/16x16/heart-filled_16_deepgreen.svg"
 
                     else
-                        "%PUBLIC_URL%/images/icons/16x16/heart_16_purple.svg"
+                        "%PUBLIC_URL%/images/icons/16x16/heart_16_deepgreen.svg"
             in
             H.div [ HA.class "card_likes" ]
                 [ H.text likes

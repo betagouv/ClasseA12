@@ -1066,10 +1066,10 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Favorite favoriteData ->
-                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/heartdelete_24_deepgreen.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
+                    Components.iconButton "Retirer des favoris" "%PUBLIC_URL%/images/icons/24x24/fav-delete_24_deepgreen.svg" buttonState (Just <| RemoveFromFavorite favoriteData)
 
                 NotFavorite ->
-                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/heart_24_deepgreen.svg" buttonState (Just <| AddToFavorite)
+                    Components.iconButton "Ajouter aux favoris" "%PUBLIC_URL%/images/icons/24x24/fav-add_24_deepgreen.svg" buttonState (Just <| AddToFavorite)
 
         videoLikesNode =
             let
@@ -1100,10 +1100,10 @@ viewVideoDetails peerTubeURL url navigatorShare video commentsData attachmentLis
                     H.text ""
 
                 Data.PeerTube.Liked ->
-                    Components.iconButton "Ne plus aimer la vidéo" "%PUBLIC_URL%/images/icons/24x24/heart-filled_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.NotLiked)
+                    Components.iconButton "Ne plus aimer la vidéo" "%PUBLIC_URL%/images/icons/24x24/heart-filled_24_deepgreen.svg" buttonState (Just <| Rate Data.PeerTube.NotLiked)
 
                 Data.PeerTube.NotLiked ->
-                    Components.iconButton "Aimer la vidéo" "%PUBLIC_URL%/images/icons/24x24/heart_24_purple.svg" buttonState (Just <| Rate Data.PeerTube.Liked)
+                    Components.iconButton "Aimer la vidéo" "%PUBLIC_URL%/images/icons/24x24/heart_24_deepgreen.svg" buttonState (Just <| Rate Data.PeerTube.Liked)
     in
     H.div
         []
@@ -1200,7 +1200,7 @@ viewCommentDetails videoID attachmentList comment =
                     (\attachment ->
                         H.li []
                             [ H.img
-                                [  HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_deepgreen.svg"
+                                [ HA.src "%PUBLIC_URL%/images/icons/32x32/support_32_deepgreen.svg"
                                 , HA.title ""
                                 ]
                                 []
@@ -1218,7 +1218,7 @@ viewCommentDetails videoID attachmentList comment =
         , HA.id <| String.fromInt comment.id
         ]
         [ H.div [ HA.class "comment_avatar" ]
-            [ H.img [HA.src "%PUBLIC_URL%/images/placeholder/avatar.svg"] []
+            [ H.img [ HA.src "%PUBLIC_URL%/images/placeholder/avatar.svg" ] []
             ]
         , H.div [ HA.class "comment_content" ]
             [ H.a
