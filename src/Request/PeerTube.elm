@@ -15,6 +15,7 @@ module Request.PeerTube exposing
     , extractSessionMsgFromError
     , getAccount
     , getAccountForEdit
+    , getAccountRatings
     , getBlacklistedVideoList
     , getCommentList
     , getFavoriteStatus
@@ -24,9 +25,11 @@ module Request.PeerTube exposing
     , getVideo
     , getVideoCommentList
     , getVideoList
+    , getVideoRating
     , loadMoreVideos
     , login
     , publishVideo
+    , rateVideo
     , register
     , removeFromFavorite
     , submitComment
@@ -654,6 +657,126 @@ removeFromFavoriteRequest playlistItemID playlistID access_token serverURL =
 removeFromFavorite : Data.PeerTube.FavoriteData -> UserToken -> String -> (Result AuthError (AuthResult String) -> msg) -> Cmd msg
 removeFromFavorite { playlistID, playlistItemID } userToken serverURL message =
     removeFromFavoriteRequest playlistItemID playlistID
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+
+---- LIKES ----
+
+
+getAccountRatingsRequest : String -> String -> String -> Http.Request (List Data.PeerTube.VideoID)
+getAccountRatingsRequest username access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/accounts/" ++ username ++ "/ratings?rating=like&count=100"
+
+        decoder : Decode.Decoder (List Data.PeerTube.VideoID)
+        decoder =
+            Decode.field "data"
+                (Decode.list (Decode.at [ "video", "id" ] Decode.int))
+
+        request : Http.Request (List Data.PeerTube.VideoID)
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+getAccountRatings : String -> UserToken -> String -> (Result AuthError (AuthResult (List Data.PeerTube.VideoID)) -> msg) -> Cmd msg
+getAccountRatings username userToken serverURL message =
+    getAccountRatingsRequest username
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+videoRatingRequest : Video -> String -> String -> Http.Request Data.PeerTube.Rating
+videoRatingRequest video access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/users/me/videos/" ++ String.fromInt video.id ++ "/rating"
+
+        decoder : Decode.Decoder Data.PeerTube.Rating
+        decoder =
+            Decode.field "rating" Decode.string
+                |> Decode.map
+                    (\ratingString ->
+                        if ratingString == "like" then
+                            Data.PeerTube.Liked
+
+                        else
+                            Data.PeerTube.NotLiked
+                    )
+
+        request : Http.Request Data.PeerTube.Rating
+        request =
+            { method = "GET"
+            , headers = []
+            , url = url
+            , body = Http.emptyBody
+            , expect = Http.expectJson decoder
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+getVideoRating : Video -> UserToken -> String -> (Result AuthError (AuthResult Data.PeerTube.Rating) -> msg) -> Cmd msg
+getVideoRating video userToken serverURL message =
+    videoRatingRequest video
+        |> authRequestWrapper userToken serverURL
+        |> Task.attempt message
+
+
+rateVideoRequest : Video -> Data.PeerTube.Rating -> String -> String -> Http.Request ()
+rateVideoRequest video rating access_token serverURL =
+    let
+        url =
+            serverURL ++ "/api/v1/videos/" ++ String.fromInt video.id ++ "/rate"
+
+        ratingString =
+            case rating of
+                Data.PeerTube.Liked ->
+                    "like"
+
+                _ ->
+                    "none"
+
+        request : Http.Request ()
+        request =
+            { method = "PUT"
+            , headers = []
+            , url = url
+            , body =
+                Encode.object
+                    [ ( "rating", Encode.string ratingString )
+                    ]
+                    |> Http.jsonBody
+            , expect = Http.expectStringResponse (\_ -> Ok ())
+            , timeout = Nothing
+            , withCredentials = False
+            }
+                |> withHeader "Authorization" ("Bearer " ++ access_token)
+                |> Http.request
+    in
+    request
+
+
+rateVideo : Video -> UserToken -> String -> (Result AuthError (AuthResult ()) -> msg) -> Data.PeerTube.Rating -> Cmd msg
+rateVideo video userToken serverURL message rating =
+    rateVideoRequest video rating
         |> authRequestWrapper userToken serverURL
         |> Task.attempt message
 

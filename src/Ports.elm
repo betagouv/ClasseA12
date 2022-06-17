@@ -7,6 +7,7 @@ port module Ports exposing
     , newURL
     , progressUpdate
     , saveUserInfo
+    , saveUserRatedVideoIDs
     , saveUserToken
     , submitAttachment
     , submitVideo
@@ -54,6 +55,9 @@ port saveUserToken : Encode.Value -> Cmd msg
 
 
 port saveUserInfo : Encode.Value -> Cmd msg
+
+
+port saveUserRatedVideoIDs : Encode.Value -> Cmd msg
 
 
 port logoutSession : () -> Cmd msg

@@ -62,13 +62,13 @@ update _ msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, playlistVideoData, postList } =
+view { peerTubeURL, userRatedVideoIDs } { title, playlistVideoData, postList } =
     { title = title
     , pageTitle = "Classe à 12 en vidéo"
     , pageSubTitle = "Échangeons nos pratiques en toute simplicité !"
     , body =
         [ viewHeader
-        , viewPlaylistVideo peerTubeURL playlistVideoData
+        , viewPlaylistVideo peerTubeURL userRatedVideoIDs playlistVideoData
         , viewParticipate
         , viewNews postList
         ]
@@ -110,8 +110,8 @@ viewHeader =
         ]
 
 
-viewPlaylistVideo : String -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> H.Html Msg
-viewPlaylistVideo peerTubeURL playlistVideoData =
+viewPlaylistVideo : String -> List Data.PeerTube.VideoID -> Data.PeerTube.RemoteData (List Data.PeerTube.Video) -> H.Html Msg
+viewPlaylistVideo peerTubeURL userRatedVideoIDs playlistVideoData =
     H.section [ HA.class "home__category wrapper", HA.id "playlist" ]
         [ H.h2 []
             [ H.img
@@ -121,7 +121,7 @@ viewPlaylistVideo peerTubeURL playlistVideoData =
                 []
             , H.text "Les vidéos à la une"
             ]
-        , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL
+        , Page.Common.Video.viewVideoListData Route.Playlist playlistVideoData peerTubeURL userRatedVideoIDs
         , H.a [ Route.href Route.AllVideos ]
             [ H.text "Voir toutes les vidéos"
             ]

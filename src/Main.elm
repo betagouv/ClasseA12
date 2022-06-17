@@ -211,6 +211,13 @@ init flags url navKey =
                 |> Result.map Just
                 |> Result.withDefault Nothing
 
+        userRatedVideoIDs =
+            -- Decode a string from the "userRatedVideoIDs" field in the value (stored in the localstorage)
+            Decode.decodeValue (Decode.field "userRatedVideoIDs" Decode.string) flags
+                -- Decode a list of video IDs from the value
+                |> Result.andThen (Decode.decodeString Data.Session.userRatedVideoIDsDecoder)
+                |> Result.withDefault []
+
         version =
             -- Decode a string from the "version" field in the value
             Decode.decodeValue (Decode.field "version" Decode.string) flags
@@ -242,6 +249,7 @@ init flags url navKey =
             , prevUrl = url
             , userToken = userToken
             , userInfo = userInfo
+            , userRatedVideoIDs = userRatedVideoIDs
             , searchFormOpened = False
             , search = ""
             , isMenuOpened = False

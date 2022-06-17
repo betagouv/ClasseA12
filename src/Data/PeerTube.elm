@@ -5,10 +5,12 @@ module Data.PeerTube exposing
     , NewVideo
     , PartialUserInfo
     , Playlist
+    , Rating(..)
     , RemoteData(..)
     , UserInfo
     , UserToken
     , Video
+    , VideoID
     , VideoUploaded
     , accountDecoder
     , alternateCommentListDecoder
@@ -18,6 +20,7 @@ module Data.PeerTube exposing
     , encodeComment
     , encodeNewVideoData
     , encodeUserInfo
+    , encodeUserRatedVideoIDs
     , encodeUserToken
     , keywordList
     , playlistDecoder
@@ -62,8 +65,12 @@ type alias Account =
     }
 
 
+type alias VideoID =
+    Int
+
+
 type alias Video =
-    { id : Int
+    { id : VideoID
     , previewPath : String
     , thumbnailPath : String
     , name : String
@@ -76,6 +83,7 @@ type alias Video =
     , tags : List String
     , blacklisted : Bool
     , files : Maybe Files
+    , likes : Int
     }
 
 
@@ -94,7 +102,7 @@ type alias NewVideo =
 
 
 type alias VideoUploaded =
-    { id : Int
+    { id : VideoID
     , uuid : String
     }
 
@@ -111,7 +119,7 @@ emptyNewVideo =
 type alias Comment =
     { id : Int
     , text : String
-    , videoId : Int
+    , videoId : VideoID
     , createdAt : String
     , updatedAt : String
     , account : Account
@@ -129,6 +137,12 @@ type alias FavoriteData =
     { playlistID : Int
     , playlistItemID : Int
     }
+
+
+type Rating
+    = RatingUnknown
+    | Liked
+    | NotLiked
 
 
 type RemoteData a
@@ -231,6 +245,7 @@ videoDecoder =
                 |> Decode.maybe
                 |> Decode.map (Maybe.withDefault Nothing)
             )
+        |> Pipeline.required "likes" Decode.int
 
 
 videoStreamingPlaylistsDecoder : Decode.Decoder (Maybe Files)
@@ -369,6 +384,11 @@ encodeUserToken userToken =
         , ( "refresh_token", Encode.string userToken.refresh_token )
         , ( "token_type", Encode.string userToken.token_type )
         ]
+
+
+encodeUserRatedVideoIDs : List VideoID -> Encode.Value
+encodeUserRatedVideoIDs userRatedVideoIDs =
+    Encode.list Encode.int userRatedVideoIDs
 
 
 encodeComment : String -> Encode.Value

@@ -301,7 +301,7 @@ update session msg model =
 
 
 view : Session -> Model -> Page.Common.Components.Document Msg
-view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications, loadMoreState } =
+view { peerTubeURL, userRatedVideoIDs } { title, videoListData, playlistTitle, query, notifications, loadMoreState } =
     { title = title
     , pageTitle =
         case query of
@@ -327,7 +327,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             [ H.text "Les nouveautés"
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
                     ]
 
             Route.Playlist ->
@@ -345,7 +345,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             [ H.text <| "La playlist de la semaine" ++ playlistName
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
                     ]
 
             Route.FAQFlash ->
@@ -355,7 +355,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             [ H.text "FAQ Flash"
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
                     ]
 
             Route.Keyword keyword ->
@@ -365,7 +365,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             [ H.text <| "Vidéos : " ++ keyword
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
                     ]
 
             Route.Search search ->
@@ -375,7 +375,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             [ H.text <| "Les vidéos pour la recherche : " ++ search
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
                     ]
 
             Route.Favorites profile ->
@@ -385,7 +385,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             [ H.text <| "Les vidéos favorites de " ++ profile
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
                     ]
 
             Route.Published profile ->
@@ -395,7 +395,7 @@ view { peerTubeURL } { title, videoListData, playlistTitle, query, notifications
                             [ H.text <| "Les vidéos publiées par " ++ profile
                             ]
                         ]
-                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL
+                    , Page.Common.Video.viewVideoListData query videoListData peerTubeURL userRatedVideoIDs
                     ]
         , case loadMoreState of
             Page.Common.Components.Disabled ->

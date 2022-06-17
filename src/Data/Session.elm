@@ -4,6 +4,7 @@ module Data.Session exposing
     , interpretMsg
     , isLoggedIn
     , userInfoDecoder
+    , userRatedVideoIDsDecoder
     )
 
 import Browser.Navigation as Nav
@@ -17,9 +18,10 @@ import Url exposing (Url)
 
 
 type Msg
-    = Login Data.PeerTube.UserToken Data.PeerTube.UserInfo
+    = Login Data.PeerTube.UserToken Data.PeerTube.UserInfo (List Data.PeerTube.VideoID)
     | Logout
     | RefreshToken Data.PeerTube.UserToken
+    | UpdateAccountRatings (List Data.PeerTube.VideoID)
 
 
 type alias Session =
@@ -32,6 +34,7 @@ type alias Session =
     , prevUrl : Url
     , userInfo : Maybe Data.PeerTube.UserInfo
     , userToken : Maybe Data.PeerTube.UserToken
+    , userRatedVideoIDs : List Data.PeerTube.VideoID
     , searchFormOpened : Bool
     , search : String
     , isMenuOpened : Bool
@@ -53,6 +56,11 @@ userInfoDecoder =
         |> Pipeline.required "playlistID" Decode.int
 
 
+userRatedVideoIDsDecoder : Decode.Decoder (List Data.PeerTube.VideoID)
+userRatedVideoIDsDecoder =
+    Decode.list Decode.int
+
+
 interpretMsg :
     ( { a | session : Session, navKey : Nav.Key }, Cmd msg, Maybe Msg )
     -> ( { a | session : Session, navKey : Nav.Key }, Cmd msg )
@@ -65,14 +73,16 @@ interpretMsg ( { session, navKey } as model, cmd, maybeMessage ) =
             let
                 ( updatedSession, sessionCmd ) =
                     case message of
-                        Login userToken userInfo ->
+                        Login userToken userInfo ratedVideoIDs ->
                             ( { session
                                 | userInfo = Just userInfo
                                 , userToken = Just userToken
+                                , userRatedVideoIDs = ratedVideoIDs
                               }
                             , Cmd.batch
                                 [ Ports.saveUserInfo <| Data.PeerTube.encodeUserInfo userInfo
                                 , Ports.saveUserToken <| Data.PeerTube.encodeUserToken userToken
+                                , Ports.saveUserRatedVideoIDs <| Data.PeerTube.encodeUserRatedVideoIDs ratedVideoIDs
                                 , redirectToPrevUrl session navKey
                                 ]
                             )
@@ -81,6 +91,7 @@ interpretMsg ( { session, navKey } as model, cmd, maybeMessage ) =
                             ( { session
                                 | userInfo = Nothing
                                 , userToken = Nothing
+                                , userRatedVideoIDs = []
                               }
                             , Cmd.batch
                                 [ Ports.logoutSession ()
@@ -93,6 +104,13 @@ interpretMsg ( { session, navKey } as model, cmd, maybeMessage ) =
                                 | userToken = Just userToken
                               }
                             , Ports.saveUserToken <| Data.PeerTube.encodeUserToken userToken
+                            )
+
+                        UpdateAccountRatings accountRatings ->
+                            ( { session
+                                | userRatedVideoIDs = accountRatings
+                              }
+                            , Ports.saveUserRatedVideoIDs <| Data.PeerTube.encodeUserRatedVideoIDs accountRatings
                             )
             in
             ( { model | session = updatedSession }, Cmd.batch [ cmd, sessionCmd ] )

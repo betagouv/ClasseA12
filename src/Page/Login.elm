@@ -6,6 +6,7 @@ import Html as H
 import Html.Attributes as HA
 import Html.Events as HE
 import Http
+import Page.AllVideos exposing (Msg(..))
 import Page.Common.Components
 import Page.Common.Notifications as Notifications
 import Request.PeerTube
@@ -37,6 +38,7 @@ type Msg
     | NotificationMsg Notifications.Msg
     | UserTokenReceived (Result Http.Error PeerTube.UserToken)
     | UserInfoReceived PeerTube.UserToken (Result Http.Error PeerTube.UserInfo)
+    | AccountRatingsReceived PeerTube.UserToken PeerTube.UserInfo (Request.PeerTube.PeerTubeResult (List PeerTube.VideoID))
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -89,14 +91,35 @@ update session msg model =
 
         UserInfoReceived userToken (Ok userInfo) ->
             ( { model | userInfoData = PeerTube.Received userInfo }
-            , Cmd.none
-            , Just <| Data.Session.Login userToken userInfo
+            , Request.PeerTube.getAccountRatings userInfo.username userToken session.peerTubeURL (AccountRatingsReceived userToken userInfo)
+            , Nothing
             )
 
         UserInfoReceived _ (Err _) ->
             ( { model
                 | notifications =
                     "Connection échouée"
+                        |> Notifications.addError model.notifications
+                , userInfoData = PeerTube.NotRequested
+              }
+            , Cmd.none
+            , Nothing
+            )
+
+        AccountRatingsReceived userToken userInfo (Ok authResult) ->
+            let
+                userRatedVideoIDs =
+                    Request.PeerTube.extractResult authResult
+            in
+            ( model
+            , Cmd.none
+            , Just <| Data.Session.Login userToken userInfo userRatedVideoIDs
+            )
+
+        AccountRatingsReceived _ _ (Err _) ->
+            ( { model
+                | notifications =
+                    "Erreur lors de la récupération des vidéos likées"
                         |> Notifications.addError model.notifications
                 , userInfoData = PeerTube.NotRequested
               }
@@ -166,9 +189,9 @@ viewLoginForm loginForm userInfoData =
     in
     H.form
         [ HE.onSubmit Login, HA.class "connect" ]
-        [ H.h1 [] [ 
-            H.img [HA.src "%PUBLIC_URL%/images/icons/48x48/compte_48_bicolore.svg"][],
-            H.text "Se connecter" 
+        [ H.h1 []
+            [ H.img [ HA.src "%PUBLIC_URL%/images/icons/48x48/compte_48_bicolore.svg" ] []
+            , H.text "Se connecter"
             ]
         , H.div [ HA.class "form__group" ]
             [ H.label [ HA.for "username" ] [ H.text "Votre email de connexion" ]
@@ -189,8 +212,8 @@ viewLoginForm loginForm userInfoData =
                 ]
                 []
             ]
-        , H.div[ HA.class "connect__submit"][submitButton]
-        , H.div [ HA.class "connect__links"]
+        , H.div [ HA.class "connect__submit" ] [ submitButton ]
+        , H.div [ HA.class "connect__links" ]
             [ H.a [ Route.href Route.Register ] [ H.text "Je n'ai pas encore de compte" ]
             , H.a [ Route.href Route.ResetPassword ] [ H.text "J'ai oublié mon mot de passe" ]
             ]
