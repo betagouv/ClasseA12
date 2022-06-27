@@ -56,7 +56,7 @@ view _ { title } =
                     , H.text "Ensemble des acteurs du dispositif “devoirs faits” de l’éducation nationale accédant au site afin de consulter ou poster des médias."
                     ]
                 , H.h2 [] [ H.text "Objet" ]
-                , H.p [] [ H.text "Le site répond à un objectif d’accompagnement du dispositif de classe dédoublée en éducation prioritaire lancée par le ministre de l’Éducation nationale et de la jeunesse." ]
+                , H.p [] [ H.text "le site répond à un objectif d’accompagnement du dispositif devoirs faits déployé dans les collèges par le ministre de l’Éducation nationale et de la jeunesse." ]
                 , H.p [] [ H.text "Il permet :" ]
                 , H.ul []
                     [ H.li [] [ H.text "la publication par des professeurs, A.E.D., C.P.E., étudiants, personnels de direction, de vidéos concernant des pratiques autour du dispositif," ]
@@ -146,7 +146,7 @@ view _ { title } =
                     ]
                 , H.h3 [] [ H.text "Responsable de la publication" ]
                 , H.p []
-                    [ H.text "Camille Martinelli - Intrapreneur Startup d’État Devoirs Faits"
+                    [ H.text "Mélanie Declercq et Anne-Sophie Feildel – Intrapreneurs Startup d’Etat Devoirs faits la communauté"
                     ]
                 , H.h3 [] [ H.text "Prestataire d'hébergement frontend" ]
                 , H.p []
