@@ -370,7 +370,7 @@ viewAboutAside { activePage } =
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/message_32_deepgreen.svg" ] []
                 , text "Nous contacter"
                 ]
-            , a [ href "https://599e9709.sibforms.com/serve/MUIEABa2ApUVsn_hLq_zTj7WPa6DOXQy18ZVPS0ojLpoE5crRUomeg6utwxbzb50w1_LFdzSalHWDlgbn9KB3AM-OhTSc3ytk5kuXT351AetkMjU4Vftiwe9SQ9u9LHi6ufQYU8mX3SV0S6UpnpIPhT3tc_mP36xJg5iZMpEv5LSoAdIz9K7DaXIWwPBMTIPxEASc0NvloWQNtQA" ]
+            , a [ href "https://2a48eb1e.sibforms.com/serve/MUIEAOzaOaP-Jy1410CEPNXqNKwPlP7R2E3qXeAgC9vNUDSeWqG5mV7BQqxL6sIP7XKZKG5-kkPD9SXCi8uidTI6EzSuShFirZL-9LEmiEdf6cGTfmJbmk3rXQ6DeO4tvJDmHTPmcTIu0wFpAyHgS0BH2hZHSL26PKTufgL4-qV-YlIODuH_eMOPS6FaGtStpz31krxzheAgKSDs" ]
                 [ img [ src "%PUBLIC_URL%/images/icons/32x32/newsletter_32_deepgreen.svg" ] []
                 , text "Newsletter"
                 ]
