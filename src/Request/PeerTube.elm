@@ -141,6 +141,7 @@ urlFromVideoListParams { keywords, count, offset, search } serverURL =
                 |> (\url ->
                         if keywords /= [] then
                             keywords
+                                |> List.map Url.percentEncode
                                 |> String.join "&tagsAllOf="
                                 |> (++) "&tagsAllOf="
                                 |> (++) url
