@@ -52,6 +52,12 @@ videoIDWithMaybeCommentIDParser =
                 |> List.head
 
 
+decodedStringParser : Parser (String -> a) a
+decodedStringParser =
+    Parser.string
+        |> Parser.map (Url.percentDecode >> Maybe.withDefault "Not Found")
+
+
 parser : Parser (Route -> a) a
 parser =
     Parser.oneOf
@@ -60,8 +66,8 @@ parser =
         , Parser.map (VideoList Latest) (Parser.s "videos-recentes")
         , Parser.map (VideoList FAQFlash) (Parser.s "videos-faq-flash")
         , Parser.map (VideoList Playlist) (Parser.s "videos-playlist")
-        , Parser.map (\search -> VideoList <| Keyword search) (Parser.s "videos" </> Parser.string)
-        , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos-recherche" </> Parser.string)
+        , Parser.map (\search -> VideoList <| Keyword search) (Parser.s "videos" </> decodedStringParser)
+        , Parser.map (\search -> VideoList <| Search search) (Parser.s "videos-recherche" </> decodedStringParser)
         , Parser.map AllNews (Parser.s "actualites")
         , Parser.map News (Parser.s "actualites" </> Parser.string)
         , Parser.map About (Parser.s "apropos")

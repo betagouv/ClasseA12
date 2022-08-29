@@ -151,7 +151,7 @@ urlFromVideoListParams { keywords, count, offset, search } serverURL =
                    )
                 |> (\url ->
                         if search /= "" then
-                            url ++ "&search=" ++ search
+                            url ++ "&search=" ++ Url.percentEncode search
 
                         else
                             url
